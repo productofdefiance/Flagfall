@@ -35,6 +35,7 @@
 - Simulators take randomness from `board/tests/rng.js` (seeded mulberry32). Never write a home-made random generator.
 - Report simulation results with tiebreak wins counted separately from KOs and draws. Say when a cause is likely but not isolated.
 - Add a test for every rule you add or fix. A fix's test must fail on the old preset and pass on the new one.
+- **Bot minimum.** Every build that adds a unit, action or rule teaches the computer opponent to use it sensibly, as the brief's Bot minimum section says, and the Report proves it with numbers. Simulations are only evidence if the bot plays the feature.
 
 ## Process
 - Work on a branch named `build/NNN-short-name`. Never commit to `main` directly. Open a pull request and give the Editor the link.

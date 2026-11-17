@@ -34,6 +34,9 @@ In: a build number kept in one place, shown on three screens and stored with eac
 ## Rules it touches
 None. Storing the build number with a match must not change what the engine replays.
 
+## Bot minimum
+n/a: nothing the bot can do changes.
+
 ## Must not change
 Every preset plays and replays identically (`regress_engine.js` hashes unchanged for every rule set). The engine is untouched. Matches saved before this build still open and replay.
 
