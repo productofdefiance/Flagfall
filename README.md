@@ -11,10 +11,11 @@ This repository holds the browser playtest board (rules engine and computer oppo
 | `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1, v3.2). `bot.js` and `brain.js` are the computer opponent. `app.js`, `skin.js` and `index.html` are the screen. Open `index.html` in a browser to play. |
 | `board/tests/` | Automatic checks (see below) and simulators. |
 | `redteam/` | Probe scripts from the independent evaluation. They target rule set v3 on purpose, to show the bugs v3.1 fixed. |
-| `data/` | Match 3's move log (used by the replay test), a summary of recorded human-vs-bot matches, and the v3.1 baseline simulation output. |
+| `data/` | Match 3's move log (used by the replay test), a summary of recorded human-vs-bot matches, and the baseline simulation output (v3.1 in `sim_study6`, v3.2 in `sim_study7`). |
 | `briefs/` | **Chat → Code.** One brief per build, numbered. Claude Code adds a `## Report` section to the brief it built. |
 | `FLAGS.md` | **Code → Chat.** Numbered open issues, including questions Claude Code needs answered (`ASK`). |
 | `CLAUDE.md` | Standing instructions for Claude Code. |
+| `CHANGELOG.md` | One entry per build, newest first, in plain language. |
 
 ## How work flows
 
