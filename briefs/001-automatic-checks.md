@@ -42,10 +42,18 @@ The standard Report. Also give the Editor the exact clicks to protect `main`: Se
 ## Report
 *Filled in by Claude Code.*
 
-- **What's in:**
-- **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
+- **What's in:** `.github/workflows/checks.yml`, named `checks`. It runs on every pull request to `main` and every push to `main`, on Node.js 20. It runs the six README checks, then `redteam/invariants.js 30` through a wrapper, then the replay regression hashes for the base commit and this commit (report only). A pass/fail table appears on the run's Summary page. Any failed check fails the workflow. A full run takes about 4 minutes. The wrapper is `.github/invariants-check.js`: `redteam/invariants.js` always exits 0, so the wrapper reads its output. It fails on any bot error, any bot action the engine refused, any impossible state, or a refused action that changed the match. The script itself is unchanged. I tested the wrapper locally on the real script (pass) and on fake failing output (fail, naming each problem).
+- **Anything beyond the brief, and why:** (1) The wrapper also fails on refused bot actions and on the script's state-restore line, because both are impossible states the script already reports. (2) Every check runs even if an earlier one fails, so the Summary shows every result, not just the first failure. (3) On a push to `main` there is no pull request base, so the hashes compare against the previous commit on `main`. With no previous commit, only this commit's hashes are printed.
+- **Checks run and results (paste regression hashes):** Workflow green on this pull request (run 44146353986): all six README checks and the invariants passed. Proved it can fail: on the throwaway branch `throwaway/001-prove-red` I broke the assertion "v3.1 is the last preset" in `test_v31.js` and opened a draft pull request. The workflow went red (run 44146360972), with `test_v31.js` the only failure. I then closed that pull request. Regression hashes from the green run, base commit `6b41d4c` vs this branch, identical (no board files changed):
+  ```
+  match3       37397ef2bd3ed86b
+  v1           7b25bca651c0cb31
+  v2           ddbe5fc437ff4e9d
+  v3           26371927b53d4413
+  ```
+  v3.1 is not hashed: `regress_engine.js` leaves it out (F18).
 - **Baseline table (rule changes only):** n/a
-- **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+- **Known gaps:** (1) The invariants run plays rule set v3 only, so nothing automatically checks v3.1 games for impossible states (F17). (2) `regress_engine.js` leaves v3.1 out (F18). (3) The checks can still be skipped until the Editor protects `main` (steps below). (4) The throwaway branch could not be deleted from this session, because the session's connection to GitHub refuses branch deletions. The Editor deletes it with the "Delete branch" button on its closed pull request.
+- **Protecting `main` (the Editor's clicks):** On GitHub open the repository → **Settings** → **Branches** → **Add classic branch protection rule** (the page may call it **Add branch ruleset**; either works). Branch name pattern: `main`. Tick **Require a pull request before merging**. Tick **Require status checks to pass before merging**, then type `checks` in the search box and pick it. Leave the rest as it is and click **Create** (or **Save changes**). The `checks` name only appears in the search after the workflow has run at least once, which it now has.
+- **Flags closed / opened:** F9 FIXED. Opened F17 (ASK) and F18 (ASK).
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/1
