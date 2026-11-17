@@ -131,14 +131,20 @@ for (const [rs, second] of [[V31, true], [V32, false]]) {
 { const st = braced(V32, twoHM, { "N-HM": "E8", "N-HM2": "E10" });
   E.act(st, { type: "attack", uid: "N-HM", target: "S-HM" }, () => 7);
   ok(E.parryPreview(st, U(st, "N-HM2"), U(st, "S-HM")).used === true, "v3.2: the preview shows the parry as already used"); }
-// Any attack uses the parry up, including one that cannot be parried (a Ranged shot). Follows the brief's wording
-// ("the first attack against it"); see FLAGS.md F19.
+// Only adjacent attacks use up the parry: a Ranged shot or a Reach attack never does (the Editor, 17 Nov, F19).
 { const st = setup(V32, [["HM", "HM"], ["LR", "LR"]], [["HM", "HM"], ["LR", "LR"]], { "S-HM": "E9", "S-LR": "A10", "N-HM": "E8", "N-LR": "E6" });
-  U(st, "S-HM").braced = true; const h0 = U(st, "N-HM").hp, l0 = U(st, "N-LR").hp;
+  U(st, "S-HM").braced = true; const h0 = U(st, "N-HM").hp, l0 = U(st, "N-LR").hp, pd = PARRY(st, U(st, "N-HM"));
   const r1 = E.act(st, { type: "attack", uid: "N-LR", target: "S-HM" }, () => 7);
   ok(r1.ok && U(st, "N-LR").hp === l0, "v3.2: the Ranged shot lands and is not parried (it is not adjacent)");
+  ok(E.parryPreview(st, U(st, "N-HM"), U(st, "S-HM")).amount === pd, "v3.2: after a Ranged shot the preview still shows the parry ready");
   const r2 = E.act(st, { type: "attack", uid: "N-HM", target: "S-HM" }, () => 7);
-  ok(r2.ok && U(st, "N-HM").hp === h0, "v3.2: a Ranged shot first uses up the parry, so the melee attack after it is not parried"); }
+  ok(r2.ok && U(st, "N-HM").hp === h0 - pd, "v3.2: a Ranged shot does not use up the parry: the adjacent attack after it is still parried"); }
+{ const st = setup(V32, [["HM", "HM"], ["HA", "HA"]], [["HM", "HM"], ["LR", "LR"]], { "S-HM": "E9", "S-LR": "A10", "N-HM": "D9", "N-HA": "E7" });
+  U(st, "S-HM").braced = true; const a0 = U(st, "N-HA").hp, h0 = U(st, "N-HM").hp, pd = PARRY(st, U(st, "N-HM"));
+  const r1 = E.act(st, { type: "attack", uid: "N-HA", target: "S-HM" }, () => 7);
+  ok(r1.ok && E.dist("E7", "E9") === 2 && U(st, "N-HA").hp === a0, "v3.2: a Reach attack from 2 hexes lands and is not parried");
+  const r2 = E.act(st, { type: "attack", uid: "N-HM", target: "S-HM" }, () => 7);
+  ok(r2.ok && U(st, "N-HM").hp === h0 - pd, "v3.2: a Reach attack does not use up the parry either"); }
 // Old rule sets keep no parry bookkeeping
 { const st = braced(V31, twoHM, { "N-HM": "E8", "N-HM2": "E10" });
   E.act(st, { type: "attack", uid: "N-HM", target: "S-HM" }, () => 7);

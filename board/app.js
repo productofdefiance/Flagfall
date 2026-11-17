@@ -1184,7 +1184,7 @@
     ["poolAsOne", "The flag-and-holder pool is one number", "v3.1 fix (E2): a held flag falls only when the pool reaches 0. Shares are rounded only for display and when the holder leaves; the flag keeps the last half point."],
     ["simultaneousToActor", "A double knockout goes to the side that acted", "v3.1 fix (E3): if one action finishes both sides (e.g. the last attacker dies to parry), the side that acted wins."],
     ["parryNeedsSurvivor", "Dead units don't parry", "v3.2: parry fires only if the braced unit is still standing after the hit."],
-    ["parryFirstOnly", "Parry once per enemy turn", "v3.2: a braced unit parries only the first attack against it each enemy turn (any attack uses it up). It is ready again when it next braces."],
+    ["parryFirstOnly", "Parry once per enemy turn", "v3.2: a braced unit parries only the first adjacent attack against it each enemy turn. Ranged shots and Reach attacks never use it up. It is ready again when it next braces."],
     ["doubleKoToTiebreak", "A double knockout goes to the tiebreaks", "v3.2: if one action finishes both sides, the turn-limit order decides: more pull damage, then fewer beings lost, then a draw."]
   ];
   const CARD_FIELDS = [

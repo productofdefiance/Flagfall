@@ -7,7 +7,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 **What a player will notice**
 - New games start on rule set **v3.2**. Older rule sets are still in the list and play exactly as before.
 - A braced Heavy Melee that dies to a hit no longer strikes back (no parry).
-- A braced Heavy Melee parries only the first attack against it each enemy turn. Any attack, including a Ranged shot, uses the parry up. The attack preview says when a parry is already used, and when it only happens if the target survives.
+- A braced Heavy Melee parries only the first adjacent attack against it each enemy turn. Ranged shots and Reach attacks never use the parry up. The attack preview says when a parry is already used, and when it only happens if the target survives.
 - If one action ever finishes both sides, the match goes to the turn-limit tiebreaks (more pull damage, then fewer beings lost, then a draw) instead of to the side that acted. In 800 bot games this never happened.
 
 **Under the hood**
@@ -15,7 +15,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 - New tests: `test_v32.js` (the new rules, the rules they touch, and an 800-game double-knockout count) and `test_invariants.js` (impossible-state check on the newest rule set). Both run on every pull request.
 - The replay regression hashes now cover v3.1. They leave out only the newest rule set.
 
-**Flags closed:** F3, F4, F5, F17, F18. **Opened:** F19, F20.
+**Flags closed:** F3, F4, F5, F17, F18, F19 (raised and answered during this build), F20 (accepted as built).
 
 **Baseline (Kit B vs Kit B, balanced lineups, 400 games each)**
 

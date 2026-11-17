@@ -353,9 +353,9 @@
         msg += `; parry deals ${fmt(pd)}${pp} (${u.id} HP ${fmt(Math.max(u.hp, 0))})` + (u.hp <= 0 ? ` — ${u.id} REMOVED` : "");
       }
     }
-    // v3.2 (Game Laws 6.3): the first attack on a braced unit each enemy turn uses up its parry, whether or not
-    // that attack could be parried (a Ranged or Reach attack counts too). See FLAGS for the open question.
-    if (sw(st, "parryFirstOnly") && t.braced) t.parryUsed = true;
+    // v3.2 (Game Laws 6.3): the first adjacent attack on a braced unit each enemy turn uses up its parry. A Ranged shot
+    // or a Reach attack from 2 hexes never uses it, since it could never be parried (the Editor, 17 Nov, F19).
+    if (sw(st, "parryFirstOnly") && t.braced && d === 1) t.parryUsed = true;
     if (t.hp <= 0) {
       msg += ` — ${t.id} REMOVED`;
       const holdsOwnFlag = sw(st, "holderHoldsHex") && isHolder(st, u);   // v3.1 (E1 fix): a holder never leaves its flag to take a hex
