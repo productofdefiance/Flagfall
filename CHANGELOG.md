@@ -21,12 +21,12 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | | v3.1 7v7 | v3.2 7v7 | v3.1 5v5 | v3.2 5v5 |
 |---|---|---|---|---|
-| Holder KO | 61.8% | 60.8% | 24.8% | 24.0% |
+| Holder KO | 61.8% | 61.0% | 24.8% | 24.0% |
 | Pull KO | 0.2% | 0.5% | 0% | 0% |
 | TKO | 0.2% | 0% | 0% | 0% |
-| Tiebreak win | 28.8% | 27.0% | 7.5% | 8.0% |
-| Draw | 9.0% | 11.8% | 67.8% | 68.0% |
-| Ended on the turn limit | 37.8% | 38.8% | 75.2% | 76.0% |
+| Tiebreak win | 28.8% | 27.2% | 7.5% | 8.0% |
+| Draw | 9.0% | 11.2% | 67.8% | 68.0% |
+| Ended on the turn limit | 37.8% | 38.5% | 75.2% | 76.0% |
 | Pulls | 3 | 6 | 0 | 1 |
 | Parries per game | 0.12 | 0.07 | 0.11 | 0.09 |
 
