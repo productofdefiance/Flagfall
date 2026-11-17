@@ -1,0 +1,130 @@
+N HM E5 -> E8 (3 hexes, cost 3)
+N HA D4 -> E7 (3 hexes, cost 3)
+S HM E14 -> E11 (3 hexes, cost 3)
+S LR D14 -> C11 (4 hexes, cost 2)
+S HA E15 -> E12 (3 hexes, cost 3)
+S LM F14 -> C12 (4 hexes, cost 2)
+N HA E7 -> D8 (2 hexes, cost 2)
+N HA braces at D8
+N HM braces at E8
+N LR F4 -> F5 (1 hexes, cost 0.5)
+N LM D5 -> D6 (1 hexes, cost 0.5)
+S HM E11 -> F10 (1 hexes, cost 1)
+S HM braces at F10
+S HA E12 -> E10 (2 hexes, cost 2)
+S HA braces at E10
+S LR C11 -> D11 (1 hexes, cost 0.5)
+S LR (D11) attacks N HA (D8): Strength 3, -2 Armor, -1 Brace = 0; die 5 -> 1 damage; HA HP 10
+S LM C12 -> G11 (4 hexes, cost 2)
+N LR F5 -> F8 (3 hexes, cost 1.5)
+N LR (F8) attacks S LM (G11): Strength 3 = 3; die 3 -> 3 damage; LM HP 5
+N LM D6 -> F7 (2 hexes, cost 1)
+N HM braces at E8
+N HA braces at D8
+S HM F10 -> F9 (1 hexes, cost 1)
+S HM (F9) attacks N LR (F8): Strength 5, -1 Dodge = 4; die 2 -> 4 damage; LR HP 2
+S LM G11 -> G9 (2 hexes, cost 1)
+S LM (G9) attacks N LR (F8): Strength 4, +1 Support, -1 Dodge = 4; die 6 -> 6 damage; LR HP 0 REMOVED; LM takes F8
+S LR D11 -> F10 (2 hexes, cost 1)
+S LR (F10) attacks N HA (D8): Strength 3, -2 Armor, -1 Brace = 0; die 2 -> 1 damage; HA HP 9
+S HA braces at E10
+N HM (E8) attacks S LM (F8): Strength 5, +1 Support, -1 Dodge = 5; die 6 -> 8 damage; LM HP 0 REMOVED; HM takes F8
+N HA (D8) attacks S HM (F9): Strength 4, -1 Reach, +1 Support, -2 Armor = 2; die 6 -> 3 damage; HM HP 9
+N LM braces at F7
+S HA braces at E10
+S HM braces at F9
+S LR (F10) attacks N LM (F7): Strength 3, -1 Dodge, -1 Brace = 1; die 2 -> 1 damage; LM HP 7
+N HM (F8) attacks S HM (F9): Strength 5, -2 Armor, -1 Brace = 2; die 1 -> 1 damage; HM HP 8; parry deals 1 (HM HP 11)
+N HA (D8) attacks S HM (F9): Strength 4, -1 Reach, +1 Support, -2 Armor, -1 Brace = 1; die 5 -> 1 damage; HM HP 7
+N LM braces at F7
+N FK E4 -> E6 (2 hexes, cost 2)
+S HA braces at E10
+S LR F10 -> F11 (1 hexes, cost 0.5)
+S LR (F11) attacks N HM (F8): Strength 3, +1 Support, -2 Armor = 2; die 4 -> 2 damage; HM HP 9
+S HM F9 -> F10 (1 hexes, cost 2, including 1 for tackle)
+N FK E6 -> E8 (2 hexes, cost 2)
+N HM braces at F8
+N HA braces at D8
+S FK E16 -> E14 (2 hexes, cost 2)
+S HA braces at E10
+S HM braces at F10
+S LR F11 -> E11 (1 hexes, cost 0.5)
+S LR (E11) attacks N HA (D8): Strength 3, -2 Armor, -1 Brace = 0; die 3 -> 1 damage; HA HP 8
+N LM F7 -> H10 (4 hexes, cost 2)
+N HM braces at F8
+N HA braces at D8
+N FK braces at E8
+S HA braces at E10
+S HM braces at F10
+S LR (E11) attacks N LM (H10): Strength 3 = 3; die 2 -> 3 damage; LM HP 4
+N LM H10 -> F11 (2 hexes, cost 1); stopped by Zone of Control
+N LM (F11) attacks S LR (E11): Strength 4, -1 Dodge = 3; die 6 -> 5 damage; LR HP 1
+N HM braces at F8
+N HA braces at D8
+N FK braces at E8
+S HA braces at E10
+S HM braces at F10
+S FK E14 -> E12 (2 hexes, cost 2)
+S FK (E12) attacks N LM (F11): Strength 5, +1 Support, -1 Dodge = 5; die 4 -> 5 damage; LM HP 0 REMOVED; FK takes F11
+S LR (E11) attacks N HA (D8): Strength 3, -2 Armor, -1 Brace = 0; die 2 -> 1 damage; HA HP 7
+N HA D8 -> C10 (2 hexes, cost 2)
+N HM braces at F8
+N FK braces at E8
+S FK F11 -> E13 (2 hexes, cost 2)
+S LR E11 -> F11 (1 hexes, cost 0.5)
+S LR (F11) attacks N HA (C10): Strength 3, -2 Armor = 1; die 1 -> 1 damage; HA HP 6
+S HA braces at E10
+S HM F10 -> E11 (1 hexes, cost 1)
+S HM braces at E11
+N HA (C10) attacks S HM (E11): Strength 4, -1 Reach, -2 Armor, -1 Brace = 0; die 4 -> 1 damage; HM HP 6
+N HM F8 -> G9 (1 hexes, cost 1)
+N FK braces at E8
+S FK E13 -> E14 (1 hexes, cost 1)
+S LR (F11) attacks N HA (C10): Strength 3, -2 Armor = 1; die 5 -> 1 damage; HA HP 5
+S HM E11 -> D10 (1 hexes, cost 1); stopped by Zone of Control
+S HM (D10) attacks N HA (C10): Strength 5, -2 Armor = 3; die 6 -> 5 damage; HA HP 0 REMOVED; HM takes C10
+S HA E10 -> E11 (1 hexes, cost 1)
+S HA braces at E11
+N HM G9 -> G11 (2 hexes, cost 2)
+N HM (G11) attacks S LR (F11): Strength 5, -1 Dodge = 4; die 2 -> 4 damage; LR HP 0 REMOVED; HM takes F11
+N FK E8 -> F9 (2 hexes, cost 2)
+RULING: N HM took F11 by capture, entering a hex adjacent to S HA braced at E11; set spear deals 2 (HM HP 7)
+S HM C10 -> C7 (3 hexes, cost 3)
+S HA E11 -> E12 (1 hexes, cost 1); stopped by Zone of Control
+S HA (E12) attacks N HM (F11): Strength 4, -2 Armor = 2; die 5 -> 2 damage; HM HP 5
+S FK E14 -> F12 (2 hexes, cost 2); stopped by Zone of Control
+S FK (F12) attacks N HM (F11): Strength 5, +1 Support, -2 Armor = 4; die 5 -> 4 damage; HM HP 1
+N HM (F11) attacks S HA (E12): Strength 5, -2 Armor = 3; die 3 -> 3 damage; HA HP 8
+N FK F9 -> E8 (2 hexes, cost 2)
+S HM C7 -> D4 (3 hexes, cost 3)
+S FK (F12) attacks N HM (F11): Strength 5, +1 Support, -2 Armor = 4; die 2 -> 4 damage; HM HP 0 REMOVED; FK takes F11
+S HA E12 -> E10 (2 hexes, cost 2)
+S HA (E10) attacks N FK (E8): Strength 4, -1 Reach, -2 Armor = 1; die 5 -> 1 damage; FK HP 11
+N FK E8 -> E6 (2 hexes, cost 2)
+S HM D4 -> D2 (2 hexes, cost 2)
+S HM pulls at D2: die 1 -> 2; N flag HP 13/15
+S HA E10 -> E8 (2 hexes, cost 2)
+S HA (E8) attacks N FK (E6): Strength 4, -1 Reach, -2 Armor = 1; die 1 -> 1 damage; FK HP 10
+S FK F11 -> F9 (2 hexes, cost 2)
+N FK E6 -> E4 (2 hexes, cost 2)
+N FK braces at E4
+S HM pulls at D2 (keeper at home: -2): die 3 -> 3; N flag HP 10/15
+S HA E8 -> E6 (2 hexes, cost 2)
+S HA (E6) attacks N FK (E4): Strength 4, -1 Reach, -2 Armor, -1 Brace, -2 keeper at home = 0; die 1 -> 1 damage; FK HP 9
+S FK F9 -> F7 (2 hexes, cost 2)
+N FK E4 -> D3 (1 hexes, cost 1); stopped by Zone of Control
+N FK (D3) attacks S HM (D2): Strength 5, -2 Armor = 3; die 5 -> 3 damage; HM HP 3
+S HM D2 -> E2 (1 hexes, cost 2, including 1 for tackle)
+S HM pulls at E2 (keeper at home: -2): die 5 -> 3; N flag HP 7/15
+S HA E6 -> E5 (1 hexes, cost 1)
+S HA E5 -> E4 (1 hexes, cost 1); stopped by Zone of Control
+S HA pulls at E4 (keeper at home: -2): die 6 -> 3; N flag HP 4/15
+S FK F7 -> F5 (2 hexes, cost 2)
+N FK D3 -> D2 (1 hexes, cost 1); stopped by Zone of Control
+N FK (D2) attacks S HM (E2): Strength 5, -2 Armor = 3; die 2 -> 3 damage; HM HP 0 REMOVED; FK takes E2
+S HA pulls at E4 (keeper at home: -2): die 3 -> 2; N flag HP 2/15
+S FK F5 -> F3 (2 hexes, cost 2)
+S FK pulls at F3 (keeper at home: -2): die 1 -> 1; N flag HP 1/15
+N FK E2 -> D3 (2 hexes, cost 2); stopped by Zone of Control
+N FK (D3) attacks S HA (E4): Strength 5, -2 Armor = 3; die 6 -> 5 damage; HA HP 3
+S FK pulls at F3 (keeper at home: -2): die 5 -> 3; N flag HP 0/15

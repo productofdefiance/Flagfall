@@ -1,0 +1,18 @@
+id,started_utc,ruleset,bot_brain (North),human,South_lineup,winner,how,turn,pull_N,pull_S,lost_N,lost_S
+mmwiwxreb,2026-11-16T06:59,Match 3 rules,standard,South,FK HM HA LM LR (5v5),S,TKO,15,0,0,5,4
+mmwiydkpw,2026-11-16T07:39,Light +1 HP +1 Strength,standard,South,FK HM HA LM LR (5v5),S,TKO,15,0,0,5,2
+mmwje2y50,2026-11-16T14:59,7v7 Light +1,standard,South,FK HM HA HR LM LA LR,N,surrender,15,4,0,6,6
+mmwjl39ct,2026-11-16T18:15,7v7 Light +1,standard,South,FK(HA) HA HM HR LA LM LR,-,abandoned,1,0,0,0,0
+mmwjlhulf,2026-11-16T18:26,7v7 Light +1,standard,South,FK(HA) HA HM HR LA LM LR,N,TKO,21,3,5,6,7
+mmwjsgzgi,2026-11-16T21:42,v2,standard,South,FK(HR) HM LM HR LR HA LA,S,TKO,11,18,8,7,3
+mmwjvue6c,2026-11-16T23:16,v3,standard,South,HM LM HR HR LR HA HA,-,abandoned,7,0,0,3,6
+mmwjww1lx,2026-11-16T23:45,v3,standard,South,HM HM HM HR HR HA HA,N,KO,9,10,0,5,5
+mmwjxzo6g,2026-11-17T00:16,v3,standard,South,HM HM HM HR HR HA HA,S,KO,13,0,10,6,4
+mmwjyfbke,2026-11-17T00:28,v3,standard,South,LM LM LR LR LR LA LA,S,KO,11,0,10,6,5
+mmwjypfud,2026-11-17T00:36,v3,standard,South,7x HM,S,KO,9,0,10,7,1
+mmwjyxqse,2026-11-17T00:43,v3,standard,South,7x HR,S,TKO,12,0,0,7,3
+mmwjz4zh2,2026-11-17T00:48,v3,standard,South,7x HA,S,KO,11,0,10,6,4
+mmwjzffip,2026-11-17T00:56,v3,standard,South,7x LM,S,KO,7,0,10,4,5
+mmwk0iu1d,2026-11-17T01:27,v3,kitB,South,HM HM HM HR HR HA HA,S,KO,9,0,10,4,3
+mmwk0waza,2026-11-17T01:37,v3,kitB,South,HM HM HM HR HR HA HA,S,KO,13,0,10,6,2
+mmwk24kab,2026-11-17T02:12,v3,kitB,South,LM LM LM LR LR LA LA,N,KO,12,10,0,3,7
