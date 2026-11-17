@@ -43,7 +43,7 @@ node tests/regress_engine.js <copy of the previous board folder> 3
 
 `regress_engine.js` prints one hash per rule set, leaving out only the newest preset. Run it on the board before and after a change: every rule set the change was not meant to alter must print the same hash.
 
-`test_v32.js` ends with a double-knockout count over 400 bot games at 7v7 and 400 at 5v5, spread over the computer's processor cores (about 15 minutes on 4 cores). Give it a smaller number to try it quickly, e.g. `node tests/test_v32.js 20`; the full check is the default.
+`test_v32.js` ends with a double-knockout count over 400 bot games at 7v7 and 400 at 5v5, spread over the computer's processor cores (about 15 minutes on 4 cores; up to 35 on GitHub). Give it a smaller number to try it quickly, e.g. `node tests/test_v32.js 20`; the full check is the default.
 
 `test_invariants.js` plays 30 bot games on the newest preset and fails on any impossible state.
 
