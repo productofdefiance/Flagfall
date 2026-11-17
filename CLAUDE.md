@@ -12,6 +12,18 @@
 - Give one firm recommendation and hold it unless new evidence appears.
 - Be direct and concise.
 
+## How you report to the Editor (chat replies and pull request descriptions)
+- **Short and glanceable.** Lead with one line saying what happened. No walls of text. The full detail belongs in the brief's Report, not in your message.
+- **Always use this shape**, leaving out any section that's empty:
+  1. **Result:** one or two lines, plain language.
+  2. **Play it:** the play link for this build (see below).
+  3. **Your to-dos:** a numbered list of clicks or checks, each one line.
+  4. **Decisions needed:** each open `ASK` flag as one line: the question, your recommendation, the flag number.
+  5. **What changed:** at most five one-line bullets, what a player will notice first.
+  6. **Details:** one line pointing to the brief's Report and `CHANGELOG.md`.
+- Numbers only where they matter, and never a table in a chat reply unless asked.
+- **End every pull request description with the play link** on its own line: `Play this build: <link>`.
+
 ## The two channels (so the Editor never has to copy messages between chats)
 - **Chat → Code: `briefs/`.** A design chat writes one brief per build (`briefs/NNN-short-name.md`, from `briefs/TEMPLATE.md`). The chat pushes each brief on its own branch, `brief/NNN-short-name`, and does not merge it. When the Editor says "Build brief NNN", start your build branch from that brief branch (fetch `brief/NNN-*` if `briefs/NNN-*.md` is not on `main`), so the brief, the build and the Report land in **one** pull request and the Editor merges once. Build only what the brief says. If something in it is unclear or conflicts with the code, stop and raise an `ASK` row in `FLAGS.md` rather than guessing.
 - **Code → Chat: the brief's Report section and `FLAGS.md`.** When you finish a build, fill in the `## Report` section at the bottom of that brief, in the same pull request. Anything else Chat or the Editor must decide goes in `FLAGS.md` as a new row with status `ASK`. The chat reads both straight from GitHub.
