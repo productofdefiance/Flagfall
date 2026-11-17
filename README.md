@@ -8,7 +8,7 @@ This repository holds the browser playtest board (rules engine and computer oppo
 
 | Folder / file | What it is |
 | --- | --- |
-| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1). `bot.js` and `brain.js` are the computer opponent. `app.js`, `skin.js` and `index.html` are the screen. Open `index.html` in a browser to play. |
+| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1, v3.2). `bot.js` and `brain.js` are the computer opponent. `app.js`, `skin.js` and `index.html` are the screen. Open `index.html` in a browser to play. |
 | `board/tests/` | Automatic checks (see below) and simulators. |
 | `redteam/` | Probe scripts from the independent evaluation. They target rule set v3 on purpose, to show the bugs v3.1 fixed. |
 | `data/` | Match 3's move log (used by the replay test), a summary of recorded human-vs-bot matches, and the v3.1 baseline simulation output. |
@@ -33,11 +33,17 @@ node tests/test_rules.js
 node tests/test_v1.js
 node tests/test_v3.js
 node tests/test_v31.js
+node tests/test_v32.js
+node tests/test_invariants.js
 node tests/test_rng.js
 node tests/test_replay.js ../data/match3_log.txt
 node tests/regress_engine.js <copy of the previous board folder> 3
 ```
 
-`regress_engine.js` prints one hash per rule set. Run it on the board before and after a change: every rule set the change was not meant to alter must print the same hash.
+`regress_engine.js` prints one hash per rule set, leaving out only the newest preset. Run it on the board before and after a change: every rule set the change was not meant to alter must print the same hash.
+
+`test_v32.js` ends with a double-knockout count over 400 bot games at 7v7 and 400 at 5v5, spread over the computer's processor cores (about 15 minutes on 4 cores). Give it a smaller number to try it quickly, e.g. `node tests/test_v32.js 20`; the full check is the default.
+
+`test_invariants.js` plays 30 bot games on the newest preset and fails on any impossible state.
 
 Last full pass: 17 Nov 2026 (replay: 386 checks, 0 mismatches; match3, v1, v2 and v3 hashes identical to the previous board).

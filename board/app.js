@@ -849,7 +849,9 @@
       let warn = "";
       if (a.capture && a.high >= t.hp) warn += `<p class="ok">If it kills, ${esc(u.id)} moves into ${a.capture.hex}${a.capture.adjacentEnemies.length ? `, next to ${esc(a.capture.adjacentEnemies.join(", "))}` : ""}.</p>`;
       if (a.capture && a.capture.spike && a.high >= t.hp) warn += `<p class="warn">A braced Anti-Cavalry there deals ${st.rs.spikeDamage}.</p>`;
-      if (t.braced && E.card(st, t).brace === "parry" && E.dist(u.hex, t.hex) === 1) warn += `<p class="warn">Parry: ${esc(u.id)} takes ${fmt(E.parryAmount(st, u))}.</p>`;
+      const pv = E.parryPreview(st, u, t);
+      if (pv && pv.used) warn += `<p class="ok">No parry: ${esc(t.id)} has already parried this turn.</p>`;
+      else if (pv) warn += `<p class="warn">Parry: ${esc(u.id)} takes ${fmt(pv.amount)}${pv.ifSurvives ? ` if ${esc(t.id)} survives the hit` : ""}.</p>`;
       el.innerHTML = `${grab}<div style="font:700 20px/1.1 var(--display);letter-spacing:.02em">${esc(u.id)} ${reach ? "reaches" : "attacks"} ${esc(t.id)} <span class="muted" style="font:500 13px/1 var(--body)">${u.hex} → ${t.hex} · ${a.pooled ? `holds the flag: pool ${fmt(a.effHp)} (flag ${fmt(E.flagShown(st, t.team))} + ${fmt(E.hpShown(st, t))})` : `target HP ${fmt(E.hpShown(st, t))}`}</span></div>
         <div class="calc">${esc(a.parts.join(" · "))} = <b>${fmt(a.value)}</b></div>${diceRow(a.value, a.dodge)}
         <p class="ok" style="font-weight:600">${kill}</p>${warn}
@@ -1180,7 +1182,10 @@
     ["zoneHardStop", "Zone of Control is a hard stop", "A unit that enters an enemy zone stops and may not move or swap again that turn. One that starts in a zone may still step out or shift 1."],
     ["holderHoldsHex", "A flag holder stays on its flag after a kill", "v3.1 fix (E1): a holder that kills an adjacent enemy does not step into the emptied hex."],
     ["poolAsOne", "The flag-and-holder pool is one number", "v3.1 fix (E2): a held flag falls only when the pool reaches 0. Shares are rounded only for display and when the holder leaves; the flag keeps the last half point."],
-    ["simultaneousToActor", "A double knockout goes to the side that acted", "v3.1 fix (E3): if one action finishes both sides (e.g. the last attacker dies to parry), the side that acted wins."]
+    ["simultaneousToActor", "A double knockout goes to the side that acted", "v3.1 fix (E3): if one action finishes both sides (e.g. the last attacker dies to parry), the side that acted wins."],
+    ["parryNeedsSurvivor", "Dead units don't parry", "v3.2: parry fires only if the braced unit is still standing after the hit."],
+    ["parryFirstOnly", "Parry once per enemy turn", "v3.2: a braced unit parries only the first attack against it each enemy turn (any attack uses it up). It is ready again when it next braces."],
+    ["doubleKoToTiebreak", "A double knockout goes to the tiebreaks", "v3.2: if one action finishes both sides, the turn-limit order decides: more pull damage, then fewer beings lost, then a draw."]
   ];
   const CARD_FIELDS = [
     ["icon", "Icon", "icon"],

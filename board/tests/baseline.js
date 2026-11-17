@@ -14,7 +14,7 @@ const lineupOf = (B) => { const c = (mode === "kit" && Bot.squadCounts(rs, size,
   return out; };
 const T = { rs: rsId, size, A: aId, B: bId, mode, games: 0, koHolderKilled: 0, koPull: 0, tko: 0, tiebreakWin: 0, draw: 0, stuck: 0,
   aWins: 0, bWins: 0, aTiebreak: 0, bTiebreak: 0, firstMoverWins: 0, decisive: 0, pulls: 0, gamesWithPull: 0,
-  holderDraggedOff: 0, holderWalkedOff: 0, turnSum: 0, unitsRemoved: 0, unitsStart: 0, cmdSpent: 0, sideTurns: 0, unitsActed: 0 };
+  holderDraggedOff: 0, holderWalkedOff: 0, parries: 0, turnSum: 0, unitsRemoved: 0, unitsStart: 0, cmdSpent: 0, sideTurns: 0, unitsActed: 0 };
 for (let g = 0; g < games; g++) {
   const k = g + shard * games;
   const first = k % 2 ? "S" : "N", aTeam = Math.floor(k / 2) % 2 ? "S" : "N", brainOf = (t) => (t === aTeam ? BA : BB);
@@ -25,9 +25,10 @@ for (let g = 0; g < games; g++) {
     if (st.turn + st.toMove !== key) { key = st.turn + st.toMove; acted = new Set(); }
     const a = Bot.chooseAction(st, brainOf(st.toMove), rnd).action;
     const u = a.uid && E.unitByUid(st, a.uid), wasHolder = u && E.isHolder(st, u);
-    const rec = st.spend[st.spend.length - 1], cmd0 = st.cmd;
+    const rec = st.spend[st.spend.length - 1], cmd0 = st.cmd, log0 = st.log.length;
     const r = E.act(st, a, () => E.rollWith(st, rnd));
     if (!r.ok) { E.act(st, { type: "end" }); continue; }
+    for (let i = log0; i < st.log.length; i++) if (st.log[i].text.includes("; parry deals ")) T.parries++;   // parries that fired (Brief 002)
     if (u) acted.add(u.uid);
     if (a.type === "end") { T.cmdSpent += rec.cmd - cmd0; T.sideTurns++; T.unitsActed += acted.size; }
     if (a.type === "pull") pulls++;

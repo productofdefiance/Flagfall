@@ -14,7 +14,7 @@ jobs:
   checks:
     name: checks
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Check out this commit
         uses: actions/checkout@v5
@@ -49,6 +49,18 @@ jobs:
         continue-on-error: true
         working-directory: board
         run: node tests/test_v31.js
+
+      - name: test_v32.js (rule checks and double-knockout count)
+        id: v32
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_v32.js
+
+      - name: test_invariants.js (newest preset, 30 games)
+        id: inv32
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_invariants.js 30
 
       - name: test_rng.js
         id: rng
@@ -109,6 +121,8 @@ jobs:
           V1: ${{ steps.v1.outcome }}
           V3: ${{ steps.v3.outcome }}
           V31: ${{ steps.v31.outcome }}
+          V32: ${{ steps.v32.outcome }}
+          INV32: ${{ steps.inv32.outcome }}
           RNG: ${{ steps.rng.outcome }}
           REPLAY: ${{ steps.replay.outcome }}
           INVARIANTS: ${{ steps.invariants.outcome }}
@@ -124,9 +138,11 @@ jobs:
             echo "| test_v1.js | $(mark "$V1") |"
             echo "| test_v3.js | $(mark "$V3") |"
             echo "| test_v31.js | $(mark "$V31") |"
+            echo "| test_v32.js | $(mark "$V32") |"
+            echo "| test_invariants.js (newest preset) | $(mark "$INV32") |"
             echo "| test_rng.js | $(mark "$RNG") |"
             echo "| test_replay.js (Match 3) | $(mark "$REPLAY") |"
-            echo "| redteam invariants (30 games) | $(mark "$INVARIANTS") |"
+            echo "| redteam invariants (v3, 30 games) | $(mark "$INVARIANTS") |"
             echo "| Replay regression hashes | $( [ "$REGRESS" = "success" ] && echo "reported (see below)" || echo "could not run ($REGRESS), does not fail the workflow" ) |"
             echo
             echo "## Replay regression hashes (report only)"
@@ -150,7 +166,7 @@ jobs:
         env:
           OUTCOMES: >-
             ${{ steps.rules.outcome }} ${{ steps.v1.outcome }} ${{ steps.v3.outcome }}
-            ${{ steps.v31.outcome }} ${{ steps.rng.outcome }} ${{ steps.replay.outcome }}
+            ${{ steps.v31.outcome }} ${{ steps.v32.outcome }} ${{ steps.inv32.outcome }} ${{ steps.rng.outcome }} ${{ steps.replay.outcome }}
             ${{ steps.invariants.outcome }}
         run: |
           for o in $OUTCOMES; do

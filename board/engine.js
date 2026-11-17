@@ -345,10 +345,17 @@
     const pooled = hurt(st, t, dmg);
     let msg = `${u.id} (${u.hex}) attacks ${t.id} (${t.hex}${wasHolder ? ", holding the flag" : ""}): ${parts.join(", ")} = ${fmt(value)}; ${sw(st, "dice2d6") ? "dice" : "die"} ${die} → ${fmt(dmg)} damage${pooled}; ${t.id} HP ${fmt(Math.max(t.hp, 0))}`;
     if (t.braced && card(st, t).brace === "parry" && d === 1) {
-      const pd = parryAmount(st, u);
-      const pp = hurt(st, u, pd);
-      msg += `; parry deals ${fmt(pd)}${pp} (${u.id} HP ${fmt(Math.max(u.hp, 0))})` + (u.hp <= 0 ? ` — ${u.id} REMOVED` : "");
+      if (sw(st, "parryFirstOnly") && t.parryUsed) msg += `; no parry (${t.id} has already parried this turn)`;   // v3.2
+      else if (sw(st, "parryNeedsSurvivor") && t.hp <= 0) msg += `; no parry (${t.id} did not survive the hit)`;  // v3.2
+      else {
+        const pd = parryAmount(st, u);
+        const pp = hurt(st, u, pd);
+        msg += `; parry deals ${fmt(pd)}${pp} (${u.id} HP ${fmt(Math.max(u.hp, 0))})` + (u.hp <= 0 ? ` — ${u.id} REMOVED` : "");
+      }
     }
+    // v3.2 (Game Laws 6.3): the first attack on a braced unit each enemy turn uses up its parry, whether or not
+    // that attack could be parried (a Ranged or Reach attack counts too). See FLAGS for the open question.
+    if (sw(st, "parryFirstOnly") && t.braced) t.parryUsed = true;
     if (t.hp <= 0) {
       msg += ` — ${t.id} REMOVED`;
       const holdsOwnFlag = sw(st, "holderHoldsHex") && isHolder(st, u);   // v3.1 (E1 fix): a holder never leaves its flag to take a hex
@@ -392,6 +399,7 @@
   function doBrace(st, u) {
     spend(st, u, st.rs.game.braceCost);
     u.done = true; u.braced = true; u.spikeUsed = false;
+    if (sw(st, "parryFirstOnly")) u.parryUsed = false;   // v3.2: a fresh brace has its parry ready
     log(st, `${u.id} braces at ${u.hex}`, "brace");
   }
 
@@ -406,6 +414,7 @@
       u.stam = u.braced && c.brace !== "fullStamina" ? st.rs.game.staminaAfterBrace : st.rs.game.stamina;
       u.braced = false; u.done = false; u.moved = 0; u.zmode = null; u.spikeUsed = false; u.tackled = false;
       u.attackedLast = !!u.attackedThis; u.attackedThis = false;
+      if (sw(st, "parryFirstOnly")) u.parryUsed = false;   // v3.2: resets when this side's next turn begins
     }
     st.spend.push({ team, turn: st.turn, cmd: st.cmd, spent: null });
     log(st, `${team === "N" ? "North" : "South"} turn ${st.turn}: ${fmt(st.cmd)} Command`, "turn");
@@ -425,6 +434,14 @@
       if (left.length === 0) wins[team] = "TKO";
     }
     const both = wins.N && wins.S;
+    if (both && sw(st, "doubleKoToTiebreak")) {
+      // v3.2 (ruled 17 Nov): both sides finished in one action. Settle it as the turn limit does.
+      const tb = tiebreak(st);
+      st.result = { winner: tb.winner, how: "double knockout, " + tb.reason, double: wins };
+      st.phase = "over";
+      log(st, tb.winner ? `Double knockout: ${tb.winner === "N" ? "North" : "South"} wins on ${tb.reason}` : "Double knockout: draw", "result");
+      return;
+    }
     if (both && sw(st, "simultaneousToActor") && actor) {
       // v3.1 (E3 fix): both sides finished in one action (e.g. the last attacker dies to parry or set spear
       // while removing the last defender). The side that acted wins.
@@ -445,13 +462,17 @@
     startTurn(st, next);
   }
 
-  function limitResult(st) {
+  /** The turn-limit order: more damage to the enemy flag, then fewer beings lost, then a draw. */
+  function tiebreak(st) {
     const dmgBy = { N: st.pole.S, S: st.pole.N };
     const lost = { N: beingsLost(st, "N"), S: beingsLost(st, "S") };
-    let winner = null, how;
-    if (dmgBy.N !== dmgBy.S) { winner = dmgBy.N > dmgBy.S ? "N" : "S"; how = "turn limit, more pull damage"; }
-    else if (lost.N !== lost.S) { winner = lost.N < lost.S ? "N" : "S"; how = "turn limit, fewer beings lost"; }
-    else how = "turn limit, draw";
+    if (dmgBy.N !== dmgBy.S) return { winner: dmgBy.N > dmgBy.S ? "N" : "S", reason: "more pull damage" };
+    if (lost.N !== lost.S) return { winner: lost.N < lost.S ? "N" : "S", reason: "fewer beings lost" };
+    return { winner: null, reason: "draw" };
+  }
+
+  function limitResult(st) {
+    const tb = tiebreak(st), winner = tb.winner, how = "turn limit, " + tb.reason;
     st.result = { winner, how };
     st.phase = "over";
     log(st, winner ? `${winner === "N" ? "North" : "South"} wins at the ${how.replace("turn limit, ", "turn limit on ")}` : "Draw at the turn limit", "result");
@@ -609,6 +630,13 @@
     return { moves: reachMap(st, u), attacks, pull, brace: can(g.braceCost), swaps };
   }
 
+  /** What parry would do if `u` attacked `t` now, for the board: null (no parry possible), {used: true} (v3.2: already
+      parried this turn), or {amount, ifSurvives} (ifSurvives: v3.2, it fires only if `t` survives the hit). */
+  function parryPreview(st, u, t) {
+    if (!(t.braced && card(st, t).brace === "parry" && dist(u.hex, t.hex) === 1)) return null;
+    if (sw(st, "parryFirstOnly") && t.parryUsed) return { used: true };
+    return { amount: parryAmount(st, u), ifSurvives: sw(st, "parryNeedsSurvivor") };
+  }
   /** HP that must go before a unit falls: a flag holder's pool, or its own HP. */
   function effHp(st, t) { return isHolder(st, t) ? t.hp + flagLeft(st, t.team) : t.hp; }
   /** If an adjacent melee attack kills, where the attacker lands and what waits there. */
@@ -637,6 +665,6 @@
   }
 
   const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, foeOf, clone, card, alive, unitByUid,
-    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
+    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, tiebreak, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
   if (typeof module !== "undefined") module.exports = api; else root.GGEngine = api;
 })(this);
