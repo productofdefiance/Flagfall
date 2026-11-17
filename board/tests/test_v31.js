@@ -20,7 +20,7 @@ const mirror = {}; for (const h of E.CELLS) for (const m of E.CELLS)
   if (E.dist(h, E.FLAG.N) === E.dist(m, E.FLAG.S) && E.dist(h, E.FLAG.S) === E.dist(m, E.FLAG.N) && h[0] === m[0]) mirror[h] = m;
 
 ok(rs && rs.switches.holderHoldsHex && rs.switches.poolAsOne && rs.switches.simultaneousToActor, "v3.1 exists with the three fix switches");
-ok(PRESETS[PRESETS.length - 1].id === "v3.1", "v3.1 is the last preset, so new games default to it");
+ok(PRESETS[PRESETS.length - 1].id === "THROWAWAY-should-fail", "v3.1 is the last preset, so new games default to it");
 
 // ---- E1: a holder that kills an adjacent enemy stays on its flag ----
 let st = setup([["HM", "HM"], ["LR", "LR"]], [["LR", "LR"], ["HM", "HM"]], { "N-HM": "E3", "S-LR": "E4", "S-HM": "A8", "N-LR": "A6" });
