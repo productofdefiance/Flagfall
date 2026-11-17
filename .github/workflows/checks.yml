@@ -1,0 +1,159 @@
+# Brief 001: run the board's checks on every pull request to main and every push to main.
+name: checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out this commit
+        uses: actions/checkout@v5
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      # Each check keeps going on failure so every result shows up in the summary.
+      # The last step fails the workflow if any of them failed.
+      - name: test_rules.js
+        id: rules
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_rules.js
+
+      - name: test_v1.js
+        id: v1
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_v1.js
+
+      - name: test_v3.js
+        id: v3
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_v3.js
+
+      - name: test_v31.js
+        id: v31
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_v31.js
+
+      - name: test_rng.js
+        id: rng
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_rng.js
+
+      - name: test_replay.js (Match 3)
+        id: replay
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_replay.js ../data/match3_log.txt
+
+      - name: redteam invariants (30 games)
+        id: invariants
+        continue-on-error: true
+        run: node .github/invariants-check.js 30
+
+      # Replay regression: report only, never fails the workflow.
+      - name: Find the commit to compare against
+        id: base
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          sha="${PR_BASE:-$PUSH_BEFORE}"
+          if [ -z "$sha" ] || [ "$sha" = "0000000000000000000000000000000000000000" ]; then
+            echo "No earlier commit to compare against."
+            echo "sha=" >> "$GITHUB_OUTPUT"
+          else
+            echo "Comparing against $sha"
+            echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out the earlier commit
+        if: steps.base.outputs.sha != ''
+        continue-on-error: true
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.base.outputs.sha }}
+          path: base-commit
+
+      - name: Replay regression hashes (report only)
+        id: regress
+        continue-on-error: true
+        run: |
+          if [ -f base-commit/board/engine.js ]; then
+            echo "=== Earlier commit (${{ steps.base.outputs.sha }})"
+            node board/tests/regress_engine.js base-commit/board 3 | tee regress-base.txt
+          fi
+          echo "=== This commit"
+          node board/tests/regress_engine.js board 3 | tee regress-head.txt
+
+      - name: Summary
+        if: always()
+        env:
+          RULES: ${{ steps.rules.outcome }}
+          V1: ${{ steps.v1.outcome }}
+          V3: ${{ steps.v3.outcome }}
+          V31: ${{ steps.v31.outcome }}
+          RNG: ${{ steps.rng.outcome }}
+          REPLAY: ${{ steps.replay.outcome }}
+          INVARIANTS: ${{ steps.invariants.outcome }}
+          REGRESS: ${{ steps.regress.outcome }}
+        run: |
+          mark() { if [ "$1" = "success" ]; then echo "pass"; else echo "**FAIL** ($1)"; fi; }
+          {
+            echo "## Checks"
+            echo
+            echo "| Check | Result |"
+            echo "| --- | --- |"
+            echo "| test_rules.js | $(mark "$RULES") |"
+            echo "| test_v1.js | $(mark "$V1") |"
+            echo "| test_v3.js | $(mark "$V3") |"
+            echo "| test_v31.js | $(mark "$V31") |"
+            echo "| test_rng.js | $(mark "$RNG") |"
+            echo "| test_replay.js (Match 3) | $(mark "$REPLAY") |"
+            echo "| redteam invariants (30 games) | $(mark "$INVARIANTS") |"
+            echo "| Replay regression hashes | $( [ "$REGRESS" = "success" ] && echo "reported (see below)" || echo "could not run ($REGRESS), does not fail the workflow" ) |"
+            echo
+            echo "## Replay regression hashes (report only)"
+            echo
+            echo "A rule change is meant to change one rule set's hash. Every other rule set should print the same hash."
+            echo
+            if [ -f regress-base.txt ]; then
+              echo "**Earlier commit** \`${{ steps.base.outputs.sha }}\`"
+              echo '```'; cat regress-base.txt; echo '```'
+            else
+              echo "No earlier board to compare against."
+            fi
+            if [ -f regress-head.txt ]; then
+              echo "**This commit**"
+              echo '```'; cat regress-head.txt; echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail if any check failed
+        if: always()
+        env:
+          OUTCOMES: >-
+            ${{ steps.rules.outcome }} ${{ steps.v1.outcome }} ${{ steps.v3.outcome }}
+            ${{ steps.v31.outcome }} ${{ steps.rng.outcome }} ${{ steps.replay.outcome }}
+            ${{ steps.invariants.outcome }}
+        run: |
+          for o in $OUTCOMES; do
+            if [ "$o" != "success" ]; then echo "At least one check failed (see the Summary table)."; exit 1; fi
+          done
+          echo "All checks passed."
