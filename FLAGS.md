@@ -15,7 +15,7 @@ This file is how Claude Code talks to the design chat. Add a row for every issue
 | F6 | 16 Nov | Red team | E4: malformed actions crashed or slipped through | FIXED | Input checks in `apply()`, all rule sets |
 | F7 | 16 Nov | Red team | Simulators' random generator looped every 10,466 draws | FIXED | `tests/rng.js`. Retired scripts were not carried into this repo |
 | F8 | 16 Nov | Red team | Remaining red team findings: stalling, the untested sealed fort, line of sight, set spear on a shift, Ranged pull strength, a Ranged kill from an adjacent hex | OPEN | Each needs a ruling before it can be built |
-| F9 | 16 Nov | Chat | No automatic checks on pull requests | OPEN | Brief 001 |
+| F9 | 16 Nov | Chat | No automatic checks on pull requests | FIXED | Brief 001: `checks` workflow runs on every pull request to `main`. The Editor still has to protect `main` so it can't be skipped (steps in Brief 001's Report) |
 | F10 | 16 Nov | Chat | 5v5 stalls: 67.8% draws and 0 pulls in 400 bot games (v3.1, Kit B vs Kit B) | OPEN | Needs a design answer (reset format or sudden death, F14) |
 | F11 | 16 Nov | Chat | 7v7 ends on the turn limit in 37.8% of bot games (28.8% tiebreak win + 9% draw); 4 pulls in 400 games | OPEN | As F10 |
 | F12 | 16 Nov | Chat | First mover at 5v5 won 2 of 99 decisive games | OPEN | Likely a bot artefact, not proven |
@@ -23,3 +23,5 @@ This file is how Claude Code talks to the design chat. Add a row for every issue
 | F14 | 16 Nov | Chat | How a drawn match ends: reset format vs sudden death | DECIDE | |
 | F15 | 16 Nov | Chat | Replay preservation vs the Process Lessons' advice to let old matches break | CLOSED | Kept: v3.1 preserved every old rule set behind switches; replay stays a required check |
 | F16 | 16 Nov | Chat | Update docs on events, not every message | CLOSED | Adopted 17 Nov |
+| F17 | 17 Nov | Code | The invariants run on every pull request (`redteam/invariants.js`) only plays rule set v3, so nothing automatically checks v3.1 games for impossible states (two units on a hex, odd HP, negative Stamina). It also uses its own random generator rather than `tests/rng.js` | ASK | Should a future brief add an invariants test for the newest preset under `board/tests/` (using `tests/rng.js`) and run that in `checks` instead? Recommended: yes |
+| F18 | 17 Nov | Code | `regress_engine.js` leaves v3.1 out of its hashes, so a v3.2 change that accidentally alters v3.1 would only be caught by `test_v31.js` | ASK | Recommended: Brief 002 adds v3.1 to the hashed rule sets and leaves only the new preset out |
