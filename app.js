@@ -132,6 +132,7 @@
       return rec ? JSON.parse(JSON.stringify(rec)) : rec;
     },
     saveLive(match) {
+      if (match.watch) return Promise.resolve();   // a watched sim game (Brief 008) never replaces your own live match
       match.updated = new Date().toISOString();
       this.local("live", match);
       return this.write("live/current", { match }).catch(() => {});
@@ -142,6 +143,7 @@
         pull: { N: st.pole.S, S: st.pole.N }, lost: { N: E.beingsLost(st, "N"), S: E.beingsLost(st, "S") } };
     },
     saveFinished(match, st) {
+      if (match.watch) return Promise.resolve();
       const s = this.summary(match, st, st.result.how, st.result.winner);
       const loc = this.local("matches") || {}; loc[match.id] = s; this.local("matches", loc);
       this.local("record." + match.id, match);   // the full match, for Copy on the Matches screen (Build 3 on)
@@ -168,35 +170,14 @@
   };
 
   // ---------- Formats ----------
-  const FORMATS = [
-    { id: "blitz5", label: "5v5 Blitz", size: 5 },
-    { id: "std7", label: "7v7", size: 7 },
-    { id: "s9", label: "9v9", size: 9, soon: true },
-    { id: "s13", label: "13v13", size: 13, soon: true }
-  ];
-  const formatOf = (id) => FORMATS.find((f) => f.id === id) || FORMATS[1];
-  /** The bot's lineup until Teams exist: one of each card, plus a Heavy Melee Flagkeeper. 5v5 uses the original five. */
+  // The formats and the bot's lineups live in watch.js (Brief 008), so a simulated game and the board set up a match the same way.
+  const WT = window.GGWatch;
+  const FORMATS = WT.FORMATS;
+  const formatOf = WT.formatOf;
   const noKeeper = (rs) => !!(rs.switches && rs.switches.noKeeper);
-  function balancedCounts(rs, size) {
-    const want = size <= 5 ? ["HM", "HA", "LM", "LR"] : ["HM", "LM", "HR", "LR", "HA", "LA"];
-    const have = want.filter((c) => rs.cards[c]);
-    const slots = noKeeper(rs) ? size : size - 1;   // v3: no keeper slot; any unit may hold the flag
-    const counts = {};
-    for (const c of have.slice(0, slots)) counts[c] = (counts[c] || 0) + 1;
-    let n = Object.values(counts).reduce((a, b) => a + b, 0);
-    const filler = rs.cards.HM ? "HM" : Object.keys(rs.cards)[0];
-    while (n < slots) { counts[filler] = (counts[filler] || 0) + 1; n++; }
-    return { keeper: noKeeper(rs) ? null : (rs.cards.HM ? "HM" : Object.keys(rs.cards)[0]), counts };
-  }
+  const balancedCounts = WT.balancedCounts;
   /** Lineup in the engine's form: FK first, then each card; repeats get a number (HM, HM2). */
-  function toLineup(rs, pick) {
-    const out = pick.keeper && !noKeeper(rs) ? [{ id: "FK", card: pick.keeper, fk: true }] : [];
-    for (const code of Object.keys(rs.cards)) {
-      const n = pick.counts[code] || 0;
-      for (let i = 0; i < n; i++) out.push({ id: i === 0 ? code : code + (i + 1), card: code });
-    }
-    return out;
-  }
+  const toLineup = WT.toLineup;
   const beingsOf = (rs, pick) => (noKeeper(rs) || !pick.keeper ? 0 : rs.cards[pick.keeper] ? rs.cards[pick.keeper].beings : 1) + Object.keys(pick.counts).reduce((s, c) => s + (pick.counts[c] || 0) * (rs.cards[c] ? rs.cards[c].beings : 1), 0);
 
   // ---------- App state ----------
@@ -289,6 +270,28 @@
     if (App.match.opts.coin) toast(`Coin toss: ${sideName(App.st.first)} moves first.`);
     show("play");
   }
+
+  // ---------- Watch a simulated game (Brief 008) ----------
+  /** Open a "?watch=" link: a Computer vs Computer match set up from its seed, brains, rule set, format and lineups
+      exactly as a simulated game was, using the board's built-in brains. If this board can't play it exactly, say so. */
+  async function startWatch(spec, fast) {
+    const why = WT.problem(spec, V.game);
+    if (why) { await dialog(`<h2>Can't play this game here</h2><p class="note">${esc(why)} This board would play a different game, so it won't start one. Open the board of the version it was simulated on (${esc(spec.v || "unknown")}).</p><button class="btn primary" data-dlg="ok">OK</button>`); return; }
+    if (spec.v && V.game && spec.v !== V.game) {
+      const go = await confirmBox("A different version", `This game was simulated on ${spec.v}; this board is ${V.game}. If a brain or rule changed in between, it will play differently from the simulation.`, "Watch anyway");
+      if (!go) return;
+    }
+    App.match = WT.setupMatch(spec, { id: "w" + Date.now().toString(36), started: new Date().toISOString(), game: V.game || null, build: V.build });
+    App.match.opts.names = { N: "North", S: "South" };
+    if (fast) for (const t of ["N", "S"]) App.match.brains[t].settings.pauseMs = 0;   // the board check only: pauses never change a choice
+    rebuild();
+    resetUi();
+    beginDeploy();
+    toast(`Watching a simulated game: seed ${spec.seed}`);
+    show("play");
+  }
+  // For the board check (sims/lab/board_check.js): what the board has played so far.
+  window.GGWatchState = () => ({ actions: App.match ? App.match.actions : [], over: !!(App.st && App.st.phase === "over"), result: App.st ? App.st.result : null });
 
   // ---------- Bot turns ----------
   function botTick() {
@@ -502,21 +505,11 @@
   /** Card counts for a mix. Heavy and Light fill the slots in turn (HM, HA, HR or LM, LA, LR), so 7 gives 3-2-2.
       Open: a bot fields its kit's own squad (or the balanced lineup); a human keeps its last lineup. Random draws from the seed. */
   function mixPick(rs, size, mix, t, p) {
-    const noK = noKeeper(rs), slots = noK ? size : size - 1, keeper = noK ? null : (rs.cards.HM ? "HM" : Object.keys(rs.cards)[0]);
-    const fill = (order) => { const have = order.filter((c) => rs.cards[c]); if (!have.length) return null; const counts = {}; for (let i = 0; i < slots; i++) counts[have[i % have.length]] = (counts[have[i % have.length]] || 0) + 1; return { keeper, counts }; };
-    if (mix === "heavy") return fill(["HM", "HA", "HR"]) || balancedCounts(rs, size);
-    if (mix === "light") return fill(["LM", "LA", "LR"]) || balancedCounts(rs, size);
-    if (mix === "random") {
-      const r = E.seededRandom((App.setup.seed || "") + "#team" + t), cards = Object.keys(rs.cards), counts = {};
-      for (let i = 0; i < slots; i++) { const c = cards[Math.floor(r() * cards.length)]; counts[c] = (counts[c] || 0) + 1; }
-      return { keeper, counts };
-    }
-    if (mix === "open") {
-      if (p.type === "bot") { const sq = Bot.squadCounts && Bot.squadCounts(rs, size, App.brains[p.brainId]); return sq ? { keeper: null, counts: sq } : balancedCounts(rs, size); }
-      const prev = (Store.local("picks") || {})[App.setup.format + ":" + t];
+    if (mix === "open" && p.type !== "bot") {
+      const noK = noKeeper(rs), prev = (Store.local("picks") || {})[App.setup.format + ":" + t];
       return prev && (noK ? !prev.keeper : rs.cards[prev.keeper]) && beingsOf(rs, prev) === size && Object.keys(prev.counts).every((c) => rs.cards[c]) ? E.clone(prev) : balancedCounts(rs, size);
     }
-    return balancedCounts(rs, size);
+    return WT.mixCounts(rs, size, mix, App.setup.seed, t, App.brains[p.brainId]);
   }
   const countsText = (pick) => Object.keys(pick.counts).filter((c) => pick.counts[c]).map((c) => `${pick.counts[c]} ${c}`).join(" · ");
   function renderTeams() {
@@ -1491,6 +1484,8 @@
     if (live && live.rs && Array.isArray(live.actions)) App.live = live;
     if (App.view === "home") renderHome();
     loadMatches();
+    const spec = WT.fromQuery(location.search);
+    if (spec) startWatch(spec, /[?&]fast=1/.test(location.search));
   }
   boot();
 })();
