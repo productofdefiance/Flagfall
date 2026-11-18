@@ -95,7 +95,19 @@ One quick game on the play link: brace a Heavy Melee and a Light Ranged, end the
     v3.2         f62a061d2c147d83
     v3.3         e6151bf463d6c9f8
     ```
-  - `regress_engine.js … 2 all` (8 rule sets × 9 brains, v3.4 and Brain 5 included): ALL_RESULT
+  - `regress_engine.js … 2 all` (8 rule sets × 9 brains, v3.4 and Brain 5 included): all 72 hashes identical before and after. The v3.4 lines (the newest preset, which the default run leaves out):
+    ```
+    v3.4 standard        a8f8270aceb1eb9e
+    v3.4 easy            4d9a73c80a3cb225
+    v3.4 kitA            f65eba492e49eaaa
+    v3.4 kitA2           31439db204aa5ac0
+    v3.4 kitC            de370a3a914caa7f
+    v3.4 kitB            88c03eedc951d875
+    v3.4 batchC          88c03eedc951d875
+    v3.4 kitD            73631bc545ab6f1a
+    v3.4 brain5          a8bc0b017ad55a10
+    ```
+  - Also passed: v3 red-team impossible states (30 games).
 - **Worst-case next-turn Stamina per card (floor check):** 2 for every card (HM, LM, HR, LR, HA, LA) in every preset (match3, v1, v2, v3, v3.1, v3.2, v3.3, v3.4). The only shipped penalty is brace tiredness −1 on base 3, so the floor of 1 never binds today.
 - **Could an action be cut off partway?** No case found. Moves, tackle break-aways, Evade, attacks and braces are checked in full against Stamina, Command and the movement cap before anything happens. A refused action changes nothing. Tested on every preset; over 4 bot games on v3.4, every offered move (including mid-Evade) fit in full.
 - **Rules it touches (tests in `test_stamina.js`):** Brace 3 → 2 and Second Wind 3, on every card of every preset. Set spear: one spear per entry, a second unit takes the second spear, a third takes none. Tackle at hex cost: a Heavy on 1 Stamina is refused with nothing spent, and on 2 it can break away. Attack and brace are refused whole on 0.5 Stamina or 0.5 Command. Stacking and floor: three −1s give 1, the same effect twice counts once, Second Wind doesn't cancel an enemy penalty.
