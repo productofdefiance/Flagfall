@@ -214,7 +214,7 @@
 
   function defaultSetup() {
     return { format: "std7", rulesetId: (D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id), first: "coin", seed: E.makeSeed(),
-      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: "brain5", name: "South", mix: "open" } } };
+      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: "kitD", name: "South", mix: "open" } } };
   }
 
   // ---------- Matches ----------
@@ -481,7 +481,7 @@
     else if (name === "first") s.first = val;
     else if (name.startsWith("player-")) {
       const t = name.slice(7), p = s.players[t];
-      p.type = val; if (val === "bot" && !App.brains[p.brainId]) p.brainId = "brain5";
+      p.type = val; if (val === "bot" && !App.brains[p.brainId]) p.brainId = "kitD";
     } else if (name === "keeper") { App.picks[App.lineupSide].keeper = val; renderLineup(); return; }
     else if (name.startsWith("mix-")) { s.players[name.slice(4)].mix = val; Store.local("setup", s); renderTeams(); return; }
     Store.local("setup", s);
@@ -491,8 +491,8 @@
     const s = App.setup;
     if (!s.seed) s.seed = E.makeSeed();
     for (const t of ["N", "S"]) if (!s.players[t].mix) s.players[t].mix = "open";
-    if (s.players.N.type === "bot" && !App.brains[s.players.N.brainId]) s.players.N.brainId = "brain5";
-    if (s.players.S.type === "bot" && !App.brains[s.players.S.brainId]) s.players.S.brainId = "brain5";
+    if (s.players.N.type === "bot" && !App.brains[s.players.N.brainId]) s.players.N.brainId = "kitD";
+    if (s.players.S.type === "bot" && !App.brains[s.players.S.brainId]) s.players.S.brainId = "kitD";
     show("teams");
   }
 
@@ -527,13 +527,13 @@
       let hint;
       if (mix === "random") hint = "Drawn when the match starts.";
       else if (mix === "open" && p.type === "human") hint = "Your own pick on the next screen.";
-      else hint = countsText(mixPick(rs, size, mix, t, p)) + (mix === "open" ? " (the brain's choice)" : "");
+      else hint = countsText(mixPick(rs, size, mix, t, p)) + (mix === "open" ? " (the kit's choice)" : "");
       return `<div class="side" style="border-color:${col}"><span class="nm" style="color:${col}">${p.type === "bot" ? "BOT" : (p.name && p.name !== sideName(t) ? esc(p.name).toUpperCase() : "HUMAN")} · ${sideName(t).toUpperCase()}</span>
         <span class="hint">Era and culture come later. Test units for now.</span>
         <span class="lab">Mix</span>${seg("mix-" + t, MIXES, mix).replace('class="seg"', 'class="seg wrap"')}<span class="hint">${hint}${p.type === "human" && mix !== "open" ? " You can adjust it on the next screen." : ""}</span>
-        ${p.type === "bot" ? `<label class="lab" for="kit-${t}">Brain</label><select class="inp" id="kit-${t}" data-setup="brain-${t}">${brainOpts(p.brainId)}</select>
+        ${p.type === "bot" ? `<label class="lab" for="kit-${t}">Kit</label><select class="inp" id="kit-${t}" data-setup="brain-${t}">${brainOpts(p.brainId)}</select>
         <span class="lab">Personality</span>${PERSONALITY.map((n) => `<label class="hint" style="display:flex;align-items:center;gap:8px;justify-content:space-between">${n}<input type="range" min="1" max="5" value="3" disabled style="width:50%"></label>`).join("")}
-        <span class="hint">Personality sliders are not built yet; the middle notch is the brain as it is.</span>` : ""}</div>`;
+        <span class="hint">Personality sliders are not built yet; the middle notch is the kit as it is.</span>` : ""}</div>`;
     };
     const humans = ["N", "S"].filter((t) => s.players[t].type === "human");
     $("view-teams").innerHTML = `<div class="scroll" style="display:flex;flex-direction:column"><div class="wrap" style="flex:1">
@@ -1351,12 +1351,8 @@
       <button class="btn danger" data-act="br-delete" ${Object.keys(App.brains).length > 1 ? "" : "disabled"}>Delete brain</button>
       <span id="br-status" class="${App.brainDirty ? "dirty" : "saved"}">${App.brainDirty ? "Unsaved changes" : ""}</span></div>
       <p class="note">A match uses its own copy of the brain it started with. Changes apply to the next match.</p>`;
-    const row = (group, k) => { const [label, desc] = BR.BRAIN_LABELS[group + "." + k] || BR.BRAIN_LABELS[k] || [k, ""]; return `<tr><td>${esc(label)}</td><td><input type="number" step="0.05" min="0" data-brain="${group}" data-field="${k}" value="${b[group][k]}"></td><td class="desc">${esc(desc)}</td></tr>`; };
-    const table = (group, head) => `<div class="tablewrap"><table class="data"><thead><tr><th>${head}</th><th>Value</th><th>What it means</th></tr></thead><tbody>${Object.keys(b[group]).map((k) => row(group, k)).join("")}</tbody></table></div>`;
-    if (b.model) {   // Brain 5: one value model (Brief 006)
-      h += `<p class="note">${esc(b.name)} plans its whole turn and scores every plan the same way: what it gains, what it risks next turn, and what it leaves for next turn. These weights are that score.</p>`;
-      h += table("model", "Weight") + (b.plan5 ? table("plan5", "Planning") : "");
-    } else h += table("weights", "Weight");
+    const row = (group, k) => { const [label, desc] = BR.BRAIN_LABELS[k] || [k, ""]; return `<tr><td>${esc(label)}</td><td><input type="number" step="0.05" min="0" data-brain="${group}" data-field="${k}" value="${b[group][k]}"></td><td class="desc">${esc(desc)}</td></tr>`; };
+    h += `<div class="tablewrap"><table class="data"><thead><tr><th>Weight</th><th>Value</th><th>What it means</th></tr></thead><tbody>${Object.keys(b.weights).map((k) => row("weights", k)).join("")}</tbody></table></div>`;
     h += `<div class="tablewrap"><table class="data"><thead><tr><th>Setting</th><th>Value</th><th>What it means</th></tr></thead><tbody>${Object.keys(b.settings).map((k) => row("settings", k)).join("")}</tbody></table></div></div></div>`;
     el.innerHTML = h;
   }
