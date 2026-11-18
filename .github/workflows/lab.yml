@@ -127,13 +127,34 @@ jobs:
           path: parts/
           retention-days: 90
 
-  # Release runs also run every check in README.md and the regression hashes, for the summary.
+  # Release runs also run every check in README.md (full counts) and the regression hashes, for the summary. Each check
+  # gets its own machine, so the slowest one (test_v32.js at 400 + 400 games) sets the pace.
   release-checks:
-    name: release checks
+    name: release check ${{ matrix.check.name }}
     needs: plan
     if: needs.plan.outputs.release == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - { name: "test_rules.js", cmd: "node tests/test_rules.js" }
+          - { name: "test_v1.js", cmd: "node tests/test_v1.js" }
+          - { name: "test_v3.js", cmd: "node tests/test_v3.js" }
+          - { name: "test_v31.js", cmd: "node tests/test_v31.js" }
+          - { name: "test_v32.js (400 + 400)", cmd: "node tests/test_v32.js 400" }
+          - { name: "test_v33.js", cmd: "node tests/test_v33.js" }
+          - { name: "test_v34.js", cmd: "node tests/test_v34.js" }
+          - { name: "test_reasons.js", cmd: "node tests/test_reasons.js" }
+          - { name: "test_kitd.js (30)", cmd: "node tests/test_kitd.js 30" }
+          - { name: "test_brain5.js (30)", cmd: "node tests/test_brain5.js 30" }
+          - { name: "test_watch.js", cmd: "node tests/test_watch.js" }
+          - { name: "test_rng.js", cmd: "node tests/test_rng.js" }
+          - { name: "test_invariants.js (100)", cmd: "node tests/test_invariants.js 100" }
+          - { name: "test_replay.js", cmd: "node tests/test_replay.js ../data/match3_log.txt" }
+          - { name: "other brain tests (30)", cmd: "for t in tests/test_brain*.js; do [ \"$(basename $t)\" = test_brain5.js ] || node $t 30 || exit 1; done" }
+          - { name: "regression hashes", cmd: "hashes" }
     steps:
       - uses: actions/checkout@v5
         with:
@@ -142,29 +163,25 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: 20
-      - name: Every check in README.md
+      - name: ${{ matrix.check.name }}
         working-directory: board
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          NAME: ${{ matrix.check.name }}
+          CMD: ${{ matrix.check.cmd }}
         run: |
-          : > ../checks.txt
-          run() { n="$1"; shift; if "$@" > /tmp/out.txt 2>&1; then echo "$n=success" >> ../checks.txt; else echo "$n=failure" >> ../checks.txt; tail -20 /tmp/out.txt; fi; }
-          for t in test_rules test_v1 test_v3 test_v31 test_v33 test_v34 test_reasons test_rng test_watch; do run "$t.js" node tests/$t.js; done
-          run "test_v32.js (400)" node tests/test_v32.js 400
-          run "test_kitd.js (30)" node tests/test_kitd.js 30
-          run "test_brain5.js (30)" node tests/test_brain5.js 30
-          run "test_invariants.js (100)" node tests/test_invariants.js 100
-          run "test_replay.js" node tests/test_replay.js ../data/match3_log.txt
-          for t in tests/test_brain*.js; do b=$(basename "$t"); [ "$b" = "test_brain5.js" ] || run "$b (30)" node "$t" 30; done
-          git show "$BASE:board" > /dev/null 2>&1 && { mkdir -p /tmp/base && git archive "$BASE" board | tar -x -C /tmp/base; echo "Earlier board ($BASE):" > ../hashes.txt; node tests/regress_engine.js /tmp/base/board 3 >> ../hashes.txt; } || : > ../hashes.txt
-          echo "This board:" >> ../hashes.txt; node tests/regress_engine.js . 3 >> ../hashes.txt
-          cat ../checks.txt
+          mkdir -p ../out; id=$(echo "$NAME" | tr -c 'a-zA-Z0-9' '_')
+          if [ "$CMD" = "hashes" ]; then
+            : > ../out/hashes.txt
+            if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then mkdir -p /tmp/base && git archive "$BASE" board | tar -x -C /tmp/base; echo "Earlier board ($BASE):" >> ../out/hashes.txt; node tests/regress_engine.js /tmp/base/board 3 >> ../out/hashes.txt; fi
+            echo "This board:" >> ../out/hashes.txt; node tests/regress_engine.js . 3 >> ../out/hashes.txt && echo "$NAME=success" > "../out/check-$id.txt" || echo "$NAME=failure" > "../out/check-$id.txt"
+          else
+            if bash -c "$CMD"; then echo "$NAME=success" > "../out/check-$id.txt"; else echo "$NAME=failure" > "../out/check-$id.txt"; fi
+          fi
       - uses: actions/upload-artifact@v4
         with:
-          name: release-checks
-          path: |
-            checks.txt
-            hashes.txt
+          name: release-check-${{ strategy.job-index }}
+          path: out/
 
   merge:
     name: merge and file the results
@@ -194,9 +211,16 @@ jobs:
       - uses: actions/download-artifact@v4
         if: needs.plan.outputs.release == 'true'
         with:
-          name: release-checks
+          pattern: release-check-*
           path: release/
+          merge-multiple: true
         continue-on-error: true
+      - name: Gather the release checks
+        if: needs.plan.outputs.release == 'true'
+        run: |
+          mkdir -p release; cat release/check-*.txt > release/checks.txt 2>/dev/null || true
+          [ -f release/hashes.txt ] || : > release/hashes.txt
+          cat release/checks.txt
       - name: Merge
         id: merge
         env:
