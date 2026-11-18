@@ -8,6 +8,9 @@
   const V = window.GGVersion || { build: null, preview: null };   // build number: board/version.js is the only source
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  /** Engine text as the player reads it: units are counted in unit cap (UC), never "beings" (the engine's own words
+      stay unchanged so saved matches replay identically). */
+  const say = (t) => String(t).replace(/fewer beings lost/g, "less unit cap lost").replace(/beings lost/g, "unit cap lost");
   const sideName = (t) => (t === "N" ? "North" : "South");
   const fmt = E.fmt;
   const EPS = 1e-9;
@@ -211,7 +214,7 @@
 
   function defaultSetup() {
     return { format: "std7", rulesetId: (D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id), first: "coin", seed: E.makeSeed(),
-      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: "batchC", name: "South", mix: "open" } } };
+      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: "kitD", name: "South", mix: "open" } } };
   }
 
   // ---------- Matches ----------
@@ -327,6 +330,14 @@
     if (st.result && before < st.actions.length) { ui.sheet = { kind: "over" }; Store.saveFinished(App.match, st).then(loadMatches); }
     render();
     return r;
+  }
+  /** Why Undo is unavailable (Undo is a board feature, not a rule: it can't take back a roll of the dice). */
+  function undoWhy() {
+    const a = App.match && App.match.actions[App.match.actions.length - 1];
+    if (!a || a.type === "deploy") return "Nothing to undo this turn";
+    if (a.type === "end") return "Can't undo past the start of the turn";
+    if (["attack", "pull"].includes(a.type)) return "Can't undo an attack or pull: the dice have been rolled";
+    return null;
   }
   function canUndo() {
     const a = App.match && App.match.actions[App.match.actions.length - 1];
@@ -445,7 +456,7 @@
       ${backbar("New game")}${steps(1)}
       <div class="field"><span class="lab">Format</span>${seg("format", FORMATS.map((f) => [f.id, f.label, f.soon]), s.format)}<span class="hint">9v9 and 13v13 come later.</span></div>
       <div class="field"><span class="lab">Field</span><div class="inp" style="display:flex;align-items:center;background:var(--card)">Standard oval · 9 × 19</div></div>
-      <div class="field"><label for="setup-rs">Rule set</label><select class="inp" id="setup-rs" data-setup="rs">${rsOpts}</select></div>
+      <div class="field"><label for="setup-rs">Rule set</label><select class="inp" id="setup-rs" data-setup="rs">${rsOpts}</select><span class="hint">${(() => { const r0 = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET; return `${E.turnLimitFor(r0, formatOf(s.format).size)} turns per player at ${esc(formatOf(s.format).label)}`; })()}</span></div>
       <div class="field"><span class="lab">Sides</span><div class="sides">${side("N")}${side("S")}</div></div>
       <div class="field"><span class="lab">Moves first</span>${seg("first", [["N", "North"], ["S", "South"], ["coin", ic("coin", 16) + "Coin"]], s.first)}</div>
       <div class="field"><label for="setup-seed">Game seed</label><div class="row" style="flex-wrap:nowrap">
@@ -470,7 +481,7 @@
     else if (name === "first") s.first = val;
     else if (name.startsWith("player-")) {
       const t = name.slice(7), p = s.players[t];
-      p.type = val; if (val === "bot" && !App.brains[p.brainId]) p.brainId = "batchC";
+      p.type = val; if (val === "bot" && !App.brains[p.brainId]) p.brainId = "kitD";
     } else if (name === "keeper") { App.picks[App.lineupSide].keeper = val; renderLineup(); return; }
     else if (name.startsWith("mix-")) { s.players[name.slice(4)].mix = val; Store.local("setup", s); renderTeams(); return; }
     Store.local("setup", s);
@@ -480,8 +491,8 @@
     const s = App.setup;
     if (!s.seed) s.seed = E.makeSeed();
     for (const t of ["N", "S"]) if (!s.players[t].mix) s.players[t].mix = "open";
-    if (s.players.N.type === "bot" && !App.brains[s.players.N.brainId]) s.players.N.brainId = "batchC";
-    if (s.players.S.type === "bot" && !App.brains[s.players.S.brainId]) s.players.S.brainId = "batchC";
+    if (s.players.N.type === "bot" && !App.brains[s.players.N.brainId]) s.players.N.brainId = "kitD";
+    if (s.players.S.type === "bot" && !App.brains[s.players.S.brainId]) s.players.S.brainId = "kitD";
     show("teams");
   }
 
@@ -569,7 +580,7 @@
     const last = App.lineupQueue[App.lineupQueue.length - 1] === t;
     $("view-lineup").innerHTML = `<div class="scroll" style="display:flex;flex-direction:column"><div class="wrap" style="flex:1">
       ${backbar(sideName(t) + " lineup", "teams")}${steps(3)}
-      <div class="counter"><div class="row" style="justify-content:space-between"><span class="lab" style="font:600 13px/1 var(--body)">Beings</span><span class="num" style="font:600 15px/1 var(--mono)">${used}/${size}</span></div><div class="pips">${pips}</div></div>
+      <div class="counter"><div class="row" style="justify-content:space-between"><span class="lab" style="font:600 13px/1 var(--body)">Unit cap (UC)</span><span class="num" style="font:600 15px/1 var(--mono)">${used}/${size}</span></div><div class="pips">${pips}</div></div>
       ${kc ? `<div class="field"><label for="keeper-pick">Flagkeeper</label>
         <div class="keeper">${tokenInline(iconKey(rs, pick.keeper), t, 34, true)}<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
           <select class="inp" id="keeper-pick" data-keeper="1" style="height:40px;font-weight:600">${cards.map((c) => `<option value="${c}" ${c === pick.keeper ? "selected" : ""}>${esc(rs.cards[c].name)}</option>`).join("")}</select>
@@ -754,7 +765,7 @@
     };
     $("topbar").innerHTML = `<div class="tb-row" style="align-items:end">
         <div class="tb-name" style="color:${LIGHT.N};opacity:${op("N")}">${esc(st.names.N)}${isBot("N") ? " · BOT" : ""}</div>
-        <button type="button" class="tb-turn num" data-act="menu" aria-label="Turn ${st.turn} of ${g.turnLimit}. Open match menu">${ic("hourglass", 13)}${st.turn}/${g.turnLimit}</button>
+        <button type="button" class="tb-turn num" data-act="menu" aria-label="Turn ${st.turn} of ${E.turnLimit(st)}. Open match menu">${ic("hourglass", 13)}${st.turn}/${E.turnLimit(st)}</button>
         <div class="tb-name" style="color:${LIGHT.S};opacity:${op("S")};text-align:right">${isBot("S") ? "BOT · " : ""}${esc(st.names.S)}</div></div>
       <div style="display:flex;align-items:center;gap:10px">${end("N")}
         <div style="flex:1"><div class="rope" role="img" aria-label="Flag HP balance: North ${fl.N}, South ${fl.S}" style="background:linear-gradient(to right, var(--north) 0%, var(--north) ${pct.toFixed(1)}%, var(--south) ${pct.toFixed(1)}%, var(--south) 100%)"><div class="mid"></div><div class="knot" style="left:${pct.toFixed(1)}%"></div></div></div>
@@ -789,7 +800,7 @@
     const sel = ui.sel && E.unitByUid(st, ui.sel);
     if (!sel || sel.hp <= 0) {
       let msg;
-      if (st.phase === "over") msg = st.result.winner ? `${esc(st.names[st.result.winner])} wins · ${esc(st.result.how)}` : "Draw";
+      if (st.phase === "over") msg = st.result.winner ? `${esc(st.names[st.result.winner])} wins · ${esc(say(st.result.how))}` : "Draw";
       else if (isBot(st.toMove)) msg = `${ic("bot", 18)}<span>${esc(ui.botReason || "Thinking…")}</span>`;
       else msg = `Tap one of your units`;
       el.innerHTML = `<div class="muted" style="display:flex;align-items:center;gap:8px;font:500 14px/1.3 var(--body)">${msg}</div>`;
@@ -824,7 +835,8 @@
   // ---------- Drawing: action bar ----------
   function renderActions() {
     const st = App.st, ui = App.ui, el = $("actions");
-    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? "disabled" : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}>${ic(icon, 22)}<span>${label}</span></button>`;
+    // A greyed-out button stays tappable when it has a reason: the tap shows why (Brief 005). Reasons come from the engine.
+    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}>${ic(icon, 22)}<span>${label}</span></button>`;
     if (st.phase === "deploy") {
       const t = deployTeam(), mine = st.units.filter((u) => u.team === t);
       const placed = mine.filter((u) => ui.placements[u.uid]).length;
@@ -835,17 +847,17 @@
     const human = st.phase === "play" && !isBot(st.toMove);
     const o = selOptions(), sel = o && E.unitByUid(st, ui.sel);
     const nAtt = o ? targetsFor(o, "attack").length : 0, nReach = o ? targetsFor(o, "reach").length : 0;
-    const reachy = sel && E.card(st, sel).trait === "reach";
+    const why = ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel) : null;
+    const pick = human ? "Select one of your units first" : null;
     el.innerHTML = `<div class="arow"><span class="alabel">UNIT</span>
-        ${b("arm-attack", "attack", "Attack", { dis: !nAtt, cls: ui.armed === "attack" ? "on" : "", pressed: ui.armed === "attack" })}
-        ${b("arm-reach", "reach", "Reach", { dis: !nReach, cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" })}
-        ${b("brace", "brace", "Brace", { dis: !(o && o.brace) })}
-        ${b("special", "special", "Special", { dis: true })}</div>
+        ${b("arm-attack", "attack", "Attack", { dis: !nAtt, why: why ? why.attack : pick, cls: ui.armed === "attack" ? "on" : "", pressed: ui.armed === "attack" })}
+        ${b("arm-reach", "reach", "Reach", { dis: !nReach, why: why ? why.reach : pick, cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" })}
+        ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: why ? why.brace : pick })}
+        ${b("special", "special", "Special", { dis: true, why: why ? why.special : "No special actions in this rule set yet" })}</div>
       <div class="arow"><span class="alabel">TURN</span>
-        ${b("undo", "undo", "Undo", { dis: !canUndo() })}
-        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done) })}
+        ${b("undo", "undo", "Undo", { dis: !canUndo(), why: human ? undoWhy() : null })}
+        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done), why: why ? why.done : pick })}
         ${b("end", "endturn", ui.confirmEnd ? "Confirm" : "End turn", { dis: !human, cls: ui.confirmEnd ? "confirm" : "primary" })}</div>`;
-    if (reachy === false) el.querySelector('[data-act="arm-reach"]').setAttribute("title", "Only Reach units");
   }
 
   // ---------- Drawing: sheet (attack, pull, unit info, result) ----------
@@ -867,7 +879,8 @@
       let warn = "";
       if (a.capture && a.high >= t.hp) warn += `<p class="ok">If it kills, ${esc(u.id)} moves into ${a.capture.hex}${a.capture.adjacentEnemies.length ? `, next to ${esc(a.capture.adjacentEnemies.join(", "))}` : ""}.</p>`;
       if (a.capture && a.capture.spike && a.high >= t.hp) warn += `<p class="warn">A braced Anti-Cavalry there deals ${st.rs.spikeDamage}.</p>`;
-      if (a.evade > 0) warn += `<p class="ok">Evade after: up to ${a.evade} hex${a.evade === 1 ? "" : "es"}${kc > 0 ? ` if ${esc(t.id)} survives` : ""}.</p>`;
+      if (a.evade && a.evade.hexes > 0) warn += `<p class="ok">Evade after: up to ${a.evade.hexes} hex${a.evade.hexes === 1 ? "" : "es"}${kc > 0 ? ` if ${esc(t.id)} survives` : ""}${a.evade.unsure ? ` (and if ${esc(u.id)} survives the parry)` : ""}.</p>`;
+      else if (a.evade) warn += `<p class="warn">No Evade after this attack: ${esc(a.evade.reason)}.</p>`;
       const pv = E.parryPreview(st, u, t);
       if (pv && pv.used) warn += `<p class="ok">No parry: ${esc(t.id)} has already parried this turn.</p>`;
       else if (pv) warn += `<p class="warn">Parry: ${esc(u.id)} takes ${fmt(pv.amount)}${pv.ifSurvives ? ` if ${esc(t.id)} survives the hit` : ""}.</p>`;
@@ -894,7 +907,7 @@
         <button class="btn" data-act="sheet-close">Close</button>`;
     } else if (sh.kind === "over") {
       const r = st.result;
-      el.innerHTML = `${grab}<h2>${r.winner ? esc(st.names[r.winner]) + " wins" : "Draw"}</h2><p class="note">${esc(r.how)} on turn ${st.turn}. Saved under Matches.</p>
+      el.innerHTML = `${grab}<h2>${r.winner ? esc(st.names[r.winner]) + " wins" : "Draw"}</h2><p class="note">${esc(say(r.how))} on turn ${st.turn}. Saved under Matches.</p>
         <div class="row" style="flex-wrap:nowrap"><button class="btn" data-act="sheet-close" style="flex:1">See field</button><button class="btn" data-act="copy-record" style="flex:1">Copy record</button><button class="btn primary" data-act="new" style="flex:1">New game</button></div>`;
     } else { ui.sheet = null; el.hidden = true; sc.hidden = true; }
   }
@@ -914,7 +927,7 @@
     }
     el.innerHTML = h + `</tbody></table>`;
     const rc = $("recent");
-    rc.innerHTML = st.log.slice(-14).map((l) => `<div${l.kind === "turn" ? ' style="color:var(--ink);font-weight:600"' : ""}>${esc(l.text)}</div>`).join("");
+    rc.innerHTML = st.log.slice(-14).map((l) => `<div${l.kind === "turn" ? ' style="color:var(--ink);font-weight:600"' : ""}>${esc(say(l.text))}</div>`).join("");
     rc.scrollTop = rc.scrollHeight;
   }
 
@@ -926,7 +939,7 @@
       const m = o.moves[ui.ghost];
       t = `Tap ${ui.ghost} again to move · ${fmt(m.cost)} Stamina${m.mode !== "free" ? " · stops in a zone" : ""}${m.tackle ? " · tackle" : ""}`;
     } else if (o && ui.armed) t = "Tap a red ring";
-    else if (o && o.evading) { const tg = E.unitByUid(st, o.evading); t = Object.keys(o.moves).length ? `Evade: step further from ${tg ? tg.id : "the target"}, or End unit` : "No hex to evade to · End unit"; }
+    else if (o && o.evading) { const tg = E.unitByUid(st, o.evading); t = Object.keys(o.moves).length ? `Evade: step further from ${tg ? tg.id : "the target"}, or End unit` : `Can't evade: ${E.whyNoMove(st, E.unitByUid(st, ui.sel))} · End unit`; }
     el.hidden = !t || !!ui.sheet; el.textContent = t;
   }
 
@@ -1196,7 +1209,9 @@
     ["minDamage", "Minimum damage", "Every hit and pull does at least this."],
     ["poleHP", "Flagpole HP", "Pull it to 0 for a KO."],
     ["dodgePerHex", "Dodge per open hex (%)", "Room Dodge: each open hex round a Light unit is worth this much. An adjacent enemy blocks its hex and the two either side."],
-    ["turnLimit", "Turn limit", "Turns per player. Then more pull damage wins, then fewer beings lost."],
+    ["turnLimit", "Turn limit", "Turns per player. Then more pull damage wins, then less unit cap lost."],
+    ["turnLimit5", "Turn limit, 5v5", "v3.4: turns per player at 5v5 (with the per-format switch on)."],
+    ["turnLimit7", "Turn limit, 7v7", "v3.4: turns per player at 7v7 (with the per-format switch on)."],
     ["deployRadius", "Deployment radius", "Deploy within this many hexes of your own flag."]
   ];
   const SWITCHES = [
@@ -1220,13 +1235,14 @@
     ["evade", "Evade (Light units)", "v3.3: after an adjacent attack that leaves the target standing, a unit with Evade may keep moving, each step further from the target, with its remaining movement, Stamina and Command. No attack, brace, pull or swap after."],
     ["tackleHexCost", "Tackle costs a hex", "v3.3: breaking tackle costs the leaving unit its own hex cost (Heavy 1, Light 0.5) instead of the flat tackle cost."],
     ["tackleUsesCap", "Tackle uses a hex of movement", "v3.3: breaking tackle also uses up one hex of the unit's movement cap."],
-    ["doubleKoToTiebreak", "A double knockout goes to the tiebreaks", "v3.2: if one action finishes both sides, the turn-limit order decides: more pull damage, then fewer beings lost, then a draw."]
+    ["doubleKoToTiebreak", "A double knockout goes to the tiebreaks", "v3.2: if one action finishes both sides, the turn-limit order decides: more pull damage, then less unit cap lost, then a draw."],
+    ["turnLimitByFormat", "Turn limit per format", "v3.4: 5v5 and 7v7 each have their own turn limit (Turn limit, 5v5 / 7v7); other formats use Turn limit."]
   ];
   const CARD_FIELDS = [
     ["icon", "Icon", "icon"],
     ["hp", "HP", "num", 1], ["str", "Strength", "num", 1], ["range", "Range", "num", 1], ["armor", "Armor", "num", 1],
     ["dodge", "Dodge", "bool"], ["hexCost", "Stamina per hex", "num", 0.5], ["cap", "Max hexes", "num", 1], ["zone", "Zone of Control", "bool"],
-    ["trait", "Trait", "trait"], ["brace", "When braced", "brace"], ["reload", "Reloads", "bool"], ["evade", "Evade", "bool"], ["beings", "Beings", "num", 1]
+    ["trait", "Trait", "trait"], ["brace", "When braced", "brace"], ["reload", "Reloads", "bool"], ["evade", "Evade", "bool"], ["beings", "Unit cap (UC)", "num", 1]
   ];
   function rsOptions(selected) {
     return Object.values(App.rulesets).sort((a, b) => a.name.localeCompare(b.name)).map((r) => `<option value="${esc(r.id)}" ${r.id === selected ? "selected" : ""}>${esc(r.name)}</option>`).join("");
@@ -1378,20 +1394,20 @@
     const el = $("view-match"), st = App.st, m = App.match;
     let h = `<div class="scroll"><div class="wrap wide">${backbar("Matches", m && st ? "play" : "home")}`;
     if (m && st) {
-      const status = st.phase === "over" ? (st.result.winner ? `${esc(st.names[st.result.winner])} won, ${esc(st.result.how)}` : "Draw") : st.phase === "deploy" ? "Deploying" : `Turn ${st.turn}, ${sideName(st.toMove)} to move`;
+      const status = st.phase === "over" ? (st.result.winner ? `${esc(st.names[st.result.winner])} won, ${esc(say(st.result.how))}` : "Draw") : st.phase === "deploy" ? "Deploying" : `Turn ${st.turn}, ${sideName(st.toMove)} to move`;
       const pl = (t) => (isBot(t) ? "bot (" + esc(brainOf(t).name) + ")" : "human");
       h += `<div class="card"><h3>Current match</h3><p class="note">${esc(st.names.N)} (North, ${pl("N")}) vs ${esc(st.names.S)} (South, ${pl("S")}) · ${esc(m.rs.name)}${esc(buildNote(m))}${m.opts.format ? " · " + esc(formatOf(m.opts.format).label) : ""}${m.opts.seed ? ` · seed <span class="num">${esc(m.opts.seed)}</span>` : ""} · started ${new Date(m.started).toLocaleString()} · ${status}</p>
         <div class="actions"><button class="btn" data-act="copy-record">Copy match record for Claude</button>${st.phase === "play" && !isBot(st.toMove) ? `<button class="btn danger" data-act="surrender">${sideName(st.toMove)} surrenders</button>` : ""}</div>
         <textarea id="record" class="copyarea" readonly hidden></textarea></div>`;
       let lg = "";
-      for (const l of st.log) lg += l.kind === "turn" ? `<div class="t">${esc(l.text)}</div>` : `<div>${esc(l.text)}</div>`;
+      for (const l of st.log) lg += l.kind === "turn" ? `<div class="t">${esc(say(l.text))}</div>` : `<div>${esc(say(l.text))}</div>`;
       h += `<div><h3>Full log</h3><div class="fulllog">${lg || "Nothing yet."}</div></div>`;
     }
     h += `<div class="card"><h3>Finished matches</h3>`;
     if (!App.matches.length) h += `<p class="note">None saved yet.</p>`;
     else {
-      h += `<div class="tablewrap"><table class="data"><thead><tr><th></th><th>Finished</th><th>Rule set</th><th>Result</th><th>Turn</th><th>Pull damage N–S</th><th>Beings lost N–S</th></tr></thead><tbody>`;
-      for (const x of App.matches) h += `<tr><td><button type="button" class="iconbtn" data-act="copy-finished" data-id="${esc(x.id)}" aria-label="Copy this match's record for Claude" title="Copy match record">${ic("copy", 18)}</button></td><td>${x.finished ? new Date(x.finished).toLocaleDateString() : ""}</td><td>${esc(x.ruleset)}${x.build ? `<br><span class="muted">Build ${esc(String(x.build))}</span>` : ""}</td><td>${x.how === "abandoned" ? "Abandoned" : x.winner ? esc(x.names ? x.names[x.winner] : sideName(x.winner)) + " (" + sideName(x.winner) + "), " + esc(x.how) : "Draw, " + esc(x.how)}</td><td class="num">${x.turn}</td><td class="num">${x.pull ? x.pull.N + "–" + x.pull.S : ""}</td><td class="num">${x.lost ? x.lost.N + "–" + x.lost.S : ""}</td></tr>`;
+      h += `<div class="tablewrap"><table class="data"><thead><tr><th></th><th>Finished</th><th>Rule set</th><th>Result</th><th>Turn</th><th>Pull damage N–S</th><th>Unit cap lost N–S</th></tr></thead><tbody>`;
+      for (const x of App.matches) h += `<tr><td><button type="button" class="iconbtn" data-act="copy-finished" data-id="${esc(x.id)}" aria-label="Copy this match's record for Claude" title="Copy match record">${ic("copy", 18)}</button></td><td>${x.finished ? new Date(x.finished).toLocaleDateString() : ""}</td><td>${esc(x.ruleset)}${x.build ? `<br><span class="muted">Build ${esc(String(x.build))}</span>` : ""}</td><td>${x.how === "abandoned" ? "Abandoned" : x.winner ? esc(x.names ? x.names[x.winner] : sideName(x.winner)) + " (" + sideName(x.winner) + "), " + esc(say(x.how)) : "Draw, " + esc(say(x.how))}</td><td class="num">${x.turn}</td><td class="num">${x.pull ? x.pull.N + "–" + x.pull.S : ""}</td><td class="num">${x.lost ? x.lost.N + "–" + x.lost.S : ""}</td></tr>`;
       h += `</tbody></table></div><textarea id="record-finished" class="copyarea" readonly hidden></textarea>`;
     }
     h += `</div></div></div>`;
@@ -1415,7 +1431,9 @@
     $("scrim").addEventListener("click", () => { App.ui.sheet = null; App.ui.armed = null; render(); });
     document.body.addEventListener("click", (e) => {
       const s = e.target.closest("[data-seg]"); if (s && !s.disabled) { onSeg(s.dataset.seg, s.dataset.val); return; }
-      const b = e.target.closest("[data-act]"); if (b && !b.disabled) { onAction(b.dataset.act, b); return; }
+      const b = e.target.closest("[data-act]");
+      if (b && b.getAttribute("aria-disabled") === "true") { if (b.dataset.why) toast(b.dataset.why); return; }   // Brief 005: say why
+      if (b && !b.disabled) { onAction(b.dataset.act, b); return; }
       const row = e.target.closest("#roster tr[data-uid]");
       if (row && App.st && App.st.phase !== "deploy") { Object.assign(App.ui, { sel: row.dataset.uid, ghost: null, armed: null, sheet: null }); render(); const u = E.unitByUid(App.st, row.dataset.uid); if (u) revealHex(u.hex); }
     });

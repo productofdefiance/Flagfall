@@ -104,7 +104,7 @@
     const foe = E.foeOf(team), s = B.settings;
     const mine = E.alive(st).filter((u) => u.team === team).length, theirs = E.alive(st).filter((u) => u.team === foe).length;
     if (mine - theirs >= s.commitKeeperWhenAhead) return true;
-    if (st.turn >= st.rs.game.turnLimit - s.lateTurns && st.pole[foe] <= st.pole[team]) return true;
+    if (st.turn >= E.turnLimit(st) - s.lateTurns && st.pole[foe] <= st.pole[team]) return true;
     return false;
   }
 
@@ -197,7 +197,7 @@
       ahead guards harder. Returns multipliers for pressure and danger. */
   function lateGame(st, team, B) {
     const ug = B.behaviours && B.behaviours.urgency;
-    if (!ug || st.turn < st.rs.game.turnLimit - B.settings.lateTurns) return { press: 1, guard: 1 };
+    if (!ug || st.turn < E.turnLimit(st) - B.settings.lateTurns) return { press: 1, guard: 1 };
     const foe = E.foeOf(team);
     return st.pole[foe] > st.pole[team] ? { press: 1, guard: 1 + ug / 2 } : { press: 1 + ug, guard: 1 };
   }
@@ -247,6 +247,135 @@
       return `${u.id} moves to ${a.to}`;
     }
     return a.type;
+  }
+
+  // ---------- Kit D: turn planner (Brief 005) ----------
+  // The rest of the bot picks one action at a time, so it can't coordinate a turn. The planner looks at every attack its
+  // units could make this turn (moving first where needed), picks a target the team can remove, commits enough
+  // attackers to it, and returns the next step of that plan. It plans again after every action. Anything the plan
+  // doesn't cover falls back to Kit B's one-action choice. Each behaviour can be switched off in the brain (B.planner).
+  const planMemory = new WeakMap();   // st -> { key, target }: keeps the same target across a turn's steps
+  const expOf = (a) => a.cases.reduce((s2, [d, p]) => s2 + d * p, 0);
+  /** Every attack each of our units could make this turn: [{u, hex, move (null = from where it stands), t, exp, kill}]. */
+  function attackOptions(st, team) {
+    const out = [], keeper = keeperOf(st, team);
+    for (const u of E.alive(st)) {
+      if (u.team !== team || u.done) continue;
+      const o = E.options(st, u.uid);
+      if (o.evading) continue;
+      for (const a of o.attacks) out.push({ u: u.uid, hex: u.hex, move: null, t: a.target, exp: expOf(a), kill: a.killChance, melee: E.dist(u.hex, E.unitByUid(st, a.target).hex) === 1 });
+      if (keeper && keeper.uid === u.uid && flagHolderRules(st)) continue;   // our holder never leaves its flag to attack
+      for (const h in o.moves) {
+        const s1 = tryApply(st, { type: "move", uid: u.uid, to: h });
+        if (!s1) continue;
+        const u1 = E.unitByUid(s1, u.uid);
+        if (!u1 || u1.hp <= 0 || u1.done) continue;
+        for (const a of E.options(s1, u.uid).attacks) out.push({ u: u.uid, hex: h, move: h, t: a.target, exp: expOf(a), kill: a.killChance, melee: E.dist(h, E.unitByUid(s1, a.target).hex) === 1 });
+      }
+    }
+    return out;
+  }
+  /** Value of removing an enemy unit: what the evaluation counts for it, plus (pick off the weak) a little for Light units.
+      Bringing down a held flag wins the match. */
+  function removalValue(st, t, B) {
+    const w = B.weights;
+    if (E.isHolder(st, t)) return 1000;
+    return w.unitBase + w.hp * t.hp + (B.planner.pickWeak && classOf(E.card(st, t)) === "light" ? 2 : 0);
+  }
+  /** Commit attackers to target t: best attack per unit, distinct hexes, until the expected damage covers what's needed. */
+  function commit(st, B, opts, t, sticky) {
+    const need = E.effHp(st, t), sb = st.rs.game.supportBonus || 0, P = B.planner;
+    const byUnit = new Map();
+    for (const a of opts) if (a.t === t.uid) { const l = byUnit.get(a.u) || []; l.push(a); byUnit.set(a.u, l); }
+    const used = new Set(), plan = []; let total = 0;
+    const units = [...byUnit.keys()].sort((x, y) => Math.max(...byUnit.get(y).map((a) => a.exp)) - Math.max(...byUnit.get(x).map((a) => a.exp)));
+    for (const uid of units) {
+      if (total >= need - 1e-9) break;
+      const choices = byUnit.get(uid).filter((a) => !used.has(a.hex)).sort((x, y) => y.exp - x.exp || (x.move === null ? -1 : 1));
+      if (!choices.length) continue;
+      const a = choices[0];
+      // Support: a committed attacker that moves in next to the target helps every other committed attack (the ones
+      // already standing there are counted in each option's damage already). Moves happen before attacks.
+      const helpersIn = plan.filter((p) => p.melee && p.move).length;
+      total += a.exp + sb * helpersIn + (a.melee && a.move ? sb * plan.length : 0);
+      used.add(a.hex); plan.push(a);
+    }
+    const killable = total >= need - 1e-9;
+    const holder = E.isHolder(st, t);
+    if (holder && P.fort) {
+      // Crack the fort: at least two attackers in the goal zone, unless one attack is a near-certain kill.
+      const sure = plan.some((a) => a.kill >= 0.9);
+      if (plan.length < 2 && !sure) return null;
+    }
+    // Attack order: with fort on, the least valuable attacker goes first and takes the (once per turn) parry.
+    const val = (uid) => { const u = E.unitByUid(st, uid); return B.weights.unitBase + B.weights.hp * u.hp; };
+    if (P.fort && t.braced && E.card(st, t).brace === "parry") plan.sort((x, y) => val(x.u) - val(y.u));
+    else plan.sort((x, y) => y.exp - x.exp);
+    const value = removalValue(st, t, B) + (sticky ? 3 : 0);
+    return { t, plan, killable, need, total, score: P.pickWeak ? value / Math.max(need, 0.5) : value };
+  }
+  function planAction(st, B, rnd) {
+    const team = st.toMove, foe = E.foeOf(team), P = B.planner;
+    const mine = E.alive(st).filter((u) => u.team === team && !u.done);
+    if (!mine.length) return null;
+    const key = st.turn + team, mem = planMemory.get(st);
+    const last = mem && mem.key === key ? mem.target : null;
+    // Finish: pull an empty enemy flag whenever a unit can reach it.
+    if (P.finish && !E.holderOf(st, foe)) {
+      for (const u of mine) {
+        const o = E.options(st, u.uid);
+        if (o.pull) return { action: { type: "pull", uid: u.uid }, reason: `${u.id} pulls the empty flag`, score: 1 };
+      }
+      for (const u of mine) {
+        const o = E.options(st, u.uid);
+        for (const h in o.moves) { const s1 = tryApply(st, { type: "move", uid: u.uid, to: h }); if (s1 && E.options(s1, u.uid).pull) return { action: { type: "move", uid: u.uid, to: h }, reason: `${u.id} moves to ${h} to pull the empty flag`, score: 1 }; }
+      }
+    }
+    // Focus fire / pick off the weak / crack the fort.
+    if (P.focus) {
+      const opts = attackOptions(st, team);
+      const targets = [...new Set(opts.map((a) => a.t))].map((id) => E.unitByUid(st, id));
+      const plans = targets.map((t) => commit(st, B, opts, t, last === t.uid)).filter(Boolean);
+      let best = plans.filter((p) => p.killable).sort((x, y) => y.score - x.score)[0];
+      if (!best) {
+        // Nobody can be removed this turn: pile damage onto the enemy closest to removal, but only with attacks
+        // Kit B's own scoring doesn't count as harmful (keeps its caution).
+        const base = evaluate(st, team, B);
+        const pile = plans.filter((p) => p.plan.length).sort((x, y) => (x.need - x.total) - (y.need - y.total))[0];
+        if (pile) {
+          const ok = pile.plan.filter((a) => {
+            const s1 = a.move ? tryApply(st, { type: "move", uid: a.u, to: a.move }) : st;
+            if (!s1) return false;
+            const r = scoreAction(s1, { type: "attack", uid: a.u, target: a.t }, team, B, true);
+            return r && r.v >= base - 1e-9;
+          });
+          if (ok.length) best = Object.assign({}, pile, { plan: ok });
+        }
+      }
+      if (best && best.plan.length) {
+        planMemory.set(st, { key, target: best.t.uid });
+        const t = best.t, mover = best.plan.find((a) => a.move && E.unitByUid(st, a.u).hex !== a.move);
+        // Moves first, so every attack gets the Support of the others; then attacks in plan order.
+        if (mover) return { action: { type: "move", uid: mover.u, to: mover.move }, reason: `${E.unitByUid(st, mover.u).id} moves to ${mover.move} to attack ${t.id}${best.killable ? " (focus)" : ""}`, score: 1 };
+        const a = best.plan[0];
+        return { action: { type: "attack", uid: a.u, target: t.uid }, reason: `${E.unitByUid(st, a.u).id} attacks ${t.id}${best.killable ? " (focus)" : ""}`, score: 1 };
+      }
+    }
+    // Finish: with only the enemy holder left (or one unit besides it), every unit but our own holder heads for their goal zone.
+    if (P.finish) {
+      const theirs = E.alive(st).filter((e) => e.team === foe), h = E.holderOf(st, foe);
+      if (h && theirs.length <= 2) {
+        const keeper = keeperOf(st, team), goal = [...E.GOAL[foe]];
+        const dGoal = (hex) => Math.min(...goal.map((g) => E.dist(hex, g)));
+        for (const u of mine) {
+          if (keeper && keeper.uid === u.uid) continue;
+          let bestH = null, bd = dGoal(u.hex);
+          for (const hx in E.options(st, u.uid).moves) { const d = dGoal(hx); if (d < bd) { bd = d; bestH = hx; } }
+          if (bestH) return { action: { type: "move", uid: u.uid, to: bestH }, reason: `${u.id} heads for the enemy goal zone (finish)`, score: 1 };
+        }
+      }
+    }
+    return null;
   }
 
   /** Pick the next action for the side to move. Returns {action, reason, score}. */
@@ -302,6 +431,7 @@
       if (bestMv && bestMv.gain > 0) return { action: bestMv.mv, reason: `${evader.id} evades to ${bestMv.mv.to}`, score: bestMv.gain };
       return { action: { type: "done", uid: evader.uid }, reason: `${evader.id} stays (no better hex to evade to)`, score: 0 };
     }
+    if (B.planner) { const pa = planAction(st, B, rnd); if (pa) return pa; }   // Kit D
     for (const u of E.alive(st)) {
       if (u.team !== team || u.done) continue;
       const o = E.options(st, u.uid);
