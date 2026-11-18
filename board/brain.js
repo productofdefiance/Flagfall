@@ -117,7 +117,19 @@
     commitKeeperWhenAhead: ["Commit keeper when ahead by", "Drop the leash when this many units ahead."],
     lateTurns: ["Late-game turns", "Drop the leash this many turns before the limit when not ahead on pulls."],
     noise: ["Sloppiness", "Random wobble added to every score. 0 always plays its best move."],
-    pauseMs: ["Pause (ms)", "Pause between its actions on the board, so you can follow them."]
+    pauseMs: ["Pause (ms)", "Pause between its actions on the board, so you can follow them."],
+    // Brain 5's value model (Brief 006)
+    "model.unit": ["Unit on the field", "Value of having a unit at all. Removing an enemy unit is worth this plus its HP; losing one of ours costs the same."],
+    "model.hp": ["Per HP", "Value of each HP point, ours or theirs. Damage dealt and damage taken both count at this rate."],
+    "model.pull": ["Per flag point", "Value of each point of damage on the enemy flag (from pulls or hits on its holder), and the cost of each point on ours."],
+    "model.risk": ["Fear of damage taken", "How much it counts the damage the enemy can realistically do back next turn: their movement, range and Command; our Armor, Brace, Dodge room and Support. Higher plays safer."],
+    "model.pressure": ["Value of threats", "How much it counts the damage it could do on its own next turn. Higher plays more forward."],
+    "model.stamina": ["Next turn's Stamina", "Value of each point of Stamina a unit will start next turn with. Bracing costs 1 point (a braced unit starts with 2), so this is what a brace has to beat."],
+    "model.advance": ["Advance", "Value of each hex closer to the enemy flag, for every unit except the one holding our flag."],
+    "model.home": ["Holder stays home", "Cost of each hex our flag holder is away from our flag."],
+    "model.flagDanger": ["Empty flag danger", "Cost of leaving our flag empty where enemy units could pull it down next turn."],
+    "plan5.beam": ["Plans kept per step", "How many whole-turn plans it keeps while it builds them up, unit by unit. More is slower and looks wider."],
+    "plan5.perUnit": ["Choices per unit", "How many of each unit's best activations (move, attack, brace, Evade) it combines into plans."]
   };
 
   const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5 }, BRAIN_LABELS: LABELS };
