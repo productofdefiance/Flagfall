@@ -55,14 +55,20 @@ jobs:
       site: ${{ steps.where.outputs.site }}
       trigger: ${{ steps.where.outputs.trigger }}
       started: ${{ steps.where.outputs.started }}
+      sha: ${{ steps.sha.outputs.sha }}
     steps:
+      # A pull request's branch as it is when this run starts, not the commit that queued it: a run that waited behind
+      # another sees the job orders that one already played (moved to studies/done) and doesn't play them again.
       - uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.pull_request.head.sha || (github.event_name == 'workflow_run' && 'main') || github.sha }}
+          ref: ${{ github.event.pull_request.head.ref || (github.event_name == 'workflow_run' && 'main') || github.sha }}
           fetch-depth: 0
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      - name: The commit this run plays
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
       - name: Where the results and replay links go
         id: where
         env:
@@ -117,7 +123,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.pull_request.head.sha || (github.event_name == 'workflow_run' && 'main') || github.sha }}
+          ref: ${{ needs.plan.outputs.sha }}
       - uses: actions/setup-node@v5
         with:
           node-version: 20
@@ -164,7 +170,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ needs.plan.outputs.sha }}
           fetch-depth: 0
       - uses: actions/setup-node@v5
         with:
@@ -232,7 +238,7 @@ jobs:
         env:
           EV: ${{ github.event_name }}
           PLAY: ${{ needs.play.result }}
-          COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
+          COMMIT: ${{ needs.plan.outputs.sha }}
           TRIGGER: ${{ needs.plan.outputs.trigger }}
           ORDERS: ${{ needs.plan.outputs.orders }}
           STARTED: ${{ needs.plan.outputs.started }}
