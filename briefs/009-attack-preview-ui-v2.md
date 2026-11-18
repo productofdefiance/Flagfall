@@ -9,7 +9,7 @@
 | Goal | Build the four sets the Editor approved on 18 Nov: the attack preview, the unit card (lineup and in match), the action-button states, and the match top bar with its Options menu. Lock in the "unit cap (UC)" wording. |
 | Branch | Any branch your session may push to, started from `brief/009-attack-preview-ui-v2` |
 | Flags | none to close |
-| Order | **Start after 007 merges** (007 puts the game version in the match menu, which this brief rebuilds). Can run alongside 008 and 013; `sync` after each merge. |
+| Order | **Can start now**, alongside 007 and 008 (changed 18 Nov: 007 now waits on 008 and overnight runs). 007 also touches the match menu's version line: whichever merges second runs `sync` and keeps both (009's menu, 007's version line). |
 
 ## Context
 UI v2 is on the Approved UI canvas, page **v2** (phone, 390 wide). This brief carries every size, colour and word, so you never need to open the canvas. Look principles are Game Laws 7.9: symmetrical (each side mirrored, flags on the outsides), elegant, clean (an icon stands in for text, never repeats it). Ability names are the Laws' ability table (Section 3). Dice in force: two d6 graded into 5 outcomes (v3.3 on); the ±10% dice (Laws 6.13) are not built, so the outcome bar must read its outcomes from the engine (`dieCases`), never a fixed count.
@@ -42,7 +42,7 @@ Tapping Options dims the whole screen (`rgba(31,36,33,0.25)`) and opens a panel 
   - `7v7 · North vs Bot` (the format and both side names as the match has them): Plex Sans 600 14px.
   - `Rule set v3.4 · Bot: Brain 5` (leave out the bot part in a two-player match): 400 12px `#5f6762`.
   - `Seed WBUX-6Z5H-PKUY`: Plex Mono 500 11px `#5f6762`.
-  - The game version and build line that brief 007 adds to the menu: same style as the seed line, directly under it.
+  - The game version and build line (`v3.05.01 · Build 7` style, from `version.js`; 007 may change its wording): same style as the seed line, directly under it.
   - Right: a ✕ close button 44×44, radius 10, border `#b8beb6`, background `#f8f9f5`, `aria-label="Close options"`. It sits where the Options button was.
 - **Items** (each a `menuitem` button, min-height 48px, padding 0 16px, gap 12px, icon 20px, Plex Sans 600 14px, left-aligned):
   1. Match log and record (list icon) → today's Match screen.
