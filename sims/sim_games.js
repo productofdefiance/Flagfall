@@ -1,6 +1,6 @@
-// Per-game records. node tests/sim_games.js <presetId> <size 5|7> <games> <seedOffset> [overridesJSON]
-const E = require("../engine.js"), Bot = require("../bot.js");
-const { PRESETS } = require("../data.js"); const { DEFAULT_BRAINS } = require("../brain.js");
+// Per-game records. node sims/sim_games.js <presetId> <size 5|7> <games> <seedOffset> [overridesJSON]
+const E = require("../board/engine.js"), Bot = require("../board/bot.js");
+const { PRESETS } = require("../board/data.js"); const { DEFAULT_BRAINS } = require("../board/brain.js");
 const B = DEFAULT_BRAINS.standard;
 const [id, sizeS, gamesS, offS, ov] = process.argv.slice(2);
 const size = +sizeS, games = +gamesS, off = +(offS || 0);
@@ -8,7 +8,7 @@ const rs = JSON.parse(JSON.stringify(PRESETS.find((p) => p.id === id)));
 if (ov) { const o = JSON.parse(ov); Object.assign(rs.game, o.game || {}); Object.assign(rs.switches, o.switches || {}); }
 if (rs.switches.noKeeper) rs.lineup = (size === 5 ? [["HM","HM"],["HM2","HM"],["HA","HA"],["LM","LM"],["LR","LR"]] : [["HM","HM"],["HM2","HM"],["HA","HA"],["HR","HR"],["LM","LM"],["LA","LA"],["LR","LR"]]).map(([i,c]) => ({ id: i, card: c }));
 else rs.lineup = (size === 5 ? [["FK","HM",1],["HM","HM"],["HA","HA"],["LM","LM"],["LR","LR"]] : [["FK","HM",1],["HM","HM"],["HA","HA"],["HR","HR"],["LM","LM"],["LA","LA"],["LR","LR"]]).map(([i,c,f]) => ({ id: i, card: c, fk: !!f }));
-const rnd = require("./rng.js")("sim_games", off);   // engine generator (was a looping home-made formula)
+const rnd = require("../board/tests/rng.js")("sim_games", off);   // engine generator (was a looping home-made formula)
 const aliveOf = (st, t) => st.units.filter((u) => u.team === t && u.hp > 0).length;
 for (let g = 0; g < games; g++) {
   const first = (g + off) % 2 ? "S" : "N";

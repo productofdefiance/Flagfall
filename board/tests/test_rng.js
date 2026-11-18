@@ -14,6 +14,13 @@ const ok = (c, m) => { n++; if (!c) { fails++; console.log("FAIL:", m); } };
   ok(worst < 0.002, "2d6 within 0.2 points of true odds (worst " + (100 * worst).toFixed(3) + ")"); }
 ok(rng("a", 1)() === rng("a", 1)() && rng("a", 1)() !== rng("a", 2)(), "same name and offset repeat; a new offset changes the stream");
 const lcg = /1103515245/;
-for (const f of ["sim_games.js", "h2h_v3.js", "h2h_lineup.js", "flagdiag.js"])
-  ok(!lcg.test(fs.readFileSync(path.join(__dirname, f), "utf8")), f + " uses the shared generator");
+// The simulators live in sims/ (Brief 008). None may use a home-made formula or Math.random: the lab deals every game a
+// board seed from this stream and plays it through board/watch.js.
+const sims = path.join(__dirname, "..", "..", "sims");
+for (const f of ["sim_games.js", "h2h_v3.js", "h2h_lineup.js", "flagdiag.js", "baseline.js", "lab/play.js", "lab/merge.js", "lab/measures.js"]) {
+  const src = fs.readFileSync(path.join(sims, f), "utf8");
+  ok(!lcg.test(src), "sims/" + f + " uses the shared generator");
+  ok(!/Math\.random/.test(src), "sims/" + f + " never calls Math.random");
+}
+ok(/rng\.js/.test(fs.readFileSync(path.join(sims, "lab/play.js"), "utf8")), "the lab deals its board seeds from tests/rng.js");
 console.log(`${n} checks, ${fails} failures`); process.exit(fails ? 1 : 0);

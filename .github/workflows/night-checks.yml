@@ -3,6 +3,9 @@
 # - on demand: Actions tab → "night-checks" → "Run workflow";
 # - on a pull request that carries the label `full checks`.
 # A failing night or on-demand run opens (or adds to) a GitHub issue titled "Night checks failed".
+# Brief 008: a night or on-demand run also files its result in results/: one INDEX line ("no change, passed") when main
+# hasn't changed since the last passing night, otherwise a `nightly` run folder with a small health run. The lab
+# (lab.yml) then plays whatever job orders are queued.
 name: night-checks
 
 on:
@@ -13,8 +16,10 @@ on:
     types: [labeled, opened, synchronize, reopened]
 
 permissions:
-  contents: read
+  contents: write        # Brief 008: the results pull request
+  pull-requests: write
   issues: write
+  actions: write         # start the checks on the results pull request
 
 jobs:
   full:
@@ -57,6 +62,20 @@ jobs:
             echo "| test_kitd.js, 30 games per format | $(mark "${{ steps.kitd.outcome }}") |"
             echo "| test_brain5.js, 30 games per format and lineup | $(mark "${{ steps.brain5.outcome }}") |"
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: File the night in results/ (Brief 008)
+        if: always() && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.LAB_TOKEN || github.token }}
+          SHA: ${{ github.sha }}
+        run: |
+          printf 'test_v32.js (400 + 400)=%s\ntest_invariants.js (100)=%s\ntest_kitd.js (30)=%s\ntest_brain5.js (30)=%s\n' "${{ steps.v32.outcome }}" "${{ steps.inv.outcome }}" "${{ steps.kitd.outcome }}" "${{ steps.brain5.outcome }}" > /tmp/checks.txt
+          # the health run: the default brain against itself, 20 games per format, newest rule set
+          node sims/lab/plan.js --orders "" --release /dev/null --release-only 1 --release-games 20 --out /tmp/nightly > /dev/null
+          o=$(ls /tmp/nightly/*.json | head -1)
+          node -e 'const f=process.argv[1],o=JSON.parse(require("fs").readFileSync(f));o.id="health";o.kind="nightly";o.question="Do main'"'"'s full checks still pass, and how do 20 games per format of the default brain against itself end?";o.tags=["nightly"];require("fs").writeFileSync(f,JSON.stringify(o))' "$o"
+          mkdir -p /tmp/parts && node sims/lab/play.js --out /tmp/parts/p.jsonl "$o"
+          node sims/lab/nightly.js --commit "$SHA" --checks /tmp/checks.txt --parts /tmp/parts --order "$o"
+          bash sims/lab/deliver.sh main "Night checks $(date -u +%Y-%m-%d)"
       - name: Open an issue if a night or on-demand run failed
         if: (steps.v32.outcome != 'success' || steps.inv.outcome != 'success' || steps.kitd.outcome != 'success' || steps.brain5.outcome != 'success') && github.event_name != 'pull_request'
         env:
