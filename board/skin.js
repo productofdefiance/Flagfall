@@ -41,3 +41,4 @@
     board: { hexRadius: 30, pad: 8, tokenScale: 0.6, showHexNames: true }
   };
 })(this);
+// THROWAWAY: board change without raising the build number (Brief 003 proof). Do not merge.
