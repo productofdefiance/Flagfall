@@ -23,6 +23,9 @@
   6. **Details:** one line pointing to the brief's Report and `CHANGELOG.md`.
 - Numbers only where they matter, and never a table in a chat reply unless asked.
 - **End every pull request description with the play link** on its own line: `Play this build: <link>`.
+- **Draft until done.** Open your pull request as a **Draft** as soon as you push. Mark it **Ready for review** only when the build is finished, the Report is filled in and the checks pass. For the Editor, "not Draft" means "ready to merge".
+- **Pull request titles:** `vX.YY.ZZ · NNN Lane · short name` for builds (e.g. `v3.06.00 · 007 Bot · Tune Brain 5`), `Docs · short name` for docs-only changes.
+- **Start the description with "Before you merge:"**: the must-do checks first, then any optional ones, each one line.
 
 ## Keep messages short
 The Editor glances; every extra line costs reading time and usage. Efficiency never at the cost of good work.
@@ -52,7 +55,7 @@ One word, the same behaviour every time. The design chat keeps the full list in 
 
 ## Process
 - Don't rerun slow simulations or the full checks locally for a change that doesn't touch the rules or the bot (docs, flags, screen text). Say in the Report what you skipped and why.
-- Work on a branch named `build/NNN-short-name`. Never commit to `main` directly. Open a pull request and give the Editor the link.
+- Work on any branch your session may push to, started from the brief's branch. Never commit to `main` directly. Open a pull request and give the Editor the link.
 - Don't invent rules the Editor hasn't agreed. List them as `ASK` rows instead.
 - Keep `FLAGS.md` current: close the rows your build fixes, open rows for anything you found.
 - **Game version (vX.YY.ZZ).** One game version is the reference for everything: rules, brains, UI and board. Each part keeps its own number (rule set v3.4, Brain 5, UI v1, Build N), and any change to any part bumps the game version:
