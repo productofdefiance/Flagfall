@@ -42,12 +42,22 @@
 
 ## Process
 - Don't rerun slow simulations or the full checks locally for a change that doesn't touch the rules or the bot (docs, flags, screen text). Say in the Report what you skipped and why.
-- Work on a branch named `build/NNN-short-name`. Never commit to `main` directly. Open a pull request and give the Editor the link.
+- Work on a branch the session may push to (see "Branch names" below). Never commit to `main` directly. Open a pull request and give the Editor the link.
 - Don't invent rules the Editor hasn't agreed. List them as `ASK` rows instead.
 - Keep `FLAGS.md` current: close the rows your build fixes, open rows for anything you found.
 - **Raise the build number.** Every build that changes `board/` raises the build number by one in `board/version.js` (the only place it is kept) and puts it in its `CHANGELOG.md` heading. The `checks` workflow fails a pull request that changes `board/` without raising it.
 - **Keep `CHANGELOG.md` current.** Every build adds one entry at the top, in the same pull request: the brief number, the rule set it adds or changes, the date, then in plain language what a player will notice, what changed under the hood, which flags it closed, and the baseline table for rule changes. Create the file on the first build that finds it missing, starting with that build and a one-line entry for each earlier merged brief. Once the board shows a build number, put it in each entry's heading.
 - The Game Laws, Dev Handover and Ideas Log live outside this repo and are kept by the design chat. Don't try to edit them. If the code and a brief disagree with each other, say so in the Report.
+
+## The lab and results (Brief 008)
+- **Where runs happen.** Simulations run on GitHub through the lab (`.github/workflows/lab.yml`), not in a Claude session. Write a job order in `studies/queue/` (format in `results/README.md`). Daytime `screen` runs (up to about 200 games per side) are for quick looks; anything at 1,000+ games per side goes overnight. A short check during a build is fine in the session.
+- **Sweeps in two stages.** Screen every value at about 200 games per side. Confirm only the promising ones at 1,000+ overnight (F23).
+- **Results.** Every run writes a folder in `results/` as `results/README.md` describes. Never put results anywhere else. Extend the structure by adding (a kind, a column, a field, a measure in `sims/lab/measures.js`), never by renaming.
+- **Every simulated game can be watched.** The lab plays each game exactly as the board would (`board/watch.js`), from a board seed dealt by `tests/rng.js`. Keep it that way: `sims/lab/board_check.js` must pass.
+- **Version at merge.** A brief states the version it expects. If another pull request merged first, take the next free number and fix `version.js` and the changelog heading.
+- **Side by side.** Two builds may run in parallel unless one changes what the other measures or shows. Rule changes go one at a time. Branch from `main` (or the brief branch), never from another open pull request.
+- **Branch names.** Use whatever branch the session may push to. Start it from the brief branch, and name it in the Report.
+- **Checks vs scripts.** `board/tests/` keeps only pass/fail checks (`test_*.js`, `regress_engine.js`, `rng.js`). Scripts that play games and make results live in `sims/`.
 
 ## Pitfalls (things that went wrong before, and the guard)
 | What happened | Guard |

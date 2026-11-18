@@ -1,0 +1,13 @@
+{
+  "id": "lab-odd-order-check",
+  "kind": "experiment",
+  "brief": "008",
+  "question": "Does the lab run an order with an unknown kind, an extra measure and an extra run.json field without errors?",
+  "tags": ["lab", "self-test"],
+  "measures": ["evade", "light", "clock", "play", "no-such-measure"],
+  "owner_note": "an extra field the lab doesn't know",
+  "matchups": [
+    { "name": "standard-v-brain5", "a": "standard", "b": "brain5", "rules": "v3.4", "format": "blitz5", "mix": "mixed", "games": 4 },
+    { "name": "brain5-light-mirror", "a": "brain5", "b": "brain5", "rules": "v3.4", "format": "blitz5", "mix": "light", "games": 2, "measures": ["evade"] }
+  ]
+}

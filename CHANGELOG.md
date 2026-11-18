@@ -2,6 +2,24 @@
 
 Newest first. One entry per build, written for the Editor: what a player notices first, then what changed under the hood.
 
+## v3.05.01 (Build 7) — Brief 008, the lab: heavy runs on GitHub, organised results, watch any game by seed (18 Nov 2026)
+Rule set: none changed (v3.4 stays the newest). No brain changed. Game version **v3.05.01** (ZZ: nothing about how the game plays changes). If brief 007 (v3.06.00, also Build 7) merges first, this takes v3.06.01 and Build 8.
+
+**What a player will notice**
+- A link can open any simulated game on the board, set up and playing: `…/Flagfall/?watch=<seed>&rules=…&n=…&s=…`. Every simulated game now has one. If the board doesn't have that game's brain or rule set, it says so instead of playing a different game; if the version differs, it warns first.
+- A watched game never replaces your own match in progress, and isn't saved to the Matches list.
+- Matches you set up yourself with a seed play exactly as before.
+
+**Under the hood**
+- `board/watch.js`: how the board sets up and plays a Computer vs Computer match from its seed (lineups, coin toss, deployment, the bot's steps), shared by the board and the simulators. The board's lineups moved there unchanged (checked against the old ones for every rule set, format, mix and three brains).
+- The lab: `.github/workflows/lab.yml` plays job orders from `studies/queue/` on up to 20 GitHub machines (every night after the night checks, on demand, or in a pull request), and `sims/lab/` writes one run folder per order in `results/` (`SUMMARY.md`, `run.json`, `games.csv` with a replay link per game, `tables/`) plus `results/INDEX.md` and `results/index.csv`. Results reach `main` through a pull request that may only change `results/` and `studies/` and merges itself once the checks pass.
+- Release runs: a pull request that changes the game version gets the baseline table at 1,000 games per format (default brain mirror, newest rule set), every check and the regression hashes, posted as a comment, and filed after the merge.
+- The night checks file their result in `results/` too ("no change, passed" when `main` hasn't changed).
+- Tidy: simulators moved from `board/tests/` and `data/sim_study10/` to `sims/`; the old studies moved from `data/sim_study6–10` to `results/pre-v3.05.00/` (with `git mv`; its README maps old paths to new).
+- New checks: `test_watch.js`, `sims/lab/self_test.js`, and `sims/lab/board_check.js` (10 simulated games and the same games on the board play identical moves; its own job in `checks`).
+
+**Flags closed:** none. **Opened:** F27 (results reaching `main` need two repository settings), F28 (starting a lab run from a Claude session).
+
 ## Build 6 — Brief 006, Brain 5: a bot that plans its turn (18 Nov 2026)
 Rule set: none changed (v3.4 stays the newest). New opponent **Brain 5**, now the default.
 
