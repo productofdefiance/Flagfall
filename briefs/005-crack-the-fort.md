@@ -18,7 +18,7 @@ Most bot games end on the turn limit: 38% at 7v7 and 76% at 5v5 on v3.2, with al
 **Lesson from before:** batch B tried "focus fire" and "target priority" as weights, and both made the bot worse. The bot picks one action at a time, so it can't coordinate a turn. This brief asks for a **turn planner**, not more weights.
 
 ## Scope
-In: a new brain, Kit D, with a turn planner for the behaviours below; preset v3.4 with a per-format turn limit; measurements. Out: Cavalry, specials, the full coaching-engine rework (that comes after Cavalry and specials), and any rule change other than the 7v7 turn limit.
+In: a new brain, Kit D, with a turn planner for the behaviours below; preset v3.4 with a per-format turn limit; measurements; clearer Evade and blocked-action messages (item 4, screen text only). Out: Cavalry, specials, the full coaching-engine rework (that comes after Cavalry and specials), and any rule change other than the 7v7 turn limit.
 
 ## What to build
 1. **Preset `v3.4`** = v3.3 with a per-format turn limit: **5v5 25 turns, 7v7 35 turns** (turns per player, as now). Older presets keep 25 for every format. Show the turn limit for the chosen format on the Settings screen.
@@ -30,6 +30,11 @@ In: a new brain, Kit D, with a turn planner for the behaviours below; preset v3.
    - Keep Kit B's caution and guarding, so it doesn't throw its own flag away.
    Keep Kit B unchanged for comparison. If a behaviour makes Kit D worse in testing, say so and leave it switched off rather than dropping it silently.
 3. **Kit D becomes the default opponent** only if it beats Kit B (item 4); otherwise Kit C stays the default and the Report says why.
+4. **Evade messages (screen only, no rule change).** Found by the Editor playing build 4: a Light unit next to a Tackle unit attacked, the attack preview said "Evade after: up to 1 hex", and then the board said "No hex to evade to". The real reason was tackle: breaking it needed 1 Stamina (0.5 had) and 2 hexes of cap (1 left). The engine was right; the words were wrong. Fix both:
+   - The pre-attack Evade preview counts tackle (its Stamina and the cap hex) and the direction rule, so it never promises a step that won't exist. If it can't tell for sure, it says so instead of giving a number.
+   - When an evading unit has no legal step, the board says why, from the engine: out of Stamina, out of Command, moved its full cap, tackled by a named unit (needs X, has Y), or no free hex further from the target.
+   - Wherever an action button is greyed out, the board shows the reason the same way (for example "Needs 1 Command, 0.5 left"). Every reason comes from the engine, never worked out separately on screen.
+   Test: the Editor's case (rebuild it from the match he played, seed MQVV-DBL7-F7ZM, turn 9, South LA at E2) shows the tackle reason.
 
 ## Rules it touches
 Turn limit and its tiebreaks (v3.4 only). The bot must still pick only legal actions from the engine.
