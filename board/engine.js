@@ -472,12 +472,28 @@
     if (st.result) { st.phase = "over"; log(st, `${st.result.winner === "N" ? "North" : "South"} wins by ${st.result.how}`, "result"); }
   }
 
+  /** Unit cap per side for a rule set and lineup: the sum of the cards' unit cap (the "beings" field). */
+  function capOfLineup(rs, lineup) { return (lineup || []).reduce((s, l) => s + ((rs.cards[l.card] && rs.cards[l.card].beings) || 1), 0); }
+  /** Turns per player for a format. v3.4 (turnLimitByFormat): 5v5 and 7v7 have their own limits; anything else, and
+      every older rule set, uses turnLimit. */
+  function turnLimitFor(rs, size) {
+    const g = rs.game;
+    if (!(rs.switches && rs.switches.turnLimitByFormat)) return g.turnLimit;
+    return (size === 5 && g.turnLimit5) || (size === 7 && g.turnLimit7) || g.turnLimit;
+  }
+  /** The turn limit of this match. */
+  function turnLimit(st) {
+    if (!sw(st, "turnLimitByFormat")) return st.rs.game.turnLimit;
+    const size = st.units.filter((u) => u.team === "N").reduce((s, u) => s + (card(st, u).beings || 1), 0);
+    return turnLimitFor(st.rs, size);
+  }
+
   function endTurn(st) {
     const rec = st.spend[st.spend.length - 1];
     if (rec) rec.spent = rec.cmd - st.cmd;
     const next = foeOf(st.toMove);
     if (st.toMove !== st.first) {
-      if (st.turn >= st.rs.game.turnLimit) return limitResult(st);
+      if (st.turn >= turnLimit(st)) return limitResult(st);
       st.turn += 1;
     }
     startTurn(st, next);
@@ -703,6 +719,6 @@
   }
 
   const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, foeOf, clone, card, alive, unitByUid,
-    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, evadePreview, tackleCostFor, tiebreak, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
+    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, evadePreview, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
   if (typeof module !== "undefined") module.exports = api; else root.GGEngine = api;
 })(this);

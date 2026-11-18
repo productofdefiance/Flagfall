@@ -23,7 +23,8 @@ const far = (st, uid, fromUid) => { const u = U(st, uid), t = U(st, fromUid);   
 const nb = (h) => E.NBRS[h];
 
 ok(V33 && V33.switches.evade && V33.switches.tackleHexCost && V33.switches.tackleUsesCap, "v3.3 exists with evade, tackleHexCost, tackleUsesCap");
-ok(PRESETS[PRESETS.length - 1].id === "v3.3", "v3.3 is the last preset, so new games default to it");
+// Was "v3.3 is the last preset". Brief 005 adds v3.4 after it; the newest-preset check now lives in test_v34.js.
+ok(PRESETS.indexOf(V33) >= 0 && PRESETS.indexOf(V33) < PRESETS.length - 1, "v3.3 is still offered, behind the newest preset");
 ok(["LM", "LR", "LA"].every((c) => V33.cards[c].evade) && ["HM", "HR", "HA"].every((c) => !V33.cards[c].evade), "v3.3: the three Light cards have Evade, the Heavy ones don't");
 { const a = JSON.parse(JSON.stringify(V32)), b = JSON.parse(JSON.stringify(V33));
   for (const k of ["id", "name", "note"]) { delete a[k]; delete b[k]; }

@@ -6,10 +6,13 @@
 const E = require("../engine.js"), Bot = require("../bot.js");
 const { PRESETS } = require("../data.js"); const { DEFAULT_BRAINS } = require("../brain.js");
 const [rsId, sizeS, gamesS, aId, bId, mode, shardS, flipS] = process.argv.slice(2);
-const size = +sizeS, games = +gamesS, shard = +(shardS || 0), BA = DEFAULT_BRAINS[aId], BB = DEFAULT_BRAINS[bId];
+// A brain may be named with planner switches changed, e.g. kitD:fort=0 (Brief 005 ablations).
+const brainFrom = (spec) => { const [id, mods] = spec.split(":"); const b = JSON.parse(JSON.stringify(DEFAULT_BRAINS[id]));
+  for (const kv of (mods || "").split(",").filter(Boolean)) { const [k, v] = kv.split("="); b.planner[k] = +v; } return b; };
+const size = +sizeS, games = +gamesS, shard = +(shardS || 0), BA = brainFrom(aId), BB = brainFrom(bId);
 const rs = JSON.parse(JSON.stringify(PRESETS.find((p) => p.id === rsId)));
 for (const kv of (flipS || "").split(",").filter(Boolean)) { const [k, v] = kv.split("="); rs.switches[k] = v === "on" || v === "true"; }
-const rnd = require("./rng.js")(`baseline:${rsId}:${size}:${aId}:${bId}:${mode}`, shard);
+const rnd = require("./rng.js")(`baseline:${rsId}:${size}:${aId.split(":")[0]}:${bId.split(":")[0]}:${mode}`, shard);   // same seed for ablation variants
 const balanced = size === 5 ? { HM: 2, HA: 1, LM: 1, LR: 1 } : { HM: 2, LM: 1, HR: 1, LR: 1, HA: 1, LA: 1 };   // what the board gives a bot by default
 const lineupOf = (B) => { const c = (mode === "kit" && Bot.squadCounts(rs, size, B)) || balanced, out = [];
   for (const code of Object.keys(rs.cards)) for (let i = 0; i < (c[code] || 0); i++) out.push({ id: i ? code + (i + 1) : code, card: code });

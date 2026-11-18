@@ -69,6 +69,14 @@
   KIT_C2.note = "Coaching kit v0 batch C: Kit B's play with its own squad instead of the balanced lineup: 3 HM, 2 HA, 2 HR at 7v7; 2 HM, 2 HA, 1 HR at 5v5.";
   KIT_C2.squad = { 7: { HM: 3, HA: 2, HR: 2 }, 5: { HM: 2, HA: 2, HR: 1 } };
 
+  /* Kit D (Brief 005, 2026-11-18): Kit B plus a turn planner (bot.js planAction). Each planner behaviour can be
+     switched off here: focus (remove one enemy at a time), pickWeak (most value per point of damage), fort (two
+     attackers in the goal zone, least valuable takes the parry), finish (pull an empty flag; rush a lone holder). */
+  const KIT_D = JSON.parse(JSON.stringify(KIT_B));
+  KIT_D.id = "kitD"; KIT_D.name = "Kit D (Kit B + turn planner)";
+  KIT_D.note = "Plans its whole turn: gangs up on one enemy it can remove, picks off weak units first, cracks a held flag with two attackers, and rushes the flag when only the holder is left. Otherwise plays like Kit B.";
+  KIT_D.planner = { focus: 1, pickWeak: 1, fort: 1, finish: 1 };
+
   const LABELS = {
     unitBase: ["Unit on the field", "Value of having a unit at all, so a kill is worth this plus the unit's HP."],
     keeperBase: ["Flagkeeper bonus", "Extra value of the Flagkeeper, on either side."],
@@ -91,6 +99,6 @@
     pauseMs: ["Pause (ms)", "Pause between its actions on the board, so you can follow them."]
   };
 
-  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2 }, BRAIN_LABELS: LABELS };
+  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D }, BRAIN_LABELS: LABELS };
   if (typeof module !== "undefined") module.exports = api; else root.GGBrain = api;
 })(this);
