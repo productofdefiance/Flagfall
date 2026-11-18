@@ -46,6 +46,7 @@ node tests/test_v33.js
 node tests/test_v34.js
 node tests/test_reasons.js
 node tests/test_kitd.js
+node tests/test_brain5.js
 node tests/test_invariants.js
 node tests/test_rng.js
 node tests/test_replay.js ../data/match3_log.txt
