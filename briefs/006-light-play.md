@@ -70,7 +70,8 @@ Out:
 
    No new "if X then do Y" behaviours. If something can't be expressed as gained, risked or next turn, raise it as an `ASK` in `FLAGS.md` instead of hard-coding it.
 4. **Expose the model's weights as brain settings** (for example: how much it fears damage taken, how much it values next turn's Stamina, how much it values the flag). Later kits and personalities can then be made by tuning them, not rewriting the bot. Label each one in plain words on the Brain screen.
-5. Brain 5 becomes the default opponent only if it beats Kit D (measurement 2).
+5. **Settings review** (now standard for every brain build, see `CLAUDE.md`): which of Brain 5's settings showed no effect, and which situations no setting could fix (as `ASK` rows).
+6. Brain 5 becomes the default opponent only if it beats Kit D (measurement 2).
 
 ## Rules it touches
 None change. Brain 5 must model these correctly and pick only legal actions from the engine:
@@ -144,6 +145,7 @@ Say whether each cause is isolated or only likely.
 - **Checks run and results (paste regression hashes):**
 - **Baseline table (rule changes only):**
 - **Bot minimum (met / not met, with numbers):**
+- **Settings review (brain builds only): settings with no effect found; settings that seem to be missing (with evidence):**
 - **Known gaps:**
 - **Flags closed / opened:**
 - **Pull request:**

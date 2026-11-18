@@ -36,6 +36,9 @@
 - Report simulation results with tiebreak wins counted separately from KOs and draws. Say when a cause is likely but not isolated.
 - Add a test for every rule you add or fix. A fix's test must fail on the old preset and pass on the new one.
 - **Bot minimum.** Every build that adds a unit, action or rule teaches the computer opponent to use it sensibly, as the brief's Bot minimum section says, and the Report proves it with numbers. Simulations are only evidence if the bot plays the feature.
+- **Settings review on every brain build.** Any build that adds or tunes a brain ends its Report with a settings review:
+  - **Useless settings:** change each setting up and down (and off). Any whose change moves results by less than the noise (F23) is listed as "no effect found", with the numbers. Don't delete it: it may matter under other rules or lineups. Retire it only when the Editor agrees.
+  - **Missing settings:** situations where the brain keeps choosing badly and no existing setting fixes it. List each as an `ASK` in `FLAGS.md`, with the evidence (how often, an example game and turn) and the setting it suggests. Say plainly that this is harder to prove than the first list.
 
 ## Process
 - Don't rerun slow simulations or the full checks locally for a change that doesn't touch the rules or the bot (docs, flags, screen text). Say in the Report what you skipped and why.
