@@ -261,7 +261,8 @@ As a sanity check on noise, the two identical Brain 5 sides split decisive games
     kitA2      435067a8967aea33
     kitC       143507a2c0e8afe6
     kitB       2a976e50634849ee
-    BRAINHASH_TAIL
+    batchC     c669ad4fb0e4e3ce
+    kitD       4dbf147f8a3557c2
     ```
   - In the browser (phone size), a fresh New match picks Brain 5 for the computer side, and a game starts and plays with no errors.
 - **Baseline table:** no rule change. The stall re-check above is the Brain 5 table.
