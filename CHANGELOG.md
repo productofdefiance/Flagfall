@@ -17,7 +17,7 @@ Rule set: none changed (v3.2 stays the newest).
 - `checks` is split into parallel quick jobs (a few minutes). The full 400 + 400 double-knockout count moved to a nightly run (`night-checks`), which can also be started by hand or by the `full checks` label on a pull request. A failing night run opens a "Night checks failed" issue.
 - New `play-links` workflow publishes `main` and every open pull request to the `gh-pages` branch.
 
-**Flags closed:** none.
+**Flags closed:** none. **Opened:** F21 (a holder on its last half point shows HP 0).
 
 ## Build 2 — Brief 002, v3.2: order of operations (17 Nov 2026)
 
