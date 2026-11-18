@@ -139,4 +139,4 @@ The standard Report, the four measurements above, and a short plain-language rea
   4. Your build-4 match is rebuilt by hand, not replayed (see beyond the brief, item 2).
   5. Kit D wasn't measured against Kit C (the previous default). The brief asked only for Kit D against Kit B.
 - **Flags closed / opened:** Updated F10, F11, F12 with this evidence (still open: they need a design answer). Opened F23 (ASK).
-- **Pull request:** see the pull request that adds this Report.
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/8
