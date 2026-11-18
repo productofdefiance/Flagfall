@@ -378,11 +378,178 @@
     return null;
   }
 
+  // ---------- Brain 5: whole-turn planner on one value model (Brief 006) ----------
+  // Every choice (attack, move, brace, Evade, spacing) comes from one score: what the position gains, what it risks next
+  // turn, and what it leaves for next turn. No "if X then Y" behaviours. The planner builds whole-turn plans out of unit
+  // activations, keeps only the ones the engine accepts (so it never plans what it can't pay for), picks the best, and
+  // plans again after every roll of the dice.
+  const plan5 = new WeakMap();   // st -> { key, at: st.actions.length when the next step is due, steps }
+  const stats5 = { plans: 0, values: 0 };
+  /** What the enemy can realistically do to `team` next turn: each enemy that can reach a unit attacks once, within the
+      enemy's Command for the turn (movement plus the attack), damage piling up so focus fire can remove a unit, and each
+      extra attacker on the same unit adding Support. Our Armor, Brace, Dodge room and holder pool all count (engine). */
+  function risk5(st, team, B) {
+    const W = B.model, foe = E.foeOf(team), g = st.rs.game;
+    const own = E.alive(st).filter((u) => u.team === team), enemies = E.alive(st).filter((e) => e.team === foe);
+    const opts = [];
+    for (const e of enemies) {
+      const ce = E.card(st, e), reach = ce.range > 1 ? ce.range : (ce.trait === "reach" ? 2 : 1);
+      for (const u of own) {
+        if (!canThreaten(st, e, u.hex)) continue;
+        const steps = Math.max(0, E.dist(e.hex, u.hex) - reach);
+        opts.push({ e, u, d: expectedHit(st, e, u), cost: g.attackCost + steps * ce.hexCost });
+      }
+    }
+    // greedy: the enemy's most valuable hit first, as long as its Command lasts
+    let cmd = g.command, total = 0;
+    const acc = new Map(), hits = new Map(), used = new Set();
+    for (;;) {
+      let best = null;
+      for (const o of opts) {
+        if (used.has(o.e) || o.cost > cmd + 1e-9) continue;
+        const hp = E.effHp(st, o.u), a = acc.get(o.u) || 0;
+        if (a >= hp) continue;
+        const d = o.d + (hits.get(o.u) || 0) * (g.supportBonus || 0) * 0.5;   // a second attacker brings Support (about half a point after the roll)
+        const kill = a + d >= hp;
+        const v = Math.min(d, hp - a) * W.hp + (kill ? W.unit + (E.isHolder(st, o.u) ? W.pull * E.flagLeft(st, team) + 50 : 0) : 0);
+        if (!best || v / o.cost > best.r) best = { o, v, d, r: v / o.cost };
+      }
+      if (!best) break;
+      total += best.v; cmd -= best.o.cost; used.add(best.o.e);
+      acc.set(best.o.u, (acc.get(best.o.u) || 0) + best.d); hits.set(best.o.u, (hits.get(best.o.u) || 0) + 1);
+    }
+    return total;
+  }
+  /** One score for a position, from `team`'s side: gained (units, HP, flag), risked (risk5 both ways), next turn
+      (Stamina each unit starts with, placement for the goal and for defence). Weights live in the brain (B.model). */
+  function value5(st, team, B) {
+    stats5.values++;
+    const W = B.model, foe = E.foeOf(team);
+    if (st.result) return st.result.winner === team ? 1e5 : st.result.winner ? -1e5 : 0;
+    let v = 0;
+    for (const u of E.alive(st)) {
+      const val = W.unit + W.hp * u.hp;
+      v += u.team === team ? val : -val;
+      if (u.team === team) {
+        v += W.stamina * E.status(st, u).stamNext;                        // next turn: Stamina it starts with (2 after a brace)
+        if (!isKeeper(st, u)) v -= W.advance * E.dist(u.hex, E.FLAG[foe]); // placement for the goal
+        else if (flagHolderRules(st)) v -= W.home * E.dist(u.hex, E.FLAG[team]);   // placement for defence
+      }
+    }
+    v += W.pull * (st.pole[foe] - st.pole[team]);
+    v -= W.risk * risk5(st, team, B);
+    v += W.pressure * risk5(st, foe, B);
+    v -= W.flagDanger * Math.min(1, flagRisk(st, team, Object.assign({}, B, { weights: Object.assign({}, B.weights, { flagRisk: 1 }) })));
+    return v;
+  }
+  const tryAct = (st, a, die) => { const s = E.cloneLite(st); try { E.apply(s, a, () => die || E.normalDie(st)); return s; } catch (e) { return null; } };
+  /** Play an attack (and, for an evading Light unit, its best step away) on a copy. Dice: the score is the average over
+      the rule set's dice; the plan carries on from the usual roll. Returns { s, acts, v } or null. */
+  function attackLine(st, team, B, pre, uid, target) {
+    let v = 0;
+    for (const [d, p] of E.dieCases(st)) { const s1 = tryAct(st, { type: "attack", uid, target }, d); if (!s1) return null; v += p * value5(s1, team, B); }
+    let s = tryAct(st, { type: "attack", uid, target });
+    const acts = pre.concat([{ type: "attack", uid, target }]);
+    const u = s && E.unitByUid(s, uid);
+    if (u && u.hp > 0 && E.options(s, uid).evading) {
+      // Evade: the step that scores best, or none
+      let best = { s, v: value5(s, team, B), h: null };
+      for (const h in E.options(s, uid).moves) { const s2 = tryAct(s, { type: "move", uid, to: h }); if (s2) { const v2 = value5(s2, team, B); if (v2 > best.v) best = { s: s2, v: v2, h }; } }
+      if (best.h) { v += best.v - value5(s, team, B); s = best.s; acts.push({ type: "move", uid, to: best.h }); }
+    }
+    return s ? { s, acts, v } : null;
+  }
+  /** Every whole activation of one unit from position st: [{ acts, s, v }]. */
+  function activations5(st, team, B, uid) {
+    const u = E.unitByUid(st, uid); if (!u || u.hp <= 0 || u.done) return [];
+    const o = E.options(st, uid), out = [], add = (x) => { if (x) out.push(x); };
+    out.push({ acts: [], s: st, v: value5(st, team, B) });   // do nothing
+    if (o.evading) { for (const h in o.moves) { const s1 = tryAct(st, { type: "move", uid, to: h }); if (s1) add({ acts: [{ type: "move", uid, to: h }], s: s1, v: value5(s1, team, B) }); } return out; }
+    const fromHere = (s0, pre) => {
+      const o0 = E.options(s0, uid);
+      for (const a of o0.attacks) add(attackLine(s0, team, B, pre, uid, a.target));
+      if (o0.brace) { const s1 = tryAct(s0, { type: "brace", uid }); if (s1) add({ acts: pre.concat([{ type: "brace", uid }]), s: s1, v: value5(s1, team, B) }); }
+      if (o0.pull) { let v = 0; for (const [d, p] of E.dieCases(s0)) { const s1 = tryAct(s0, { type: "pull", uid }, d); if (s1) v += p * value5(s1, team, B); } const s1 = tryAct(s0, { type: "pull", uid }); if (s1) add({ acts: pre.concat([{ type: "pull", uid }]), s: s1, v }); }
+    };
+    fromHere(st, []);
+    for (const h in o.moves) {
+      const s1 = tryAct(st, { type: "move", uid, to: h }); if (!s1) continue;
+      const mv = [{ type: "move", uid, to: h }];
+      add({ acts: mv, s: s1, v: value5(s1, team, B) });
+      const u1 = E.unitByUid(s1, uid); if (u1 && u1.hp > 0 && !u1.done) fromHere(s1, mv);
+    }
+    return out;
+  }
+  /** Replay a list of actions on a copy; null if any is refused (an attack uses the usual roll). */
+  function replay5(st, acts) { let s = st; for (const a of acts) { s = tryAct(s, a); if (!s) return null; } return s; }
+  function planTurn5(st, B) {
+    stats5.plans++;
+    const team = st.toMove, P = B.plan5 || {}, K = P.beam || 3, M = P.perUnit || 5;
+    let units = E.alive(st).filter((u) => u.team === team && !u.done).map((u) => u.uid);
+    const evader = units.find((uid) => E.options(st, uid).evading);   // an Evade is now or never (another unit acting ends it)
+    // Each unit's best few activations from the position as it stands
+    const menu = new Map();
+    for (const uid of units) {
+      const acts = activations5(st, team, B, uid).sort((x, y) => y.v - x.v);
+      const keep = [], seen = new Set();
+      for (const a of acts) { const k = JSON.stringify(a.acts); if (!seen.has(k)) { seen.add(k); keep.push(a); } if (keep.length >= M) break; }
+      if (!keep.some((a) => !a.acts.length)) keep.push({ acts: [], s: st, v: 0 });
+      menu.set(uid, keep);
+    }
+    // Beam over the order and choice of activations
+    let beam = [{ s: st, steps: [], left: units.slice(), v: value5(st, team, B) }];
+    for (let depth = 0; depth < units.length; depth++) {
+      const next = [];
+      for (const b of beam) {
+        const cand = depth === 0 && evader ? [evader] : b.left;
+        for (const uid of cand) {
+          for (const a of menu.get(uid)) {
+            let s2, v2, acts = a.acts;
+            if (!acts.length) { s2 = b.s; v2 = b.v; }
+            else if (b.s === st) { s2 = a.s; v2 = a.v; }
+            else {
+              const atk = acts.findIndex((x) => x.type === "attack");
+              if (atk >= 0) { const s0 = replay5(b.s, acts.slice(0, atk)); if (!s0) continue; const r = attackLine(s0, team, B, acts.slice(0, atk), uid, acts[atk].target); if (!r) continue; s2 = r.s; v2 = r.v; acts = r.acts; }
+              else { s2 = replay5(b.s, acts); if (!s2) continue; v2 = value5(s2, team, B); }
+            }
+            next.push({ s: s2, v: v2, steps: b.steps.concat(acts), left: b.left.filter((x) => x !== uid) });
+          }
+        }
+      }
+      if (!next.length) break;
+      next.sort((x, y) => y.v - x.v);
+      const kept = [], seen = new Set();
+      for (const c of next) { const k = JSON.stringify(c.steps); if (seen.has(k)) continue; seen.add(k); kept.push(c); if (kept.length >= K) break; }
+      beam = kept;
+    }
+    return beam[0];
+  }
+  /** Brain 5's next action: the next step of its plan, planning again at the start of the turn and after every roll. */
+  function chooseAction5(st, B) {
+    const key = st.turn + st.toMove;
+    let p = plan5.get(st);
+    const last = st.actions[st.actions.length - 1];
+    const fresh = !p || p.key !== key || p.at !== st.actions.length || (last && (last.type === "attack" || last.type === "pull") && p.rolled !== st.actions.length);
+    if (fresh) {
+      const best = planTurn5(st, B);
+      p = { key, at: st.actions.length, steps: best ? best.steps : [], v: best ? best.v : 0, rolled: st.actions.length };
+      plan5.set(st, p);
+    }
+    const a = p.steps.shift();
+    if (!a) return { action: { type: "end" }, reason: "Plan done; ends its turn", score: 0 };
+    p.at = st.actions.length + 1; p.rolled = a.type === "attack" || a.type === "pull" ? -1 : p.rolled;
+    const u = E.unitByUid(st, a.uid), t = a.target && E.unitByUid(st, a.target);
+    const nx = p.steps[0], intent = a.type === "move" && nx && nx.uid === a.uid && nx.type === "attack" ? E.unitByUid(st, nx.target) : null;
+    const why = a.type === "attack" ? `${u.id} attacks ${t.id}` : a.type === "move" ? `${u.id} moves to ${a.to}${intent ? ` to attack ${intent.id}` : u.evadeFrom ? " (evade)" : ""}` : a.type === "brace" ? `${u.id} braces` : a.type === "pull" ? `${u.id} pulls` : a.type;
+    return { action: a, reason: `${why} (plan: ${p.steps.length + 1} step${p.steps.length ? "s" : ""} left)`, score: p.v };
+  }
+
   /** Pick the next action for the side to move. Returns {action, reason, score}. */
   function chooseAction(st, B, rnd) {
     rnd = rnd || Math.random;
     const team = st.toMove;
     if (st.phase !== "play") return null;
+    if (B.model) return chooseAction5(st, B);   // Brain 5
     const base = evaluate(st, team, B);
     const noise = () => (B.settings.noise ? rnd() * B.settings.noise : 0);
     let best = null;
@@ -498,6 +665,6 @@
     return beings === size ? Object.assign({}, want) : null;
   }
 
-  const api = { chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf };
+  const api = { chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5 };
   if (typeof module !== "undefined") module.exports = api; else root.GGBot = api;
 })(this);
