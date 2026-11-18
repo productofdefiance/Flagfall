@@ -53,6 +53,7 @@ jobs:
       release: ${{ steps.plan.outputs.release }}
       site: ${{ steps.where.outputs.site }}
       trigger: ${{ steps.where.outputs.trigger }}
+      started: ${{ steps.where.outputs.started }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -67,6 +68,7 @@ jobs:
           EV: ${{ github.event_name }}
           PR: ${{ github.event.pull_request.number }}
         run: |
+          echo "started=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
           # A pull request's replay links open its own preview board (the play-links workflow publishes it).
           if [ "$EV" = "pull_request" ]; then echo "site=${SITE}pr/$PR/" >> "$GITHUB_OUTPUT"; echo "trigger=pull request" >> "$GITHUB_OUTPUT";
           elif [ "$EV" = "workflow_run" ]; then echo "site=$SITE" >> "$GITHUB_OUTPUT"; echo "trigger=night" >> "$GITHUB_OUTPUT";
@@ -76,11 +78,14 @@ jobs:
         env:
           EV: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          # A release runs when the game version changes: against main when a pull request opens, and on later pushes
+          # only if that push changed it (so a pull request doesn't replay its release on every push).
+          REL_BASE: ${{ (github.event.action == 'synchronize' && github.event.before) || github.event.pull_request.base.sha || github.event.before }}
           ORDERS: ${{ github.event.inputs.orders }}
         run: |
           rel=""
-          if [ -n "$BASE" ] && [ "$BASE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BASE" 2>/dev/null; then
-            git show "$BASE:board/version.js" > /tmp/version_before.js 2>/dev/null || echo "" > /tmp/version_before.js
+          if [ -n "$REL_BASE" ] && [ "$REL_BASE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$REL_BASE" 2>/dev/null; then
+            git show "$REL_BASE:board/version.js" > /tmp/version_before.js 2>/dev/null || echo "" > /tmp/version_before.js
             rel="--release /tmp/version_before.js"
           fi
           if [ "$EV" = "pull_request" ]; then
@@ -173,7 +178,7 @@ jobs:
           mkdir -p ../out; id=$(echo "$NAME" | tr -c 'a-zA-Z0-9' '_')
           if [ "$CMD" = "hashes" ]; then
             : > ../out/hashes.txt
-            if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then mkdir -p /tmp/base && git archive "$BASE" board | tar -x -C /tmp/base; echo "Earlier board ($BASE):" >> ../out/hashes.txt; node tests/regress_engine.js /tmp/base/board 3 >> ../out/hashes.txt; fi
+            if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then mkdir -p /tmp/base && git -C .. archive "$BASE" board | tar -x -C /tmp/base; echo "Earlier board ($BASE):" >> ../out/hashes.txt; node tests/regress_engine.js /tmp/base/board 3 >> ../out/hashes.txt; fi
             echo "This board:" >> ../out/hashes.txt; node tests/regress_engine.js . 3 >> ../out/hashes.txt && echo "$NAME=success" > "../out/check-$id.txt" || echo "$NAME=failure" > "../out/check-$id.txt"
           else
             if bash -c "$CMD"; then echo "$NAME=success" > "../out/check-$id.txt"; else echo "$NAME=failure" > "../out/check-$id.txt"; fi
@@ -229,6 +234,7 @@ jobs:
           COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
           TRIGGER: ${{ needs.plan.outputs.trigger }}
           ORDERS: ${{ needs.plan.outputs.orders }}
+          STARTED: ${{ needs.plan.outputs.started }}
         run: |
           failed=""; [ "$PLAY" = "success" ] || failed="some machines failed while playing (play: $PLAY); the totals cover only the parts that finished"
           extra=""; [ -f release/checks.txt ] && extra="--checks release/checks.txt --hashes release/hashes.txt"
@@ -238,12 +244,12 @@ jobs:
           # main with the same seeds. Everything else is filed in results/.
           if [ "$EV" = "pull_request" ] && [ -n "$rel" ]; then
             mkdir -p /tmp/release-results
-            node sims/lab/merge.js --results /tmp/release-results --parts parts --trigger "$TRIGGER" --commit "$COMMIT" ${failed:+--failed "$failed"} $extra $rel > release-written.txt
+            node sims/lab/merge.js --results /tmp/release-results --parts parts --trigger "$TRIGGER" --commit "$COMMIT" --started "$STARTED" ${failed:+--failed "$failed"} $extra $rel > release-written.txt
             rm -f $rel
           else other="$other $rel"; fi
           : > written.txt
           if [ -n "$(echo $other)" ]; then
-            node sims/lab/merge.js --results results --parts parts --trigger "$TRIGGER" --commit "$COMMIT" --move studies/done ${failed:+--failed "$failed"} $extra $other | tee written.txt
+            node sims/lab/merge.js --results results --parts parts --trigger "$TRIGGER" --commit "$COMMIT" --started "$STARTED" --move studies/done ${failed:+--failed "$failed"} $extra $other | tee written.txt
           fi
           [ -z "$failed" ] || echo "failed=true" >> "$GITHUB_OUTPUT"
           { echo "## Lab run"; for d in $(cat written.txt release-written.txt 2>/dev/null); do echo; cat "$d/SUMMARY.md"; done; } >> "$GITHUB_STEP_SUMMARY"
