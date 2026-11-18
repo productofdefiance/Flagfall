@@ -37,6 +37,11 @@ jobs:
         continue-on-error: true
         working-directory: board
         run: node tests/test_invariants.js 100
+      - name: test_kitd.js (Kit D legal actions, 30 games per format)
+        id: kitd
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_kitd.js 30
       - name: Summary
         if: always()
         run: |
@@ -44,9 +49,10 @@ jobs:
           { echo "## Full checks"; echo; echo "| Check | Result |"; echo "| --- | --- |"
             echo "| test_v32.js, 400 + 400 double-knockout count | $(mark "${{ steps.v32.outcome }}") |"
             echo "| test_invariants.js, 100 games on the newest preset | $(mark "${{ steps.inv.outcome }}") |"
+            echo "| test_kitd.js, 30 games per format | $(mark "${{ steps.kitd.outcome }}") |"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Open an issue if a night or on-demand run failed
-        if: (steps.v32.outcome != 'success' || steps.inv.outcome != 'success') && github.event_name != 'pull_request'
+        if: (steps.v32.outcome != 'success' || steps.inv.outcome != 'success' || steps.kitd.outcome != 'success') && github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
           RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -55,10 +61,11 @@ jobs:
 
           - test_v32.js (400 + 400 double-knockout count): ${{ steps.v32.outcome }}
           - test_invariants.js (100 games): ${{ steps.inv.outcome }}
+          - test_kitd.js (30 games per format): ${{ steps.kitd.outcome }}
 
           Opened automatically by the night-checks workflow (Brief 003). Close it once a fix is merged."
           n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Night checks failed"' --json number --jq '.[0].number')
           if [ -n "$n" ]; then gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "$body"; else gh issue create --repo "$GITHUB_REPOSITORY" --title "Night checks failed" --body "$body"; fi
       - name: Fail the run if a check failed
-        if: steps.v32.outcome != 'success' || steps.inv.outcome != 'success'
+        if: steps.v32.outcome != 'success' || steps.inv.outcome != 'success' || steps.kitd.outcome != 'success'
         run: exit 1

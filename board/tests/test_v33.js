@@ -23,7 +23,8 @@ const far = (st, uid, fromUid) => { const u = U(st, uid), t = U(st, fromUid);   
 const nb = (h) => E.NBRS[h];
 
 ok(V33 && V33.switches.evade && V33.switches.tackleHexCost && V33.switches.tackleUsesCap, "v3.3 exists with evade, tackleHexCost, tackleUsesCap");
-ok(PRESETS[PRESETS.length - 1].id === "v3.3", "v3.3 is the last preset, so new games default to it");
+// Was "v3.3 is the last preset". Brief 005 adds v3.4 after it; the newest-preset check now lives in test_v34.js.
+ok(PRESETS.indexOf(V33) >= 0 && PRESETS.indexOf(V33) < PRESETS.length - 1, "v3.3 is still offered, behind the newest preset");
 ok(["LM", "LR", "LA"].every((c) => V33.cards[c].evade) && ["HM", "HR", "HA"].every((c) => !V33.cards[c].evade), "v3.3: the three Light cards have Evade, the Heavy ones don't");
 { const a = JSON.parse(JSON.stringify(V32)), b = JSON.parse(JSON.stringify(V33));
   for (const k of ["id", "name", "note"]) { delete a[k]; delete b[k]; }
@@ -141,8 +142,11 @@ for (const [rs] of [[V33]]) {
   E.act(st, { type: "move", uid: "N-HM", to: E.NBRS["A6"].find((h) => !E.alive(st).some((x) => x.hex === h)) });
   ok(U(st, "N-LM").done && Object.keys(E.options(st, "N-LM").moves).length === 0, "v3.3: another unit acting ends the evade"); }
 // Preview on the board
-{ const st = base(V33); const a = E.options(st, "N-LM").attacks.find((x) => x.target === "S-HM");
-  ok(a && a.evade === 4, `v3.3: the attack preview offers Evade after: up to 4 hexes (got ${a && a.evade})`);
+{ const st = baseNT(V33); const a = E.options(st, "N-LM").attacks.find((x) => x.target === "S-HA");
+  ok(a && a.evade && a.evade.hexes === 4, `v3.3: the attack preview offers Evade after: up to 4 hexes (got ${a && a.evade && a.evade.hexes})`);
+  // Next to a tackling Heavy Melee, breaking away costs 0.5 more and a hex of the cap: 3 hexes (Brief 005 item 4: the preview counts tackle)
+  const st1 = base(V33); const a1 = E.options(st1, "N-LM").attacks.find((x) => x.target === "S-HM");
+  ok(a1 && a1.evade && a1.evade.hexes === 3, `v3.3: next to a tackling unit the preview counts tackle (3 hexes; got ${a1 && a1.evade && a1.evade.hexes})`);
   const st2 = base(V32); const a2 = E.options(st2, "N-LM").attacks.find((x) => x.target === "S-HM");
   ok(a2 && !a2.evade, "v3.2: no Evade in the preview"); }
 
