@@ -75,7 +75,9 @@
   const KIT_D = JSON.parse(JSON.stringify(KIT_B));
   KIT_D.id = "kitD"; KIT_D.name = "Kit D (Kit B + turn planner)";
   KIT_D.note = "Plans its whole turn: gangs up on one enemy it can remove, picks off weak units first, cracks a held flag with two attackers, and rushes the flag when only the holder is left. Otherwise plays like Kit B.";
-  KIT_D.planner = { focus: 1, pickWeak: 1, fort: 1, finish: 1 };
+  // pickWeak is off: in testing (about 120 games per format against Kit B, two rounds) it made Kit D worse at 7v7
+  // (67% of decisive games with it, 80% without). See Brief 005's Report. Switch it on here to try it.
+  KIT_D.planner = { focus: 1, pickWeak: 0, fort: 1, finish: 1 };
 
   const LABELS = {
     unitBase: ["Unit on the field", "Value of having a unit at all, so a kill is worth this plus the unit's HP."],
