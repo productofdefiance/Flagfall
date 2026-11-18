@@ -2,6 +2,7 @@
 
 | | |
 |---|---|
+| Game version | <vX.YY.ZZ this build ships as, and which digit moved: X big system, YY real change, ZZ tuning or fix> |
 | Rule set | <new preset id, or "none" for tooling> |
 | Date | <date> |
 | Goal | <one line> |
