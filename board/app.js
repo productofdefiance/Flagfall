@@ -331,6 +331,14 @@
     render();
     return r;
   }
+  /** Why Undo is unavailable (Undo is a board feature, not a rule: it can't take back a roll of the dice). */
+  function undoWhy() {
+    const a = App.match && App.match.actions[App.match.actions.length - 1];
+    if (!a || a.type === "deploy") return "Nothing to undo this turn";
+    if (a.type === "end") return "Can't undo past the start of the turn";
+    if (["attack", "pull"].includes(a.type)) return "Can't undo an attack or pull: the dice have been rolled";
+    return null;
+  }
   function canUndo() {
     const a = App.match && App.match.actions[App.match.actions.length - 1];
     return !!(a && App.st.phase === "play" && !isBot(App.st.toMove) && ["move", "swap", "brace", "done"].includes(a.type));
@@ -827,7 +835,8 @@
   // ---------- Drawing: action bar ----------
   function renderActions() {
     const st = App.st, ui = App.ui, el = $("actions");
-    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? "disabled" : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}>${ic(icon, 22)}<span>${label}</span></button>`;
+    // A greyed-out button stays tappable when it has a reason: the tap shows why (Brief 005). Reasons come from the engine.
+    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}>${ic(icon, 22)}<span>${label}</span></button>`;
     if (st.phase === "deploy") {
       const t = deployTeam(), mine = st.units.filter((u) => u.team === t);
       const placed = mine.filter((u) => ui.placements[u.uid]).length;
@@ -838,17 +847,17 @@
     const human = st.phase === "play" && !isBot(st.toMove);
     const o = selOptions(), sel = o && E.unitByUid(st, ui.sel);
     const nAtt = o ? targetsFor(o, "attack").length : 0, nReach = o ? targetsFor(o, "reach").length : 0;
-    const reachy = sel && E.card(st, sel).trait === "reach";
+    const why = ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel) : null;
+    const pick = human ? "Select one of your units first" : null;
     el.innerHTML = `<div class="arow"><span class="alabel">UNIT</span>
-        ${b("arm-attack", "attack", "Attack", { dis: !nAtt, cls: ui.armed === "attack" ? "on" : "", pressed: ui.armed === "attack" })}
-        ${b("arm-reach", "reach", "Reach", { dis: !nReach, cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" })}
-        ${b("brace", "brace", "Brace", { dis: !(o && o.brace) })}
-        ${b("special", "special", "Special", { dis: true })}</div>
+        ${b("arm-attack", "attack", "Attack", { dis: !nAtt, why: why ? why.attack : pick, cls: ui.armed === "attack" ? "on" : "", pressed: ui.armed === "attack" })}
+        ${b("arm-reach", "reach", "Reach", { dis: !nReach, why: why ? why.reach : pick, cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" })}
+        ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: why ? why.brace : pick })}
+        ${b("special", "special", "Special", { dis: true, why: why ? why.special : "No special actions in this rule set yet" })}</div>
       <div class="arow"><span class="alabel">TURN</span>
-        ${b("undo", "undo", "Undo", { dis: !canUndo() })}
-        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done) })}
+        ${b("undo", "undo", "Undo", { dis: !canUndo(), why: human ? undoWhy() : null })}
+        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done), why: why ? why.done : pick })}
         ${b("end", "endturn", ui.confirmEnd ? "Confirm" : "End turn", { dis: !human, cls: ui.confirmEnd ? "confirm" : "primary" })}</div>`;
-    if (reachy === false) el.querySelector('[data-act="arm-reach"]').setAttribute("title", "Only Reach units");
   }
 
   // ---------- Drawing: sheet (attack, pull, unit info, result) ----------
@@ -870,7 +879,8 @@
       let warn = "";
       if (a.capture && a.high >= t.hp) warn += `<p class="ok">If it kills, ${esc(u.id)} moves into ${a.capture.hex}${a.capture.adjacentEnemies.length ? `, next to ${esc(a.capture.adjacentEnemies.join(", "))}` : ""}.</p>`;
       if (a.capture && a.capture.spike && a.high >= t.hp) warn += `<p class="warn">A braced Anti-Cavalry there deals ${st.rs.spikeDamage}.</p>`;
-      if (a.evade > 0) warn += `<p class="ok">Evade after: up to ${a.evade} hex${a.evade === 1 ? "" : "es"}${kc > 0 ? ` if ${esc(t.id)} survives` : ""}.</p>`;
+      if (a.evade && a.evade.hexes > 0) warn += `<p class="ok">Evade after: up to ${a.evade.hexes} hex${a.evade.hexes === 1 ? "" : "es"}${kc > 0 ? ` if ${esc(t.id)} survives` : ""}${a.evade.unsure ? ` (and if ${esc(u.id)} survives the parry)` : ""}.</p>`;
+      else if (a.evade) warn += `<p class="warn">No Evade after this attack: ${esc(a.evade.reason)}.</p>`;
       const pv = E.parryPreview(st, u, t);
       if (pv && pv.used) warn += `<p class="ok">No parry: ${esc(t.id)} has already parried this turn.</p>`;
       else if (pv) warn += `<p class="warn">Parry: ${esc(u.id)} takes ${fmt(pv.amount)}${pv.ifSurvives ? ` if ${esc(t.id)} survives the hit` : ""}.</p>`;
@@ -929,7 +939,7 @@
       const m = o.moves[ui.ghost];
       t = `Tap ${ui.ghost} again to move · ${fmt(m.cost)} Stamina${m.mode !== "free" ? " · stops in a zone" : ""}${m.tackle ? " · tackle" : ""}`;
     } else if (o && ui.armed) t = "Tap a red ring";
-    else if (o && o.evading) { const tg = E.unitByUid(st, o.evading); t = Object.keys(o.moves).length ? `Evade: step further from ${tg ? tg.id : "the target"}, or End unit` : "No hex to evade to · End unit"; }
+    else if (o && o.evading) { const tg = E.unitByUid(st, o.evading); t = Object.keys(o.moves).length ? `Evade: step further from ${tg ? tg.id : "the target"}, or End unit` : `Can't evade: ${E.whyNoMove(st, E.unitByUid(st, ui.sel))} · End unit`; }
     el.hidden = !t || !!ui.sheet; el.textContent = t;
   }
 
@@ -1421,7 +1431,9 @@
     $("scrim").addEventListener("click", () => { App.ui.sheet = null; App.ui.armed = null; render(); });
     document.body.addEventListener("click", (e) => {
       const s = e.target.closest("[data-seg]"); if (s && !s.disabled) { onSeg(s.dataset.seg, s.dataset.val); return; }
-      const b = e.target.closest("[data-act]"); if (b && !b.disabled) { onAction(b.dataset.act, b); return; }
+      const b = e.target.closest("[data-act]");
+      if (b && b.getAttribute("aria-disabled") === "true") { if (b.dataset.why) toast(b.dataset.why); return; }   // Brief 005: say why
+      if (b && !b.disabled) { onAction(b.dataset.act, b); return; }
       const row = e.target.closest("#roster tr[data-uid]");
       if (row && App.st && App.st.phase !== "deploy") { Object.assign(App.ui, { sel: row.dataset.uid, ghost: null, armed: null, sheet: null }); render(); const u = E.unitByUid(App.st, row.dataset.uid); if (u) revealHex(u.hex); }
     });

@@ -136,7 +136,7 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
 .act.on { background: var(--move); border-color: var(--move); color: #fff; }
 .act.primary { background: var(--ink); color: var(--card); }
 .act.confirm { background: var(--attack); border-color: var(--attack); color: #fff; }
-.act:disabled { opacity: .35; cursor: not-allowed; }
+.act:disabled, .act[aria-disabled="true"] { opacity: .35; cursor: help; }
 #sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; background: #fff; border-radius: 16px 16px 0 0; box-shadow: 0 -8px 24px rgba(0,0,0,.18); padding: 10px 16px 18px; display: flex; flex-direction: column; gap: 10px; max-height: 80%; overflow-y: auto; }
 #sheet[hidden] { display: none; }
 #scrim { position: absolute; inset: 0; background: rgba(31,36,33,.25); z-index: 7; }
