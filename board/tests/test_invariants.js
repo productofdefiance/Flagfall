@@ -28,7 +28,10 @@ for (let g = 0; g < games; g++) {
     if (new Set(hexes).size !== hexes.length) bad(g, "two units on one hex");
     for (const u of al) {
       if (u.hp > u.maxHp + EPS) bad(g, `${u.uid} HP ${u.hp} above its maximum ${u.maxHp}`);
-      if (!isHalf(E.hpShown(st, u)) || E.hpShown(st, u) < 0.5 - EPS) bad(g, `${u.uid} shows HP ${E.hpShown(st, u)}`);
+      // A holder may show 0 while its pool is down to the last half point: by design (v3.1) the flag keeps that half
+      // point on screen (poolSplit). Any other living unit must show at least 0.5. See FLAGS.md F21.
+      const lastHalf = E.isHolder(st, u) && Math.abs(E.poolSplit(st, u.team).pool - 0.5) < EPS;
+      if (!isHalf(E.hpShown(st, u)) || (E.hpShown(st, u) < 0.5 - EPS && !lastHalf)) bad(g, `${u.uid} shows HP ${E.hpShown(st, u)}`);
       if (!E.isHolder(st, u) && (!isHalf(u.hp) || u.hp < 0.5 - EPS)) bad(g, `${u.uid} HP ${u.hp} is not a whole half point`);
       if (!E.CELLSET.has(u.hex)) bad(g, `${u.uid} off the field`);
       if (u.hex === E.FLAG[E.foeOf(u.team)]) bad(g, `${u.uid} on the enemy flag`);

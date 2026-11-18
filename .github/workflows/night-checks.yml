@@ -1,0 +1,64 @@
+# Full checks (Brief 003): the slow runs that are too long for every pull request.
+# - every night at 08:07 UTC (3:07 AM New York in winter, 4:07 AM in summer: GitHub schedules in UTC only);
+# - on demand: Actions tab → "night-checks" → "Run workflow";
+# - on a pull request that carries the label `full checks`.
+# A failing night or on-demand run opens (or adds to) a GitHub issue titled "Night checks failed".
+name: night-checks
+
+on:
+  schedule:
+    - cron: "7 8 * * *"
+  workflow_dispatch:
+  pull_request:
+    types: [labeled, opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  full:
+    name: full checks
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full checks')
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - name: test_v32.js (full double-knockout count, 400 + 400 games)
+        id: v32
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_v32.js 400
+      - name: test_invariants.js (newest preset, 100 games)
+        id: inv
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_invariants.js 100
+      - name: Summary
+        if: always()
+        run: |
+          mark() { [ "$1" = success ] && echo pass || echo "**FAIL** ($1)"; }
+          { echo "## Full checks"; echo; echo "| Check | Result |"; echo "| --- | --- |"
+            echo "| test_v32.js, 400 + 400 double-knockout count | $(mark "${{ steps.v32.outcome }}") |"
+            echo "| test_invariants.js, 100 games on the newest preset | $(mark "${{ steps.inv.outcome }}") |"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Open an issue if a night or on-demand run failed
+        if: (steps.v32.outcome != 'success' || steps.inv.outcome != 'success') && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          body="The full checks failed on \`main\` ($(date -u +%Y-%m-%d)). Run: $RUN
+
+          - test_v32.js (400 + 400 double-knockout count): ${{ steps.v32.outcome }}
+          - test_invariants.js (100 games): ${{ steps.inv.outcome }}
+
+          Opened automatically by the night-checks workflow (Brief 003). Close it once a fix is merged."
+          n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Night checks failed"' --json number --jq '.[0].number')
+          if [ -n "$n" ]; then gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "$body"; else gh issue create --repo "$GITHUB_REPOSITORY" --title "Night checks failed" --body "$body"; fi
+      - name: Fail the run if a check failed
+        if: steps.v32.outcome != 'success' || steps.inv.outcome != 'success'
+        run: exit 1
