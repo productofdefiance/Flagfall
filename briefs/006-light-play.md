@@ -268,7 +268,34 @@ As a sanity check on noise, the two identical Brain 5 sides split decisive games
 - **Baseline table:** no rule change. The stall re-check above is the Brain 5 table.
 - **Bot minimum:** met. Every measurement above has a number, and Brain 5 plays every action type it plans: attacks, Evade steps, braces and pulls (pulls in 25–39% of mirror games).
 - **Settings review:**
-SETTINGS_REVIEW
+  - **How it was tested, in two passes:**
+    - *Off:* each setting switched off (for the two search settings, the smallest search), then that Brain 5 played standard Brain 5. That's 100 balanced games per format, on the same seeds as the stall re-check, so a setting with no effect should win about half.
+    - *Up and down:* how often Brain 5's planned turn changes when each setting is set to 0, halved or doubled, over 45 positions taken from mirror games.
+
+    100 games per format is small, so treat anything under about 2 standard errors (SE) as noise (F23). "Decisive" counts only KO and TKO wins; the second figure adds tiebreak wins.
+
+    | Setting (on the Brain screen) | Off: decisive wins, off vs standard | With tiebreak wins | Plan changes at 0 / half / double |
+    |---|---|---|---|
+    | unit (a whole unit's worth) | 29–72 (−4.3 SE) | 64–125 (−4.4 SE) | 17 / 15 / 14 |
+    | hp (each point of HP) | 2–151 (−12.0 SE) | 13–185 (−12.2 SE) | 28 / 15 / 16 |
+    | risk (fear of next turn's damage) | 0–66 (−8.1 SE) | 3–192 (−13.5 SE) | 31 / 18 / 9 |
+    | plan5.perUnit (choices kept per unit) | 31–67 (−3.6 SE) | 74–120 (−3.3 SE) | 17 / 7 / 7 |
+    | advance (getting closer to the enemy flag) | 4–32 (−4.7 SE) | 102–74 (**+2.1 SE**) | 14 / 4 / 9 |
+    | pull (flag damage) | 22–45 (−2.8 SE) | 98–95 (+0.2 SE) | 1 / 1 / 2 |
+    | flagDanger (fear for our own flag) | 44–68 (−2.3 SE) | 98–96 (+0.1 SE) | 3 / 0 / 0 |
+    | home (holder staying on its flag) | 46–66 (−1.9 SE) | 99–95 (+0.3 SE) | 3 / 0 / 0 |
+    | plan5.beam (plans kept at each step) | 48–62 (−1.3 SE) | 92–104 (−0.9 SE) | 8 / 3 / 9 |
+    | pressure (threat it puts on the enemy) | 56–68 (−1.1 SE) | 83–97 (−1.0 SE) | 14 / 5 / 16 |
+    | stamina (next turn's Stamina) | 58–51 (+0.7 SE) | 98–94 (+0.3 SE) | 11 / 2 / 1 |
+
+  - **No effect found** (results within noise both ways): **stamina**, **pressure** and **plan5.beam**. All three still change some plans (stamina rarely, near its default), so this is "no effect on results found", not "does nothing". They are kept; retire one only if the Editor agrees.
+  - **Change how games end, not who wins:** **pull**, **flagDanger** and **home**. With each one off, Brain 5 wins fewer games outright but more on the tiebreak, and the total is even (+0.1 to +0.3 SE). Kept.
+  - **A finding, not a useless setting:** with **advance** off, Brain 5 almost never wins outright (4–32), yet wins more games overall (+2.1 SE) by sitting back and taking the tiebreak. It's borderline at this sample size, but it points the same way as F10/F11: under v3.4 the turn-limit tiebreak can reward passive play. Likely, not isolated. Added to F25.
+  - **Clearly matter:** unit, hp, risk and plan5.perUnit.
+  - **Missing settings** (harder to prove than the list above, because each rests on situations the brain handles badly, not on a controlled run):
+    - **F24, think time:** nothing caps how long a turn takes. Worst turn 4.6 s here.
+    - **F25, clock awareness:** the score ignores the turn limit, while 45–55% of mirror games are decided by the tiebreak, and the advance result above suggests sitting back pays. No example turn was isolated.
+    - **No legal Evade step:** still 24–34%, and no setting moves it. The score already picks the attack hex for its step away. Likely the movement left after the approach (F22), so this belongs to the rules question, not a new setting. Not raised separately.
 - **Known gaps:**
   - Phone speed was not measured (F24).
   - "No legal step" is above target (F22).
