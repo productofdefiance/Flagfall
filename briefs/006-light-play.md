@@ -1,10 +1,10 @@
-# Brief 006 — Brain E: a bot that plans its turn and knows why
+# Brief 006 — Brain 5: a bot that plans its turn and knows why
 
 | | |
 |---|---|
 | Rule set | none (bot only; no rule change) |
 | Date | 2026-11-18 |
-| Goal | A new brain, Brain E, that plans its whole turn within its budget and picks every action (attack, move, brace, Evade, spacing) from one shared sense of what it gains and risks, instead of fixed habits. |
+| Goal | A new brain, Brain 5, that plans its whole turn within its budget and picks every action (attack, move, brace, Evade, spacing) from one shared sense of what it gains and risks, instead of fixed habits. |
 | Branch | `build/006-light-play` |
 | Flags | F22; evidence for F10, F11 |
 
@@ -28,11 +28,11 @@ The design chat replayed that game and found:
 - no "do X when Y" rules bolted on
 - improve the computer opponent before changing the game to fix stalls. The game design changes only if several brains fail to fix stalling, and the Editor decides when that point is reached. Keep measuring so the data is there.
 
-**Naming:** call the new brain **Brain E**, in code, on screen and in the Report. "Kit" means something else elsewhere in the game. Leave the existing Kit A–D names alone, so saved matches still load.
+**Naming:** call the new brain **Brain 5** (short form B5), in code, on screen and in the Report. Brains are numbered from now on, because there will be many. "Kit" means something else elsewhere in the game. On screen, always write "Brain 5" in full, so it isn't mixed up with the build number ("Build 5"). Leave the existing Kit A–D names alone, so saved matches still load.
 
 ## Scope
 In:
-- A new brain, **Brain E**, built on Kit D. Kit D stays frozen, so brief 005's results stay comparable.
+- A new brain, **Brain 5**, built on Kit D. Kit D stays frozen, so brief 005's results stay comparable.
 - Diagnosis across many games before and after.
 - Measurements, including a stall re-check.
 
@@ -51,7 +51,7 @@ Out:
    - Evade chances, taken, and "no legal step".
 
    Report these before building. Fix what the numbers confirm, and say plainly if a problem from the watched game doesn't show up at scale.
-2. **Plan the whole turn within budget.** At the start of its turn, Brain E builds complete plans: who moves where, who attacks whom and in what order, who braces, who Evades.
+2. **Plan the whole turn within budget.** At the start of its turn, Brain 5 builds complete plans: who moves where, who attacks whom and in what order, who braces, who Evades.
    - It keeps only plans whose total Stamina and Command it can pay for, counting tackle and zones.
    - It picks the plan with the best value (item 3).
    - It never starts a plan it can't finish. After each dice roll it re-plans from the new position.
@@ -63,17 +63,17 @@ Out:
    - **Next turn:** the Stamina and movement each unit will have (a braced unit starts with 2, not 3), and how well placed it is for the goal and for defence.
 
    Bracing, spacing, Evade and focus fire must all come out of this one model:
-   - **Bracing:** Brain E braces when the damage it saves outweighs next turn's lost Stamina and the Command spent. So it braces more when defence matters more (holding the flag, a wounded unit within reach, the enemy able to afford several hits on it) and less when it needs to move.
+   - **Bracing:** Brain 5 braces when the damage it saves outweighs next turn's lost Stamina and the Command spent. So it braces more when defence matters more (holding the flag, a wounded unit within reach, the enemy able to afford several hits on it) and less when it needs to move.
    - **Spacing:** a Light unit keeps open hexes around it because that Dodge lowers the damage it expects to take, and because room to move gives it Evade steps. Never "keep space" for its own sake.
-   - **Evade:** taken because the step away lowers expected damage next turn. Brain E plans the attack hex knowing it may want to step away afterwards.
+   - **Evade:** taken because the step away lowers expected damage next turn. Brain 5 plans the attack hex knowing it may want to step away afterwards.
    - **Support:** fighting next to a friend is worth what the extra Support and shared threat are actually worth.
 
    No new "if X then do Y" behaviours. If something can't be expressed as gained, risked or next turn, raise it as an `ASK` in `FLAGS.md` instead of hard-coding it.
 4. **Expose the model's weights as brain settings** (for example: how much it fears damage taken, how much it values next turn's Stamina, how much it values the flag). Later kits and personalities can then be made by tuning them, not rewriting the bot. Label each one in plain words on the Brain screen.
-5. Brain E becomes the default opponent only if it beats Kit D (measurement 2).
+5. Brain 5 becomes the default opponent only if it beats Kit D (measurement 2).
 
 ## Rules it touches
-None change. Brain E must model these correctly and pick only legal actions from the engine:
+None change. Brain 5 must model these correctly and pick only legal actions from the engine:
 - Command and Stamina
 - tackle (Stamina plus the cap hex)
 - zones
@@ -94,17 +94,17 @@ This build is the bot work. It's met when every measurement below has a number.
 
 ## Measurements
 All with `tests/rng.js`, tiebreak wins counted separately. Use 1,000 games per side for any decision that rests on a gap under about 8 points (F23).
-1. **Diagnosis before and after** (item 1's list): Kit D vs Kit D, then Brain E vs Brain E, same seeds. Targets:
+1. **Diagnosis before and after** (item 1's list): Kit D vs Kit D, then Brain 5 vs Brain 5, same seeds. Targets:
    - "Moved to attack, never attacked, target alive" under 10% of such moves.
    - Braces with no enemy able to hit that unit: near zero.
-2. **Head-to-head:** Brain E vs Kit D, balanced and all-Light lineups, both formats. Target: Brain E wins at least 60% of decisive games.
+2. **Head-to-head:** Brain 5 vs Kit D, balanced and all-Light lineups, both formats. Target: Brain 5 wins at least 60% of decisive games.
 3. **Light play:**
    - Light units removed per game.
    - Average Dodge when attacked.
    - Evade taken where a safer hex exists. Target: at least 75%.
    - "No legal step". Target: under 20%.
-4. **Stall re-check:** the full baseline table at v3.4, Brain E vs Brain E, 1,000 games per format, next to brief 005's Kit D table. This is data for the Editor, not a trigger for a rule change.
-5. **Speed:** average and worst time Brain E takes per turn.
+4. **Stall re-check:** the full baseline table at v3.4, Brain 5 vs Brain 5, 1,000 games per format, next to brief 005's Kit D table. This is data for the Editor, not a trigger for a rule change.
+5. **Speed:** average and worst time Brain 5 takes per turn.
 
 ## Must not change
 Every existing preset plays and replays identically. Kit A–D, Standard and Easy play exactly as before (bot-driven regression hashes unchanged).
@@ -112,15 +112,15 @@ Every existing preset plays and replays identically. Kit A–D, Standard and Eas
 ## Checks before opening the pull request
 - Every check in `README.md` passes.
 - `regress_engine.js` hashes for every rule set match the previous board.
-- Brain E never picks an illegal action over 30 seeded games per format, balanced and all-Light.
+- Brain 5 never picks an illegal action over 30 seeded games per format, balanced and all-Light.
 - Three test positions, each showing the model's reasoning:
   - A Light Melee that can reach a target from two hexes picks the one that leaves a safer Evade step.
-  - With enough Command for three attacks, Brain E doesn't move a fourth unit into place for an attack it can't pay for.
+  - With enough Command for three attacks, Brain 5 doesn't move a fourth unit into place for an attack it can't pay for.
   - A unit braces when two enemies can reach it next turn and doesn't when none can.
 
 ## The Editor's hands-on check
-1. One Light vs Light 7v7 against Brain E.
-2. One Brain E vs Brain E game at 5v5 (both sides set to Computer). Watch for:
+1. One Light vs Light 7v7 against Brain 5.
+2. One Brain 5 vs Brain 5 game at 5v5 (both sides set to Computer). Watch for:
    - whether it attacks flanked units
    - whether it braces only when an enemy is close
    - whether its Light units hit and step back
@@ -129,7 +129,7 @@ Every existing preset plays and replays identically. Kit A–D, Standard and Eas
 ## Report back
 The standard Report and the five measurements. In plain words:
 - What the diagnosis confirmed and what it didn't.
-- How Brain E decides (gained, risked, next turn).
+- How Brain 5 decides (gained, risked, next turn).
 - With a bot that plans and doesn't waste Command, do mirror matches still end on the clock?
 
 Say whether each cause is isolated or only likely.
