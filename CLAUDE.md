@@ -23,10 +23,26 @@
   6. **Details:** one line pointing to the brief's Report and `CHANGELOG.md`.
 - Numbers only where they matter, and never a table in a chat reply unless asked.
 - **End every pull request description with the play link** on its own line: `Play this build: <link>`.
+- **Draft until done.** Open your pull request as a **Draft** as soon as you push. Mark it **Ready for review** only when the build is finished, the Report is filled in and the checks pass. For the Editor, "not Draft" means "ready to merge".
+- **Pull request titles:** `vX.YY.ZZ · NNN Lane · short name` for builds (e.g. `v3.06.00 · 007 Bot · Tune Brain 5`), `Docs · short name` for docs-only changes.
+- **Start the description with "Before you merge:"**: the must-do checks first, then any optional ones, each one line.
+
+## Keep messages short
+The Editor glances; every extra line costs reading time and usage. Efficiency never at the cost of good work.
+- Progress updates: one line, no narration. "Checking bot status." not "I am now going to check the bot's status by…".
+- Don't restate the request or recap what you just did outside the report shape below.
+- No long logs or tables in chat: link the file or the Report.
 
 ## The two channels (so the Editor never has to copy messages between chats)
 - **Chat → Code: `briefs/`.** A design chat writes one brief per build (`briefs/NNN-short-name.md`, from `briefs/TEMPLATE.md`). The chat pushes each brief on its own branch, `brief/NNN-short-name`, and does not merge it. When the Editor says "Build brief NNN", start your build branch from that brief branch (fetch `brief/NNN-*` if `briefs/NNN-*.md` is not on `main`), so the brief, the build and the Report land in **one** pull request and the Editor merges once. Build only what the brief says. If something in it is unclear or conflicts with the code, stop and raise an `ASK` row in `FLAGS.md` rather than guessing.
 - **Code → Chat: the brief's Report section and `FLAGS.md`.** When you finish a build, fill in the `## Report` section at the bottom of that brief, in the same pull request. Anything else Chat or the Editor must decide goes in `FLAGS.md` as a new row with status `ASK`. The chat reads both straight from GitHub.
+
+## Commands from the Editor
+One word, the same behaviour every time. The design chat keeps the full list in the Dev Handover; these are the ones for Code.
+- **Build brief NNN:** start your branch from `brief/NNN-*` (any branch name your session may push to), build it, and open one pull request into `main`.
+- **sync:** bring the latest `main` into your branch. If another pull request merged, take the next free game version (fix `version.js` and the changelog heading). Re-read `FLAGS.md`, say in a line what changed, carry on.
+- **handoff:** stop cleanly. Commit and push. In the brief's Report, write what's done, what's left and any open `ASK`s. Then give a short message to paste into a new Code chat: its name (`FF [Lane] [vStart] - `), the branch, and the next step.
+- **status:** what's done, what's running, what's left, and roughly how long. Five lines or fewer.
 
 ## Rules for the code
 - `board/engine.js` is the rules and must stay free of screen code. Every rule lives behind a rule-set switch or a number in `data.js`.
@@ -42,9 +58,15 @@
 
 ## Process
 - Don't rerun slow simulations or the full checks locally for a change that doesn't touch the rules or the bot (docs, flags, screen text). Say in the Report what you skipped and why.
-- Work on a branch the session may push to (see "Branch names" below). Never commit to `main` directly. Open a pull request and give the Editor the link.
+- Work on any branch your session may push to, started from the brief's branch. Never commit to `main` directly. Open a pull request and give the Editor the link.
 - Don't invent rules the Editor hasn't agreed. List them as `ASK` rows instead.
 - Keep `FLAGS.md` current: close the rows your build fixes, open rows for anything you found.
+- **Game version (vX.YY.ZZ).** One game version is the reference for everything: rules, brains, UI and board. Each part keeps its own number (rule set v3.4, Brain 5, UI v1, Build N), and any change to any part bumps the game version:
+  - **X:** a big new system (Cavalry, specials, a UI overhaul).
+  - **YY:** a real change to any part (a new rule or mechanic, a new brain, a new screen). Reset ZZ to 00.
+  - **ZZ:** tuning and fixes (numbers, brain settings, text, bug fixes).
+  - Each brief states its game version in its header. The build sets it in `board/version.js` beside the build number. The board shows it on Home and in the menu, with the build number in small type ("v3.05.00 · Build 6"). It goes in the `CHANGELOG.md` heading. Keep a version table at the top of `CHANGELOG.md`, one row per game version: rule set, default brain, UI version, build. Always two digits after each dot.
+  - History: v3.04.00 = rule set v3.4, Kit C default, UI v1, Build 5. v3.05.00 = Build 6 (brief 006, Brain 5 default).
 - **Raise the build number.** Every build that changes `board/` raises the build number by one in `board/version.js` (the only place it is kept) and puts it in its `CHANGELOG.md` heading. The `checks` workflow fails a pull request that changes `board/` without raising it.
 - **Keep `CHANGELOG.md` current.** Every build adds one entry at the top, in the same pull request: the brief number, the rule set it adds or changes, the date, then in plain language what a player will notice, what changed under the hood, which flags it closed, and the baseline table for rule changes. Create the file on the first build that finds it missing, starting with that build and a one-line entry for each earlier merged brief. Once the board shows a build number, put it in each entry's heading.
 - The Game Laws, Dev Handover and Ideas Log live outside this repo and are kept by the design chat. Don't try to edit them. If the code and a brief disagree with each other, say so in the Report.

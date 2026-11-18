@@ -2,11 +2,14 @@
 
 | | |
 |---|---|
+| Game version | <vX.YY.ZZ this build ships as, and which digit moved: X big system, YY real change, ZZ tuning or fix> |
+| Lane | <Bot, Lab, Units, Rules or UI> |
 | Rule set | <new preset id, or "none" for tooling> |
 | Date | <date> |
 | Goal | <one line> |
-| Branch | `build/NNN-short-name` |
+| Branch | Any branch your session may push to, started from `brief/NNN-short-name` |
 | Flags | <rows this build should close, e.g. F3, F4> |
+| Order | <can start now / alongside NNN / after NNN merges> |
 
 ## Context
 <Why this build exists, in two or three sentences. Link the Game Laws article numbers that apply.>
