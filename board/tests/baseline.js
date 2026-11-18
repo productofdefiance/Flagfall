@@ -35,7 +35,7 @@ const T = { rs: rsId, size, A: aId, B: bId, mode, games: 0, koHolderKilled: 0, k
   lateBehindTurns: 0, lateBehindPress: 0, lateBehindHolderAtk: 0, lateBehindPull: 0, lateAheadTurns: 0, lateAheadPress: 0, lateLevelTurns: 0, lateLevelPress: 0,
   aLateBehindTurns: 0, aLateBehindPress: 0, bLateBehindTurns: 0, bLateBehindPress: 0,
   // Who leads the tiebreak at the start of turn (limit - 3): games with a leader, and how those games ended for it.
-  leadAt3: 0, leadAt3WinTiebreak: 0, leadAt3WinDecisive: 0, leadAt3Lose: 0, leadAt3Draw: 0, levelAt3: 0 };
+  leadAt3: 0, leadAt3WinTiebreak: 0, leadAt3WinDecisive: 0, leadAt3Lose: 0, leadAt3Draw: 0, levelAt3: 0, trailAttackers0: 0, trailAttackers1: 0, trailAttackers2: 0 };
 const tbLeader = (st) => E.tiebreak(st).winner;
 for (let g = 0; g < games; g++) {
   const k = g + shard * games;
@@ -55,7 +55,9 @@ for (let g = 0; g < games; g++) {
     if (st.turn + st.toMove !== key) { key = st.turn + st.toMove; acted = new Set(); tMoveCost = new Map(); tAttacked = new Set(); tIntent = []; tAttacks = 0; tBraces = 0; tMs = 0; tContact = contactNow();
       closeLate(); tPressH = tPressP = false;
       if (st.turn >= LIM - 2) { const l = tbLeader(st); tLate = { team: st.toMove, pos: l === st.toMove ? "ahead" : l ? "behind" : "level" }; }
-      if (lead3 === undefined && st.turn >= LIM - 3) lead3 = tbLeader(st); }
+      if (lead3 === undefined && st.turn >= LIM - 3) { lead3 = tbLeader(st);
+        // Brief 007: what the side behind still has to push with (units other than its flag holder)
+        if (lead3) { const tr = E.foeOf(lead3), n0 = E.alive(st).filter((x) => x.team === tr && !E.isHolder(st, x)).length; T["trailAttackers" + Math.min(n0, 2)]++; } } }
     const t0 = Date.now(); const c = Bot.chooseAction(st, brainOf(st.toMove), rnd); tMs += Date.now() - t0;
     const a = c.action;
     if (a.type === "move") { const m = /moves to \S+ to attack (\S+)/.exec(c.reason || ""); if (m) tIntent.push({ uid: a.uid, target: m[1] }); }
