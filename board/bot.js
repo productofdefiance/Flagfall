@@ -287,6 +287,21 @@
       const gain = v - base + noise() - (plan.first.type === "brace" ? B.weights.braceCost : 0) + bonus(u, plan, sBefore || st);
       if (!best || gain > best.gain) best = { u, plan, gain };
     };
+    // v3.3 Evade is now or never: another unit acting would end it. So a unit that may evade decides first,
+    // stepping to its best hex if that scores better than staying put (Brief 004).
+    const evader = E.alive(st).find((u) => u.team === team && !u.done && E.options(st, u.uid).evading);
+    if (evader) {
+      const o = E.options(st, evader.uid);
+      let bestMv = null;
+      for (const h in o.moves) {
+        const mv = { type: "move", uid: evader.uid, to: h }, s1 = tryApply(st, mv);
+        if (!s1) continue;
+        const gain = evaluate(s1, team, B) - base + noise();
+        if (!bestMv || gain > bestMv.gain) bestMv = { mv, gain };
+      }
+      if (bestMv && bestMv.gain > 0) return { action: bestMv.mv, reason: `${evader.id} evades to ${bestMv.mv.to}`, score: bestMv.gain };
+      return { action: { type: "done", uid: evader.uid }, reason: `${evader.id} stays (no better hex to evade to)`, score: 0 };
+    }
     for (const u of E.alive(st)) {
       if (u.team !== team || u.done) continue;
       const o = E.options(st, u.uid);

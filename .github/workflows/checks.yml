@@ -47,6 +47,11 @@ jobs:
         continue-on-error: true
         working-directory: board
         run: node tests/test_v32.js 40
+      - name: test_v33.js
+        id: v33
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_v33.js
       - name: test_rng.js
         id: rng
         continue-on-error: true
@@ -60,7 +65,7 @@ jobs:
       - name: Summary
         if: always()
         env:
-          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
+          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
         run: |
           { echo "## Rule tests"; echo; echo "| Check | Result |"; echo "| --- | --- |"
             for kv in $R; do o="${kv#*=}"; echo "| ${kv%%=*} | $( [ "$o" = success ] && echo pass || echo "**FAIL** ($o)" ) |"; done

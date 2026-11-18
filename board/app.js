@@ -867,6 +867,7 @@
       let warn = "";
       if (a.capture && a.high >= t.hp) warn += `<p class="ok">If it kills, ${esc(u.id)} moves into ${a.capture.hex}${a.capture.adjacentEnemies.length ? `, next to ${esc(a.capture.adjacentEnemies.join(", "))}` : ""}.</p>`;
       if (a.capture && a.capture.spike && a.high >= t.hp) warn += `<p class="warn">A braced Anti-Cavalry there deals ${st.rs.spikeDamage}.</p>`;
+      if (a.evade > 0) warn += `<p class="ok">Evade after: up to ${a.evade} hex${a.evade === 1 ? "" : "es"}${kc > 0 ? ` if ${esc(t.id)} survives` : ""}.</p>`;
       const pv = E.parryPreview(st, u, t);
       if (pv && pv.used) warn += `<p class="ok">No parry: ${esc(t.id)} has already parried this turn.</p>`;
       else if (pv) warn += `<p class="warn">Parry: ${esc(u.id)} takes ${fmt(pv.amount)}${pv.ifSurvives ? ` if ${esc(t.id)} survives the hit` : ""}.</p>`;
@@ -925,6 +926,7 @@
       const m = o.moves[ui.ghost];
       t = `Tap ${ui.ghost} again to move · ${fmt(m.cost)} Stamina${m.mode !== "free" ? " · stops in a zone" : ""}${m.tackle ? " · tackle" : ""}`;
     } else if (o && ui.armed) t = "Tap a red ring";
+    else if (o && o.evading) { const tg = E.unitByUid(st, o.evading); t = Object.keys(o.moves).length ? `Evade: step further from ${tg ? tg.id : "the target"}, or End unit` : "No hex to evade to · End unit"; }
     el.hidden = !t || !!ui.sheet; el.textContent = t;
   }
 
@@ -981,9 +983,12 @@
       }
     }
     ui.ghost = null; ui.armed = null; ui.sheet = null;
+    if (o && o.evading && here && here.team === sel.team && here.uid !== sel.uid) endEvade(sel.uid);   // v3.3
     ui.sel = here ? (ui.sel === here.uid ? null : here.uid) : null;
     render();
   }
+  /** v3.3: picking another unit ends a pending Evade, as End unit does. */
+  function endEvade(uid) { const keep = App.ui.sel; act({ type: "done", uid }); App.ui.sel = keep; }
 
   // ---------- Drag one unit onto a friend to swap ----------
   function onPointerDown(e) {
@@ -1000,6 +1005,7 @@
   function onPointerMove(e) {
     const d = App.ui.drag; if (!d) return;
     if (!d.active && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 12) {
+      const o0 = selOptions(); if (o0 && o0.evading && App.ui.sel !== d.uid) endEvade(App.ui.sel);   // v3.3
       d.active = true; App.ui.sel = d.uid; App.ui.ghost = null; App.ui.armed = null; App.ui.sheet = null; render();
     }
     if (!d.active) return;
@@ -1211,13 +1217,16 @@
     ["simultaneousToActor", "A double knockout goes to the side that acted", "v3.1 fix (E3): if one action finishes both sides (e.g. the last attacker dies to parry), the side that acted wins."],
     ["parryNeedsSurvivor", "Dead units don't parry", "v3.2: parry fires only if the braced unit is still standing after the hit."],
     ["parryFirstOnly", "Parry once per enemy turn", "v3.2: a braced unit parries only the first adjacent attack against it each enemy turn. Ranged shots and Reach attacks never use it up. It is ready again when it next braces."],
+    ["evade", "Evade (Light units)", "v3.3: after an adjacent attack that leaves the target standing, a unit with Evade may keep moving, each step further from the target, with its remaining movement, Stamina and Command. No attack, brace, pull or swap after."],
+    ["tackleHexCost", "Tackle costs a hex", "v3.3: breaking tackle costs the leaving unit its own hex cost (Heavy 1, Light 0.5) instead of the flat tackle cost."],
+    ["tackleUsesCap", "Tackle uses a hex of movement", "v3.3: breaking tackle also uses up one hex of the unit's movement cap."],
     ["doubleKoToTiebreak", "A double knockout goes to the tiebreaks", "v3.2: if one action finishes both sides, the turn-limit order decides: more pull damage, then fewer beings lost, then a draw."]
   ];
   const CARD_FIELDS = [
     ["icon", "Icon", "icon"],
     ["hp", "HP", "num", 1], ["str", "Strength", "num", 1], ["range", "Range", "num", 1], ["armor", "Armor", "num", 1],
     ["dodge", "Dodge", "bool"], ["hexCost", "Stamina per hex", "num", 0.5], ["cap", "Max hexes", "num", 1], ["zone", "Zone of Control", "bool"],
-    ["trait", "Trait", "trait"], ["brace", "When braced", "brace"], ["reload", "Reloads", "bool"], ["beings", "Beings", "num", 1]
+    ["trait", "Trait", "trait"], ["brace", "When braced", "brace"], ["reload", "Reloads", "bool"], ["evade", "Evade", "bool"], ["beings", "Beings", "num", 1]
   ];
   function rsOptions(selected) {
     return Object.values(App.rulesets).sort((a, b) => a.name.localeCompare(b.name)).map((r) => `<option value="${esc(r.id)}" ${r.id === selected ? "selected" : ""}>${esc(r.name)}</option>`).join("");
