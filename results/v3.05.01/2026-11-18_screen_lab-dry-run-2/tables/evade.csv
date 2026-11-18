@@ -1,0 +1,3 @@
+matchup,games,evade_chances,evade_taken,evade_safer_chances,evade_safer_taken,evade_no_step,no_step_cap,no_step_command,no_step_stamina,no_step_zone,no_step_tackle,no_step_blocked,no_step_other
+brain5-v-standard-5v5,20,42,34,27,24,29,17,1,0,0,11,0,0
+brain5-light-mirror-5v5,20,138,93,71,57,72,38,5,10,0,19,0,0

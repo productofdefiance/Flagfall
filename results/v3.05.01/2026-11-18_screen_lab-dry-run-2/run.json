@@ -1,0 +1,53 @@
+{
+ "id": "2026-11-18_screen_lab-dry-run-2",
+ "kind": "screen",
+ "version": "v3.05.01",
+ "build": 7,
+ "commit": "b5a639fcf80cb138141a9d3a436d93971fa8fdf1",
+ "brief": "008",
+ "question": "Does the lab play a small job order on GitHub and file a complete run folder, with an INDEX line and replay links that open on the board?",
+ "tags": [
+  "lab",
+  "dry-run",
+  "brain5"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-18T20:39:44.978Z",
+ "finished": "2026-11-18T20:39:44.978Z",
+ "games": 40,
+ "seed_from": "tests/rng.js lab:lab-dry-run:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "brain5-v-standard-5v5",
+    "a": "brain5",
+    "b": "standard",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 20
+   },
+   {
+    "name": "brain5-light-mirror-5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 20
+   }
+  ],
+  "measures": [
+   "evade",
+   "light",
+   "clock",
+   "play"
+  ]
+ },
+ "failed": null,
+ "extra": {}
+}
