@@ -38,6 +38,7 @@
 - **Bot minimum.** Every build that adds a unit, action or rule teaches the computer opponent to use it sensibly, as the brief's Bot minimum section says, and the Report proves it with numbers. Simulations are only evidence if the bot plays the feature.
 
 ## Process
+- Don't rerun slow simulations or the full checks locally for a change that doesn't touch the rules or the bot (docs, flags, screen text). Say in the Report what you skipped and why.
 - Work on a branch named `build/NNN-short-name`. Never commit to `main` directly. Open a pull request and give the Editor the link.
 - Don't invent rules the Editor hasn't agreed. List them as `ASK` rows instead.
 - Keep `FLAGS.md` current: close the rows your build fixes, open rows for anything you found.

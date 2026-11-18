@@ -29,7 +29,11 @@ In: a build number kept in one place, shown on three screens and stored with eac
    - `main` at `https://productofdefiance.github.io/Flagfall/` on every push to `main`;
    - each open pull request at `https://productofdefiance.github.io/Flagfall/pr/<number>/`, updated on every push to it and removed when it closes.
    Publish from a `gh-pages` branch the workflow maintains (only the `board/` files, not tests). The workflow appends `Play this build: <link>` as the last line of the pull request description, replacing any earlier one. Note in the board's Home line which build a preview is, so previews can't be mistaken for `main` (for example `Build 3 · Preview of PR #6`).
-8. **One-time setting for the Editor.** After the workflow has run once, the Editor turns Pages on: Settings → Pages → Source: *Deploy from a branch* → `gh-pages` / root → Save. Put these exact clicks in the Report's to-dos.
+8. **Fast checks on every pull request, full checks at night.** Brief 002's double-knockout count made every pull request's checks take about 45 minutes. Split `checks` in two:
+   - **Quick (every pull request and push, target under 10 minutes):** all the rule tests, the replay of Match 3, the regression hashes, `test_invariants.js`, the v3 red team run, and a short double-knockout count (40 games per format) so a broken rule still fails fast.
+   - **Full (every night at about 3 AM New York time, plus a "Run workflow" button the Editor can press):** the full 400 + 400 double-knockout count and anything else slow. A failing night run opens a `FLAGS.md`-style note as a GitHub issue titled "Night checks failed", so it can't go unseen.
+   Keep the `checks` name on the quick run, so the protection rule on `main` keeps working. A pull request that changes `board/engine.js`, `board/data.js`, `board/bot.js` or `board/brain.js` may also be given the label `full checks` to run the full set before merging. Put the button's location in the Report.
+9. **One-time setting for the Editor.** After the workflow has run once, the Editor turns Pages on: Settings → Pages → Source: *Deploy from a branch* → `gh-pages` / root → Save. Put these exact clicks in the Report's to-dos.
 
 ## Rules it touches
 None. Storing the build number with a match must not change what the engine replays.
