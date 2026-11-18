@@ -7,7 +7,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 |---|---|---|---|---|---|
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 | 008, the lab |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 | 006, Brain 5 |
-| v3.04.00 | v3.4 | Kit C | v1 | 5 | 005, crack the fort |
+| v3.04.00 | v3.4 | Kit D | v1 | 5 | 005, crack the fort |
 
 ## v3.05.01 (Build 7) — Brief 008, the lab: heavy runs on GitHub, organised results, watch any game by seed (18 Nov 2026)
 Rule set: none changed (v3.4 stays the newest). No brain changed. Game version **v3.05.01** (ZZ: nothing about how the game plays changes). If brief 007 (v3.06.00, also Build 7) merges first, this takes v3.06.01 and Build 8.
