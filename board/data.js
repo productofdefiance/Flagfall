@@ -126,7 +126,14 @@
   V33.note = "v3.2 plus: Evade for Light units; tackle costs the leaving unit's hex cost.";
   Object.assign(V33.switches, { evade: true, tackleHexCost: true, tackleUsesCap: true });
   for (const code of ["LM", "LR", "LA"]) V33.cards[code].evade = true;   // the Light class
-  const PRESETS = [V1, V2, V3, V31, V32, V33];
+  /* Rule set v3.4 (Brief 005, 2026-11-18): v3.3 with a turn limit per format. The 25-turn limit was set for 5v5;
+     7v7 gets 35 (a first guess, to measure how much of the stalling is the clock). */
+  const V34 = JSON.parse(JSON.stringify(V33));
+  V34.id = "v3.4"; V34.name = "v3.4 (2026-11-18)";
+  V34.note = "v3.3 with a turn limit per format: 5v5 25 turns, 7v7 35 turns.";
+  V34.switches.turnLimitByFormat = true;
+  V34.game.turnLimit5 = 25; V34.game.turnLimit7 = 35;
+  const PRESETS = [V1, V2, V3, V31, V32, V33, V34];
 
   const TRAITS = { tackle: "Tackle", reach: "Reach", ignoreArmor: "Ignores Armor", none: "None" };
   const BRACES = { parry: "Parry", dodgeDouble: "Dodge doubles", spike: "Set spear", zone: "Projects Zone of Control", fullStamina: "Full Stamina next turn", noSupport: "No Support against it", none: "None" };

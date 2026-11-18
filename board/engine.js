@@ -472,12 +472,28 @@
     if (st.result) { st.phase = "over"; log(st, `${st.result.winner === "N" ? "North" : "South"} wins by ${st.result.how}`, "result"); }
   }
 
+  /** Unit cap per side for a rule set and lineup: the sum of the cards' unit cap (the "beings" field). */
+  function capOfLineup(rs, lineup) { return (lineup || []).reduce((s, l) => s + ((rs.cards[l.card] && rs.cards[l.card].beings) || 1), 0); }
+  /** Turns per player for a format. v3.4 (turnLimitByFormat): 5v5 and 7v7 have their own limits; anything else, and
+      every older rule set, uses turnLimit. */
+  function turnLimitFor(rs, size) {
+    const g = rs.game;
+    if (!(rs.switches && rs.switches.turnLimitByFormat)) return g.turnLimit;
+    return (size === 5 && g.turnLimit5) || (size === 7 && g.turnLimit7) || g.turnLimit;
+  }
+  /** The turn limit of this match. */
+  function turnLimit(st) {
+    if (!sw(st, "turnLimitByFormat")) return st.rs.game.turnLimit;
+    const size = st.units.filter((u) => u.team === "N").reduce((s, u) => s + (card(st, u).beings || 1), 0);
+    return turnLimitFor(st.rs, size);
+  }
+
   function endTurn(st) {
     const rec = st.spend[st.spend.length - 1];
     if (rec) rec.spent = rec.cmd - st.cmd;
     const next = foeOf(st.toMove);
     if (st.toMove !== st.first) {
-      if (st.turn >= st.rs.game.turnLimit) return limitResult(st);
+      if (st.turn >= turnLimit(st)) return limitResult(st);
       st.turn += 1;
     }
     startTurn(st, next);
@@ -668,12 +684,57 @@
     if (sw(st, "parryFirstOnly") && t.parryUsed) return { used: true };
     return { amount: parryAmount(st, u), ifSurvives: sw(st, "parryNeedsSurvivor") };
   }
-  /** v3.3: how many hexes a Light unit could evade after attacking `t` now (0 if no Evade). Budget only: the board
-      shows the actual hexes once the attack is made. */
+  /** v3.3 Evade preview (Brief 005: exact). Plays the evade that would follow an attack on `t`, if `t` survives, on a
+      scratch copy: Stamina and Command after the attack, the cap, tackle and the direction rule all count. Returns null
+      when no Evade applies, else { hexes, reason (why 0), unsure (the parry might remove the attacker first) }. */
   function evadePreview(st, u, t) {
-    if (!sw(st, "evade") || !card(st, u).evade || dist(u.hex, t.hex) !== 1) return 0;
-    const c = card(st, u), left = Math.min(u.stam, st.cmd) - st.rs.game.attackCost;
-    return Math.max(0, Math.min(capOf(st, u) - u.moved, Math.floor(left / c.hexCost + EPS)));
+    if (!sw(st, "evade") || !card(st, u).evade || dist(u.hex, t.hex) !== 1) return null;
+    const s = cloneLite(st), su = unitByUid(s, u.uid), g = st.rs.game;
+    su.stam -= g.attackCost; s.cmd -= g.attackCost; su.done = false; su.evadeFrom = t.uid; su.evadeMoved = false; su.attackedThis = true;
+    const moves = reachMap(s, su), hexes = Object.values(moves).reduce((m, x) => Math.max(m, x.steps), 0);
+    const pv = parryPreview(st, u, t);
+    return { hexes, reason: hexes ? null : whyNoMove(s, su), unsure: !!(pv && !pv.used && pv.amount >= effHp(st, u) - EPS) };
+  }
+  /** Why a unit can't take a single step now, in plain words; null if it can. Every reason is read from the rules. */
+  function whyNoMove(st, u) {
+    if (Object.keys(reachMap(st, u)).length) return null;
+    const c = card(st, u), cap = capOf(st, u), ev = evadeTarget(st, u), b = blocked(st, u);
+    const free = NBRS[u.hex].filter((n) => !b.has(n) && (!ev || dist(n, ev.hex) > dist(u.hex, ev.hex)));
+    if (!free.length) return ev ? `No free hex further from ${ev.id}` : "No free hex next to it";
+    if (u.moved >= cap) return `Moved its full cap (${cap} hexes)`;
+    if (st.cmd + EPS < c.hexCost) return `Needs ${fmt(c.hexCost)} Command for a step, ${fmt(st.cmd)} left`;
+    if (u.stam + EPS < c.hexCost) return `Needs ${fmt(c.hexCost)} Stamina for a step, ${fmt(u.stam)} left`;
+    const mode = ev && !u.evadeMoved ? null : u.zmode;
+    if (mode === "shifted" || (mode === "entered" && sw(st, "zoneHardStop"))) return "Stopped in an enemy zone this turn";
+    for (const n of free) {
+      if (!tackleApplies(st, u, u.hex, n)) continue;
+      const e = alive(st).find((x) => x.team !== u.team && card(st, x).trait === "tackle" && dist(x.hex, u.hex) === 1 && dist(x.hex, n) !== 1);
+      const cost = c.hexCost + tackleCostFor(st, u), hexes = 1 + tackleHexes(st);
+      return `Tackled by ${e ? e.id : "an enemy"}: breaking away needs ${fmt(cost)} Stamina` + (hexes > 1 ? ` and ${hexes} hexes of movement` : "") +
+        `; has ${fmt(Math.min(u.stam, st.cmd))} Stamina${u.stam > st.cmd + EPS ? " (Command)" : ""}` + (hexes > 1 ? ` and ${cap - u.moved} hex${cap - u.moved === 1 ? "" : "es"}` : "");
+    }
+    return "No legal step";
+  }
+  /** Why each action is unavailable for a unit right now (null = available), for the board's greyed-out buttons. */
+  function blockReasons(st, uid) {
+    const u = unitByUid(st, uid), g = st.rs.game, out = { attack: null, reach: null, brace: null, move: null, done: null, special: "No special actions in this rule set yet" };
+    const all = (r) => { for (const k of ["attack", "reach", "brace", "move", "done"]) out[k] = r; return out; };
+    if (!u || u.hp <= 0) return all("That unit has been removed");
+    if (st.phase !== "play") return all("The match is not in play");
+    if (u.team !== st.toMove) return all("It is not that side's turn");
+    if (u.done) return all(`${u.id} has ended its turn`);
+    const ev = evadeTarget(st, u);
+    const o = options(st, uid), c = card(st, u);
+    const need = (k, cost) => (u.stam + EPS < cost ? `Needs ${fmt(cost)} Stamina, ${fmt(u.stam)} left` : st.cmd + EPS < cost ? `Needs ${fmt(cost)} Command, ${fmt(st.cmd)} left` : null);
+    if (ev) { out.attack = out.reach = out.brace = `${u.id} attacked this turn and may only evade or end`; }
+    else {
+      const reachShot = (a) => c.trait === "reach" && c.range === 1 && dist(u.hex, unitByUid(st, a.target).hex) === 2;
+      out.attack = need("attack", g.attackCost) || (c.reload && u.attackedLast ? `${u.id} is reloading this turn` : null) || (o.attacks.some((a) => !reachShot(a)) ? null : "No enemy in range");
+      out.reach = c.trait !== "reach" ? "Only Anti-Cavalry units can Reach" : need("attack", g.attackCost) || (o.attacks.some(reachShot) ? null : "No enemy 2 hexes away in a straight line, with nothing in between");
+      out.brace = need("brace", g.braceCost);
+    }
+    out.move = whyNoMove(st, u);
+    return out;
   }
   /** HP that must go before a unit falls: a flag holder's pool, or its own HP. */
   function effHp(st, t) { return isHolder(st, t) ? t.hp + flagLeft(st, t.team) : t.hp; }
@@ -703,6 +764,6 @@
   }
 
   const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, foeOf, clone, card, alive, unitByUid,
-    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, evadePreview, tackleCostFor, tiebreak, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
+    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
   if (typeof module !== "undefined") module.exports = api; else root.GGEngine = api;
 })(this);

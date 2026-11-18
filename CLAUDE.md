@@ -4,7 +4,7 @@
 - The project owner is **the Editor**. Always call them that, in chat, commits, briefs, reports, code comments and docs. Never write their real name or any personal detail (email, location, accounts) anywhere in this repository. This repository is public.
 - The Editor has no coding experience and no budget beyond the Claude subscription (no paid services, hosting or tools).
 - Explain changes in plain language: what a player will notice, not what the code does.
-- The game's working title is **Flagfall Arena**.
+- The game's working title is **Flagfall: Arena** (Flagfall is the franchise name). On screen, units are counted in **unit cap (UC)**; never show the word "being".
 
 ## How to talk to the Editor
 - Stress-test first. Lead with what's wrong, missing or risky. No flattery; praise only with specific reasons.

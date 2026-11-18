@@ -2,6 +2,36 @@
 
 Newest first. One entry per build, written for the Editor: what a player notices first, then what changed under the hood.
 
+## Build 5 — Brief 005, the bot cracks the fort; 7v7 gets 35 turns (18 Nov 2026)
+Rule set: **v3.4** (new; the new-game default): v3.3 with 35 turns at 7v7 (25 at 5v5). New opponent **Kit D**, now the default.
+
+**What a player will notice**
+- The default opponent is Kit D. It plans its whole turn: it gangs up on one of your units it can remove, cracks a held flag with two attackers (the least valuable one takes the parry), and goes for your flag when you're down to your holder.
+- 7v7 games last up to 35 turns. The Settings screen shows the limit for the chosen format, and the top bar counts to it.
+- The Evade preview never promises a step that won't exist. If tackle or anything else stops it, it says why.
+- A greyed-out button explains itself when tapped (for example "Needs 1 Command, 0.5 left").
+- Units are counted in unit cap (UC) on screen; the word "beings" is gone.
+
+**Under the hood**
+- Kit D's turn planner (`bot.js` planAction), with four switches. "Pick off the weak" is off because it made Kit D worse in testing.
+- Engine: per-format turn limit (switch `turnLimitByFormat`), and plain-language reasons for blocked moves and actions (`whyNoMove`, `blockReasons`, an exact Evade preview).
+- New tests: `test_v34.js`, `test_reasons.js`, `test_kitd.js`.
+
+**Flags closed:** none. **Updated:** F10, F11, F12 (the stalls are not the bot's fault alone, and the longer clock didn't help). **Opened:** F23 (sampling noise).
+
+**Baseline (balanced lineups, 400 games each)**
+
+| | v3.2 Kit B 7v7 | v3.3 Kit D 7v7 | v3.4 Kit D 7v7 | v3.2 Kit B 5v5 | v3.3 Kit D 5v5 | v3.4 Kit D 5v5 |
+|---|---|---|---|---|---|---|
+| Holder KO | 61.0% | 55.0% | 53.5% | 24.0% | 31.2% | 23.8% |
+| Pull KO | 0.5% | 1.0% | 0.2% | 0% | 0% | 0% |
+| TKO | 0% | 7.5% | 7.2% | 0% | 1.2% | 1.2% |
+| Tiebreak win | 27.2% | 32.8% | 36.5% | 8.0% | 14.2% | 13.2% |
+| Draw | 11.2% | 3.8% | 2.5% | 68.0% | 53.2% | 61.8% |
+| Ended on the turn limit | 38.5% | 36.5% | 39.0% | 76.0% | 67.5% | 75.0% |
+| Games with a pull | 1.0% | 1.5% | 0.2% | 0.2% | 0% | 0% |
+| Average turn | 19.3 | 17.5 | 22.4 | 22.9 | 21.7 | 22.5 |
+
 ## Build 4 — Brief 004, v3.3: Evade and tackle at hex cost (18 Nov 2026)
 Rule set: **v3.3** (new; the new-game default).
 
