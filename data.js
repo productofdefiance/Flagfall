@@ -118,7 +118,15 @@
   V32.id = "v3.2"; V32.name = "v3.2 (2026-11-17)";
   V32.note = "v3.1 plus: dead units don't parry; parry once per enemy turn; a double knockout goes to the tiebreaks.";
   Object.assign(V32.switches, { parryNeedsSurvivor: true, parryFirstOnly: true, doubleKoToTiebreak: true, simultaneousToActor: false });
-  const PRESETS = [V1, V2, V3, V31, V32];
+  /* Rule set v3.3 (Brief 004, 2026-11-18): Evade and tackle at hex cost (Game Laws 6.5, 6.6), approved for playtest.
+     A Light unit whose adjacent attack leaves the target standing may keep moving, each step further from it.
+     Breaking tackle costs the leaving unit its own hex cost and uses a hex of its movement cap. */
+  const V33 = JSON.parse(JSON.stringify(V32));
+  V33.id = "v3.3"; V33.name = "v3.3 (2026-11-18)";
+  V33.note = "v3.2 plus: Evade for Light units; tackle costs the leaving unit's hex cost.";
+  Object.assign(V33.switches, { evade: true, tackleHexCost: true, tackleUsesCap: true });
+  for (const code of ["LM", "LR", "LA"]) V33.cards[code].evade = true;   // the Light class
+  const PRESETS = [V1, V2, V3, V31, V32, V33];
 
   const TRAITS = { tackle: "Tackle", reach: "Reach", ignoreArmor: "Ignores Armor", none: "None" };
   const BRACES = { parry: "Parry", dodgeDouble: "Dodge doubles", spike: "Set spear", zone: "Projects Zone of Control", fullStamina: "Full Stamina next turn", noSupport: "No Support against it", none: "None" };
