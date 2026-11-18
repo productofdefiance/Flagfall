@@ -1,0 +1,75 @@
+# Play links (Brief 003): publishes the board to the gh-pages branch, which GitHub Pages serves for free.
+# - main:            https://productofdefiance.github.io/Flagfall/          (every push to main)
+# - a pull request:  https://productofdefiance.github.io/Flagfall/pr/<number>/  (every push to it; removed when it closes)
+# Only the board's files are published, not its tests. Each pull request description gets "Play this build: <link>"
+# as its last line. Pages has to be switched on once: Settings → Pages → Deploy from a branch → gh-pages / root.
+name: play-links
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: write        # push the gh-pages branch
+  pull-requests: write   # add the play link to the description
+
+concurrency:
+  group: play-links      # one publish at a time, in order, so two pushes never overwrite each other
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: publish play link
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SITE: https://productofdefiance.github.io/Flagfall
+      PR: ${{ github.event.pull_request.number }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Open the gh-pages branch (create it the first time)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin gh-pages > /dev/null; then
+            git fetch --depth 1 origin gh-pages && git worktree add site FETCH_HEAD && (cd site && git checkout -B gh-pages)
+          else
+            git worktree add --orphan -b gh-pages site
+          fi
+          touch site/.nojekyll
+      - name: Copy the board
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            # main lives at the root; keep the pull request previews under pr/
+            rsync -a --delete --exclude 'tests/' --exclude 'pr/' --exclude '.nojekyll' --exclude '.git' board/ site/
+          elif [ "${{ github.event.action }}" = "closed" ]; then
+            rm -rf "site/pr/$PR"
+          else
+            rm -rf "site/pr/$PR" && mkdir -p "site/pr/$PR"
+            rsync -a --exclude 'tests/' board/ "site/pr/$PR/"
+            # Mark the copy as a preview, so the Home line can't be mistaken for main.
+            sed -i "s/preview: null/preview: \"PR #$PR\"/" "site/pr/$PR/version.js"
+            grep -q "preview: \"PR #$PR\"" "site/pr/$PR/version.js" || { echo "Could not mark the preview in version.js"; exit 1; }
+          fi
+      - name: Publish
+        run: |
+          cd site
+          git add -A
+          if git diff --cached --quiet; then echo "Nothing changed on gh-pages."; exit 0; fi
+          git commit -q -m "Publish ${{ github.event_name == 'push' && 'main' || format('PR #{0} ({1})', github.event.pull_request.number, github.event.action) }} at ${GITHUB_SHA::7}"
+          git push origin gh-pages
+      - name: Put the play link at the end of the pull request description
+        if: github.event_name == 'pull_request' && github.event.action != 'closed'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          link="$SITE/pr/$PR/"
+          gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json body --jq .body > body.md
+          grep -v '^Play this build: ' body.md | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' > new.md || true
+          printf '\nPlay this build: %s\n' "$link" >> new.md
+          gh pr edit "$PR" --repo "$GITHUB_REPOSITORY" --body-file new.md
+          echo "Play this build: $link" >> "$GITHUB_STEP_SUMMARY"

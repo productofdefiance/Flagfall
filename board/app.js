@@ -5,6 +5,7 @@
 (function () {
   "use strict";
   const E = window.GGEngine, D = window.GGData, SK = window.GGSkin, Bot = window.GGBot, BR = window.GGBrain;
+  const V = window.GGVersion || { build: null, preview: null };   // build number: board/version.js is the only source
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const sideName = (t) => (t === "N" ? "North" : "South");
@@ -133,19 +134,26 @@
       return this.write("live/current", { match }).catch(() => {});
     },
     summary(match, st, how, winner) {
-      return { id: match.id, started: match.started, finished: new Date().toISOString(), ruleset: match.rs.name, format: match.opts.format || null,
+      return { id: match.id, started: match.started, finished: new Date().toISOString(), ruleset: match.rs.name, build: match.build || null, format: match.opts.format || null,
         names: match.opts.names, winner, how, turn: st.turn, seed: match.opts.seed || null,
         pull: { N: st.pole.S, S: st.pole.N }, lost: { N: E.beingsLost(st, "N"), S: E.beingsLost(st, "S") } };
     },
     saveFinished(match, st) {
       const s = this.summary(match, st, st.result.how, st.result.winner);
       const loc = this.local("matches") || {}; loc[match.id] = s; this.local("matches", loc);
+      this.local("record." + match.id, match);   // the full match, for Copy on the Matches screen (Build 3 on)
       return this.write("matches/" + match.id, Object.assign({}, s, { match })).catch(() => {});
     },
     saveAbandoned(match, st) {
       const s = this.summary(match, st, "abandoned", null);
       const loc = this.local("matches") || {}; loc[match.id] = s; this.local("matches", loc);
+      this.local("record." + match.id, match);
       return this.write("matches/" + match.id, Object.assign({}, s, { match })).catch(() => {});
+    },
+    /** The full saved match for a finished match, or null (device-only matches finished before Build 3 kept no moves). */
+    async record(id) {
+      if (this.db) { try { const d = await this.db.doc("matches/" + id).get(); if (d.exists && d.data().match) return JSON.parse(JSON.stringify(d.data().match)); } catch (e) { /* fall through */ } }
+      return this.local("record." + id);
     },
     async matches() {
       let list = [];
@@ -267,7 +275,7 @@
         lineups[t] = toLineup(rs, App.picks[t]);
       }
     }
-    App.match = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), rs: E.clone(rs),
+    App.match = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), build: V.build, rs: E.clone(rs),
       opts: { first: "N", players, names, lineups, seed: s.seed, format: fm.id, coin: s.first === "coin" }, brains, actions: [], draws: 0 };
     App.match.opts.first = s.first === "coin" ? (rand() < 0.5 ? "N" : "S") : s.first;
     rebuild();
@@ -395,11 +403,21 @@
     const where = st.phase === "deploy" ? "Deploying" : `Turn ${st.turn} · ${sideName(st.toMove)} to move`;
     return `${where} · ${opp}`;
   }
+  /** "Playtest board · Build 3 · Rules v3.2"; a preview copy also says which pull request it is. */
+  function homeLine() {
+    const newest = D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id;
+    return ["Playtest board", V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null, `Rules ${newest}`].filter(Boolean).join(" · ");
+  }
+  /** " · Build 3", plus the build a match was started on when that differs (never guessed for older matches). */
+  function buildNote(m) {
+    if (!V.build) return "";
+    return ` · Build ${V.build}` + (m && m.build && m.build !== V.build ? ` (started on Build ${m.build})` : "");
+  }
   function renderHome() {
     const cont = liveSummary();
     const item = (act, icon, t, s, primary) => `<button type="button" class="menuitem${primary ? " primary" : ""}" data-act="${act}">${ic(icon, 24)}<span><span class="mt">${t}</span>${s ? `<span class="ms">${s}</span>` : ""}</span></button>`;
     $("view-home").innerHTML = `<div class="scroll"><div class="wrap" style="padding-top:36px">
-      <div><h1 class="title">Flagfall<br>Arena</h1><p class="note" style="margin-top:8px">Playtest board</p></div>
+      <div><h1 class="title">Flagfall<br>Arena</h1><p class="note" style="margin-top:8px">${esc(homeLine())}</p></div>
       ${cont ? item("continue", "play", "Continue match", cont, true) : ""}
       ${item("new", "plus", "New game", "Format, sides, lineups", !cont)}
       ${item("go-units", "table", "Unit data and rules", "Every number the rules use, editable")}
@@ -1106,7 +1124,7 @@
       case "sheet-close": ui.sheet = null; ui.armed = null; render(); break;
       case "menu": {
         const live = st.phase !== "over";
-        const v = await dialog(`<h2>Turn ${st.turn}</h2><p class="note">${esc(st.names.N)} vs ${esc(st.names.S)} · ${esc(App.match.rs.name)}${App.match.opts.seed ? ` · seed <span class="num" style="white-space:nowrap">${esc(App.match.opts.seed)}</span>` : ""}</p>
+        const v = await dialog(`<h2>Turn ${st.turn}</h2><p class="note">${esc(st.names.N)} vs ${esc(st.names.S)} · ${esc(App.match.rs.name)}${esc(buildNote(App.match))}${App.match.opts.seed ? ` · seed <span class="num" style="white-space:nowrap">${esc(App.match.opts.seed)}</span>` : ""}</p>
           <button class="btn primary" data-dlg="close">Back to the field</button><button class="btn" data-dlg="match">Match log and record</button><button class="btn" data-dlg="home">Home</button>
           ${live && !isBot(st.toMove) ? `<button class="btn danger" data-dlg="surrender">${esc(sideName(st.toMove))} surrenders</button>` : ""}`);
         if (v === "match") show("match");
@@ -1116,9 +1134,17 @@
       }
       case "surrender": if (await confirmBox(`${sideName(st.toMove)} surrenders?`, "The match ends and is saved.", "Surrender", "danger")) { act({ type: "surrender", team: st.toMove }); show("play"); } break;
       case "copy-record": {
-        const rec = JSON.stringify({ ruleset: App.match.rs, opts: App.match.opts, brains: App.match.brains, started: App.match.started, actions: App.match.actions, botMoves: App.match.botMoves || [], result: App.st.result }, null, 1);
+        const rec = recordText(App.match, App.st.result);
         try { await navigator.clipboard.writeText(rec); toast("Match record copied. Paste it into the chat."); }
         catch (e) { show("match"); const ta = $("record"); if (ta) { ta.value = rec; ta.hidden = false; ta.select(); } toast("Select the text and copy it."); }
+        break;
+      }
+      case "copy-finished": {
+        const m = await Store.record(el.dataset.id);
+        if (!m) { toast("This match was saved before Build 3 on this device only, so its moves weren't kept. Nothing to copy."); break; }
+        const rec = recordText(m, replayResult(m));
+        try { await navigator.clipboard.writeText(rec); toast("Match record copied. Paste it into the chat."); }
+        catch (e) { const ta = $("record-finished"); if (ta) { ta.value = rec; ta.hidden = false; ta.select(); } toast("Select the text and copy it."); }
         break;
       }
       // data sheets
@@ -1327,6 +1353,17 @@
   function renderSheets() { if (App.view === "units") renderUnits(); if (App.view === "rules") renderRules(); if (App.view === "opponent") renderOpponent(); }
 
   // ---------- Matches ----------
+  /** The record Claude reads: the same fields for the current match and any finished one. */
+  function recordText(m, result) {
+    return JSON.stringify({ ruleset: m.rs, opts: m.opts, brains: m.brains, started: m.started, build: m.build || null, actions: m.actions, botMoves: m.botMoves || [], result: result || null }, null, 1);
+  }
+  /** A saved match's result, worked out by replaying its moves (summaries don't keep the engine's result). */
+  function replayResult(m) {
+    if (!m || !m.rs || !Array.isArray(m.actions)) return null;
+    const st = E.newMatch(m.rs, m.opts);
+    for (const a of m.actions) { const r = E.act(st, a, () => a.die); if (!r.ok) break; }
+    return st.result;
+  }
   async function loadMatches() { App.matches = await Store.matches(); if (App.view === "match") renderMatchView(); }
   function renderMatchView() {
     const el = $("view-match"), st = App.st, m = App.match;
@@ -1334,7 +1371,7 @@
     if (m && st) {
       const status = st.phase === "over" ? (st.result.winner ? `${esc(st.names[st.result.winner])} won, ${esc(st.result.how)}` : "Draw") : st.phase === "deploy" ? "Deploying" : `Turn ${st.turn}, ${sideName(st.toMove)} to move`;
       const pl = (t) => (isBot(t) ? "bot (" + esc(brainOf(t).name) + ")" : "human");
-      h += `<div class="card"><h3>Current match</h3><p class="note">${esc(st.names.N)} (North, ${pl("N")}) vs ${esc(st.names.S)} (South, ${pl("S")}) · ${esc(m.rs.name)}${m.opts.format ? " · " + esc(formatOf(m.opts.format).label) : ""}${m.opts.seed ? ` · seed <span class="num">${esc(m.opts.seed)}</span>` : ""} · started ${new Date(m.started).toLocaleString()} · ${status}</p>
+      h += `<div class="card"><h3>Current match</h3><p class="note">${esc(st.names.N)} (North, ${pl("N")}) vs ${esc(st.names.S)} (South, ${pl("S")}) · ${esc(m.rs.name)}${esc(buildNote(m))}${m.opts.format ? " · " + esc(formatOf(m.opts.format).label) : ""}${m.opts.seed ? ` · seed <span class="num">${esc(m.opts.seed)}</span>` : ""} · started ${new Date(m.started).toLocaleString()} · ${status}</p>
         <div class="actions"><button class="btn" data-act="copy-record">Copy match record for Claude</button>${st.phase === "play" && !isBot(st.toMove) ? `<button class="btn danger" data-act="surrender">${sideName(st.toMove)} surrenders</button>` : ""}</div>
         <textarea id="record" class="copyarea" readonly hidden></textarea></div>`;
       let lg = "";
@@ -1344,9 +1381,9 @@
     h += `<div class="card"><h3>Finished matches</h3>`;
     if (!App.matches.length) h += `<p class="note">None saved yet.</p>`;
     else {
-      h += `<div class="tablewrap"><table class="data"><thead><tr><th>Finished</th><th>Rule set</th><th>Result</th><th>Turn</th><th>Pull damage N–S</th><th>Beings lost N–S</th></tr></thead><tbody>`;
-      for (const x of App.matches) h += `<tr><td>${x.finished ? new Date(x.finished).toLocaleDateString() : ""}</td><td>${esc(x.ruleset)}</td><td>${x.how === "abandoned" ? "Abandoned" : x.winner ? esc(x.names ? x.names[x.winner] : sideName(x.winner)) + " (" + sideName(x.winner) + "), " + esc(x.how) : "Draw, " + esc(x.how)}</td><td class="num">${x.turn}</td><td class="num">${x.pull ? x.pull.N + "–" + x.pull.S : ""}</td><td class="num">${x.lost ? x.lost.N + "–" + x.lost.S : ""}</td></tr>`;
-      h += `</tbody></table></div>`;
+      h += `<div class="tablewrap"><table class="data"><thead><tr><th></th><th>Finished</th><th>Rule set</th><th>Result</th><th>Turn</th><th>Pull damage N–S</th><th>Beings lost N–S</th></tr></thead><tbody>`;
+      for (const x of App.matches) h += `<tr><td><button type="button" class="iconbtn" data-act="copy-finished" data-id="${esc(x.id)}" aria-label="Copy this match's record for Claude" title="Copy match record">${ic("copy", 18)}</button></td><td>${x.finished ? new Date(x.finished).toLocaleDateString() : ""}</td><td>${esc(x.ruleset)}${x.build ? `<br><span class="muted">Build ${esc(String(x.build))}</span>` : ""}</td><td>${x.how === "abandoned" ? "Abandoned" : x.winner ? esc(x.names ? x.names[x.winner] : sideName(x.winner)) + " (" + sideName(x.winner) + "), " + esc(x.how) : "Draw, " + esc(x.how)}</td><td class="num">${x.turn}</td><td class="num">${x.pull ? x.pull.N + "–" + x.pull.S : ""}</td><td class="num">${x.lost ? x.lost.N + "–" + x.lost.S : ""}</td></tr>`;
+      h += `</tbody></table></div><textarea id="record-finished" class="copyarea" readonly hidden></textarea>`;
     }
     h += `</div></div></div>`;
     el.innerHTML = h;

@@ -42,6 +42,7 @@
 - Work on a branch named `build/NNN-short-name`. Never commit to `main` directly. Open a pull request and give the Editor the link.
 - Don't invent rules the Editor hasn't agreed. List them as `ASK` rows instead.
 - Keep `FLAGS.md` current: close the rows your build fixes, open rows for anything you found.
+- **Raise the build number.** Every build that changes `board/` raises the build number by one in `board/version.js` (the only place it is kept) and puts it in its `CHANGELOG.md` heading. The `checks` workflow fails a pull request that changes `board/` without raising it.
 - **Keep `CHANGELOG.md` current.** Every build adds one entry at the top, in the same pull request: the brief number, the rule set it adds or changes, the date, then in plain language what a player will notice, what changed under the hood, which flags it closed, and the baseline table for rule changes. Create the file on the first build that finds it missing, starting with that build and a one-line entry for each earlier merged brief. Once the board shows a build number, put it in each entry's heading.
 - The Game Laws, Dev Handover and Ideas Log live outside this repo and are kept by the design chat. Don't try to edit them. If the code and a brief disagree with each other, say so in the Report.
 

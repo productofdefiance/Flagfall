@@ -1,9 +1,10 @@
-# Brief 001: run the board's checks on every pull request to main and every push to main.
+# Quick checks on every pull request and every push to main (Brief 001, split in Brief 003).
+# The slow checks (the full 400 + 400 double-knockout count) run at night instead: see night-checks.yml.
+# The jobs run side by side; the last job is named `checks` and is the one the protection rule on main requires.
 name: checks
 
 on:
   pull_request:
-    branches: [main]
   push:
     branches: [main]
 
@@ -11,75 +12,95 @@ permissions:
   contents: read
 
 jobs:
-  checks:
-    name: checks
+  rules:
+    name: rule tests
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 30
     steps:
-      - name: Check out this commit
-        uses: actions/checkout@v5
-
-      - name: Use Node.js 20
-        uses: actions/setup-node@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 20
-
-      # Each check keeps going on failure so every result shows up in the summary.
-      # The last step fails the workflow if any of them failed.
+      # Each test keeps going on failure so every result shows up in the summary; the last step fails the job.
       - name: test_rules.js
         id: rules
         continue-on-error: true
         working-directory: board
         run: node tests/test_rules.js
-
       - name: test_v1.js
         id: v1
         continue-on-error: true
         working-directory: board
         run: node tests/test_v1.js
-
       - name: test_v3.js
         id: v3
         continue-on-error: true
         working-directory: board
         run: node tests/test_v3.js
-
       - name: test_v31.js
         id: v31
         continue-on-error: true
         working-directory: board
         run: node tests/test_v31.js
-
-      - name: test_v32.js (rule checks and double-knockout count)
+      - name: test_v32.js (rule checks, short double-knockout count of 40 games per format)
         id: v32
         continue-on-error: true
         working-directory: board
-        run: node tests/test_v32.js
-
-      - name: test_invariants.js (newest preset, 30 games)
-        id: inv32
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_invariants.js 30
-
+        run: node tests/test_v32.js 40
       - name: test_rng.js
         id: rng
         continue-on-error: true
         working-directory: board
         run: node tests/test_rng.js
-
       - name: test_replay.js (Match 3)
         id: replay
         continue-on-error: true
         working-directory: board
         run: node tests/test_replay.js ../data/match3_log.txt
+      - name: Summary
+        if: always()
+        env:
+          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
+        run: |
+          { echo "## Rule tests"; echo; echo "| Check | Result |"; echo "| --- | --- |"
+            for kv in $R; do o="${kv#*=}"; echo "| ${kv%%=*} | $( [ "$o" = success ] && echo pass || echo "**FAIL** ($o)" ) |"; done
+          } >> "$GITHUB_STEP_SUMMARY"
+          for kv in $R; do [ "${kv#*=}" = success ] || { echo "At least one rule test failed (see the Summary)."; exit 1; }; done
 
-      - name: redteam invariants (30 games)
-        id: invariants
-        continue-on-error: true
+  invariants:
+    name: impossible states (newest preset)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - name: test_invariants.js (newest preset, 30 games)
+        working-directory: board
+        run: node tests/test_invariants.js 30
+
+  redteam:
+    name: impossible states (v3 red team)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - name: redteam invariants (v3, 30 games)
         run: node .github/invariants-check.js 30
 
-      # Replay regression: report only, never fails the workflow.
+  compare:
+    name: build number and replay hashes
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
       - name: Find the commit to compare against
         id: base
         env:
@@ -87,89 +108,58 @@ jobs:
           PUSH_BEFORE: ${{ github.event.before }}
         run: |
           sha="${PR_BASE:-$PUSH_BEFORE}"
-          if [ -z "$sha" ] || [ "$sha" = "0000000000000000000000000000000000000000" ]; then
-            echo "No earlier commit to compare against."
-            echo "sha=" >> "$GITHUB_OUTPUT"
-          else
-            echo "Comparing against $sha"
-            echo "sha=$sha" >> "$GITHUB_OUTPUT"
-          fi
-
+          if [ -z "$sha" ] || [ "$sha" = "0000000000000000000000000000000000000000" ]; then echo "sha=" >> "$GITHUB_OUTPUT"; else echo "sha=$sha" >> "$GITHUB_OUTPUT"; fi
       - name: Check out the earlier commit
         if: steps.base.outputs.sha != ''
-        continue-on-error: true
         uses: actions/checkout@v5
         with:
           ref: ${{ steps.base.outputs.sha }}
           path: base-commit
-
+      # Brief 003: a change to board/ must raise the build number in board/version.js.
+      - name: Build number went up
+        id: build
+        shell: bash   # bash with pipefail, so a failing check is not hidden by tee
+        run: bash .github/check-build-number.sh base-commit . | tee build-number.txt
+      # Report only: a rule change is meant to change one rule set's hash.
       - name: Replay regression hashes (report only)
         id: regress
         continue-on-error: true
         run: |
-          if [ -f base-commit/board/engine.js ]; then
-            echo "=== Earlier commit (${{ steps.base.outputs.sha }})"
-            node board/tests/regress_engine.js base-commit/board 3 | tee regress-base.txt
-          fi
-          echo "=== This commit"
+          if [ -f base-commit/board/engine.js ]; then node board/tests/regress_engine.js base-commit/board 3 | tee regress-base.txt; fi
           node board/tests/regress_engine.js board 3 | tee regress-head.txt
-
       - name: Summary
         if: always()
-        env:
-          RULES: ${{ steps.rules.outcome }}
-          V1: ${{ steps.v1.outcome }}
-          V3: ${{ steps.v3.outcome }}
-          V31: ${{ steps.v31.outcome }}
-          V32: ${{ steps.v32.outcome }}
-          INV32: ${{ steps.inv32.outcome }}
-          RNG: ${{ steps.rng.outcome }}
-          REPLAY: ${{ steps.replay.outcome }}
-          INVARIANTS: ${{ steps.invariants.outcome }}
-          REGRESS: ${{ steps.regress.outcome }}
         run: |
-          mark() { if [ "$1" = "success" ]; then echo "pass"; else echo "**FAIL** ($1)"; fi; }
-          {
-            echo "## Checks"
-            echo
-            echo "| Check | Result |"
-            echo "| --- | --- |"
-            echo "| test_rules.js | $(mark "$RULES") |"
-            echo "| test_v1.js | $(mark "$V1") |"
-            echo "| test_v3.js | $(mark "$V3") |"
-            echo "| test_v31.js | $(mark "$V31") |"
-            echo "| test_v32.js | $(mark "$V32") |"
-            echo "| test_invariants.js (newest preset) | $(mark "$INV32") |"
-            echo "| test_rng.js | $(mark "$RNG") |"
-            echo "| test_replay.js (Match 3) | $(mark "$REPLAY") |"
-            echo "| redteam invariants (v3, 30 games) | $(mark "$INVARIANTS") |"
-            echo "| Replay regression hashes | $( [ "$REGRESS" = "success" ] && echo "reported (see below)" || echo "could not run ($REGRESS), does not fail the workflow" ) |"
-            echo
-            echo "## Replay regression hashes (report only)"
-            echo
-            echo "A rule change is meant to change one rule set's hash. Every other rule set should print the same hash."
-            echo
-            if [ -f regress-base.txt ]; then
-              echo "**Earlier commit** \`${{ steps.base.outputs.sha }}\`"
-              echo '```'; cat regress-base.txt; echo '```'
-            else
-              echo "No earlier board to compare against."
-            fi
-            if [ -f regress-head.txt ]; then
-              echo "**This commit**"
-              echo '```'; cat regress-head.txt; echo '```'
-            fi
+          { echo "## Build number"; echo; echo '```'; cat build-number.txt 2>/dev/null; echo '```'
+            echo "## Replay regression hashes (report only)"; echo
+            echo "A rule change is meant to change one rule set's hash. Every other rule set should print the same hash."; echo
+            if [ -f regress-base.txt ]; then echo "**Earlier commit** \`${{ steps.base.outputs.sha }}\`"; echo '```'; cat regress-base.txt; echo '```'; else echo "No earlier board to compare against."; fi
+            if [ -f regress-head.txt ]; then echo "**This commit**"; echo '```'; cat regress-head.txt; echo '```'; fi
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Fail if any check failed
-        if: always()
+  # The protection rule on main requires this job. It always runs (a skipped required check would count as passed)
+  # and fails unless every job above passed.
+  checks:
+    name: checks
+    if: always()
+    needs: [rules, invariants, redteam, compare]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: All quick checks passed
         env:
-          OUTCOMES: >-
-            ${{ steps.rules.outcome }} ${{ steps.v1.outcome }} ${{ steps.v3.outcome }}
-            ${{ steps.v31.outcome }} ${{ steps.v32.outcome }} ${{ steps.inv32.outcome }} ${{ steps.rng.outcome }} ${{ steps.replay.outcome }}
-            ${{ steps.invariants.outcome }}
+          RULES: ${{ needs.rules.result }}
+          INV: ${{ needs.invariants.result }}
+          RED: ${{ needs.redteam.result }}
+          CMP: ${{ needs.compare.result }}
         run: |
-          for o in $OUTCOMES; do
-            if [ "$o" != "success" ]; then echo "At least one check failed (see the Summary table)."; exit 1; fi
-          done
-          echo "All checks passed."
+          mark() { [ "$1" = success ] && echo pass || echo "**FAIL** ($1)"; }
+          { echo "## Quick checks"; echo; echo "| Job | Result |"; echo "| --- | --- |"
+            echo "| Rule tests (incl. 40-game double-knockout count) | $(mark "$RULES") |"
+            echo "| Impossible states, newest preset | $(mark "$INV") |"
+            echo "| Impossible states, v3 red team | $(mark "$RED") |"
+            echo "| Build number went up (and replay hashes, report only) | $(mark "$CMP") |"
+            echo; echo "The full 400 + 400 double-knockout count runs every night (night-checks)."
+          } >> "$GITHUB_STEP_SUMMARY"
+          for r in "$RULES" "$INV" "$RED" "$CMP"; do [ "$r" = success ] || { echo "A quick check failed: see the jobs above."; exit 1; }; done
+          echo "All quick checks passed."

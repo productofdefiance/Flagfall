@@ -8,7 +8,7 @@ This repository holds the browser playtest board (rules engine and computer oppo
 
 | Folder / file | What it is |
 | --- | --- |
-| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1, v3.2). `bot.js` and `brain.js` are the computer opponent. `app.js`, `skin.js` and `index.html` are the screen. Open `index.html` in a browser to play. |
+| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1, v3.2). `bot.js` and `brain.js` are the computer opponent. `app.js`, `skin.js` and `index.html` are the screen. `version.js` holds the build number (the only place it is kept). Open `index.html` in a browser to play, or use the play links below. |
 | `board/tests/` | Automatic checks (see below) and simulators. |
 | `redteam/` | Probe scripts from the independent evaluation. They target rule set v3 on purpose, to show the bugs v3.1 fixed. |
 | `data/` | Match 3's move log (used by the replay test), a summary of recorded human-vs-bot matches, and the baseline simulation output (v3.1 in `sim_study6`, v3.2 in `sim_study7`). |
@@ -24,6 +24,13 @@ This repository holds the browser playtest board (rules engine and computer oppo
 3. The Editor tells Claude Code: "Build brief NNN."
 4. Claude Code builds on a branch, runs every check, fills in the brief's Report, updates `FLAGS.md`, and opens a pull request.
 5. The automatic checks run on the pull request. The Editor merges only when they pass.
+
+## Play links
+
+- `main`: https://productofdefiance.github.io/Flagfall/
+- Each open pull request: `https://productofdefiance.github.io/Flagfall/pr/<number>/` (also the last line of its description). It's removed when the pull request closes.
+
+The `play-links` workflow publishes these to the `gh-pages` branch. GitHub Pages must be switched on once: Settings → Pages → Source: Deploy from a branch → `gh-pages` / root → Save.
 
 ## Running the checks
 
@@ -46,5 +53,7 @@ node tests/regress_engine.js <copy of the previous board folder> 3
 `test_v32.js` ends with a double-knockout count over 400 bot games at 7v7 and 400 at 5v5, spread over the computer's processor cores (about 15 minutes on 4 cores; up to 35 on GitHub). Give it a smaller number to try it quickly, e.g. `node tests/test_v32.js 20`; the full check is the default.
 
 `test_invariants.js` plays 30 bot games on the newest preset and fails on any impossible state.
+
+On GitHub, `checks` runs the quick set on every pull request, in parallel jobs, in a few minutes. `test_v32.js` runs there with a short count (`node tests/test_v32.js 40`). The `night-checks` workflow runs the full 400 + 400 count and 100 impossible-state games every night at 08:07 UTC. It can also be started from the Actions tab (night-checks → Run workflow), or by giving a pull request the label `full checks`. A failing night run opens a "Night checks failed" issue. A pull request that changes `board/` must raise the build number in `board/version.js`.
 
 Last full pass: 17 Nov 2026 (replay: 386 checks, 0 mismatches; match3, v1, v2 and v3 hashes identical to the previous board).
