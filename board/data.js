@@ -13,7 +13,8 @@
       attackCost: 1,            // Stamina and Command for an attack or a pull
       braceCost: 1,             // Stamina and Command to brace
       braceReduction: 1,        // damage taken off every hit on a braced unit
-      staminaAfterBrace: 2,     // Stamina a braced unit starts its next turn with
+      staminaAfterBrace: 2,     // Stamina a braced unit starts its next turn with (v3.4 on: braceTiredness instead)
+      staminaFloor: 1,          // no unit starts its turn below this, whatever stacks (Brief 013)
       supportBonus: 1,          // added when another attacker is adjacent to the target
       dodgeDivisor: 4,          // Dodge takes 1 off per this many points of incoming Strength
       reachPenalty: 1,          // Reach attacks do this much less
@@ -34,6 +35,7 @@
       rangedHalfWhenAdjacent: true    // a Ranged unit with an enemy adjacent uses half Strength
     },
     // Unit cards. hexCost: Stamina per hex. cap: most hexes per turn.
+    // stamina (optional): the card's own base Stamina; a card without one uses game.stamina (Brief 013).
     // zone: projects Zone of Control at all times.
     // trait: tackle | reach | ignoreArmor | none
     // icon: which unit-type symbol the token shows (the skin decides how it is drawn).
@@ -68,7 +70,7 @@
     note: "Bigger scale: HM 20/10/Armor 3, LR 12/7 benchmarks; two dice graded; half points; Dodge 5% per open hex, after the roll; Support +1 per helper; Brace 2; parry 20% of attacker Strength; set spear 2 to the first enemy; Reach -1; keeper is a goalie; flag 30 HP, keeper pull reduction 4.",
     game: {
       command: 10, firstTurnCommand: 6, stamina: 3, attackCost: 1, braceCost: 1,
-      braceReduction: 2, staminaAfterBrace: 2, supportBonus: 1, dodgeDivisor: 4, dodgePerHex: 5,
+      braceReduction: 2, staminaAfterBrace: 2, staminaFloor: 1, supportBonus: 1, dodgeDivisor: 4, dodgePerHex: 5,
       reachPenalty: 1, tackleCost: 1, keeperHomeReduction: 0, keeperPullReduction: 4, keeperCapPenalty: 1,
       goalZoneReduction: 0, minDamage: 1, poleHP: 30, turnLimit: 25, deployRadius: 3
     },
@@ -133,6 +135,9 @@
   V34.note = "v3.3 with a turn limit per format: 5v5 25 turns, 7v7 35 turns.";
   V34.switches.turnLimitByFormat = true;
   V34.game.turnLimit5 = 25; V34.game.turnLimit7 = 35;
+  /* Brief 013 (no change in play): from v3.4 on, bracing is stored as a next-turn modifier, "brace tiredness"
+     (Stamina it costs next turn), not as a fixed Stamina to start on. 3 − 1 = 2, as before. */
+  delete V34.game.staminaAfterBrace; V34.game.braceTiredness = 1;
   const PRESETS = [V1, V2, V3, V31, V32, V33, V34];
 
   const TRAITS = { tackle: "Tackle", reach: "Reach", ignoreArmor: "Ignores Armor", none: "None" };

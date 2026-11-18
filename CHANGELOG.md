@@ -2,6 +2,31 @@
 
 Newest first. One entry per build, written for the Editor: what a player notices first, then what changed under the hood.
 
+## Game versions
+
+| Game version | Rule set (newest) | Default brain | UI | Build |
+|---|---|---|---|---|
+| v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
+| v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
+| v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.05.01 · Build 7 — Brief 013, Stamina per unit, with stacking modifiers (18 Nov 2026)
+Rule set: none changed (v3.4 stays the newest). Nothing plays differently: the engine is reshaped so Cavalry (Stamina 4) and Pursued can be built.
+
+**What a player will notice**
+- Nothing in play. A braced unit still starts its next turn on 2, a braced Light Ranged on 3, and the unit info shows the same.
+- Home shows the game version beside the build number ("v3.05.01 · Build 7").
+- Rules screen, v3.4: "Stamina after bracing 2" is now **"Brace tiredness 1"** (Stamina bracing costs next turn). New row: **"Lowest starting Stamina 1"**. Older rule sets keep "Stamina after bracing".
+
+**Under the hood**
+- Each unit card may carry its own Stamina; cards without one use the rule set's (all current cards: 3).
+- Next-turn Stamina is the card's base plus a list of modifiers, each with a source (the unit itself or an enemy) and an effect. Different effects stack, the same effect counts once per turn, and no unit starts below the floor (`staminaFloor`, 1). Today's modifiers: brace tiredness (−1) and Second Wind (cancels the unit's own brace tiredness only).
+- The turn start, the unit info, the Stamina pips and the brains all read one engine function (`nextStamina`).
+- New test `test_stamina.js` (in the `checks` workflow): Brace, Second Wind, base Stamina per card, stacking, the floor, set spear, tackle at hex cost, refused attacks and braces, moves always paid in full, and the floor check on every card of every preset.
+- `regress_engine.js … all`: hashes every preset (the newest too) against every brain.
+
+**Flags closed:** none. **Opened:** F27.
+
 ## Build 6 — Brief 006, Brain 5: a bot that plans its turn (18 Nov 2026)
 Rule set: none changed (v3.4 stays the newest). New opponent **Brain 5**, now the default.
 
