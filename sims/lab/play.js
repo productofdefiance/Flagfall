@@ -1,0 +1,80 @@
+// The lab's player (Brief 008): plays part of one or more job orders and writes one JSON row per game.
+// node sims/lab/play.js --part <i> --parts <n> --out <file.jsonl> [--board <board folder>] [--site <board url>] <order.json> [...]
+// Every game gets a board seed dealt by tests/rng.js and is played exactly as the board plays a Computer vs Computer
+// match with that seed (board/watch.js), so its `replay` link opens the same game on the board.
+// Games are numbered across all the orders' matchups; part i plays every game whose number % parts == i, so the parts
+// can run on separate machines and still add up to the whole run.
+"use strict";
+const fs = require("fs"), path = require("path");
+const args = process.argv.slice(2), opt = {}, orders = [];
+for (let i = 0; i < args.length; i++) { if (args[i].startsWith("--")) opt[args[i].slice(2)] = args[++i]; else orders.push(args[i]); }
+const part = +(opt.part || 0), parts = +(opt.parts || 1);
+const boardDir = path.resolve(opt.board || path.join(__dirname, "..", "..", "board"));
+const site = opt.site || "https://productofdefiance.github.io/Flagfall/";
+const E = require(path.join(boardDir, "engine.js")), Bot = require(path.join(boardDir, "bot.js")), W = require(path.join(boardDir, "watch.js"));
+const { DEFAULT_BRAINS } = require(path.join(boardDir, "brain.js")), V = require(path.join(boardDir, "version.js"));
+const rng = require(path.join(boardDir, "tests", "rng.js"));
+const { MEASURES, ALWAYS } = require("./measures.js");
+const { gamesOf } = require("./order.js");
+
+// A brain is an id, or id:key=value,... with Brain 5-style model / plan5 settings changed (a sweep). Changed brains
+// can't be replayed on the board, which only has the built-in ones; their rows say so.
+function brainOf(spec) {
+  const [id, mods] = String(spec).split(":");
+  if (!DEFAULT_BRAINS[id]) throw new Error(`Brain ${id} is not on this board`);
+  const b = JSON.parse(JSON.stringify(DEFAULT_BRAINS[id]));
+  for (const kv of (mods || "").split(",").filter(Boolean)) {
+    const [k, v] = kv.split("=");
+    if (b.model && k in b.model) b.model[k] = +v; else if (b.plan5 && k in b.plan5) b.plan5[k] = +v; else if (b.planner && k in b.planner) b.planner[k] = +v;
+    else if (b.weights && k in b.weights) b.weights[k] = +v; else throw new Error(`Brain ${id} has no setting ${k}`);
+  }
+  return { id, changed: !!mods, brain: b };
+}
+const lineupText = (l) => l.map((x) => x.card).join(" ");
+
+if (opt.out) fs.mkdirSync(path.dirname(path.resolve(opt.out)), { recursive: true });   // the parts folder may not exist yet
+const out = fs.createWriteStream(opt.out || "/dev/stdout");
+let played = 0;
+for (const file of orders) {
+  const order = JSON.parse(fs.readFileSync(file, "utf8"));
+  for (const g of gamesOf(order)) {
+    if (g.global % parts !== part) continue;
+    const mu = g.matchup, A = brainOf(mu.a), B = brainOf(mu.b);
+    const seed = W.seedFrom(rng(`lab:${order.seed_name || order.id}:${mu.name}`, g.index + (mu.seed_from || 0)));
+    // Brain A plays each side and each move order equally (as tests/baseline.js did), unless the matchup fixes them.
+    const aTeam = mu.a_side || (Math.floor(g.index / 2) % 2 ? "S" : "N"), first = mu.first || (g.index % 2 ? "S" : "N");
+    const sideOf = (t) => (t === aTeam ? A : B);
+    const spec = { seed, v: V.game || null, rules: mu.rules, format: mu.format, n: sideOf("N").id, s: sideOf("S").id,
+      mixN: aTeam === "N" ? mu.mix_a || mu.mix || "mixed" : mu.mix_b || mu.mix || "mixed",
+      mixS: aTeam === "S" ? mu.mix_a || mu.mix || "mixed" : mu.mix_b || mu.mix || "mixed", first };
+    const brains = { N: sideOf("N").brain, S: sideOf("S").brain };
+    const ctx = { E, Bot, aTeam, brains };
+    const names = ALWAYS.concat((mu.measures || order.measures || []).filter((n) => !ALWAYS.includes(n)));
+    const unknown = names.filter((n) => !MEASURES[n]);
+    const ms = names.filter((n) => MEASURES[n]).map((n) => MEASURES[n].make(ctx));
+    let row;
+    try {
+      const { m, st } = W.playOut(spec, {
+        brains,
+        before: (s, c, t) => { for (const x of ms) if (x.before) x.before(s, c, t); },
+        after: (s, c, r) => { for (const x of ms) if (x.after) x.after(s, c, r); }
+      });
+      const res = st.result;
+      row = { order: order.id, matchup: mu.name, game: g.index, seed, version: V.game || "build " + V.build, rules: mu.rules, format: mu.format,
+        lineup_n: lineupText(m.opts.lineups.N), lineup_s: lineupText(m.opts.lineups.S), brain_n: sideOf("N").id + (sideOf("N").changed ? ":" + String(aTeam === "N" ? mu.a : mu.b).split(":")[1] : ""),
+        brain_s: sideOf("S").id + (sideOf("S").changed ? ":" + String(aTeam === "S" ? mu.a : mu.b).split(":")[1] : ""), first: st.first,
+        winner: res ? res.winner || "draw" : "unfinished", how: res ? res.how : "unfinished", turns: st.turn,
+        flag_damage_n: +st.pole.S.toFixed(2), flag_damage_s: +st.pole.N.toFixed(2), units_lost_n: E.beingsLost(st, "N"), units_lost_s: E.beingsLost(st, "S"),
+        a_side: aTeam,
+        replay: A.changed || B.changed ? "not replayable: brain settings changed for this run" : site + W.toQuery(spec) };
+      for (const x of ms) Object.assign(row, x.end(st));
+      if (unknown.length) row.unknown_measures = unknown.join(" ");
+    } catch (e) {
+      row = { order: order.id, matchup: mu.name, game: g.index, seed, error: String(e && e.message || e) };
+    }
+    out.write(JSON.stringify(row) + "\n");
+    played++;
+  }
+}
+out.end();
+if (opt.out) console.error(`part ${part + 1} of ${parts}: ${played} games`);

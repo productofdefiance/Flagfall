@@ -132,6 +132,58 @@
   /** Hexes of the movement cap that breaking tackle uses up: 1 on v3.3 (tackleUsesCap), else 0. */
   const tackleHexes = (st) => (sw(st, "tackleUsesCap") ? 1 : 0);
 
+  // ---------- Stamina (Brief 013) ----------
+  /* A unit's Stamina at the start of its turn is its base Stamina plus every next-turn modifier on it.
+     Every modifier states its source ("self": the unit's own action; "enemy": something an enemy did) and its effect
+     (a name). Different effects stack; the same effect counts once per turn however often it was triggered. A unit
+     never starts its turn below the floor (game.staminaFloor). The turn start, the unit info and the brains all read
+     nextStamina() below; nothing keeps its own copy.
+     To add a modifier (brief 012: Pursued): give it an entry in STAMINA_EFFECTS with its source, its worst case and,
+     if needed, what it cancels; then either derive it in staminaMods() or record it with addStaminaMod(). The floor
+     check (tests/test_stamina.js) tries every combination of the entries here on every card of every preset. */
+  const STAMINA_EFFECTS = {
+    /** Bracing: next turn this much Stamina down (game.braceTiredness; older rule sets: stamina − staminaAfterBrace). */
+    braceTiredness: { source: "self", worst: (st) => -braceTiredness(st) },
+    /** Second Wind (a "fullStamina" brace, Light Ranged): cancels the unit's own brace tiredness and nothing else. */
+    secondWind: { source: "self", cancels: "braceTiredness", worst: () => 0 }
+  };
+  /** The card's own Stamina, or the rule set's for a card without one. */
+  const baseStamina = (st, u) => { const c = card(st, u); return c.stamina !== undefined ? c.stamina : st.rs.game.stamina; };
+  /** How much Stamina bracing costs next turn. Rule sets before Brief 013 store the Stamina a braced unit starts with. */
+  function braceTiredness(st) {
+    const g = st.rs.game;
+    return g.braceTiredness !== undefined ? g.braceTiredness : g.staminaAfterBrace !== undefined ? g.stamina - g.staminaAfterBrace : 0;
+  }
+  /** Lowest Stamina a unit starts its turn on. Rule sets saved before Brief 013 have none, so they replay exactly. */
+  const staminaFloor = (st) => (st.rs.game.staminaFloor !== undefined ? st.rs.game.staminaFloor : -Infinity);
+  /** Every modifier waiting for this unit's next turn start: the ones its own state implies, then any recorded ones. */
+  function staminaMods(st, u) {
+    const out = [];
+    if (u.braced) {
+      out.push({ effect: "braceTiredness", source: "self", amount: -braceTiredness(st) });
+      if (card(st, u).brace === "fullStamina") out.push({ effect: "secondWind", source: "self", cancels: "braceTiredness", amount: 0 });
+    }
+    for (const m of u.staminaMods || []) out.push(m);
+    return out;
+  }
+  /** Records a next-turn modifier on a unit (for effects an enemy triggers). The same effect is kept once. */
+  function addStaminaMod(st, u, mod) {
+    const had = u.staminaMods || [];   // a new array each time: scratch copies (cloneLite) share the old one
+    if (!had.some((m) => m.effect === mod.effect)) u.staminaMods = had.concat([Object.assign({}, mod)]);
+  }
+  /** Stamina a unit starts its turn on, given its modifiers: base, plus each effect once, less what is cancelled, then
+      the floor (a penalty takes it no lower than the floor; a card whose base is already lower keeps its base). */
+  function staminaWith(st, u, mods) {
+    const once = [], seen = new Set();
+    for (const m of mods) if (!seen.has(m.effect)) { seen.add(m.effect); once.push(m); }
+    const cancelled = new Set(once.filter((m) => m.cancels).map((m) => m.source + "|" + m.cancels));
+    const base = baseStamina(st, u);
+    const total = once.reduce((s, m) => s + (cancelled.has(m.source + "|" + m.effect) ? 0 : m.amount || 0), base);
+    return Math.max(Math.min(base, staminaFloor(st)), total);
+  }
+  /** Stamina this unit will start its next turn on. The one source of truth (Brief 013, item 6). */
+  const nextStamina = (st, u) => staminaWith(st, u, staminaMods(st, u));
+
   // ---------- Movement ----------
   /** Every hex the unit can reach now: hex -> {steps, mode, cost, tackle}. */
   function reachMap(st, u) {
@@ -429,9 +481,9 @@
     st.cmd = st.turn === 1 && team === st.first ? st.rs.game.firstTurnCommand : st.rs.game.command;
     for (const u of alive(st)) {
       if (u.team !== team) continue;
-      const c = card(st, u);
       u.wasBraced = !!u.braced;
-      u.stam = u.braced && c.brace !== "fullStamina" ? st.rs.game.staminaAfterBrace : st.rs.game.stamina;
+      u.stam = nextStamina(st, u);
+      if (u.staminaMods) delete u.staminaMods;   // used up at this turn start
       u.braced = false; u.done = false; u.moved = 0; u.zmode = null; u.spikeUsed = false; u.tackled = false;
       u.attackedLast = !!u.attackedThis; u.attackedThis = false;
       if (sw(st, "parryFirstOnly")) u.parryUsed = false;   // v3.2: resets when this side's next turn begins
@@ -530,7 +582,7 @@
       for (const l of lineup) {
         const c = rs.cards[l.card];
         st.units.push({ uid: team + "-" + l.id, team, id: l.id, card: l.card, fk: !!l.fk, hex: null, hp: c.hp, maxHp: c.hp,
-          braced: false, wasBraced: false, stam: rs.game.stamina, moved: 0, zmode: null, done: false, tackled: false,
+          braced: false, wasBraced: false, stam: c.stamina !== undefined ? c.stamina : rs.game.stamina, moved: 0, zmode: null, done: false, tackled: false,
           spikeUsed: false, attackedLast: false, attackedThis: false });
       }
     }
@@ -749,8 +801,8 @@
 
   /** Status the board must show for every unit, from the same data the rules use. */
   function status(st, u) {
-    const c = card(st, u), g = st.rs.game;
-    const nextStam = u.braced && c.brace !== "fullStamina" ? g.staminaAfterBrace : g.stamina;
+    const c = card(st, u);
+    const nextStam = nextStamina(st, u);
     const moving = st.phase === "play" && u.team === st.toMove;
     return { hp: hpShown(st, u), maxHp: u.maxHp, braced: !!u.braced, stamNow: moving ? u.stam : null, stamNext: nextStam,
       done: moving && u.done, reloading: !!(c.reload && (moving ? u.attackedLast : u.attackedThis)), zone: projects(st, u),
@@ -764,6 +816,6 @@
   }
 
   const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, foeOf, clone, card, alive, unitByUid,
-    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
+    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, STAMINA_EFFECTS, baseStamina, braceTiredness, staminaFloor, staminaMods, addStaminaMod, staminaWith, nextStamina, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
   if (typeof module !== "undefined") module.exports = api; else root.GGEngine = api;
 })(this);

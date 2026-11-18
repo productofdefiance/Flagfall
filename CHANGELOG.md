@@ -2,6 +2,50 @@
 
 Newest first. One entry per build, written for the Editor: what a player notices first, then what changed under the hood.
 
+## Game versions
+
+| Game version | Rule set (newest) | Default brain | UI | Build |
+|---|---|---|---|---|
+| v3.05.02 | v3.4 | Brain 5 | v1 | 8 |
+| v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
+| v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
+| v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.05.02 · Build 8 — Brief 008, the lab: heavy runs on GitHub, organised results, watch any game by seed (18 Nov 2026)
+Rule set: none changed (v3.4 stays the newest). No brain changed. Game version **v3.05.02** (ZZ: nothing about how the game plays changes; brief 013 took v3.05.01 first).
+
+**What a player will notice**
+- A link can open any simulated game on the board, set up and playing: `…/Flagfall/?watch=<seed>&rules=…&n=…&s=…`. Every simulated game now has one. If the board doesn't have that game's brain or rule set, it says so instead of playing a different game; if the version differs, it warns first.
+- A watched game never replaces your own match in progress, and isn't saved to the Matches list.
+- Matches you set up yourself with a seed play exactly as before.
+
+**Under the hood**
+- `board/watch.js`: how the board sets up and plays a Computer vs Computer match from its seed (lineups, coin toss, deployment, the bot's steps), shared by the board and the simulators. The board's lineups moved there unchanged (checked against the old ones for every rule set, format, mix and three brains).
+- The lab: `.github/workflows/lab.yml` plays job orders from `studies/queue/` on up to 20 GitHub machines (every night after the night checks, on demand, or in a pull request), and `sims/lab/` writes one run folder per order in `results/` (`SUMMARY.md`, `run.json`, `games.csv` with a replay link per game, `tables/`) plus `results/INDEX.md` and `results/index.csv`. Results reach `main` through a pull request that may only change `results/` and `studies/` and merges itself once the checks pass.
+- Release runs: a pull request that changes the game version gets the baseline table at 1,000 games per format (default brain mirror, newest rule set), every check and the regression hashes, posted as a comment, and filed after the merge.
+- The night checks file their result in `results/` too ("no change, passed" when `main` hasn't changed).
+- Tidy: simulators moved from `board/tests/` and `data/sim_study10/` to `sims/`; the old studies moved from `data/sim_study6–10` to `results/pre-v3.05.00/` (with `git mv`; its README maps old paths to new).
+- New checks: `test_watch.js`, `sims/lab/self_test.js`, and `sims/lab/board_check.js` (10 simulated games and the same games on the board play identical moves; its own job in `checks`).
+
+**Flags closed:** none. **Opened:** F28 (results reaching `main` need two repository settings), F29 (starting a lab run from a Claude session).
+
+## v3.05.01 · Build 7 — Brief 013, Stamina per unit, with stacking modifiers (18 Nov 2026)
+Rule set: none changed (v3.4 stays the newest). Nothing plays differently: the engine is reshaped so Cavalry (Stamina 4) and Pursued can be built.
+
+**What a player will notice**
+- Nothing in play. A braced unit still starts its next turn on 2, a braced Light Ranged on 3, and the unit info shows the same.
+- Home shows the game version beside the build number ("v3.05.01 · Build 7").
+- Rules screen, v3.4: "Stamina after bracing 2" is now **"Brace tiredness 1"** (Stamina bracing costs next turn). New row: **"Lowest starting Stamina 1"**. Older rule sets keep "Stamina after bracing".
+
+**Under the hood**
+- Each unit card may carry its own Stamina; cards without one use the rule set's (all current cards: 3).
+- Next-turn Stamina is the card's base plus a list of modifiers, each with a source (the unit itself or an enemy) and an effect. Different effects stack, the same effect counts once per turn, and no unit starts below the floor (`staminaFloor`, 1). Today's modifiers: brace tiredness (−1) and Second Wind (cancels the unit's own brace tiredness only).
+- The turn start, the unit info, the Stamina pips and the brains all read one engine function (`nextStamina`).
+- New test `test_stamina.js` (in the `checks` workflow): Brace, Second Wind, base Stamina per card, stacking, the floor, set spear, tackle at hex cost, refused attacks and braces, moves always paid in full, and the floor check on every card of every preset.
+- `regress_engine.js … all`: hashes every preset (the newest too) against every brain.
+
+**Flags closed:** none. **Opened:** F27.
+
 ## Build 6 — Brief 006, Brain 5: a bot that plans its turn (18 Nov 2026)
 Rule set: none changed (v3.4 stays the newest). New opponent **Brain 5**, now the default.
 

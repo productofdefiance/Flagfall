@@ -1,11 +1,11 @@
 // The fixed baseline (red team report, Part 3 item 4): re-run after every bot or rule change.
-// node tests/baseline.js <presetId> <size 5|7> <games> <brainA> <brainB> <lineups: balanced|kit|light> [shard] [switch=on|off,...]
+// node sims/baseline.js <presetId> <size 5|7> <games> <brainA> <brainB> <lineups: balanced|kit|light> [shard] [switch=on|off,...]
 // "light" is the board's Light team: LM, LA, LR in turn (7v7 3-2-2, 5v5 2-2-1).
 // The optional last argument flips switches for a comparison run, e.g. tackleUsesCap=off (the seed stays the same).
-// Brain A plays each side and each move order equally. Prints one JSON line of counts; tests/baseline_sum.py adds shards.
+// Brain A plays each side and each move order equally. Prints one JSON line of counts; sims/baseline_sum.py adds shards.
 // Tiebreak wins are reported apart and never counted as wins.
-const E = require("../engine.js"), Bot = require("../bot.js");
-const { PRESETS } = require("../data.js"); const { DEFAULT_BRAINS } = require("../brain.js");
+const E = require("../board/engine.js"), Bot = require("../board/bot.js");
+const { PRESETS } = require("../board/data.js"); const { DEFAULT_BRAINS } = require("../board/brain.js");
 const [rsId, sizeS, gamesS, aId, bId, mode, shardS, flipS] = process.argv.slice(2);
 // A brain may be named with planner switches changed, e.g. kitD:fort=0 (Brief 005 ablations).
 const brainFrom = (spec) => { const [id, mods] = spec.split(":"); const b = JSON.parse(JSON.stringify(DEFAULT_BRAINS[id]));
@@ -13,7 +13,7 @@ const brainFrom = (spec) => { const [id, mods] = spec.split(":"); const b = JSON
 const size = +sizeS, games = +gamesS, shard = +(shardS || 0), BA = brainFrom(aId), BB = brainFrom(bId);
 const rs = JSON.parse(JSON.stringify(PRESETS.find((p) => p.id === rsId)));
 for (const kv of (flipS || "").split(",").filter(Boolean)) { const [k, v] = kv.split("="); rs.switches[k] = v === "on" || v === "true"; }
-const rnd = require("./rng.js")(`baseline:${rsId}:${size}:${aId.split(":")[0]}:${bId.split(":")[0]}:${mode}`, shard);   // same seed for ablation variants
+const rnd = require("../board/tests/rng.js")(`baseline:${rsId}:${size}:${aId.split(":")[0]}:${bId.split(":")[0]}:${mode}`, shard);   // same seed for ablation variants
 const balanced = size === 5 ? { HM: 2, HA: 1, LM: 1, LR: 1 } : { HM: 2, LM: 1, HR: 1, LR: 1, HA: 1, LA: 1 };   // what the board gives a bot by default
 const lightTeam = size === 5 ? { LM: 2, LA: 2, LR: 1 } : { LM: 3, LA: 2, LR: 2 };
 const lineupOf = (B) => { const c = mode === "light" ? lightTeam : (mode === "kit" && Bot.squadCounts(rs, size, B)) || balanced, out = [];
