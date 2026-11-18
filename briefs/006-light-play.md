@@ -306,4 +306,4 @@ As a sanity check on noise, the two identical Brain 5 sides split decisive games
 - **Flags closed / opened:**
   - Updated: F10, F11, F12, F22.
   - Opened: F24 (think-time setting), F25 (clock awareness), F26 (keep Brain 5 as default?).
-- **Pull request:** PR_LINK
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/9
