@@ -1,0 +1,12 @@
+positions: 45
+unit             plan changes at 0: 17, at half: 15, at double: 14
+hp               plan changes at 0: 28, at half: 15, at double: 16
+pull             plan changes at 0: 1, at half: 1, at double: 2
+risk             plan changes at 0: 31, at half: 18, at double: 9
+pressure         plan changes at 0: 14, at half: 5, at double: 16
+stamina          plan changes at 0: 11, at half: 2, at double: 1
+advance          plan changes at 0: 14, at half: 4, at double: 9
+home             plan changes at 0: 3, at half: 0, at double: 0
+flagDanger       plan changes at 0: 3, at half: 0, at double: 0
+plan5.beam       plan changes at 0: 8, at half: 3, at double: 9
+plan5.perUnit    plan changes at 0: 17, at half: 7, at double: 7

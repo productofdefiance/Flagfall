@@ -48,6 +48,7 @@
 - **Checks run and results (paste regression hashes):**
 - **Baseline table (rule changes only):**
 - **Bot minimum (met / not met, with numbers):**
+- **Settings review (brain builds only): settings with no effect found; settings that seem to be missing (with evidence):**
 - **Known gaps:**
 - **Flags closed / opened:**
 - **Pull request:**
