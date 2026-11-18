@@ -28,7 +28,7 @@ The design chat replayed that game and found:
 - no "do X when Y" rules bolted on
 - improve the computer opponent before changing the game to fix stalls. The game design changes only if several brains fail to fix stalling, and the Editor decides when that point is reached. Keep measuring so the data is there.
 
-**Naming:** call the new brain **Brain 5** (short form B5), in code, on screen and in the Report. Brains are numbered from now on, because there will be many. "Kit" means something else elsewhere in the game. On screen, always write "Brain 5" in full, so it isn't mixed up with the build number ("Build 5"). Leave the existing Kit A–D names alone, so saved matches still load.
+**Naming:** call the new brain **Brain 5** (short form Br5), in code, on screen and in the Report. Brains are numbered from now on, because there will be many. "Kit" means something else elsewhere in the game. On screen, always write "Brain 5" in full, so it isn't mixed up with the build number ("Build 5"). Never shorten it to a single letter plus a number (that reads as a hex name, like B5). Leave the existing Kit A–D names alone, so saved matches still load.
 
 ## Scope
 In:
