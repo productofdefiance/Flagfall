@@ -68,7 +68,8 @@ const PARRY = (st, attacker) => E.parryAmount(st, attacker);   // 20% of the att
 
 ok(V32 && V32.switches.parryNeedsSurvivor && V32.switches.parryFirstOnly && V32.switches.doubleKoToTiebreak && !V32.switches.simultaneousToActor,
   "v3.2 exists: the three new switches on, simultaneousToActor off");
-ok(PRESETS[PRESETS.length - 1].id === "v3.2", "v3.2 is the last preset, so new games default to it");
+// Was "v3.2 is the last preset". Brief 004 adds v3.3 after it; the newest-preset check now lives in test_v33.js.
+ok(PRESETS.indexOf(V32) >= 0 && PRESETS.indexOf(V32) < PRESETS.length - 1, "v3.2 is still offered, behind the newest preset");
 { const a = JSON.parse(JSON.stringify(V31)), b = JSON.parse(JSON.stringify(V32));
   for (const k of ["id", "name", "note"]) { delete a[k]; delete b[k]; }
   for (const k of ["parryNeedsSurvivor", "parryFirstOnly", "doubleKoToTiebreak", "simultaneousToActor"]) { delete a.switches[k]; delete b.switches[k]; }

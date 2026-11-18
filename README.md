@@ -8,7 +8,7 @@ This repository holds the browser playtest board (rules engine and computer oppo
 
 | Folder / file | What it is |
 | --- | --- |
-| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1, v3.2). `bot.js` and `brain.js` are the computer opponent. `app.js`, `skin.js` and `index.html` are the screen. `version.js` holds the build number (the only place it is kept). Open `index.html` in a browser to play, or use the play links below. |
+| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1, v3.2, v3.3). `bot.js` and `brain.js` are the computer opponent. `app.js`, `skin.js` and `index.html` are the screen. `version.js` holds the build number (the only place it is kept). Open `index.html` in a browser to play, or use the play links below. |
 | `board/tests/` | Automatic checks (see below) and simulators. |
 | `redteam/` | Probe scripts from the independent evaluation. They target rule set v3 on purpose, to show the bugs v3.1 fixed. |
 | `data/` | Match 3's move log (used by the replay test), a summary of recorded human-vs-bot matches, and the baseline simulation output (v3.1 in `sim_study6`, v3.2 in `sim_study7`). |
@@ -42,6 +42,7 @@ node tests/test_v1.js
 node tests/test_v3.js
 node tests/test_v31.js
 node tests/test_v32.js
+node tests/test_v33.js
 node tests/test_invariants.js
 node tests/test_rng.js
 node tests/test_replay.js ../data/match3_log.txt

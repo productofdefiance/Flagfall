@@ -2,6 +2,36 @@
 
 Newest first. One entry per build, written for the Editor: what a player notices first, then what changed under the hood.
 
+## Build 4 — Brief 004, v3.3: Evade and tackle at hex cost (18 Nov 2026)
+Rule set: **v3.3** (new; the new-game default).
+
+**What a player will notice**
+- After a Light unit hits an adjacent enemy without killing it, it can keep moving, but only away from that enemy, with whatever movement, Stamina and Command it has left. The attack preview says "Evade after: up to N hexes".
+- After a kill, or after a Reach attack or a shot from range, there's no Evade. Heavy units never evade.
+- Breaking contact with an enemy Melee unit costs the leaving unit its own hex cost (Light 0.5, Heavy 1) and one hex of its movement.
+- Picking another unit, or End unit, gives up a pending Evade.
+
+**Under the hood**
+- Three switches (`evade`, `tackleHexCost`, `tackleUsesCap`) and an `evade` flag on the three Light cards.
+- The bot decides an Evade before moving other units. New `test_v33.js` (58 checks).
+
+**Flags closed:** F21 (ruled: the display stays). **Opened:** F22 (Evade doesn't reduce Light losses in bot games).
+
+**Baseline (Kit B vs Kit B, balanced lineups, 400 games each)**
+
+| | v3.2 7v7 | v3.3 7v7 | v3.2 5v5 | v3.3 5v5 |
+|---|---|---|---|---|
+| Holder KO | 61.0% | 59.5% | 24.0% | 27.5% |
+| Pull KO | 0.5% | 0.5% | 0% | 0% |
+| TKO | 0% | 0% | 0% | 0% |
+| Tiebreak win | 27.2% | 30.5% | 8.0% | 6.5% |
+| Draw | 11.2% | 9.5% | 68.0% | 66.0% |
+| Ended on the turn limit | 38.5% | 40.0% | 76.0% | 72.5% |
+| Pulls | 6 | 4 | 1 | 0 |
+| Light units removed per game | 3.76 | 3.85 | 0.67 | 0.68 |
+
+All differences are within chance at this sample size.
+
 ## Build 3 — Brief 003, version line and play links (18 Nov 2026)
 Rule set: none changed (v3.2 stays the newest).
 

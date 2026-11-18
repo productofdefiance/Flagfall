@@ -125,6 +125,12 @@
     return alive(st).some((e) => e.team !== u.team && card(st, e).trait === "tackle" && dist(e.hex, src) === 1 && dist(e.hex, dst) !== 1);
   }
   const homeOf = (team) => GOAL[team];
+  /** v3.3 Evade: the unit attacked, while the attacker may still step away from it; else null. */
+  const evadeTarget = (st, u) => (sw(st, "evade") && u.evadeFrom ? unitByUid(st, u.evadeFrom) : null);
+  /** Extra Stamina to break tackle: the leaving unit's own hex cost on v3.3 (tackleHexCost), else the flat tackleCost. */
+  const tackleCostFor = (st, u) => (sw(st, "tackleHexCost") ? card(st, u).hexCost : st.rs.game.tackleCost);
+  /** Hexes of the movement cap that breaking tackle uses up: 1 on v3.3 (tackleUsesCap), else 0. */
+  const tackleHexes = (st) => (sw(st, "tackleUsesCap") ? 1 : 0);
 
   // ---------- Movement ----------
   /** Every hex the unit can reach now: hex -> {steps, mode, cost, tackle}. */
@@ -132,7 +138,9 @@
     const c = card(st, u), z = zoneFor(st, u.team), b = blocked(st, u);
     const lim = Math.min(u.stam, st.cmd) + EPS;
     const budget = Math.min(capOf(st, u) - u.moved, Math.floor(Math.min(u.stam, st.cmd) / c.hexCost + EPS));
-    const mode0 = u.zmode || (z.has(u.hex) ? "startzone" : "free");
+    const ev = evadeTarget(st, u);
+    // v3.3 Evade: the first evade move may leave a zone entered this turn; after that the usual hard stop applies.
+    const mode0 = ev && !u.evadeMoved ? (z.has(u.hex) ? "startzone" : "free") : (u.zmode || (z.has(u.hex) ? "startzone" : "free"));
     const seen = new Set([u.hex + "|" + mode0]);
     const q = [[u.hex, mode0, 0]];
     const out = {};
@@ -141,6 +149,7 @@
       if (d >= budget || m === "shifted") continue;
       for (const n of NBRS[h]) {
         if (b.has(n)) continue;
+        if (ev && dist(n, ev.hex) <= dist(h, ev.hex)) continue;   // v3.3 Evade: every step further from the unit attacked
         const inz = z.has(n);
         let nm;
         if (m === "free") nm = inz ? "entered" : "free";
@@ -156,7 +165,8 @@
     const res = {};
     for (const h in out) {
       const tk = tackleApplies(st, u, u.hex, h);
-      const cost = out[h].steps * c.hexCost + (tk ? st.rs.game.tackleCost : 0);
+      const cost = out[h].steps * c.hexCost + (tk ? tackleCostFor(st, u) : 0);
+      if (tk && out[h].steps + tackleHexes(st) > capOf(st, u) - u.moved) continue;   // v3.3: breaking tackle uses a hex of the cap
       if (cost <= lim) res[h] = { steps: out[h].steps, mode: out[h].mode, cost, tackle: tk };
     }
     return res;
@@ -188,9 +198,11 @@
     spend(st, u, cost);
     const src = u.hex;
     const left = leaveFlag(st, u);
-    u.hex = dst; u.moved += steps; u.zmode = mode;
+    const evading = !!evadeTarget(st, u);
+    u.hex = dst; u.moved += steps + (tackle ? tackleHexes(st) : 0); u.zmode = mode;
     if (tackle) u.tackled = true;
-    let msg = `${u.id} ${src} → ${dst} (${steps} hex${steps > 1 ? "es" : ""}, cost ${fmt(cost)}${tackle ? ", including " + fmt(st.rs.game.tackleCost) + " for tackle" : ""})` + (mode !== "free" ? "; stopped by Zone of Control" : "") + left;
+    if (evading) u.evadeMoved = true;
+    let msg = `${u.id} ${src} → ${dst} (${steps} hex${steps > 1 ? "es" : ""}, cost ${fmt(cost)}${tackle ? ", including " + fmt(tackleCostFor(st, u)) + " for tackle" + (tackleHexes(st) ? " and 1 hex of movement" : "") : ""})` + (evading ? "; evading" : "") + (mode !== "free" ? "; stopped by Zone of Control" : "") + left;
     if (u.hp > 0) msg += spikeCheck(st, u, dst);
     log(st, msg, "move");
   }
@@ -199,11 +211,13 @@
     const z = zoneFor(st, a.team);
     return [[a, b.hex], [b, a.hex]].map(([u, dst]) => {
       if (u.done) fail(`${u.id} has already ended its turn.`);
-      if (u.moved + 1 > capOf(st, u)) fail(`${u.id} has no movement left.`);
+      if (evadeTarget(st, u)) fail(`${u.id} attacked this turn and may only evade.`);   // v3.3
+      const tk = tackleApplies(st, u, u.hex, dst);
+      if (u.moved + 1 + (tk ? tackleHexes(st) : 0) > capOf(st, u)) fail(`${u.id} has no movement left.`);
       if (u.zmode === "shifted") fail(`${u.id} has already shifted inside a zone.`);
       if (u.zmode === "entered" && !z.has(dst)) fail(`${u.id} stopped in a zone and cannot leave it this turn.`);
       if (u.zmode === "entered" && sw(st, "zoneHardStop")) fail(`${u.id} stopped in a zone and cannot move again this turn.`);
-      return card(st, u).hexCost + (tackleApplies(st, u, u.hex, dst) ? st.rs.game.tackleCost : 0);
+      return card(st, u).hexCost + (tk ? tackleCostFor(st, u) : 0);
     });
   }
   function doSwap(st, a, b) {
@@ -220,8 +234,9 @@
     [[a, bh, costs[0]], [b, ah, costs[1]]].forEach(([u, dst, c]) => {
       const mode0 = u.zmode || (z.has(u.hex) ? "startzone" : "free");
       u.zmode = z.has(dst) ? (mode0 === "free" ? "entered" : "shifted") : "free";
-      if (tackleApplies(st, u, u.hex, dst)) u.tackled = true;
-      u.stam -= c; st.cmd -= c; u.moved += 1;
+      const tk = tackleApplies(st, u, u.hex, dst);
+      if (tk) u.tackled = true;
+      u.stam -= c; st.cmd -= c; u.moved += 1 + (tk ? tackleHexes(st) : 0);
     });
     const left = leaveFlag(st, a) + leaveFlag(st, b);
     a.hex = bh; b.hex = ah;
@@ -364,6 +379,11 @@
         if (st.rs.switches.captureTriggersSpike) msg += spikeCheck(st, u, u.hex);
       }
     }
+    // v3.3 Evade: a Light unit whose adjacent attack left the target standing may step away instead of ending its turn.
+    if (sw(st, "evade") && card(st, u).evade && d === 1 && t.hp > 0 && u.hp > 0) {
+      u.done = false; u.evadeFrom = t.uid; u.evadeMoved = false;
+      msg += `; ${u.id} may evade`;
+    }
     log(st, msg, "attack");
     return { die, dmg };
   }
@@ -415,6 +435,7 @@
       u.braced = false; u.done = false; u.moved = 0; u.zmode = null; u.spikeUsed = false; u.tackled = false;
       u.attackedLast = !!u.attackedThis; u.attackedThis = false;
       if (sw(st, "parryFirstOnly")) u.parryUsed = false;   // v3.2: resets when this side's next turn begins
+      if (sw(st, "evade")) { u.evadeFrom = null; u.evadeMoved = false; }
     }
     st.spend.push({ team, turn: st.turn, cmd: st.cmd, spent: null });
     log(st, `${team === "N" ? "North" : "South"} turn ${st.turn}: ${fmt(st.cmd)} Command`, "turn");
@@ -557,6 +578,13 @@
     if (action.uid && !u) fail("No such unit.");
     if (u && (u.hp <= 0)) fail("That unit has been removed.");
     if (u && u.team !== st.toMove) fail("It is not that side's turn.");
+    if (sw(st, "evade")) {
+      // v3.3: an evading unit may only move away or end; any other unit acting (or the turn ending) ends its evade.
+      if (u && evadeTarget(st, u) && !["move", "done"].includes(action.type)) fail(`${u.id} attacked this turn and may only evade or end.`);
+      const partner = action.type === "swap" ? unitByUid(st, action.with) : null;
+      if (partner && evadeTarget(st, partner)) fail(`${partner.id} attacked this turn and may only evade or end.`);
+      for (const x of st.units) if (x.evadeFrom && x !== u) { x.evadeFrom = null; x.done = true; }
+    }
     switch (action.type) {
       case "move": doMove(st, u, action.to); break;
       case "swap": doSwap(st, u, unitByUid(st, action.with)); break;
@@ -567,7 +595,7 @@
       }
       case "pull": out = doPull(st, u, roll); break;
       case "brace": doBrace(st, u); break;
-      case "done": if (u.done) fail(`${u.id} has already ended its turn.`); u.done = true; log(st, `${u.id} ends its turn`, "done"); break;
+      case "done": if (u.done) fail(`${u.id} has already ended its turn.`); u.done = true; if (u.evadeFrom) u.evadeFrom = null; log(st, `${u.id} ends its turn`, "done"); break;
       case "end": endTurn(st); break;
       case "surrender": {
         const w = foeOf(action.team || st.toMove);
@@ -608,6 +636,8 @@
     const u = unitByUid(st, uid);
     const empty = { moves: {}, attacks: [], pull: null, brace: false, swaps: [] };
     if (!u || u.hp <= 0 || st.phase !== "play" || u.team !== st.toMove || u.done) return empty;
+    const ev = evadeTarget(st, u);
+    if (ev) return Object.assign(empty, { moves: reachMap(st, u), evading: ev.uid });   // v3.3: only steps away, or End unit
     const g = st.rs.game;
     const can = (cost) => u.stam + EPS >= cost && st.cmd + EPS >= cost;
     const attacks = [];
@@ -617,14 +647,15 @@
         const b = breakdown(st, u, t, u.hex);
         const cs = dieCases(st).map(([d, p]) => [applyDie(st, b.value, d, b.dodge), p]);
         attacks.push({ target: t.uid, value: b.value, dodge: b.dodge, parts: b.parts, low: cs[0][0], high: cs[cs.length - 1][0], cases: cs,
-          killChance: cs.reduce((s2, [dm, p]) => s2 + (dm >= effHp(st, t) - 1e-9 ? p : 0), 0), pooled: isHolder(st, t), effHp: effHp(st, t), capture: isHolder(st, t) ? null : capturePreview(st, u, t) });
+          killChance: cs.reduce((s2, [dm, p]) => s2 + (dm >= effHp(st, t) - 1e-9 ? p : 0), 0), pooled: isHolder(st, t), effHp: effHp(st, t), capture: isHolder(st, t) ? null : capturePreview(st, u, t),
+          evade: evadePreview(st, u, t) });
       }
     }
     let pull = null;
     if (can(g.attackCost) && canPullFrom(st, u, u.hex)) { const p = pullValue(st, u); const cs = dieCases(st).map(([d, pr]) => [applyDie(st, p.value, d), pr]); pull = { value: p.value, parts: p.parts, low: cs[0][0], high: cs[cs.length - 1][0], cases: cs }; }
     const swaps = [];
     for (const f of alive(st)) {
-      if (f.team !== u.team || f === u || dist(f.hex, u.hex) !== 1) continue;
+      if (f.team !== u.team || f === u || dist(f.hex, u.hex) !== 1 || evadeTarget(st, f)) continue;
       try { const c = swapCosts(st, u, f); if (u.stam + EPS >= c[0] && f.stam + EPS >= c[1] && st.cmd + EPS >= c[0] + c[1]) swaps.push(f.uid); } catch (e) { /* not allowed */ }
     }
     return { moves: reachMap(st, u), attacks, pull, brace: can(g.braceCost), swaps };
@@ -636,6 +667,13 @@
     if (!(t.braced && card(st, t).brace === "parry" && dist(u.hex, t.hex) === 1)) return null;
     if (sw(st, "parryFirstOnly") && t.parryUsed) return { used: true };
     return { amount: parryAmount(st, u), ifSurvives: sw(st, "parryNeedsSurvivor") };
+  }
+  /** v3.3: how many hexes a Light unit could evade after attacking `t` now (0 if no Evade). Budget only: the board
+      shows the actual hexes once the attack is made. */
+  function evadePreview(st, u, t) {
+    if (!sw(st, "evade") || !card(st, u).evade || dist(u.hex, t.hex) !== 1) return 0;
+    const c = card(st, u), left = Math.min(u.stam, st.cmd) - st.rs.game.attackCost;
+    return Math.max(0, Math.min(capOf(st, u) - u.moved, Math.floor(left / c.hexCost + EPS)));
   }
   /** HP that must go before a unit falls: a flag holder's pool, or its own HP. */
   function effHp(st, t) { return isHolder(st, t) ? t.hp + flagLeft(st, t.team) : t.hp; }
@@ -665,6 +703,6 @@
   }
 
   const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, foeOf, clone, card, alive, unitByUid,
-    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, tiebreak, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
+    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, evadePreview, tackleCostFor, tiebreak, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
   if (typeof module !== "undefined") module.exports = api; else root.GGEngine = api;
 })(this);
