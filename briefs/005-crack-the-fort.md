@@ -68,10 +68,75 @@ The standard Report, the four measurements above, and a short plain-language rea
 *Filled in by Claude Code.*
 
 - **What's in:**
+  - **Preset `v3.4`**, last in `PRESETS`: v3.3 with switch `turnLimitByFormat` and numbers `turnLimit5` (25) and `turnLimit7` (35). The size comes from the unit cap per side. Older presets keep 25 for every format. The Settings screen shows "N turns per player at <format>", and the top bar counts to the match's own limit (from the engine). The bot's late-game timing reads the same limit, which changes nothing for older presets.
+  - **Kit D** (`brain.js`, `bot.js` planAction): Kit B plus a turn planner, chosen again after every action. It collects every attack its units can make this turn (moving first where needed), with damage from the engine after Armor, Brace, Dodge and Support. It then plans:
+    - **Focus fire:** pick a target the team can remove and commit enough attackers, on distinct hexes, moves first so each attack gets Support. If nobody can be removed, pile on the enemy closest to removal, but only with attacks Kit B's own scoring doesn't count as harmful. It keeps the same target through the turn.
+    - **Crack the fort:** needs two attackers in the goal zone (unless one attack is a near-certain kill). Against a braced Heavy Melee holder, the least valuable attacker goes first and takes the parry.
+    - **Finish:** pull an empty enemy flag whenever a unit can reach it. When only the enemy holder is left (or one unit besides it), every unit but our holder heads for their goal zone.
+    - **Pick off the weak** (value per point of damage needed, Light first) is built but **switched off** (see the measurements).
+    - Kit B's caution and guarding stay: our holder never leaves its flag to attack, and anything the plan doesn't cover falls back to Kit B unchanged. Kit A–C, Standard and Easy are untouched.
+  - **Kit D is the default opponent** (it beat Kit B: measurement 1).
+  - **Item 4, Evade and blocked-action messages** (screen text, from the engine):
+    - The Evade preview now plays the evade on a scratch copy, so it counts tackle (Stamina and the cap hex) and the direction rule. If the parry could remove the attacker first, it says so. When no step will exist, it says "No Evade after this attack: <reason>".
+    - An evading unit with no step says why (`whyNoMove`): out of Stamina, out of Command, full cap, tackled by a named unit (needs X Stamina and 2 hexes, has Y and Z), stopped in a zone, or no free hex further from the target.
+    - Every greyed-out button is tappable and shows its reason (`blockReasons`), for example "Needs 1 Command, 0.5 left", "HR is reloading this turn", "Only Anti-Cavalry units can Reach", "No special actions in this rule set yet". Undo's reason ("the dice have been rolled") comes from the board, since Undo is a board feature, not a rule.
+  - **Tests:** `test_v34.js` (20 checks: 5v5 25 and 7v7 35 on v3.4, 25 on every older preset, matches really end on those turns, tiebreak at 35). `test_reasons.js` (18 checks, including your case rebuilt). `test_kitd.js` (Kit D legal over seeded games; Kit D = Kit B plus the planner; older brains have none). All are in `checks`; `test_kitd.js` runs 6 games per format there and 30 at night. Build 5.
 - **Anything beyond the brief, and why:**
+  1. **"Unit cap" on screen** (CLAUDE.md's new rule): the lineup counter, the Unit data field, the Matches column and the tiebreak wording now say unit cap instead of "beings". The engine's own words stay unchanged, so old matches replay with the same hashes; the board swaps the word when it displays them.
+  2. **Your case from build 4 (seed MQVV-DBL7-F7ZM) is rebuilt by hand,** not replayed. The repository has only the seed, not the moves. The test sets up the same position: a Light Anti-Cavalry next to a tackling unit, with 0.5 Stamina and 1 hex of cap after its attack. It checks the preview now promises 0 hexes and says "Tackled by LM: breaking away needs 1 Stamina and 2 hexes of movement; has 0.5 Stamina and 1 hex". If you copy that match's record from the Matches screen, I'll add it as a replay test.
+  3. **`test_v33.js`:** its preview check now expects the exact count (4 hexes away from tackle, 3 next to a tackling unit), and its "v3.3 is the newest" check moved to `test_v34.js`.
+  4. **`baseline.js`** accepts a brain with planner switches changed (e.g. `kitD:fort=0`), on the same seeds as plain Kit D, for the ablation.
+  5. The study output is saved in `data/sim_study9/`.
 - **Checks run and results (paste regression hashes):**
-- **Measurements:**
-- **Bot minimum (met / not met, with numbers):**
+  - Locally (Node.js 22): test_rules pass; test_v1 12/0; test_v3 10/0; test_v31 22/0; test_v32 57/0; test_v33 59/0; **test_v34 20/0**; **test_reasons 18/0**; **test_kitd 30 games per format: 0 refused, 0 errors, 0 unfinished**; test_rng 7/0; replay of Match 3: 386 checks, 0 mismatches; test_invariants (v3.4, 30 games): 0 problems.
+  - Proof the tests bite: `test_v34.js` with the switch off gave 4 failures. `test_reasons.js`'s case fails on build 4, where the preview was a bare number (1).
+  - **`regress_engine.js … 3`, board before this build vs after:** match3 `37397ef2bd3ed86b`, v1 `7b25bca651c0cb31`, v2 `ddbe5fc437ff4e9d`, v3 `26371927b53d4413`, v3.1 `c71e4cd12fc984b0`, v3.2 `f62a061d2c147d83`, v3.3 `e6151bf463d6c9f8`. All identical. These games are played by Standard, Kit B and Kit C, so they also show those bots unchanged. v3.4 is the newest preset, so it isn't hashed.
+  - In a browser (phone width): the top bar showed "4/35" in a v3.4 7v7 match. A greyed Special said "No special actions in this rule set yet". While a unit was evading, Brace said "LA attacked this turn and may only evade or end". The Evade preview showed an exact count. No page errors.
+- **Measurements:** all with `tests/rng.js`, balanced lineups, the usual 20 batches of 20 games per format, and tiebreak wins counted apart.
+  1. **Kit D vs Kit B on v3.3 (400 games per format): target met.**
+     - 7v7: Kit D won 191 decisive games, Kit B 87 (**69%**). Tiebreak wins 63–39, 20 draws; counting tiebreak wins, Kit D took 67% of non-drawn games.
+     - 5v5: decisive 88–30 (**75%**), tiebreak 19–26, 237 draws; 66% counting tiebreak wins.
+     - **Ablation** (each behaviour off, about 120 games per format over two rounds, same seeds as plain Kit D), Kit D's share of decisive games against Kit B:
+
+       | Variant | 7v7 | 5v5 |
+       |---|---|---|
+       | All four on | 67% | 68% |
+       | Focus off | 27% (60 games) | 47% (60 games) |
+       | Pick off the weak off | **80%** | 73% |
+       | Fort off | 58% | 69% |
+       | Finish off | 66% | 73% |
+
+       Focus is the whole gain. Pick off the weak made Kit D worse at 7v7 in both rounds, so it ships switched off. Without it, 5v5 had more turn-limit endings in round two, likely noise. Fort helps at 7v7. Finish is neutral on wins but makes nearly all of Kit D's pulls, so it stays on.
+  2. **Baseline, Kit D vs Kit D, next to v3.2's Kit B** (400 games each):
+
+     | | v3.2 Kit B 7v7 | v3.3 Kit D 7v7 | v3.4 Kit D 7v7 | v3.2 Kit B 5v5 | v3.3 Kit D 5v5 | v3.4 Kit D 5v5 |
+     |---|---|---|---|---|---|---|
+     | Holder KO | 244 (61.0%) | 220 (55.0%) | 214 (53.5%) | 96 (24.0%) | 125 (31.2%) | 95 (23.8%) |
+     | Pull KO | 2 (0.5%) | 4 (1.0%) | 1 (0.2%) | 0 | 0 | 0 |
+     | TKO | 0 | 30 (7.5%) | 29 (7.2%) | 0 | 5 (1.2%) | 5 (1.2%) |
+     | Tiebreak win | 109 (27.2%) | 131 (32.8%) | 146 (36.5%) | 32 (8.0%) | 57 (14.2%) | 53 (13.2%) |
+     | Draw | 45 (11.2%) | 15 (3.8%) | 10 (2.5%) | 272 (68.0%) | 213 (53.2%) | 247 (61.8%) |
+     | Ended on the turn limit | 154 (38.5%) | 146 (36.5%) | 156 (39.0%) | 304 (76.0%) | 270 (67.5%) | 300 (75.0%) |
+     | Pulls (games with a pull) | 6 (4, 1.0%) | 8 (6, 1.5%) | 2 (1, 0.2%) | 1 (1, 0.2%) | 0 | 0 |
+     | Average turn | 19.3 | 17.5 | 22.4 | 22.9 | 21.7 | 22.5 |
+
+     **A noise warning (F23):** v3.4 at 5v5 has exactly the same rules as v3.3, yet the two runs ended on the turn limit in 75.0% and 67.5% of games. That's the spread between two seed sets for the same game, so gaps of a few points in this table aren't evidence.
+  3. **The targets:**
+     - **Turn-limit endings under 20%:** not met. 7v7 36.5% (v3.3) / 39.0% (v3.4); 5v5 67.5% / 75.0%.
+     - **Draws under 5%:** met at 7v7 (3.8% / 2.5%); not met at 5v5 (53.2% / 61.8%).
+     - **Pulls in at least a quarter of games:** not met. 7v7 1.5% / 0.2%; 5v5 0% / 0%.
+  4. **First mover at 5v5 under Kit D (F12):** won 16 of 130 decisive games (12%) on v3.3 and 13 of 100 (13%) on v3.4. At 7v7, 110 of 254 (43%). The 5v5 imbalance is still there with a better bot, so it's likely the first player's turn-1 Command (6 instead of 10), not isolated.
+  - **Plain-language read: neither fixed the stalls.**
+    - The bot is now clearly better. Kit D beats Kit B two to one, wipes out whole squads sometimes (TKOs appear for the first time), and cuts 7v7 draws to under 5%.
+    - But Kit D against Kit D still ends on the clock in over a third of 7v7 games and two thirds of 5v5 games, and almost never pulls.
+    - The 35-turn limit didn't help 7v7: games ran about 5 turns longer and ended on the clock just as often. Stalls are likely built into the game (a held flag is too strong to crack before the clock), not isolated.
+    - That points to the rule changes you held back ("gates open", golden-flag overtime: F14).
+- **Bot minimum (met / not met, with numbers):** met. Every target above has a number. Kit D picked 0 illegal actions in 60 seeded games, and none in the 2,400 measurement games either: 0 refused across every batch.
 - **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+  1. The stall targets aren't met. That's the finding, not a bug.
+  2. Kit D uses the balanced lineup; Kit C's heavy squad isn't combined with the planner. A Kit D plus heavy-squad variant is untested.
+  3. Kit D's Support estimate is approximate: helpers that move in count once per attack.
+  4. Your build-4 match is rebuilt by hand, not replayed (see beyond the brief, item 2).
+  5. Kit D wasn't measured against Kit C (the previous default). The brief asked only for Kit D against Kit B.
+- **Flags closed / opened:** Updated F10, F11, F12 with this evidence (still open: they need a design answer). Opened F23 (ASK).
+- **Pull request:** see the pull request that adds this Report.

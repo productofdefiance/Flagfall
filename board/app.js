@@ -214,7 +214,7 @@
 
   function defaultSetup() {
     return { format: "std7", rulesetId: (D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id), first: "coin", seed: E.makeSeed(),
-      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: "batchC", name: "South", mix: "open" } } };
+      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: "kitD", name: "South", mix: "open" } } };
   }
 
   // ---------- Matches ----------
@@ -481,7 +481,7 @@
     else if (name === "first") s.first = val;
     else if (name.startsWith("player-")) {
       const t = name.slice(7), p = s.players[t];
-      p.type = val; if (val === "bot" && !App.brains[p.brainId]) p.brainId = "batchC";
+      p.type = val; if (val === "bot" && !App.brains[p.brainId]) p.brainId = "kitD";
     } else if (name === "keeper") { App.picks[App.lineupSide].keeper = val; renderLineup(); return; }
     else if (name.startsWith("mix-")) { s.players[name.slice(4)].mix = val; Store.local("setup", s); renderTeams(); return; }
     Store.local("setup", s);
@@ -491,8 +491,8 @@
     const s = App.setup;
     if (!s.seed) s.seed = E.makeSeed();
     for (const t of ["N", "S"]) if (!s.players[t].mix) s.players[t].mix = "open";
-    if (s.players.N.type === "bot" && !App.brains[s.players.N.brainId]) s.players.N.brainId = "batchC";
-    if (s.players.S.type === "bot" && !App.brains[s.players.S.brainId]) s.players.S.brainId = "batchC";
+    if (s.players.N.type === "bot" && !App.brains[s.players.N.brainId]) s.players.N.brainId = "kitD";
+    if (s.players.S.type === "bot" && !App.brains[s.players.S.brainId]) s.players.S.brainId = "kitD";
     show("teams");
   }
 
