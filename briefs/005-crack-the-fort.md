@@ -131,7 +131,7 @@ The standard Report, the four measurements above, and a short plain-language rea
     - But Kit D against Kit D still ends on the clock in over a third of 7v7 games and two thirds of 5v5 games, and almost never pulls.
     - The 35-turn limit didn't help 7v7: games ran about 5 turns longer and ended on the clock just as often. Stalls are likely built into the game (a held flag is too strong to crack before the clock), not isolated.
     - That points to the rule changes you held back ("gates open", golden-flag overtime: F14).
-- **Bot minimum (met / not met, with numbers):** met. Every target above has a number. Kit D picked 0 illegal actions in 60 seeded games, and none in the 2,400 measurement games either: 0 refused across every batch.
+- **Bot minimum (met / not met, with numbers):** met. Every target above has a number. Kit D picked 0 illegal actions in the 60-game legality test (`test_kitd.js`, which counts refusals). The 2,400 measurement games don't count refusals, so they aren't offered as evidence here.
 - **Known gaps:**
   1. The stall targets aren't met. That's the finding, not a bug.
   2. Kit D uses the balanced lineup; Kit C's heavy squad isn't combined with the planner. A Kit D plus heavy-squad variant is untested.
