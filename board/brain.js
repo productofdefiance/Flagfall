@@ -79,6 +79,25 @@
   // (67% of decisive games with it, 80% without). See Brief 005's Report. Switch it on here to try it.
   KIT_D.planner = { focus: 1, pickWeak: 0, fort: 1, finish: 1 };
 
+  /* Brain 5 (Brief 006, 2026-11-18): plans its whole turn on one value model (bot.js value5 / planTurn5). Built on
+     Kit D's ideas but none of its habits: no bracing habit, guard, cohesion or engage pull. Every choice comes from the
+     model's weights below, editable on the Opponent screen. */
+  const BRAIN_5 = JSON.parse(JSON.stringify(STANDARD));
+  BRAIN_5.id = "brain5"; BRAIN_5.name = "Brain 5 (plans its turn)";
+  BRAIN_5.note = "Plans its whole turn within its Command and Stamina and scores every plan the same way: what it gains, what it risks next turn, and what it leaves for next turn.";
+  BRAIN_5.model = {
+    unit: 6,          // value of a unit on the field (a removal is worth this plus its HP)
+    hp: 1,            // value per HP, ours or theirs
+    pull: 2.5,        // value per point of damage on the enemy flag (and cost on ours)
+    risk: 0.7,        // how much it fears the damage the enemy can do back next turn
+    pressure: 0.3,    // how much it values the damage it could do on its next turn
+    stamina: 0.5,     // value per point of Stamina a unit will start next turn with (a brace costs 1 point)
+    advance: 0.3,     // value per hex closer to the enemy flag (units other than the holder)
+    home: 2.5,        // holder: cost per hex away from its own flag
+    flagDanger: 20    // cost of leaving our empty flag where the enemy could finish it
+  };
+  BRAIN_5.plan5 = { beam: 3, perUnit: 5 };   // plans kept at each step; activations kept per unit
+
   const LABELS = {
     unitBase: ["Unit on the field", "Value of having a unit at all, so a kill is worth this plus the unit's HP."],
     keeperBase: ["Flagkeeper bonus", "Extra value of the Flagkeeper, on either side."],
@@ -101,6 +120,6 @@
     pauseMs: ["Pause (ms)", "Pause between its actions on the board, so you can follow them."]
   };
 
-  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D }, BRAIN_LABELS: LABELS };
+  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5 }, BRAIN_LABELS: LABELS };
   if (typeof module !== "undefined") module.exports = api; else root.GGBrain = api;
 })(this);
