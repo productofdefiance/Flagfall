@@ -8,8 +8,8 @@ results/
   README.md       this file
   INDEX.md        one line per run, newest first, written automatically
   index.csv       the same list: id, date, version, kind, brief, tags, question, answer, path (more columns may follow)
-  v3.05.01/       runs grouped under the game version they tested
-    2026-11-19_screen_lab-dry-run/
+  v3.05.02/       runs grouped under the game version they tested
+    2026-11-18_screen_lab-dry-run/
   pre-v3.05.00/   the studies from before the lab (data/sim_study6–10), moved as they were; see its README
 ```
 

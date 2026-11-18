@@ -1,7 +1,7 @@
 {
  "id": "2026-11-18_screen_lab-dry-run",
  "kind": "screen",
- "version": "v3.05.01",
+ "version": "v3.05.02",
  "build": 7,
  "commit": "b5a639fcf80cb138141a9d3a436d93971fa8fdf1",
  "brief": "008",
@@ -49,5 +49,7 @@
   ]
  },
  "failed": null,
- "extra": {}
+ "extra": {
+  "note": "Played as v3.05.01 (Build 7); renumbered to v3.05.02 (Build 8) when brief 013 took v3.05.01 first. The board code is the same."
+ }
 }

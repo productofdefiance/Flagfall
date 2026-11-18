@@ -417,15 +417,15 @@
     const where = st.phase === "deploy" ? "Deploying" : `Turn ${st.turn} · ${sideName(st.toMove)} to move`;
     return `${where} · ${opp}`;
   }
-  /** "Playtest board · Build 3 · Rules v3.2"; a preview copy also says which pull request it is. */
+  /** "Playtest board · v3.05.01 · Build 7 · Rules v3.4"; a preview copy also says which pull request it is. */
   function homeLine() {
     const newest = D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id;
-    return ["Playtest board", V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null, `Rules ${newest}`].filter(Boolean).join(" · ");
+    return ["Playtest board", V.game || null, V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null, `Rules ${newest}`].filter(Boolean).join(" · ");
   }
   /** " · Build 3", plus the build a match was started on when that differs (never guessed for older matches). */
   function buildNote(m) {
     if (!V.build) return "";
-    return ` · Build ${V.build}` + (m && m.build && m.build !== V.build ? ` (started on Build ${m.build})` : "");
+    return (V.game ? ` · ${V.game}` : "") + ` · Build ${V.build}` + (m && m.build && m.build !== V.build ? ` (started on Build ${m.build})` : "");
   }
   function renderHome() {
     const cont = liveSummary();
@@ -769,7 +769,7 @@
 
   // ---------- Drawing: unit bar ----------
   function stamSquares(u, now, cost) {
-    const st = App.st, max = st.rs.game.stamina, out = [];
+    const st = App.st, max = Math.max(E.baseStamina(st, u), now), out = [];   // the card's base Stamina (Brief 013)
     for (let i = 0; i < Math.ceil(max - EPS); i++) {
       const full = i + 1 <= now + EPS, half = !full && i < now - EPS;
       const afterFull = i + 1 <= now - cost + EPS, afterHalf = !afterFull && i < now - cost - EPS;
@@ -1191,6 +1191,8 @@
     ["braceCost", "Brace cost", "Stamina and Command. Bracing ends the unit's turn."],
     ["braceReduction", "Brace damage reduction", "Taken off every hit on a braced unit."],
     ["staminaAfterBrace", "Stamina after bracing", "What a braced unit starts its next turn with (Light Ranged keeps full Stamina)."],
+    ["braceTiredness", "Brace tiredness", "How much Stamina bracing costs next turn (Light Ranged's Second Wind cancels it)."],
+    ["staminaFloor", "Lowest starting Stamina", "No unit starts its turn below this, however many penalties stack."],
     ["supportBonus", "Support bonus", "Added to an attack when another attacker is adjacent to the target."],
     ["dodgeDivisor", "Dodge divisor", "Dodge takes 1 off per this many points of incoming Strength. Halved for a braced Light Melee."],
     ["reachPenalty", "Reach penalty", "Reach attacks (2 hexes, straight line) do this much less."],
@@ -1282,7 +1284,8 @@
     let h = `<div class="scroll"><div class="wrap wide">${backbar("Rules")}${sheetTabs("rules")}${rsBar()}`;
     h += `<div class="formrow"><label>Set name<input type="text" data-top="name" value="${esc(rs.name)}" style="width:240px"></label><label>Note<input type="text" data-top="note" value="${esc(rs.note || "")}" style="width:min(520px,80vw)"></label></div>`;
     h += `<div class="tablewrap"><table class="data"><thead><tr><th>Number</th><th>Value</th><th>What it does</th></tr></thead><tbody>`;
-    for (const [k, label, desc] of GAME_FIELDS) h += `<tr><td>${label}</td><td><input type="number" min="0" step="1" data-game="${k}" value="${rs.game[k] === undefined ? "" : rs.game[k]}"></td><td class="desc">${desc}</td></tr>`;
+    // Brief 013: v3.4 on stores "Brace tiredness"; older rule sets keep "Stamina after bracing". Show only the one a set has.
+    for (const [k, label, desc] of GAME_FIELDS.filter(([k]) => !(k === "staminaAfterBrace" || k === "braceTiredness") || rs.game[k] !== undefined)) h += `<tr><td>${label}</td><td><input type="number" min="0" step="1" data-game="${k}" value="${rs.game[k] === undefined ? "" : rs.game[k]}"></td><td class="desc">${desc}</td></tr>`;
     h += `</tbody></table></div>`;
     h += `<div class="tablewrap"><table class="data"><thead><tr><th>Switch</th><th>On</th><th>What it does</th></tr></thead><tbody>`;
     for (const [k, label, desc] of SWITCHES) h += `<tr><td>${label}</td><td><input type="checkbox" data-switch="${k}" ${rs.switches[k] ? "checked" : ""} aria-label="${label}"></td><td class="desc">${desc}</td></tr>`;

@@ -4,7 +4,7 @@
 
 **Answer:** brain5-v-standard-5v5: brain5 took 65.0% of games against standard (decisive 5–4, tiebreak 8–3, draws 0); brain5-light-mirror-5v5: mirror, 50.0% ended on the turn limit, A/B 8–12.
 
-**Key table** (v3.05.01, 40 games; tiebreak wins counted apart from KOs and draws)
+**Key table** (v3.05.02, 40 games; tiebreak wins counted apart from KOs and draws)
 
 | Matchup | Games | A wins (KO/TKO) | B wins (KO/TKO) | A tiebreak | B tiebreak | Draws | Holder KO | Pull KO | TKO | Ended on turn limit | Games with a pull | Avg turn | First mover's share of decisive |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|

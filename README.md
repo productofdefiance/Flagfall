@@ -47,6 +47,7 @@ node tests/test_v31.js
 node tests/test_v32.js
 node tests/test_v33.js
 node tests/test_v34.js
+node tests/test_stamina.js
 node tests/test_reasons.js
 node tests/test_kitd.js
 node tests/test_brain5.js
@@ -73,6 +74,10 @@ Simulations run on GitHub, not in a Claude session (Brief 008). Put a job order 
 `regress_engine.js` prints one hash per rule set, leaving out only the newest preset. Run it on the board before and after a change: every rule set the change was not meant to alter must print the same hash.
 
 `test_v32.js` ends with a double-knockout count over 400 bot games at 7v7 and 400 at 5v5, spread over the computer's processor cores (about 15 minutes on 4 cores; up to 35 on GitHub). Give it a smaller number to try it quickly, e.g. `node tests/test_v32.js 20`; the full check is the default.
+
+`test_stamina.js` checks the Stamina model (Brief 013): base Stamina per card, next-turn modifiers, and the floor check, which tries every combination of the shipped modifiers on every card of every preset (add `--worst` to print each card's worst case).
+
+For a build that must not change play at all, `node tests/regress_engine.js <board folder> 2 all` also hashes the newest preset and prints one hash per rule set and brain (every brain, Brain 5 included). Run it on the board before and after: every line must match.
 
 `test_invariants.js` plays 30 bot games on the newest preset and fails on any impossible state.
 

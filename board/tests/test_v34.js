@@ -23,6 +23,8 @@ ok(PRESETS[PRESETS.length - 1].id === "v3.4", "v3.4 is the last preset, so new g
 { const a = JSON.parse(JSON.stringify(V33)), b = JSON.parse(JSON.stringify(V34));
   for (const k of ["id", "name", "note"]) { delete a[k]; delete b[k]; }
   delete b.switches.turnLimitByFormat; delete b.game.turnLimit5; delete b.game.turnLimit7;
+  // Brief 013 (no change in play): v3.4 stores bracing as Brace tiredness 1 instead of Stamina after bracing 2.
+  delete a.game.staminaAfterBrace; delete b.game.braceTiredness;
   ok(JSON.stringify(a) === JSON.stringify(b), "v3.4 is v3.3 apart from the per-format turn limit"); }
 
 for (const [rs, size, codes, want] of [[V34, 7, L7, 35], [V34, 5, L5, 25], [V33, 7, L7, 25], [V33, 5, L5, 25]]) {

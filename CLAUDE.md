@@ -51,6 +51,7 @@ One word, the same behaviour every time. The design chat keeps the full list in 
 - Simulators take randomness from `board/tests/rng.js` (seeded mulberry32). Never write a home-made random generator.
 - Report simulation results with tiebreak wins counted separately from KOs and draws. Say when a cause is likely but not isolated.
 - Add a test for every rule you add or fix. A fix's test must fail on the old preset and pass on the new one.
+- Every new Stamina modifier states its source, its effect and its worst-case stack; the floor check must pass on every card. (Standing rule, the Editor, 18 Nov.)
 - **Bot minimum.** Every build that adds a unit, action or rule teaches the computer opponent to use it sensibly, as the brief's Bot minimum section says, and the Report proves it with numbers. Simulations are only evidence if the bot plays the feature.
 - **Settings review on every brain build.** Any build that adds or tunes a brain ends its Report with a settings review:
   - **Useless settings:** change each setting up and down (and off). Any whose change moves results by less than the noise (F23) is listed as "no effect found", with the numbers. Don't delete it: it may matter under other rules or lineups. Retire it only when the Editor agrees.
