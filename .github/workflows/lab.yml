@@ -13,6 +13,7 @@ on:
   workflow_run:
     workflows: [night-checks]
     types: [completed]
+    branches: [main]   # only main's night checks: a pull request's night-checks run must not start (and queue-jump) a lab run
   workflow_dispatch:
     inputs:
       orders:
