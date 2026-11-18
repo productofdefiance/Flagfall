@@ -8,7 +8,11 @@ const E = require(path.join(dir, "engine.js")), Bot = require(path.join(dir, "bo
 const { PRESETS, DEFAULT_RULESET } = require(path.join(dir, "data.js")); const { DEFAULT_BRAINS } = require(path.join(dir, "brain.js"));
 const crypto = require("crypto");
 const games = +(process.argv[3] || 20);
-const sets = [DEFAULT_RULESET, ...PRESETS].filter((r) => ["v3.1"].indexOf(r.id) < 0);
+// Leaves out only the newest preset (the one a build is adding or still changing). "Newest" is read from the board
+// this script sits in, not the board being hashed, so an older board still prints a hash for every preset it has
+// and the two outputs can be compared line by line (Brief 002, F18).
+const NEWEST = (({ PRESETS: P }) => P[P.length - 1].id)(require(path.join(__dirname, "..", "data.js")));
+const sets = [DEFAULT_RULESET, ...PRESETS].filter((r) => r.id !== NEWEST);
 const brains = ["standard", "kitB", "batchC"].filter((b) => DEFAULT_BRAINS[b]);
 for (const base of sets) {
   const h = crypto.createHash("sha256"); let ends = {};

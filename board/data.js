@@ -111,7 +111,14 @@
   V31.id = "v3.1"; V31.name = "v3.1 (2026-11-16 22:45)";
   V31.note = "v3 with bug fixes only: a holder that kills stays on its flag; the pool falls only at 0; a double knockout goes to the side that acted.";
   Object.assign(V31.switches, { holderHoldsHex: true, poolAsOne: true, simultaneousToActor: true });
-  const PRESETS = [V1, V2, V3, V31];
+  /* Rule set v3.2 (Brief 002, 2026-11-17): order of operations. v3.1 plus three rules ruled by the Editor on 17 Nov.
+     A unit removed by a hit deals no parry; parry fires on the first attack only each enemy turn (Game Laws 6.3);
+     a double knockout goes to the turn-limit tiebreaks instead of the side that acted. */
+  const V32 = JSON.parse(JSON.stringify(V31));
+  V32.id = "v3.2"; V32.name = "v3.2 (2026-11-17)";
+  V32.note = "v3.1 plus: dead units don't parry; parry once per enemy turn; a double knockout goes to the tiebreaks.";
+  Object.assign(V32.switches, { parryNeedsSurvivor: true, parryFirstOnly: true, doubleKoToTiebreak: true, simultaneousToActor: false });
+  const PRESETS = [V1, V2, V3, V31, V32];
 
   const TRAITS = { tackle: "Tackle", reach: "Reach", ignoreArmor: "Ignores Armor", none: "None" };
   const BRACES = { parry: "Parry", dodgeDouble: "Dodge doubles", spike: "Set spear", zone: "Projects Zone of Control", fullStamina: "Full Stamina next turn", noSupport: "No Support against it", none: "None" };
