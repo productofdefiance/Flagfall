@@ -69,22 +69,42 @@ n/a for new behaviour: nothing the bot can do changes. The brains must read next
 ## The Editor's hands-on check
 One quick game on the play link: brace a Heavy Melee and a Light Ranged, end the turn, and check the unit info shows "next turn 2" and "next turn 3". Nothing else should look different.
 
-## Report back
-- The worst-case next-turn Stamina for every card, as the floor check found it.
-- Any case where an action could be cut off partway (expected: none).
-- Add to `CLAUDE.md` under Rules for the code: "Every new Stamina modifier states its source, its effect and its worst-case stack; the floor check must pass on every card." (Standing rule, the Editor, 18 Nov.)
-
----
-
 ## Report
 *Filled in by Claude Code.*
 
 - **What's in:**
+  - Base Stamina per card (`stamina` on a card; without it the rule set's `game.stamina`, so every current card stays at 3).
+  - Next-turn Stamina = base + modifiers, in `engine.js` (`STAMINA_EFFECTS`, `staminaMods`, `staminaWith`, `nextStamina`, `addStaminaMod`). Each modifier has a `source` (`self` / `enemy`) and an `effect`. Different effects stack. The same effect counts once, both when it's recorded and when it's added up. Second Wind cancels only a `self` brace tiredness. The floor is `game.staminaFloor` (1) in `data.js`; a penalty can't take a unit below it.
+  - Brief 012 adds Pursued as one `STAMINA_EFFECTS` entry plus an `addStaminaMod` call where it triggers. Recorded modifiers are used up at the unit's turn start. On scratch copies (`cloneLite`) they're copy-on-write, so the bot can't leak one into the real match.
+  - One source of truth: the turn start, the unit info's next-turn Stamina, the pips' maximum (now the card's base) and both brains' views (`bot.js` reads `E.status().stamNext`) all go through `nextStamina`.
+  - Settings: v3.4 stores `braceTiredness: 1` in place of `staminaAfterBrace: 2` and shows "Brace tiredness". Older presets keep "Stamina after bracing 2" and the engine reads it as tiredness = stamina − staminaAfterBrace. New row: "Lowest starting Stamina" (every preset: 1).
+  - Rule sets saved before this build (a saved match's own copy, or a custom set) have no `staminaFloor`, and the engine applies no floor to them. They replay exactly as before, even with odd numbers (tested with "Stamina after bracing" 0).
 - **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
-- **Baseline table (rule changes only):**
-- **Bot minimum (met / not met, with numbers):**
-- **Settings review (brain builds only): settings with no effect found; settings that seem to be missing (with evidence):**
+  - `regress_engine.js <board> N all` hashes every preset, the newest included, against every brain. The default run leaves out v3.4 and Brain 5 / Kit D, so it can't prove the brief's "Brain 5, Kit A–D, Standard and Easy unchanged". The default output is unchanged, so the CI comparison works as before.
+  - The game version shows on Home and in the match line (`version.js` `game`), and `CHANGELOG.md` gets its version table. Both are standing rules in `CLAUDE.md`, and this is the first build since they were added.
+- **Checks run and results:**
+  - All pass: test_rules, test_v1, test_v3, test_v31, test_v32 (40), test_v33, test_v34, test_stamina (517 checks), test_reasons, test_kitd (2), test_brain5 (2), test_rng, test_invariants (30 games, 0 problems), replay (386 checks, 0 mismatches).
+  - `test_v34.js`: its "v3.4 is v3.3 apart from the turn limit" check now also allows the brace-tiredness storage change.
+  - `regress_engine.js`, 3 games, before → after, identical:
+    ```
+    match3       37397ef2bd3ed86b
+    v1           7b25bca651c0cb31
+    v2           ddbe5fc437ff4e9d
+    v3           26371927b53d4413
+    v3.1         c71e4cd12fc984b0
+    v3.2         f62a061d2c147d83
+    v3.3         e6151bf463d6c9f8
+    ```
+  - `regress_engine.js … 2 all` (8 rule sets × 9 brains, v3.4 and Brain 5 included): ALL_RESULT
+- **Worst-case next-turn Stamina per card (floor check):** 2 for every card (HM, LM, HR, LR, HA, LA) in every preset (match3, v1, v2, v3, v3.1, v3.2, v3.3, v3.4). The only shipped penalty is brace tiredness −1 on base 3, so the floor of 1 never binds today.
+- **Could an action be cut off partway?** No case found. Moves, tackle break-aways, Evade, attacks and braces are checked in full against Stamina, Command and the movement cap before anything happens. A refused action changes nothing. Tested on every preset; over 4 bot games on v3.4, every offered move (including mid-Evade) fit in full.
+- **Rules it touches (tests in `test_stamina.js`):** Brace 3 → 2 and Second Wind 3, on every card of every preset. Set spear: one spear per entry, a second unit takes the second spear, a third takes none. Tackle at hex cost: a Heavy on 1 Stamina is refused with nothing spent, and on 2 it can break away. Attack and brace are refused whole on 0.5 Stamina or 0.5 Command. Stacking and floor: three −1s give 1, the same effect twice counts once, Second Wind doesn't cancel an enemy penalty.
+- **Baseline table:** not needed (no rule change; every hash identical).
+- **Bot minimum:** n/a by the brief. Both brains read next-turn Stamina from the engine, and the bot-driven hashes are identical.
+- **Settings review:** not a brain build.
 - **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+  - The unit data screen has no per-card Stamina column yet. Brief 012 can add one alongside Cavalry.
+  - Custom rule sets saved before this build show "Lowest starting Stamina" blank, and no floor applies until a value is typed in.
+  - Game version: this takes v3.05.01, the next free on `main` today (the brief's example assumed 007 lands first). If another build merges first, **sync** renumbers it.
+- **Flags closed / opened:** none closed. Opened F27: `CLAUDE.md` history says Kit C was the v3.04.00 default, but the changelog says Kit D.
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/13
