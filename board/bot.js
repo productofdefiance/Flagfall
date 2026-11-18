@@ -440,7 +440,22 @@
     v -= W.risk * risk5(st, team, B);
     v += W.pressure * risk5(st, foe, B);
     v -= W.flagDanger * Math.min(1, flagRisk(st, team, Object.assign({}, B, { weights: Object.assign({}, B.weights, { flagRisk: 1 }) })));
+    if (W.clock) v += W.clock * clockNear(st, W) * tiebreakStanding(st, team);   // Brain 6 (Brief 007): the clock
     return v;
+  }
+  /** Brain 6 (Brief 007): how close the turn limit is, from 0 (clockTurns or more turns to go) to 1 (the last turn).
+      Turns to go counts this one: on the last turn it is 0, so the weight is full. */
+  function clockNear(st, W) {
+    const H = W.clockTurns > 0 ? W.clockTurns : 0;
+    if (!H) return 0;
+    const left = E.turnLimit(st) - st.turn;
+    return Math.max(0, Math.min(1, 1 - left / H));
+  }
+  /** Brain 6: the tiebreak as it stands (Game Laws 2.7, engine tiebreak): +1 if `team` would win it now, -1 if it would
+      lose, 0 if level. More damage on the enemy flag first (hits on its holder's pool count, F20), then fewer units lost. */
+  function tiebreakStanding(st, team) {
+    const w = E.tiebreak(st).winner;
+    return w === team ? 1 : w ? -1 : 0;
   }
   const tryAct = (st, a, die) => { const s = E.cloneLite(st); try { E.apply(s, a, () => die || E.normalDie(st)); return s; } catch (e) { return null; } };
   /** Play an attack (and, for an evading Light unit, its best step away) on a copy. Dice: the score is the average over
@@ -454,8 +469,13 @@
     if (u && u.hp > 0 && E.options(s, uid).evading) {
       // Evade: the step that scores best, or none
       let best = { s, v: value5(s, team, B), h: null };
-      for (const h in E.options(s, uid).moves) { const s2 = tryAct(s, { type: "move", uid, to: h }); if (s2) { const v2 = value5(s2, team, B); if (v2 > best.v) best = { s: s2, v: v2, h }; } }
+      const steps = E.options(s, uid).moves;
+      for (const h in steps) { const s2 = tryAct(s, { type: "move", uid, to: h }); if (s2) { const v2 = value5(s2, team, B); if (v2 > best.v) best = { s: s2, v: v2, h }; } }
       if (best.h) { v += best.v - value5(s, team, B); s = best.s; acts.push({ type: "move", uid, to: best.h }); }
+      // Brain 6 (Brief 007): an adjacent attack that leaves no legal Evade step (movement, Stamina or Command used up on
+      // the approach, tackle, no free hex) leaves the attacker beside a target that can hit back. It costs `evade` times
+      // that target's expected hit on it next turn, so the plan prefers approaches that keep a step.
+      else if (B.model.evade && !Object.keys(steps).length) { const t = E.unitByUid(s, target); if (t && t.hp > 0) v -= B.model.evade * expectedHit(s, t, u); }
     }
     return s ? { s, acts, v } : null;
   }
@@ -665,6 +685,6 @@
     return beings === size ? Object.assign({}, want) : null;
   }
 
-  const api = { chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5 };
+  const api = { chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5, tiebreakStanding, clockNear, attackLine5: attackLine };
   if (typeof module !== "undefined") module.exports = api; else root.GGBot = api;
 })(this);

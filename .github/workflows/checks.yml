@@ -72,6 +72,16 @@ jobs:
         continue-on-error: true
         working-directory: board
         run: node tests/test_brain5.js 2
+      - name: test_brain6.js (clock and Evade positions; legal play, 2 games per format and lineup)
+        id: brain6
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_brain6.js 2
+      - name: test_version.js (game version on the board, saved matches, version check)
+        id: version
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_version.js
       - name: test_rng.js
         id: rng
         continue-on-error: true
@@ -85,7 +95,7 @@ jobs:
       - name: Summary
         if: always()
         env:
-          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
+          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_brain6.js(2-games)=${{ steps.brain6.outcome }} test_version.js=${{ steps.version.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
         run: |
           { echo "## Rule tests"; echo; echo "| Check | Result |"; echo "| --- | --- |"
             for kv in $R; do o="${kv#*=}"; echo "| ${kv%%=*} | $( [ "$o" = success ] && echo pass || echo "**FAIL** ($o)" ) |"; done
@@ -140,8 +150,8 @@ jobs:
         with:
           ref: ${{ steps.base.outputs.sha }}
           path: base-commit
-      # Brief 003: a change to board/ must raise the build number in board/version.js.
-      - name: Build number went up
+      # Brief 003: a change to board/ must raise the build number in board/version.js (Brief 007: and change the game version).
+      - name: Build number went up and game version changed
         id: build
         shell: bash   # bash with pipefail, so a failing check is not hidden by tee
         run: bash .github/check-build-number.sh base-commit . | tee build-number.txt
@@ -183,7 +193,7 @@ jobs:
             echo "| Rule tests (incl. 40-game double-knockout count) | $(mark "$RULES") |"
             echo "| Impossible states, newest preset | $(mark "$INV") |"
             echo "| Impossible states, v3 red team | $(mark "$RED") |"
-            echo "| Build number went up (and replay hashes, report only) | $(mark "$CMP") |"
+            echo "| Build number went up, game version changed (and replay hashes, report only) | $(mark "$CMP") |"
             echo; echo "The full 400 + 400 double-knockout count runs every night (night-checks)."
           } >> "$GITHUB_STEP_SUMMARY"
           for r in "$RULES" "$INV" "$RED" "$CMP"; do [ "$r" = success ] || { echo "A quick check failed: see the jobs above."; exit 1; }; done

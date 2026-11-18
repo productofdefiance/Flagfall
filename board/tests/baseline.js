@@ -24,7 +24,19 @@ const T = { rs: rsId, size, A: aId, B: bId, mode, games: 0, koHolderKilled: 0, k
   holderDraggedOff: 0, holderWalkedOff: 0, parries: 0, lightRemoved: 0, evadeChances: 0, evadeTaken: 0, evadeNoRoom: 0, evadeSaferChances: 0, evadeSaferTaken: 0,
   // Brief 006 diagnosis
   cmdMoves: 0, cmdMovesNoAttack: 0, moveToAttack: 0, moveToAttackWasted: 0, contactTurns: 0, attacksInContact: 0,
-  braces: 0, bracesNoThreat: 0, contactTurnsNoBrace: 0, lightAttacked: 0, lightDodgeSum: 0, botMs: 0, botMsMax: 0, botTurns: 0, flips: flipS || "", turnSum: 0, unitsRemoved: 0, unitsStart: 0, cmdSpent: 0, sideTurns: 0, unitsActed: 0 };
+  braces: 0, bracesNoThreat: 0, contactTurnsNoBrace: 0, lightAttacked: 0, lightDodgeSum: 0, botMs: 0, botMsMax: 0, botTurns: 0, flips: flipS || "", turnSum: 0, unitsRemoved: 0, unitsStart: 0, cmdSpent: 0, sideTurns: 0, unitsActed: 0,
+  // Brief 007. Why an Evade had no legal step (engine whyNoMove, by first matching reason): the movement cap, Command,
+  // Stamina, a zone stop, tackle, or no free hex further from the target. evadeNoRoomFromFull: of those, the attacker
+  // had moved its full cap on the approach (or had at most its cap left before the attack).
+  evadeNoRoomCap: 0, evadeNoRoomCmd: 0, evadeNoRoomStam: 0, evadeNoRoomZone: 0, evadeNoRoomTackle: 0, evadeNoRoomTackleCap: 0, evadeNoRoomTackleStam: 0, evadeNoRoomBlocked: 0, evadeNoRoomOther: 0,
+  evadeNoRoomMovedBefore: 0, evadeNoRoomStoodStill: 0,
+  // Clock play: side-turns in the last 3 turns (turn >= limit - 2) that start behind on the tiebreak (or level), and
+  // of those, turns with an attack on the enemy holder or a pull. A/B split by brain.
+  lateBehindTurns: 0, lateBehindPress: 0, lateBehindHolderAtk: 0, lateBehindPull: 0, lateAheadTurns: 0, lateAheadPress: 0, lateLevelTurns: 0, lateLevelPress: 0,
+  aLateBehindTurns: 0, aLateBehindPress: 0, bLateBehindTurns: 0, bLateBehindPress: 0,
+  // Who leads the tiebreak at the start of turn (limit - 3): games with a leader, and how those games ended for it.
+  leadAt3: 0, leadAt3WinTiebreak: 0, leadAt3WinDecisive: 0, leadAt3Lose: 0, leadAt3Draw: 0, levelAt3: 0 };
+const tbLeader = (st) => E.tiebreak(st).winner;
 for (let g = 0; g < games; g++) {
   const k = g + shard * games;
   const first = k % 2 ? "S" : "N", aTeam = Math.floor(k / 2) % 2 ? "S" : "N", brainOf = (t) => (t === aTeam ? BA : BB);
@@ -33,15 +45,26 @@ for (let g = 0; g < games; g++) {
   let n = 0, pulls = 0, lastA = null, key = "", acted = new Set(); const chance = new Set();
   // per side-turn diagnosis state
   let tMoveCost = new Map(), tAttacked = new Set(), tIntent = [], tContact = false, tAttacks = 0, tBraces = 0, tMs = 0;
+  let tLate = null, tPressH = false, tPressP = false, lead3 = undefined; const LIM = E.turnLimit(st);
+  const closeLate = () => { if (!tLate) return; const press = tPressH || tPressP, side = tLate.team === aTeam ? "a" : "b";
+    if (tLate.pos === "behind") { T.lateBehindTurns++; T[side + "LateBehindTurns"]++; if (press) { T.lateBehindPress++; T[side + "LateBehindPress"]++; } if (tPressH) T.lateBehindHolderAtk++; if (tPressP) T.lateBehindPull++; }
+    else if (tPressH || tPressP || true) { const k = tLate.pos === "ahead" ? "lateAhead" : "lateLevel"; T[k + "Turns"]++; if (press) T[k + "Press"]++; }
+    tLate = null; };
   const contactNow = () => E.alive(st).some((x) => x.team === st.toMove && !x.done && E.options(st, x.uid).attacks.length);
   while (st.phase === "play" && n++ < 6000) {
-    if (st.turn + st.toMove !== key) { key = st.turn + st.toMove; acted = new Set(); tMoveCost = new Map(); tAttacked = new Set(); tIntent = []; tAttacks = 0; tBraces = 0; tMs = 0; tContact = contactNow(); }
+    if (st.turn + st.toMove !== key) { key = st.turn + st.toMove; acted = new Set(); tMoveCost = new Map(); tAttacked = new Set(); tIntent = []; tAttacks = 0; tBraces = 0; tMs = 0; tContact = contactNow();
+      closeLate(); tPressH = tPressP = false;
+      if (st.turn >= LIM - 2) { const l = tbLeader(st); tLate = { team: st.toMove, pos: l === st.toMove ? "ahead" : l ? "behind" : "level" }; }
+      if (lead3 === undefined && st.turn >= LIM - 3) lead3 = tbLeader(st); }
     const t0 = Date.now(); const c = Bot.chooseAction(st, brainOf(st.toMove), rnd); tMs += Date.now() - t0;
     const a = c.action;
     if (a.type === "move") { const m = /moves to \S+ to attack (\S+)/.exec(c.reason || ""); if (m) tIntent.push({ uid: a.uid, target: m[1] }); }
     if (a.type === "brace") { const bu = E.unitByUid(st, a.uid); T.braces++; tBraces++; if (!E.alive(st).some((e) => e.team !== bu.team && Bot.canThreaten(st, e, bu.hex))) T.bracesNoThreat++; }
     if (a.type === "attack") { const tg = E.unitByUid(st, a.target); if (tg && /^light/.test(E.card(st, tg).icon || "")) { T.lightAttacked++; T.lightDodgeSum += E.card(st, tg).dodge && st.rs.switches.dodgeRoom ? E.dodgeRoom(st, tg).pct : 0; } }
     const u = a.uid && E.unitByUid(st, a.uid), wasHolder = u && E.isHolder(st, u);
+    if (a.type === "attack") { const tg = E.unitByUid(st, a.target); if (tg && E.isHolder(st, tg)) tPressH = true; }
+    if (a.type === "pull") tPressP = true;
+    const moved0 = u ? u.moved : 0;
     const rec = st.spend[st.spend.length - 1], cmd0 = st.cmd, log0 = st.log.length;
     if (a.type === "move" && u && u.evadeFrom && chance.has(u.uid)) { T.evadeTaken++; chance.delete(u.uid); if (chance.delete(u.uid + "#safer")) T.evadeSaferTaken++; }   // Brief 004
     const cost0 = st.cmd;
@@ -58,7 +81,18 @@ for (let g = 0; g < games; g++) {
         // "Safer": some evade hex lowers the enemy's expected damage to this side next turn (the bot's own threat measure).
         const B0 = brainOf(u.team), t0 = Bot.threat(st, u.team, B0, true);
         if (mv.some((h) => { const s1 = E.cloneLite(st); try { E.apply(s1, { type: "move", uid: u.uid, to: h }); } catch (e) { return false; } return Bot.threat(s1, u.team, B0, true) < t0 - 1e-9; })) { T.evadeSaferChances++; chance.add(u.uid + "#safer"); }
-      } else T.evadeNoRoom++;
+      } else {
+        T.evadeNoRoom++;
+        const why = E.whyNoMove(st, u) || "";
+        if (/^No free hex/.test(why)) T.evadeNoRoomBlocked++;
+        else if (/full cap/.test(why)) T.evadeNoRoomCap++;
+        else if (/Command/.test(why)) T.evadeNoRoomCmd++;
+        else if (/Stamina for a step/.test(why)) T.evadeNoRoomStam++;
+        else if (/zone/.test(why)) T.evadeNoRoomZone++;
+        else if (/Tackled/.test(why)) { T.evadeNoRoomTackle++; if (E.capOf(st, u) - u.moved < 1 + (st.rs.switches.tackleUsesCap ? 1 : 0)) T.evadeNoRoomTackleCap++; else T.evadeNoRoomTackleStam++; }
+        else T.evadeNoRoomOther++;
+        if (moved0 > 0) T.evadeNoRoomMovedBefore++; else T.evadeNoRoomStoodStill++;
+      }
     }
     if (a.type === "end") chance.clear();
     if (a.type === "end") {
@@ -72,6 +106,11 @@ for (let g = 0; g < games; g++) {
     if (wasHolder && u.hp > 0 && u.hex !== E.FLAG[u.team]) { if (a.type === "attack") T.holderDraggedOff++; else T.holderWalkedOff++; }
     lastA = a;
   }
+  closeLate();
+  if (lead3 === undefined || st.turn < LIM - 3) { /* ended before turn limit - 3 */ }
+  else if (!lead3) T.levelAt3++;
+  else { T.leadAt3++; const w = st.result && st.result.winner, tbw = st.result && /turn limit/.test(st.result.how);
+    if (!w) T.leadAt3Draw++; else if (w !== lead3) T.leadAt3Lose++; else if (tbw) T.leadAt3WinTiebreak++; else T.leadAt3WinDecisive++; }
   T.games++; T.pulls += pulls; if (pulls) T.gamesWithPull++;
   for (const x of st.units) { T.unitsStart++; if (x.hp <= 0) { T.unitsRemoved++; if (/^light/.test(E.card(st, x).icon || "")) T.lightRemoved++; } }
   if (!st.result) { T.stuck++; continue; }
