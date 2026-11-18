@@ -32,6 +32,7 @@ function brainOf(spec) {
 }
 const lineupText = (l) => l.map((x) => x.card).join(" ");
 
+if (opt.out) fs.mkdirSync(path.dirname(path.resolve(opt.out)), { recursive: true });   // the parts folder may not exist yet
 const out = fs.createWriteStream(opt.out || "/dev/stdout");
 let played = 0;
 for (const file of orders) {

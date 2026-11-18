@@ -10,7 +10,8 @@ let fails = 0, n = 0;
 const ok = (c, m) => { n++; console.log(`  ${c ? "ok" : "FAIL"}: ${m}`); if (!c) fails++; };
 const node = (args) => cp.execFileSync("node", args, { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
 // two parts, as two machines would
-for (const p of [0, 1]) node([path.join(here, "play.js"), "--part", p, "--parts", 2, "--out", path.join(parts, `p${p}.jsonl`), order]);
+// the second part writes into a folder that doesn't exist yet, as on a fresh GitHub machine
+for (const p of [0, 1]) node([path.join(here, "play.js"), "--part", p, "--parts", 2, "--out", path.join(parts, p ? "new/" : "", `p${p}.jsonl`), order]);
 const dir = node([path.join(here, "merge.js"), "--results", results, "--parts", parts, "--trigger", "day", order]).trim();
 const o = JSON.parse(fs.readFileSync(order, "utf8")), want = o.matchups.reduce((s, m) => s + m.games, 0);
 ok(fs.existsSync(dir) && /\d{4}-\d{2}-\d{2}_experiment_lab-odd-order-check$/.test(dir), "a run folder named date_kind_topic, for an unknown kind: " + path.basename(dir));
