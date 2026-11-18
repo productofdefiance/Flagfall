@@ -2,6 +2,37 @@
 
 Newest first. One entry per build, written for the Editor: what a player notices first, then what changed under the hood.
 
+## Build 6 — Brief 006, Brain 5: a bot that plans its turn (18 Nov 2026)
+Rule set: none changed (v3.4 stays the newest). New opponent **Brain 5**, now the default.
+
+**What a player will notice**
+- The default opponent is Brain 5. It plans its whole turn before it moves, never walks a unit up for an attack it can't pay for, and braces only when enemies can actually reach it.
+- Its Light units step away after a hit when that's safer (about 8 or 9 times out of 10 when a safer hex exists), and stand with more open hexes around them (Dodge when attacked about 15–17%, up from 8–12%).
+- Brain 5 vs Brain 5 games rarely end in a draw (2–5%), and flag pulls are now the usual way to win. About half still go to the turn limit, but the tiebreak decides almost all of them.
+- On the setup screen the opponent picker is labelled "Brain" (it said "Kit"). Saved matches against Kit A–D still load, and those brains play exactly as before.
+- The Opponent screen shows Brain 5's settings in plain words (how much it fears damage, values next turn's Stamina, the flag, and so on).
+
+**Under the hood**
+- `bot.js`: Brain 5's planner (`planTurn5`) and its one score (`value5`: what it gains, what the enemy can realistically do back next turn, and how it's placed for next turn). It plans again after every roll.
+- `brain.js`: Brain 5 and its 11 settings. `app.js`: the default opponent and the Opponent screen.
+- `tests/baseline.js`: an all-Light lineup and the diagnosis counters. New test `test_brain5.js`: three positions plus legal play.
+- Study data in `data/sim_study10/`.
+
+**Flags closed:** none. **Updated:** F10, F11, F12, F22. **Opened:** F24, F25, F26.
+
+**Stall re-check (balanced lineups, v3.4; Kit D 400 games per format, Brain 5 1,000)**
+
+| | Kit D 7v7 | Brain 5 7v7 | Kit D 5v5 | Brain 5 5v5 |
+|---|---|---|---|---|
+| Holder KO | 53.5% | 2.8% | 23.8% | 4.9% |
+| Pull KO | 0.2% | 38.9% | 0% | 25.2% |
+| TKO | 7.2% | 13.3% | 1.2% | 14.6% |
+| Tiebreak win | 36.5% | 40.4% | 13.2% | 52.9% |
+| Draw | 2.5% | 4.6% | 61.8% | 2.4% |
+| Ended on the turn limit | 39.0% | 45.0% | 75.0% | 55.3% |
+| Games with a pull | 0.2% | 39.0% | 0% | 25.2% |
+| Average turn | 22.4 | 22.9 | 22.5 | 19.1 |
+
 ## Build 5 — Brief 005, the bot cracks the fort; 7v7 gets 35 turns (18 Nov 2026)
 Rule set: **v3.4** (new; the new-game default): v3.3 with 35 turns at 7v7 (25 at 5v5). New opponent **Kit D**, now the default.
 
