@@ -1,0 +1,12 @@
+{
+ "id": "lab-dry-run",
+ "kind": "screen",
+ "brief": "008",
+ "question": "Does the lab play a small job order on GitHub and file a complete run folder, with an INDEX line and replay links that open on the board?",
+ "tags": ["lab", "dry-run", "brain5"],
+ "measures": ["evade", "light", "clock", "play"],
+ "matchups": [
+  { "name": "brain5-v-standard-5v5", "a": "brain5", "b": "standard", "rules": "v3.4", "format": "blitz5", "mix": "mixed", "games": 20 },
+  { "name": "brain5-light-mirror-5v5", "a": "brain5", "b": "brain5", "rules": "v3.4", "format": "blitz5", "mix": "light", "games": 20 }
+ ]
+}

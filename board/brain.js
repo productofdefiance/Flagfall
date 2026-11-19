@@ -98,6 +98,20 @@
   };
   BRAIN_5.plan5 = { beam: 3, perUnit: 5 };   // plans kept at each step; activations kept per unit
 
+  /* Brain 6 (Brief 007, 2026-11-18): Brain 5 with tuned weights, the clock (the tiebreak standing, weighted more as the
+     turn limit nears) and the cost of an attack that leaves no Evade step. Brain 5 stays as it was, so Brief 006's
+     numbers stay comparable. */
+  const BRAIN_6 = JSON.parse(JSON.stringify(BRAIN_5));
+  BRAIN_6.id = "brain6"; BRAIN_6.name = "Brain 6 (knows the clock)";
+  BRAIN_6.note = "Brain 5 that knows the turn limit: as the last turn nears it values winning the tiebreak (more flag damage, then fewer units lost), so the side behind pushes and the side ahead keeps its lead. Its 'Keep an Evade step' setting is off by default: switched on, Light units nearly always keep a step, but all-Light games freeze on the clock (Brief 007).";
+  Object.assign(BRAIN_6.model, {
+    clock: 20,        // value of being ahead on the tiebreak (and cost of being behind) on the last turn
+    clockTurns: 5,    // how many turns before the limit the clock starts to count; it grows to full on the last turn
+    evade: 0          // cost, per point of the target's expected hit back, of an adjacent attack that leaves no Evade step.
+                      // Off by default (Brief 007): at 1, "no legal step" fell from 32% to 7%, but all-Light mirrors ended on
+                      // the turn limit 91% (5v5) and 72% (7v7) of the time, against 52% and 40% for Brain 5. The Editor picks (F31).
+  });
+
   const LABELS = {
     unitBase: ["Unit on the field", "Value of having a unit at all, so a kill is worth this plus the unit's HP."],
     keeperBase: ["Flagkeeper bonus", "Extra value of the Flagkeeper, on either side."],
@@ -128,10 +142,13 @@
     "model.advance": ["Advance", "Value of each hex closer to the enemy flag, for every unit except the one holding our flag."],
     "model.home": ["Holder stays home", "Cost of each hex our flag holder is away from our flag."],
     "model.flagDanger": ["Empty flag danger", "Cost of leaving our flag empty where enemy units could pull it down next turn."],
+    "model.clock": ["Clock weight", "Value of being ahead on the tiebreak (more flag damage, then fewer units lost), and the cost of being behind, on the last turn. Earlier it counts for less, and nothing before the clock starts."],
+    "model.clockTurns": ["Turns of clock pressure", "How many turns before the turn limit the clock starts to count. It grows evenly to the full Clock weight on the last turn. 0 turns the clock off."],
+    "model.evade": ["Keep an Evade step", "Cost of an attack by a Light unit, next to its target, that leaves it no legal step to Evade: this many times the damage the target is expected to hit back with next turn. Higher keeps movement, Stamina and Command for the step."],
     "plan5.beam": ["Plans kept per step", "How many whole-turn plans it keeps while it builds them up, unit by unit. More is slower and looks wider."],
     "plan5.perUnit": ["Choices per unit", "How many of each unit's best activations (move, attack, brace, Evade) it combines into plans."]
   };
 
-  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5 }, BRAIN_LABELS: LABELS };
+  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5, brain6: BRAIN_6 }, BRAIN_LABELS: LABELS };
   if (typeof module !== "undefined") module.exports = api; else root.GGBrain = api;
 })(this);

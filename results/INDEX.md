@@ -1,0 +1,8 @@
+# Results index
+
+One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
+
+- 2026-11-18 · study · v3.07.00 · brief 007 · [2026-11-18_study_brain6-confirm](v3.07.00/2026-11-18_study_brain6-confirm/SUMMARY.md): No Brain 6 version passes the default bar. Best: Plans kept per step at double (53.0%, +3.8 SE) and Holder-stays-home off (52.2%, +2.8 SE), each winning only 2 of 4 formats. Keep an Evade step on freezes all-Light mirrors (91% and 72% on the turn limit, against 52% and 40% for Brain 5) while cutting no legal step from 32% to 7%. With it off, Brain 6 ties Brain 5 (50.1%) and stalls no more.
+- 2026-11-18 · screen · v3.06.00 · brief 007 · [2026-11-18_screen_brain6-screen](v3.06.00/2026-11-18_screen_brain6-screen/SUMMARY.md): Screen, 200 games per format per setting: only Plans kept per step at double beat Brain 5 by 2+ SE (54.4%). Holder-stays-home off, Keep an Evade step off and Empty-flag danger off cut the turn-limit share from 55% to about 49% without losing. Switching the clock off cost about 5 points (likely). Per-setting numbers in tables/outcomes.csv.
+- 2026-11-18 · screen · v3.05.02 · brief 008 · [2026-11-18_screen_lab-dry-run](v3.05.02/2026-11-18_screen_lab-dry-run/SUMMARY.md): brain5-v-standard-5v5: brain5 took 65.0% of games against standard (decisive 5–4, tiebreak 8–3, draws 0); brain5-light-mirror-5v5: mirror, 50.0% ended on the turn limit, A/B 8–12.
+- 2026-11-18 · release · v3.05.02 · [2026-11-18_release_release-v3-05-02](v3.05.02/2026-11-18_release_release-v3-05-02/SUMMARY.md): 5v5: mirror, 57.8% ended on the turn limit, A/B 490–482; 7v7: mirror, 44.5% ended on the turn limit, A/B 470–501.

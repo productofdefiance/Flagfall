@@ -7,6 +7,9 @@ on:
   pull_request:
   push:
     branches: [main]
+  # Brief 008: the lab starts the checks on its own results pull requests (a pull request opened by the workflow's own
+  # token starts no workflows by itself).
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -77,6 +80,30 @@ jobs:
         continue-on-error: true
         working-directory: board
         run: node tests/test_brain5.js 2
+      - name: test_brain6.js (clock and Evade positions; legal play, 2 games per format and lineup)
+        id: brain6
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_brain6.js 2
+      - name: test_version.js (game version on the board, saved matches, version check)
+        id: version
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_version.js
+      - name: test_watch.js (watch links, the board's lineups and seeded matches)
+        id: watch
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_watch.js
+      - name: test_ui.js (UI v2 - outcome bar, changed numbers, Evade in the preview, unit card text, no being on screen)
+        id: ui
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_ui.js
+      - name: lab self-test (an odd job order makes a complete run folder)
+        id: lab
+        continue-on-error: true
+        run: node sims/lab/self_test.js
       - name: test_rng.js
         id: rng
         continue-on-error: true
@@ -90,7 +117,7 @@ jobs:
       - name: Summary
         if: always()
         env:
-          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
+          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_version.js=${{ steps.version.outcome }} test_brain6.js(2-games)=${{ steps.brain6.outcome }} test_watch.js=${{ steps.watch.outcome }} test_ui.js=${{ steps.ui.outcome }} lab-self-test=${{ steps.lab.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
         run: |
           { echo "## Rule tests"; echo; echo "| Check | Result |"; echo "| --- | --- |"
             for kv in $R; do o="${kv#*=}"; echo "| ${kv%%=*} | $( [ "$o" = success ] && echo pass || echo "**FAIL** ($o)" ) |"; done
@@ -122,6 +149,25 @@ jobs:
       - name: redteam invariants (v3, 30 games)
         run: node .github/invariants-check.js 30
 
+  # Brief 008: 10 simulated games and the same 10 games opened on the board from their watch links play identical moves.
+  board-check:
+    name: simulated games replay on the board
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - name: Install a headless browser (Playwright)
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm install --no-audit --no-fund playwright@1.49.1 > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
+      - name: board_check.js (10 games)
+        env:
+          NODE_PATH: /tmp/pw/node_modules
+        run: node sims/lab/board_check.js 10
+
   compare:
     name: build number and replay hashes
     runs-on: ubuntu-latest
@@ -145,8 +191,8 @@ jobs:
         with:
           ref: ${{ steps.base.outputs.sha }}
           path: base-commit
-      # Brief 003: a change to board/ must raise the build number in board/version.js.
-      - name: Build number went up
+      # Brief 003: a change to board/ must raise the build number in board/version.js (Brief 007: and change the game version).
+      - name: Build number went up and game version changed
         id: build
         shell: bash   # bash with pipefail, so a failing check is not hidden by tee
         run: bash .github/check-build-number.sh base-commit . | tee build-number.txt
@@ -172,7 +218,7 @@ jobs:
   checks:
     name: checks
     if: always()
-    needs: [rules, invariants, redteam, compare]
+    needs: [rules, invariants, redteam, board-check, compare]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -182,14 +228,16 @@ jobs:
           INV: ${{ needs.invariants.result }}
           RED: ${{ needs.redteam.result }}
           CMP: ${{ needs.compare.result }}
+          BOARD: ${{ needs.board-check.result }}
         run: |
           mark() { [ "$1" = success ] && echo pass || echo "**FAIL** ($1)"; }
           { echo "## Quick checks"; echo; echo "| Job | Result |"; echo "| --- | --- |"
             echo "| Rule tests (incl. 40-game double-knockout count) | $(mark "$RULES") |"
             echo "| Impossible states, newest preset | $(mark "$INV") |"
             echo "| Impossible states, v3 red team | $(mark "$RED") |"
-            echo "| Build number went up (and replay hashes, report only) | $(mark "$CMP") |"
+            echo "| Simulated games replay on the board (10 games) | $(mark "$BOARD") |"
+            echo "| Build number went up, game version changed (and replay hashes, report only) | $(mark "$CMP") |"
             echo; echo "The full 400 + 400 double-knockout count runs every night (night-checks)."
           } >> "$GITHUB_STEP_SUMMARY"
-          for r in "$RULES" "$INV" "$RED" "$CMP"; do [ "$r" = success ] || { echo "A quick check failed: see the jobs above."; exit 1; }; done
+          for r in "$RULES" "$INV" "$RED" "$BOARD" "$CMP"; do [ "$r" = success ] || { echo "A quick check failed: see the jobs above."; exit 1; }; done
           echo "All quick checks passed."

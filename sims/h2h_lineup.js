@@ -1,9 +1,9 @@
 // Head-to-head as h2h_v3.js, but LINEUP_A (comma-separated card codes) sets brain A's squad.
-// LINEUP_A=HM,HM,HM,HR,HR,HA,HA node tests/h2h_lineup.js <presetId> <size 5|7> <games> <seedOffset> <brainA> <brainB>
+// LINEUP_A=HM,HM,HM,HR,HR,HA,HA node sims/h2h_lineup.js <presetId> <size 5|7> <games> <seedOffset> <brainA> <brainB>
 // A brain is an id, or "id|{json}" to layer changes on top of it (used by sweeps).
 // side.X.wins includes turn-limit tiebreak wins; side.X.tiebreak counts those separately.
-const E = require("../engine.js"), Bot = require("../bot.js");
-const { PRESETS } = require("../data.js"); const { DEFAULT_BRAINS } = require("../brain.js");
+const E = require("../board/engine.js"), Bot = require("../board/bot.js");
+const { PRESETS } = require("../board/data.js"); const { DEFAULT_BRAINS } = require("../board/brain.js");
 const [id, sizeS, gamesS, offS, aId, bId] = process.argv.slice(2);
 const size = +sizeS, games = +gamesS, off = +(offS || 0);
 const merge = (a, b) => { for (const k in b) { if (b[k] && typeof b[k] === "object" && !Array.isArray(b[k])) a[k] = merge(a[k] || {}, b[k]); else a[k] = b[k]; } return a; };
@@ -14,7 +14,7 @@ const L = (a) => a.map(([i, c, f]) => ({ id: i, card: c, fk: !!f }));
 rs.lineup = rs.switches.noKeeper
   ? L(size === 5 ? [["HM", "HM"], ["HM2", "HM"], ["HA", "HA"], ["LM", "LM"], ["LR", "LR"]] : [["HM", "HM"], ["HM2", "HM"], ["HA", "HA"], ["HR", "HR"], ["LM", "LM"], ["LA", "LA"], ["LR", "LR"]])
   : L(size === 5 ? [["FK", "HM", 1], ["HM", "HM"], ["HA", "HA"], ["LM", "LM"], ["LR", "LR"]] : [["FK", "HM", 1], ["HM", "HM"], ["HA", "HA"], ["HR", "HR"], ["LM", "LM"], ["LA", "LA"], ["LR", "LR"]]);
-const rnd = require("./rng.js")("h2h", off);   // engine generator (was a looping home-made formula)
+const rnd = require("../board/tests/rng.js")("h2h", off);   // engine generator (was a looping home-made formula)
 const blank = () => ({ wins: 0, tiebreak: 0, light: 0, lightRemoved: 0, dodgeSum: 0, dodgeN: 0, distSum: { light: 0, heavy: 0 }, distN: { light: 0, heavy: 0 }, friendsSum: 0, friendsN: 0, braces: 0, unitTurns: 0, pulls: 0, ko: 0, tko: 0 });
 const out = { id, size, games, A: aId, B: bId, draws: 0, limit: 0, turns: [], side: { A: blank(), B: blank() } };
 for (let g = 0; g < games; g++) {

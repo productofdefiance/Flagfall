@@ -1,5 +1,5 @@
 """Adds baseline.js shards (one JSON line each, any order) and prints one table row per configuration.
-python3 tests/baseline_sum.py results/*.jsonl"""
+python3 sims/baseline_sum.py results/*.jsonl"""
 import json, sys
 from collections import OrderedDict
 groups = OrderedDict()

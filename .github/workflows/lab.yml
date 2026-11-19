@@ -1,0 +1,299 @@
+# The lab (Brief 008): plays simulation job orders on GitHub instead of in a Claude session, and files every result
+# in results/ (see results/README.md).
+# - every night, after main's night checks: whatever is queued in studies/queue/;
+# - on demand: Actions tab → "lab" → "Run workflow" (optionally naming the job orders to play);
+# - on a pull request that adds a job order: plays it and commits the run folder to that pull request;
+# - on a pull request that changes the game version: a `release` run (the version's final exam), posted as a comment;
+#   after the merge it runs again on main (same seeds, same games) and is filed under that version.
+# Results reach main through an automatic pull request that may only change results/ and studies/ and merges itself
+# once the checks pass (sims/lab/deliver.sh).
+name: lab
+
+on:
+  workflow_run:
+    workflows: [night-checks]
+    types: [completed]
+    branches: [main]   # only main's night checks: a pull request's night-checks run must not start (and queue-jump) a lab run
+  workflow_dispatch:
+    inputs:
+      orders:
+        description: "Job orders to play (paths, space-separated). Leave empty to play everything in studies/queue/."
+        required: false
+        default: ""
+  pull_request:
+    paths: ["studies/queue/**", "board/version.js", "sims/lab/**"]
+  push:
+    branches: [main]
+    paths: ["board/version.js", "studies/queue/**"]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: write
+
+concurrency:
+  group: lab-${{ github.event.pull_request.number || 'main' }}
+  cancel-in-progress: false
+
+env:
+  SITE: https://productofdefiance.github.io/Flagfall/
+
+jobs:
+  plan:
+    name: plan
+    # After night checks: only the scheduled (or hand-started) run on main, not a labelled pull request's.
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      orders: ${{ steps.plan.outputs.orders }}
+      parts: ${{ steps.plan.outputs.parts }}
+      matrix: ${{ steps.plan.outputs.matrix }}
+      has_work: ${{ steps.plan.outputs.has_work }}
+      release: ${{ steps.plan.outputs.release }}
+      site: ${{ steps.where.outputs.site }}
+      trigger: ${{ steps.where.outputs.trigger }}
+      started: ${{ steps.where.outputs.started }}
+      sha: ${{ steps.sha.outputs.sha }}
+    steps:
+      # A pull request's branch as it is when this run starts, not the commit that queued it: a run that waited behind
+      # another sees the job orders that one already played (moved to studies/done) and doesn't play them again.
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref || (github.event_name == 'workflow_run' && 'main') || github.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - name: The commit this run plays
+        id: sha
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Where the results and replay links go
+        id: where
+        env:
+          EV: ${{ github.event_name }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          echo "started=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+          # A pull request's replay links open its own preview board (the play-links workflow publishes it).
+          if [ "$EV" = "pull_request" ]; then echo "site=${SITE}pr/$PR/" >> "$GITHUB_OUTPUT"; echo "trigger=pull request" >> "$GITHUB_OUTPUT";
+          elif [ "$EV" = "workflow_run" ]; then echo "site=$SITE" >> "$GITHUB_OUTPUT"; echo "trigger=night" >> "$GITHUB_OUTPUT";
+          else echo "site=$SITE" >> "$GITHUB_OUTPUT"; echo "trigger=day" >> "$GITHUB_OUTPUT"; fi
+      - name: Plan
+        id: plan
+        env:
+          EV: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          # A release runs when the game version changes: against main when a pull request opens, and on later pushes
+          # only if that push changed it (so a pull request doesn't replay its release on every push).
+          REL_BASE: ${{ (github.event.action == 'synchronize' && github.event.before) || github.event.pull_request.base.sha || github.event.before }}
+          ORDERS: ${{ github.event.inputs.orders }}
+        run: |
+          rel=""
+          if [ -n "$REL_BASE" ] && [ "$REL_BASE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$REL_BASE" 2>/dev/null; then
+            git show "$REL_BASE:board/version.js" > /tmp/version_before.js 2>/dev/null || echo "" > /tmp/version_before.js
+            rel="--release /tmp/version_before.js"
+          fi
+          if [ "$EV" = "pull_request" ]; then
+            # only the job orders this pull request adds or changes
+            ORDERS=$(git diff --name-only --diff-filter=AM "$BASE" HEAD -- 'studies/queue/*.json' | tr '\n' ' ')
+          fi
+          if [ "$EV" = "push" ]; then
+            ORDERS=$(git diff --name-only --diff-filter=AM "$BASE" HEAD -- 'studies/queue/*.json' | tr '\n' ' ')
+          fi
+          node sims/lab/plan.js --orders "$ORDERS" $rel $( [ "$EV" = "pull_request" ] || [ "$EV" = "push" ] && [ -z "$ORDERS" ] && echo "--release-only 1" )
+      - uses: actions/upload-artifact@v4
+        if: steps.plan.outputs.has_work == 'true'
+        with:
+          name: orders
+          path: studies/queue/
+          retention-days: 90
+
+  play:
+    name: play part ${{ matrix.part }}
+    needs: plan
+    if: needs.plan.outputs.has_work == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - uses: actions/download-artifact@v4
+        with:
+          name: orders
+          path: studies/queue/
+      - name: Play this part
+        run: node sims/lab/play.js --part ${{ matrix.part }} --parts ${{ needs.plan.outputs.parts }} --site "${{ needs.plan.outputs.site }}" --out parts/part-${{ matrix.part }}.jsonl ${{ needs.plan.outputs.orders }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: part-${{ matrix.part }}
+          path: parts/
+          retention-days: 90
+
+  # Release runs also run every check in README.md (full counts) and the regression hashes, for the summary. Each check
+  # gets its own machine, so the slowest one (test_v32.js at 400 + 400 games) sets the pace.
+  release-checks:
+    name: release check ${{ matrix.check.name }}
+    needs: plan
+    if: needs.plan.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        check:
+          - { name: "test_rules.js", cmd: "node tests/test_rules.js" }
+          - { name: "test_v1.js", cmd: "node tests/test_v1.js" }
+          - { name: "test_v3.js", cmd: "node tests/test_v3.js" }
+          - { name: "test_v31.js", cmd: "node tests/test_v31.js" }
+          - { name: "test_v32.js (400 + 400)", cmd: "node tests/test_v32.js 400" }
+          - { name: "test_v33.js", cmd: "node tests/test_v33.js" }
+          - { name: "test_v34.js", cmd: "node tests/test_v34.js" }
+          - { name: "test_reasons.js", cmd: "node tests/test_reasons.js" }
+          - { name: "test_kitd.js (30)", cmd: "node tests/test_kitd.js 30" }
+          - { name: "test_brain5.js (30)", cmd: "node tests/test_brain5.js 30" }
+          - { name: "test_watch.js", cmd: "node tests/test_watch.js" }
+          - { name: "test_rng.js", cmd: "node tests/test_rng.js" }
+          - { name: "test_invariants.js (100)", cmd: "node tests/test_invariants.js 100" }
+          - { name: "test_replay.js", cmd: "node tests/test_replay.js ../data/match3_log.txt" }
+          - { name: "other brain tests (30)", cmd: "for t in tests/test_brain*.js; do [ \"$(basename $t)\" = test_brain5.js ] || node $t 30 || exit 1; done" }
+          - { name: "regression hashes", cmd: "hashes" }
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - name: ${{ matrix.check.name }}
+        working-directory: board
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          NAME: ${{ matrix.check.name }}
+          CMD: ${{ matrix.check.cmd }}
+        run: |
+          mkdir -p ../out; id=$(echo "$NAME" | tr -c 'a-zA-Z0-9' '_')
+          if [ "$CMD" = "hashes" ]; then
+            : > ../out/hashes.txt
+            if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then mkdir -p /tmp/base && git -C .. archive "$BASE" board | tar -x -C /tmp/base; echo "Earlier board ($BASE):" >> ../out/hashes.txt; node tests/regress_engine.js /tmp/base/board 3 >> ../out/hashes.txt; fi
+            echo "This board:" >> ../out/hashes.txt; node tests/regress_engine.js . 3 >> ../out/hashes.txt && echo "$NAME=success" > "../out/check-$id.txt" || echo "$NAME=failure" > "../out/check-$id.txt"
+          else
+            if bash -c "$CMD"; then echo "$NAME=success" > "../out/check-$id.txt"; else echo "$NAME=failure" > "../out/check-$id.txt"; fi
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-check-${{ strategy.job-index }}
+          path: out/
+
+  merge:
+    name: merge and file the results
+    needs: [plan, play, release-checks]
+    if: always() && needs.plan.outputs.has_work == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # a pull request's own branch, so the run folder can be committed to it
+          ref: ${{ github.event.pull_request.head.ref || 'main' }}
+          token: ${{ secrets.LAB_TOKEN || github.token }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - uses: actions/download-artifact@v4
+        with:
+          name: orders
+          path: studies/queue/
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: part-*
+          path: parts/
+          merge-multiple: true
+        continue-on-error: true
+      - uses: actions/download-artifact@v4
+        if: needs.plan.outputs.release == 'true'
+        with:
+          pattern: release-check-*
+          path: release/
+          merge-multiple: true
+        continue-on-error: true
+      - name: Gather the release checks
+        if: needs.plan.outputs.release == 'true'
+        run: |
+          mkdir -p release; cat release/check-*.txt > release/checks.txt 2>/dev/null || true
+          [ -f release/hashes.txt ] || : > release/hashes.txt
+          cat release/checks.txt
+      - name: Merge
+        id: merge
+        env:
+          EV: ${{ github.event_name }}
+          PLAY: ${{ needs.play.result }}
+          COMMIT: ${{ needs.plan.outputs.sha }}
+          TRIGGER: ${{ needs.plan.outputs.trigger }}
+          ORDERS: ${{ needs.plan.outputs.orders }}
+          STARTED: ${{ needs.plan.outputs.started }}
+        run: |
+          failed=""; [ "$PLAY" = "success" ] || failed="some machines failed while playing (play: $PLAY); the totals cover only the parts that finished"
+          extra=""; [ -f release/checks.txt ] && extra="--checks release/checks.txt --hashes release/hashes.txt"
+          rel=""; other=""
+          for o in $ORDERS; do case "$(basename "$o")" in release-*) rel="$rel $o";; *) other="$other $o";; esac; done
+          # A release on a pull request is only posted as a comment: it is filed after the merge, when it runs again on
+          # main with the same seeds. Everything else is filed in results/.
+          if [ "$EV" = "pull_request" ] && [ -n "$rel" ]; then
+            mkdir -p /tmp/release-results
+            node sims/lab/merge.js --results /tmp/release-results --parts parts --trigger "$TRIGGER" --commit "$COMMIT" --started "$STARTED" ${failed:+--failed "$failed"} $extra $rel > release-written.txt
+            rm -f $rel
+          else other="$other $rel"; fi
+          : > written.txt
+          if [ -n "$(echo $other)" ]; then
+            node sims/lab/merge.js --results results --parts parts --trigger "$TRIGGER" --commit "$COMMIT" --started "$STARTED" --move studies/done ${failed:+--failed "$failed"} $extra $other | tee written.txt
+          fi
+          [ -z "$failed" ] || echo "failed=true" >> "$GITHUB_OUTPUT"
+          { echo "## Lab run"; for d in $(cat written.txt release-written.txt 2>/dev/null); do echo; cat "$d/SUMMARY.md"; done; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: run-folders
+          path: |
+            results/
+            /tmp/release-results/
+          retention-days: 90
+      - name: Post the release summary on the pull request
+        if: github.event_name == 'pull_request' && needs.plan.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          d=$(head -1 release-written.txt)
+          { echo "**Release run for this version.** It is filed under \`results/\` after the merge, when it runs again on \`main\` with the same seeds (the same games)."; echo; cat "$d/SUMMARY.md"; } > comment.md
+          gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body-file comment.md
+      - name: Deliver to the pull request
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          GH_TOKEN: ${{ secrets.LAB_TOKEN || github.token }}
+        run: |
+          bash sims/lab/deliver.sh branch "Lab - results for this pull request's job orders" "${{ github.event.pull_request.head.ref }}"
+      - name: Deliver to main
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.LAB_TOKEN || github.token }}
+        run: |
+          bash sims/lab/deliver.sh main "Lab results, $(date -u +%Y-%m-%d) (${{ needs.plan.outputs.trigger }})"
+      - name: Open an issue if the run failed
+        if: (failure() || steps.merge.outputs.failed == 'true') && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          body="A lab run failed ($(date -u +%Y-%m-%d)). Run: $RUN. Its run folder (if one was written) says what failed in SUMMARY.md. Opened automatically by the lab workflow (Brief 008)."
+          n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Lab run failed"' --json number --jq '.[0].number')
+          if [ -n "$n" ]; then gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "$body"; else gh issue create --repo "$GITHUB_REPOSITORY" --title "Lab run failed" --body "$body"; fi
