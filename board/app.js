@@ -8,9 +8,8 @@
   const V = window.GGVersion || { build: null, preview: null };   // build number: board/version.js is the only source
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-  /** Engine text as the player reads it: units are counted in unit cap (UC), never "beings" (the engine's own words
-      stay unchanged so saved matches replay identically). */
-  const say = (t) => String(t).replace(/fewer beings lost/g, "less unit cap lost").replace(/beings lost/g, "unit cap lost");
+  const UI = window.GGUi;   // UI v2 wording and preview logic (Brief 009); its say() turns engine text into what the player reads
+  const say = UI.say;
   const sideName = (t) => (t === "N" ? "North" : "South");
   const fmt = E.fmt;
   const EPS = 1e-9;
@@ -52,10 +51,24 @@
     plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
     table: '<rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 10h16"/><path d="M10 10v9"/>',
     fill: '<path d="M7 3.5 10.5 5.5v4L7 11.5 3.5 9.5v-4z"/><path d="M17 3.5 20.5 5.5v4L17 11.5 13.5 9.5v-4z"/><path d="M12 12.5 15.5 14.5v4L12 20.5 8.5 18.5v-4z" fill="currentColor"/>',
-    list: '<path d="M8 6h12"/><path d="M8 12h12"/><path d="M8 18h12"/><path d="M4 6h.01"/><path d="M4 12h.01"/><path d="M4 18h.01"/>'
+    list: '<path d="M8 6h12"/><path d="M8 12h12"/><path d="M8 18h12"/><path d="M4 6h.01"/><path d="M4 12h.01"/><path d="M4 18h.01"/>',
+    // UI v2 (Brief 009)
+    menu: '<path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/>',
+    close: '<path d="M6 6l12 12M18 6L6 18"/>',
+    lowflag: '<path d="M6 21V4"/><path d="M6 12h11l-2.5 4L17 20H6"/><path d="M3 21h6"/>',
+    book: '<path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/>',
+    home: '<path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/>',
+    maul: '<path d="M19.5 19.5 11.5 11.5"/><path d="M7.8 2.9l5.3 5.3-4.9 4.9-5.3-5.3z"/><path d="M6.3 4.4l5.3 5.3"/>',
+    support: '<circle cx="9" cy="8" r="3"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.5" cy="9" r="2.4"/><path d="M16 14.3c2.3.1 4.1 1.6 4.6 4.2"/>',
+    evade: '<path d="M14 12H3.5"/><path d="M7.5 8l-4 4 4 4"/><path d="M18 6.5v2"/><path d="M18 15.5v2"/><path d="M21.5 12h-2"/><path d="M20.5 8.5l-1.2 1.2"/><path d="M20.5 15.5l-1.2-1.2"/>',
+    armor: '<path d="M8.5 4h7l3.5 3-2 3.2V20H7V10.2L5 7z"/><path d="M10 4c.3 2.2 3.7 2.2 4 0"/><path d="M7 14h10"/>',
+    dodge: '<path d="M12 2.5 20.5 7.3v9.4L12 21.5 3.5 16.7V7.3z" stroke-dasharray="3 2.6"/>',
+    parry: '<path d="M4 20 18 6"/><path d="M15 4h5v5"/><path d="M6 15l3 3"/><path d="M20 20 6 6"/><path d="M9 4H4v5"/><path d="M18 15l-3 3"/>',
+    arrow: '<path d="M5 12h12"/><path d="M13 7l5 5-5 5"/>'
   };
-  function ic(name, size, color, extra) {
-    return `<svg width="${size || 22}" height="${size || 22}" viewBox="0 0 24 24" fill="none" stroke="${color || "currentColor"}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra || ""}>${P[name]}</svg>`;
+  P.sword = P.attack; P.spear = P.reach; P.shield = P.brace;
+  function ic(name, size, color, extra, sw) {
+    return `<svg width="${size || 22}" height="${size || 22}" viewBox="0 0 24 24" fill="none" stroke="${color || "currentColor"}" stroke-width="${sw || 1.9}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra || ""}>${P[name]}</svg>`;
   }
 
   // ---------- Storage: the artifact's database, with this browser as a fallback ----------
@@ -379,6 +392,8 @@
   const VIEWS = ["home", "setup", "teams", "lineup", "play", "units", "rules", "opponent", "match"];
   function show(v) {
     App.view = v;
+    if (v !== "lineup" && App.lineupCard) { App.lineupCard = null; renderLineupCard(); }
+    if (v !== "play" && App.ui.menu) { App.ui.menu = false; renderMenu(); }
     VIEWS.forEach((x) => ($("view-" + x).hidden = x !== v));
     if (v !== "play" && App.bot.timer) { clearTimeout(App.bot.timer); App.bot.timer = null; }
     if (v === "home") renderHome();
@@ -556,6 +571,30 @@
   }
 
   // ---------- Lineup ----------
+  /** The − / count / + stepper for one card, as on the Lineup row and the card's pinned bar. */
+  function stepper(rs, pick, code, used, size) {
+    const c = rs.cards[code], n = pick.counts[code] || 0;
+    return `<span class="stepper"><button type="button" class="step-btn" data-act="pick-minus" data-card="${code}" aria-label="One fewer ${esc(c.name)}" ${n ? "" : "disabled"}>−</button>
+        <span class="cnt" aria-label="${n} ${esc(c.name)}">${n}</span>
+        <button type="button" class="step-btn" data-act="pick-plus" data-card="${code}" aria-label="One more ${esc(c.name)}" ${used + (c.beings || 1) <= size ? "" : "disabled"}>+</button></span>`;
+  }
+  /** The unit card over the Lineup screen (Brief 009 §5): the card's base numbers, its abilities, and a pinned bar with a live stepper. */
+  function renderLineupCard() {
+    const el = $("lsheet"), dim = $("lscrim"), code = App.lineupCard;
+    if (!code || App.view !== "lineup" || !App.picks[App.lineupSide]) { el.hidden = true; dim.hidden = true; return; }
+    const s = App.setup, t = App.lineupSide, rs = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET, size = formatOf(s.format).size;
+    const c = rs.cards[code]; if (!c) { App.lineupCard = null; el.hidden = true; dim.hidden = true; return; }
+    const pick = App.picks[t], used = beingsOf(rs, pick), r = UI.rangeStat(c);
+    const keepScroll = el.querySelector(".ls-body") ? el.querySelector(".ls-body").scrollTop : 0;
+    el.innerHTML = `<div class="ls-body card-sheet">${unitCardHtml(rs, code, { team: t, closeAct: "lineup-card-close",
+        stats: [["HP", fmt(c.hp)], ["Str", fmt(c.str)], [r.label, fmt(r.val)], ["Move", fmt(c.cap)], ["Stamina", fmt(c.stamina !== undefined ? c.stamina : rs.game.stamina)]] })}</div>
+      <div class="ls-bar" style="background:var(--${t === "N" ? "northArc" : "southArc"});border-top-color:${teamColor(t)}">
+        <div><div class="ls-1">IN YOUR LINEUP</div><div class="ls-2">${used} of ${size} unit cap</div></div>${stepper(rs, pick, code, used, size)}</div>`;
+    const wasHidden = el.hidden;
+    el.hidden = false; dim.hidden = false;
+    el.querySelector(".ls-body").scrollTop = keepScroll;
+    if (wasHidden) { const b = el.querySelector('[data-act="lineup-card-close"]'); if (b) b.focus(); }
+  }
   function renderLineup() {
     const s = App.setup, t = App.lineupSide, rs = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET, size = formatOf(s.format).size;
     const pick = App.picks[t], col = teamColor(t), used = beingsOf(rs, pick);
@@ -563,12 +602,11 @@
     const cards = Object.keys(rs.cards);
     const pips = Array.from({ length: size }, (_, i) => `<span class="${i < used ? "on" : ""}" style="${i < used ? `background:${col}` : ""}"></span>`).join("");
     const rows = cards.map((code) => {
-      const c = rs.cards[code], n = pick.counts[code] || 0;
-      return `<div class="urow ${n ? "on" : ""}" style="${n ? `border-color:${col}` : ""}">${tokenInline(iconKey(rs, code), t, 30)}
-        <div style="flex:1;min-width:0"><div class="nm">${esc(c.name)}</div><div class="st">${statLine(c)}</div></div>
-        <button type="button" class="step-btn" data-act="pick-minus" data-card="${code}" aria-label="One fewer ${esc(c.name)}" ${n ? "" : "disabled"}>−</button>
-        <span class="cnt" aria-label="${n} ${esc(c.name)}">${n}</span>
-        <button type="button" class="step-btn" data-act="pick-plus" data-card="${code}" aria-label="One more ${esc(c.name)}" ${used + c.beings <= size ? "" : "disabled"}>+</button></div>`;
+      const c = rs.cards[code], n = pick.counts[code] || 0, open = App.lineupCard === code;
+      return `<div class="urow ${n || open ? "on" : ""}" style="${n || open ? `border-color:${col}` : ""}">
+        <button type="button" class="urow-open" data-act="lineup-card" data-card="${code}" aria-label="${esc(c.name)}: unit card">${tokenInline(iconKey(rs, code), t, 30)}
+        <span style="flex:1;min-width:0"><span class="nm">${esc(c.name)}</span><span class="st">${esc(UI.lineupStats(c))}</span></span></button>
+        ${stepper(rs, pick, code, used, size)}</div>`;
     }).join("");
     const last = App.lineupQueue[App.lineupQueue.length - 1] === t;
     $("view-lineup").innerHTML = `<div class="scroll" style="display:flex;flex-direction:column"><div class="wrap" style="flex:1">
@@ -578,7 +616,7 @@
         <div class="keeper">${tokenInline(iconKey(rs, pick.keeper), t, 34, true)}<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
           <select class="inp" id="keeper-pick" data-keeper="1" style="height:40px;font-weight:600">${cards.map((c) => `<option value="${c}" ${c === pick.keeper ? "selected" : ""}>${esc(rs.cards[c].name)}</option>`).join("")}</select>
           <span class="hint">${statLine(kc)}. Moves ${E.capOf({ rs }, { card: pick.keeper, fk: true })} as keeper.</span></div></div></div>` : ""}
-      <div class="field"><span class="lab">Units</span><span class="hint">${kc ? `Pick ${size - 1} more.` : `Pick ${size}. Any unit can hold the flag: place it on the flag hex when you deploy.`} Repeats are allowed.</span>${rows}</div>
+      <div class="field"><span class="lab">Units</span><span class="hint">${kc ? `Pick ${size - 1} more.` : `Pick ${size}. Any unit can hold the flag: place it on the flag hex when you deploy.`} Repeats are allowed.</span><div class="urows">${rows}</div></div>
     </div><div class="footer"><button class="btn" data-act="go" data-to="teams" style="flex:1">Back</button>
       <button class="btn primary" data-act="lineup-next" style="flex:2" ${used === size ? "" : "disabled"}>${last ? "Start match" : "Next: " + sideName(E.foeOf(t)) + " lineup"}</button></div></div>`;
   }
@@ -732,53 +770,106 @@
     fill($("edgeBottom"), below, flags.down, "below");
   }
 
-  // ---------- Drawing: top bar ----------
+  // ---------- Drawing: top bar (UI v2, Brief 009) ----------
+  /** Title row (FLAGFALL: Arena + Options) over the scoreboard. Every number is read from the engine's state. */
   function renderTopbar() {
     const st = App.st, g = st.rs.game;
-    const fl = { N: +fmt(E.flagShown(st, "N")), S: +fmt(E.flagShown(st, "S")) };
+    const fl = { N: +fmt(E.flagShown(st, "N")), S: +fmt(E.flagShown(st, "S")) };   // the rope measures flag HP only, never the pool
     const total = fl.N + fl.S, pct = total ? (100 * fl.N) / total : 50;
     const active = st.phase === "play" ? st.toMove : st.phase === "deploy" ? deployTeam() : null;
     const op = (t) => (!active || active === t ? 1 : 0.55);
     const count = (t) => st.units.filter((u) => u.team === t).length;
     const alive = (t) => (st.phase === "deploy" ? count(t) : E.alive(st).filter((u) => u.team === t).length);
-    const dots = (t) => `<div class="dots" role="img" aria-label="${alive(t)} of ${count(t)} units on the field" style="justify-content:${t === "N" ? "flex-start" : "flex-end"}">${Array.from({ length: count(t) }, (_, i) => `<span style="${i < alive(t) ? `background:${LIGHT[t]}` : "border:1px solid rgba(255,255,255,.35)"}"></span>`).join("")}</div>`;
+    const dots = (t) => `<div class="dots" role="img" aria-label="${sideName(t)}: ${alive(t)} of ${count(t)} units on the field" style="justify-content:${t === "N" ? "flex-start" : "flex-end"}">${Array.from({ length: count(t) }, (_, i) => `<span style="${i < alive(t) ? `background:${LIGHT[t]}` : `border:1px solid ${LIGHT[t]};opacity:.6`}"></span>`).join("")}</div>`;
     let centre;
     if (st.phase === "play") {
       const max = st.turn === 1 && st.toMove === st.first ? g.firstTurnCommand : g.command;
       const n = Math.max(g.command, max), left = st.cmd;
       centre = `<div class="squares" role="img" aria-label="${fmt(left)} of ${fmt(max)} Command left">${Array.from({ length: n }, (_, i) => {
-        const bg = i + 1 <= left + EPS ? "var(--card)" : i < left ? "linear-gradient(to right, var(--card) 50%, rgba(255,255,255,.16) 50%)" : i < max ? "rgba(255,255,255,.16)" : "transparent";
-        return `<span style="background:${bg}${i >= max ? ";border:1px dashed rgba(255,255,255,.18)" : ""}"></span>`;
+        const bg = i + 1 <= left + EPS ? "var(--card)" : i < left ? "linear-gradient(to right, var(--card) 50%, rgba(248,249,245,.25) 50%)" : i < max ? "rgba(248,249,245,.25)" : "transparent";
+        return `<span style="background:${bg}${i >= max ? ";border:1px dashed rgba(248,249,245,.18)" : ""}"></span>`;
       }).join("")}</div>`;
-    } else if (st.phase === "deploy") centre = `<div style="font:600 11px/1 var(--body);letter-spacing:.1em;opacity:.75">DEPLOY</div>`;
-    else centre = `<div style="font:600 11px/1 var(--body);letter-spacing:.1em;opacity:.75">FULL TIME</div>`;
+    } else if (st.phase === "deploy") centre = `<div class="tb-phase">DEPLOY</div>`;
+    else centre = `<div class="tb-phase">FULL TIME</div>`;
     const end = (t) => {
       const num = `<span class="num" style="opacity:${op(t)}">${fl[t]}</span>`, f = ic("flag", 18, LIGHT[t], t === "S" ? ' style="transform:scaleX(-1)"' : "");
       return `<div class="tb-end" role="img" aria-label="${sideName(t)} flag HP ${fl[t]}">${t === "N" ? f + num : num + f}</div>`;
     };
-    $("topbar").innerHTML = `<div class="tb-row" style="align-items:end">
-        <div class="tb-name" style="color:${LIGHT.N};opacity:${op("N")}">${esc(st.names.N)}${isBot("N") ? " · BOT" : ""}</div>
-        <button type="button" class="tb-turn num" data-act="menu" aria-label="Turn ${st.turn} of ${E.turnLimit(st)}. Open match menu">${ic("hourglass", 13)}${st.turn}/${E.turnLimit(st)}</button>
-        <div class="tb-name" style="color:${LIGHT.S};opacity:${op("S")};text-align:right">${isBot("S") ? "BOT · " : ""}${esc(st.names.S)}</div></div>
-      <div style="display:flex;align-items:center;gap:10px">${end("N")}
-        <div style="flex:1"><div class="rope" role="img" aria-label="Flag HP balance: North ${fl.N}, South ${fl.S}" style="background:linear-gradient(to right, var(--north) 0%, var(--north) ${pct.toFixed(1)}%, var(--south) ${pct.toFixed(1)}%, var(--south) 100%)"><div class="mid"></div><div class="knot" style="left:${pct.toFixed(1)}%"></div></div></div>
-        ${end("S")}</div>
-      <div class="tb-row">${dots("N")}${centre}${dots("S")}</div>
-      ${active ? `<div class="underline" role="img" aria-label="${sideName(active)} to move" style="${active === "N" ? "left" : "right"}:0;background:${LIGHT[active]}"></div>` : ""}`;
+    const who = (t) => `<span role="img" aria-label="${isBot(t) ? "Computer" : "Player"}" style="display:inline-flex">${ic(isBot(t) ? "bot" : "person", 15)}</span>`;
+    $("topbar").innerHTML = `<div class="tb-title"><div class="tb-brand">FLAGFALL<span>: Arena</span></div>
+        <button type="button" class="tb-options" id="optionsbtn" data-act="options" aria-label="Options" aria-haspopup="menu" aria-expanded="${App.ui.menu ? "true" : "false"}">${ic("menu", 22)}</button></div>
+      <div class="tb-rule"></div>
+      <div class="tb-board">
+        <div class="tb-row">
+          <div class="tb-name" style="color:${LIGHT.N};opacity:${op("N")}">${who("N")}<span>${esc(st.names.N)}</span></div>
+          <div class="tb-turn num" role="img" aria-label="Turn ${st.turn} of ${E.turnLimit(st)}">${ic("hourglass", 13)}${st.turn}/${E.turnLimit(st)}</div>
+          <div class="tb-name" style="color:${LIGHT.S};opacity:${op("S")};justify-content:flex-end"><span>${esc(st.names.S)}</span>${who("S")}</div></div>
+        <div style="display:flex;align-items:center;gap:10px">${end("N")}
+          <div style="flex:1"><div class="rope" role="img" aria-label="Flag HP balance: North ${fl.N}, South ${fl.S}" style="background:linear-gradient(to right, var(--north) 0%, var(--north) ${pct.toFixed(1)}%, var(--south) ${pct.toFixed(1)}%, var(--south) 100%)"><div class="knot" style="left:${pct.toFixed(1)}%"></div></div></div>
+          ${end("S")}</div>
+        <div class="tb-row">${dots("N")}${centre}${dots("S")}</div>
+        ${active ? `<div class="underline" role="img" aria-label="${sideName(active)} to move" style="${active === "N" ? "left" : "right"}:0;background:${LIGHT[active]}"></div>` : ""}
+      </div>`;
+  }
+
+  // ---------- Options menu (UI v2, Brief 009) ----------
+  const shortBrain = (b) => String((b && b.name) || "").replace(/\s*\(.*\)\s*$/, "");
+  function renderMenu() {
+    const el = $("menu"), dim = $("menudim"), st = App.st, m = App.match;
+    if (!App.ui.menu || App.view !== "play" || !st || !m) { el.hidden = true; dim.hidden = true; return; }
+    const fm = formatOf(m.opts.format), bots = ["N", "S"].filter(isBot);
+    const nm = (t) => (isBot(t) ? "Bot" : st.names[t]);
+    const preset = (D.PRESETS || []).some((p) => p.id === m.rs.id) || m.rs.id === D.DEFAULT_RULESET.id;
+    const rsName = preset ? m.rs.id : m.rs.name;
+    const brainNames = [...new Set(bots.map((t) => shortBrain(brainOf(t))))];
+    const botPart = bots.length ? ` · ${bots.length > 1 ? "Bots" : "Bot"}: ${esc(brainNames.join(" vs "))}` : "";
+    const ver = [V.game || null, V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null].filter(Boolean).join(" · ");
+    const live = st.phase === "play" && !isBot(st.toMove);
+    const item = (act, icon, label, cls) => `<button type="button" role="menuitem" class="mi${cls ? " " + cls : ""}" data-act="${act}">${ic(icon, 20)}<span>${esc(label)}</span></button>`;
+    el.innerHTML = `<div class="mh"><div class="mh-text">
+        <div class="mh-1">${esc(fm.label)} · ${esc(nm("N"))} vs ${esc(nm("S"))}</div>
+        <div class="mh-2">Rule set ${esc(rsName)}${botPart}</div>
+        ${m.opts.seed ? `<div class="mh-3">Seed ${esc(m.opts.seed)}</div>` : ""}
+        ${ver ? `<div class="mh-3">${esc(ver)}${m.build && V.build && m.build !== V.build ? ` (started on Build ${esc(String(m.build))})` : ""}</div>` : ""}</div>
+        <button type="button" class="iconbtn mh-close" data-act="menu-close" aria-label="Close options">${ic("close", 22)}</button></div>
+      ${item("menu-match", "list", "Match log and record")}${item("menu-rules", "book", "Rules and unit data")}${item("menu-home", "home", "Home")}
+      ${live ? `<div class="msep" role="separator"></div>${item("menu-surrender", "lowflag", `${sideName(st.toMove)} surrenders`, "danger")}` : ""}`;
+    el.hidden = false; dim.hidden = false;
+    // Open over the Options button, so ✕ lands where Options was (phone: top 4, right 4; desktop: over the centred button).
+    const btn = $("optionsbtn"), r = btn && btn.getBoundingClientRect();
+    if (r && r.width) { el.style.top = Math.max(4, r.top - 4) + "px"; el.style.right = Math.max(4, window.innerWidth - r.right - 8) + "px"; }
+  }
+  function openMenu() { App.ui.menu = true; renderTopbar(); renderMenu(); const f = $("menu").querySelector("[role=menuitem]"); if (f) f.focus(); }
+  function closeMenu(refocus) {
+    if (!App.ui.menu) return;
+    App.ui.menu = false; renderMenu(); renderTopbar();
+    if (refocus !== false) { const b = $("optionsbtn"); if (b) b.focus(); }
   }
 
   // ---------- Drawing: unit bar ----------
-  function stamSquares(u, now, cost) {
+  /** Stamina squares: filled = left, hollow = spent. `cost` (a move being previewed) shows in blue. `kind` "white"
+      draws them for the red Attack button: left after the attack white, the part this attack spends faint. */
+  function stamSquares(u, now, cost, kind) {
     const st = App.st, max = Math.max(E.baseStamina(st, u), now), out = [];   // the card's base Stamina (Brief 013)
     for (let i = 0; i < Math.ceil(max - EPS); i++) {
       const full = i + 1 <= now + EPS, half = !full && i < now - EPS;
       const afterFull = i + 1 <= now - cost + EPS, afterHalf = !afterFull && i < now - cost - EPS;
-      let cls = "sq";
-      if (cost > 0 && (full || half)) cls += afterFull ? " on" : afterHalf ? (full ? " halfcost" : " half") : full ? " cost" : " cost";
+      let cls = kind === "white" ? "sq w" : "sq";
+      if (cost > 0 && (full || half)) cls += afterFull ? " on" : afterHalf ? (full ? " halfcost" : " half") : " cost";
       else if (full) cls += " on"; else if (half) cls += " half";
       out.push(`<span class="${cls}"></span>`);
     }
-    return `<span style="display:inline-flex;gap:2px" role="img" aria-label="Stamina ${fmt(now)} of ${fmt(max)}${cost ? `, this move costs ${fmt(cost)}` : ""}">${out.join("")}</span>`;
+    return `<span class="sqs" role="img" aria-label="Stamina ${fmt(now)} of ${fmt(max)}${cost ? `, this ${kind === "white" ? "attack" : "move"} costs ${fmt(cost)}` : ""}">${out.join("")}</span>`;
+  }
+  /** Hexes of movement the unit has left now: the furthest hex the engine lets it reach (its cap on the other side's turn). */
+  function movesLeft(st, u) {
+    if (st.phase !== "play" || u.team !== st.toMove) return E.capOf(st, u);
+    if (u.done) return 0;
+    return Object.values(E.reachMap(st, u)).reduce((m, x) => Math.max(m, x.steps), 0);
+  }
+  function hpLine(hp, max, team, w) {
+    const pct = max ? Math.max(0, Math.min(100, (100 * hp) / max)) : 0;
+    return `<div style="display:flex;align-items:center;gap:7px" role="img" aria-label="HP ${fmt(hp)} of ${fmt(max)}"><div class="hpbar" style="width:${w || 70}px"><i style="width:${pct.toFixed(0)}%;background:${teamColor(team)}"></i></div><span class="num" style="font:600 13px/1 var(--mono)">${fmt(hp)}/${fmt(max)}</span></div>`;
   }
   function renderUnitbar() {
     const st = App.st, ui = App.ui, el = $("unitbar");
@@ -799,37 +890,31 @@
       el.innerHTML = `<div class="muted" style="display:flex;align-items:center;gap:8px;font:500 14px/1.3 var(--body)">${msg}</div>`;
       return;
     }
-    const c = E.card(st, sel), s = E.status(st, sel);
+    const s = E.status(st, sel);
     const mine = st.phase === "play" && sel.team === st.toMove;
     const now = mine ? s.stamNow : s.stamNext;
-    const movesLeft = mine ? (sel.done ? 0 : Math.max(0, Math.min(E.capOf(st, sel) - sel.moved, Math.floor((sel.stam + EPS) / c.hexCost)))) : E.capOf(st, sel);
     const o = selOptions();
     const cost = o && ui.ghost && o.moves[ui.ghost] ? o.moves[ui.ghost].cost : 0;
-    const status = [];
-    if (s.braced) status.push(`<span role="img" aria-label="Braced" style="display:inline-flex">${ic("brace", 16, "var(--brace)")}</span>`);
-    if (s.reloading) status.push(`<span role="img" aria-label="Reloading" style="display:inline-flex">${ic("reload", 16, "var(--attack)")}</span>`);
-    if (s.zone) status.push(`<span role="img" aria-label="Projects a Zone of Control" style="display:inline-flex;color:${teamColor(sel.team)}">${ic("zone", 16, teamColor(sel.team))}</span>`);
-    if (s.done) status.push(`<span role="img" aria-label="Turn ended" style="display:inline-flex">${ic("endunit", 16, "var(--muted)")}</span>`);
-    const pct = (100 * s.hp) / s.maxHp;
+    const mv = movesLeft(st, sel);
     el.innerHTML = `${tokenInline(iconKey(st.rs, sel.card), sel.team, 30, sel.fk)}
       <div style="display:flex;flex-direction:column;gap:6px;min-width:0;flex:1">
-        <div class="ub-name">${esc(c.name)}${sel.fk ? `<span class="muted" style="font:500 12px/1 var(--body);margin-left:6px">Flagkeeper</span>` : ""}</div>
-        <div style="display:flex;align-items:center;gap:7px" role="img" aria-label="HP ${fmt(s.hp)} of ${s.maxHp}"><div class="hpbar"><i style="width:${pct.toFixed(0)}%;background:${teamColor(sel.team)}"></i></div><span class="num" style="font:600 13px/1 var(--mono)">${fmt(s.hp)}/${s.maxHp}</span></div>
+        <div class="ub-name">${esc(UI.unitName(st, sel))}</div>
+        ${hpLine(s.hp, s.maxHp, sel.team, 70)}
       </div>
       <div class="ub-right">
         <div style="display:flex;align-items:center;gap:10px">
           <span class="ub-stat" role="img" aria-label="At ${sel.hex}">${ic("hex", 14, "var(--muted)")}${sel.hex}</span>
-          <span class="ub-stat" role="img" aria-label="Can move ${movesLeft} hexes">${ic("move", 14, "var(--muted)")}${movesLeft}</span>${s.dodge !== null && s.dodge !== undefined ? `<span class="ub-stat" role="img" aria-label="Dodge ${s.dodge}%">${ic("hex", 14, "var(--muted)", ' stroke-dasharray="2 2"')}${s.dodge}%</span>` : ""}</div>
-        <div style="display:flex;align-items:center;gap:8px">${stamSquares(sel, now, cost)}${status.join("")}</div>
+          <span class="ub-stat" role="img" aria-label="Can move ${mv} hex${mv === 1 ? "" : "es"}">→ ${mv}</span></div>
+        ${stamSquares(sel, now, cost)}
       </div>
-      <button type="button" data-act="info" aria-label="Unit information" style="flex-shrink:0;width:44px;height:44px;margin-right:-8px;border:0;background:none;display:flex;align-items:center;justify-content:center">${ic("info", 24)}</button>`;
+      <button type="button" class="ub-info" data-act="info" aria-label="Unit information">${ic("info", 24)}</button>`;
   }
 
   // ---------- Drawing: action bar ----------
   function renderActions() {
     const st = App.st, ui = App.ui, el = $("actions");
     // A greyed-out button stays tappable when it has a reason: the tap shows why (Brief 005). Reasons come from the engine.
-    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}>${ic(icon, 22)}<span>${label}</span></button>`;
+    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span></button>`;
     if (st.phase === "deploy") {
       const t = deployTeam(), mine = st.units.filter((u) => u.team === t);
       const placed = mine.filter((u) => ui.placements[u.uid]).length;
@@ -839,25 +924,104 @@
     }
     const human = st.phase === "play" && !isBot(st.toMove);
     const o = selOptions(), sel = o && E.unitByUid(st, ui.sel);
+    const turnRow = `<div class="arow"><span class="alabel">TURN</span>
+        ${b("undo", "undo", "Undo", { dis: !canUndo(), why: human ? undoWhy() : null })}
+        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done), why: ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel).done : human ? "Select one of your units first" : null })}
+        ${b("end", "endturn", ui.confirmEnd ? "Confirm" : "End turn", { dis: !human, cls: ui.confirmEnd ? "confirm" : "primary" })}</div>`;
+    // Attack preview open: the UNIT row is Attack (3 parts) and Cancel (1).
+    const sh = ui.sheet;
+    if (sh && sh.kind === "attack" && o && o.attacks.some((x) => x.target === sh.target)) {
+      const u = E.unitByUid(st, ui.sel), t = E.unitByUid(st, sh.target), cost = st.rs.game.attackCost;
+      el.innerHTML = `<div class="arow"><span class="alabel">UNIT</span>
+          <button type="button" class="act go" data-act="attack-confirm" style="flex:3 1 0">${ic(isReachShot(st, u, t) ? "spear" : "sword", 22)}
+            <span class="go-text"><span class="go-1">${isReachShot(st, u, t) ? "Reach" : "Attack"}</span><span class="go-2">−${fmt(cost)} Stamina ${stamSquares(u, u.stam, cost, "white")}</span></span></button>
+          <button type="button" class="act" data-act="sheet-close" style="flex:1 1 0">${ic("close", 22)}<span>Cancel</span></button></div>${turnRow}`;
+      return;
+    }
     const nAtt = o ? targetsFor(o, "attack").length : 0, nReach = o ? targetsFor(o, "reach").length : 0;
     const why = ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel) : null;
     const pick = human ? "Select one of your units first" : null;
+    const su = ui.sel && E.unitByUid(st, ui.sel), ss = su && su.hp > 0 ? E.status(st, su) : null;
+    const hasReach = su && su.hp > 0 && E.card(st, su).trait === "reach";
+    const reloading = !!(ss && ss.reloading && su.team === st.toMove);
     el.innerHTML = `<div class="arow"><span class="alabel">UNIT</span>
-        ${b("arm-attack", "attack", "Attack", { dis: !nAtt, why: why ? why.attack : pick, cls: ui.armed === "attack" ? "on" : "", pressed: ui.armed === "attack" })}
-        ${b("arm-reach", "reach", "Reach", { dis: !nReach, why: why ? why.reach : pick, cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" })}
-        ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: why ? why.brace : pick })}
-        ${b("special", "special", "Special", { dis: true, why: why ? why.special : "No special actions in this rule set yet" })}</div>
-      <div class="arow"><span class="alabel">TURN</span>
-        ${b("undo", "undo", "Undo", { dis: !canUndo(), why: human ? undoWhy() : null })}
-        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done), why: why ? why.done : pick })}
-        ${b("end", "endturn", ui.confirmEnd ? "Confirm" : "End turn", { dis: !human, cls: ui.confirmEnd ? "confirm" : "primary" })}</div>`;
+        ${b("arm-attack", "attack", "Attack", { dis: !nAtt, why: why ? why.attack : pick, cls: (ui.armed === "attack" ? "on" : "") + (reloading ? " reloading" : ""), pressed: ui.armed === "attack", dot: reloading ? "red" : "", aria: reloading ? "Attack, reloading" : "" })}
+        ${hasReach ? b("arm-reach", "reach", "Reach", { dis: !nReach, why: why ? why.reach : pick, cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" }) : ""}
+        ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: why ? why.brace : pick, cls: ss && ss.braced ? "braced" : "", dot: ss && ss.braced ? "blue" : ss && ss.bracedLast ? "ring" : "", aria: ss && ss.braced ? "Brace, braced" : ss && ss.bracedLast ? "Brace, braced last turn" : "" })}
+        ${b("special", "special", "Special", { dis: true, why: why ? why.special : "No special actions in this rule set yet" })}</div>${turnRow}`;
   }
 
-  // ---------- Drawing: sheet (attack, pull, unit info, result) ----------
+  /** A new attack preview on `target`. The key starts closed; the first two previews a player opens show
+      "Pull up for the key" (counted in this board's local settings). Switching target keeps the key as it was. */
+  function attackSheet(target) {
+    const prev = App.ui.sheet;
+    if (prev && prev.kind === "attack") return { kind: "attack", target, hint: prev.hint };
+    App.ui.keyOpen = false;
+    let seen = 0;
+    try { seen = +Store.local("keyHintSeen") || 0; Store.local("keyHintSeen", seen + 1); } catch (e) { seen = 2; }
+    return { kind: "attack", target, hint: seen < 2 };
+  }
+  // ---------- Drawing: sheet (attack preview, pull, unit card, result) ----------
+  /** Is the wide (desktop) layout on? Then sheets sit in the right-hand column instead of over the field. */
+  const wide = () => window.matchMedia && window.matchMedia("(min-width: 900px)").matches;
+  function placeSheet() {
+    const el = $("sheet"), want = wide() ? $("view-play") : $("fieldwrap");
+    if (el.parentNode !== want) want.appendChild(el);
+  }
+  const statHtml = (s, right) => {
+    const icon = ic(s.key, 14, s.red ? "var(--attack)" : "var(--muted)");
+    const num = s.old !== undefined
+      ? `<span class="fo-old">${esc(s.old)}</span><span class="fo-new${s.tone === "hurt" ? " hurt" : ""}">${esc(s.val)}</span>`
+      : `<span class="fo-num${s.red ? " hurt" : ""}">${esc(s.val)}</span>`;
+    return `<span class="fo-stat" role="img" aria-label="${esc(s.label)} ${s.old !== undefined ? esc(s.old) + " now " : ""}${esc(s.val)}">${right ? num + icon : icon + num}</span>`;
+  };
+  function faceSide(st, side, right) {
+    const u = E.unitByUid(st, side.uid), pct = side.maxHp ? Math.max(0, Math.min(100, (100 * side.hp) / side.maxHp)) : 0;
+    return `<div class="fo-side${right ? " right" : ""}">
+      <div class="fo-row">${tokenInline(iconKey(st.rs, u.card), side.team, 24, u.fk)}<span class="fo-name">${esc(side.name)}</span></div>
+      <div class="fo-row" role="img" aria-label="HP ${fmt(side.hp)} of ${fmt(side.maxHp)}"><span class="fo-hp">${fmt(side.hp)}/${fmt(side.maxHp)}</span><div class="fo-bar"><i style="width:${pct.toFixed(0)}%;background:${teamColor(side.team)};${right ? "margin-left:auto" : ""}"></i></div></div>
+      <div class="fo-row fo-stats">${side.stats.map((x) => statHtml(x, right)).join("")}</div></div>`;
+  }
+  function renderPreview(st, u, t, a) {
+    const ui = App.ui, pv = UI.attackPreview(st, u, t, a);
+    const left = pv.attacker.team === "N" ? pv.attacker : pv.target, right = left === pv.attacker ? pv.target : pv.attacker;
+    const pointsLeft = pv.attacker.team === "S";
+    const n = a.cases.length;
+    const segs = pv.segments;
+    const cell = (sg, cls, style, html) => `<div class="${cls}" style="grid-column:span ${sg.slots};${style}">${html}</div>`;
+    const row = (rowCls, fn) => `<div class="ob-row ${rowCls}" style="grid-template-columns:repeat(${n}, minmax(0, 1fr))">${segs.map(fn).join("")}</div>`;
+    const outcome = `<div class="ob" role="img" aria-label="Outcomes: ${segs.map((sg) => `${UI.pct1(sg.p)} −${fmt(sg.dmg)}${sg.kills ? (pv.pooled ? " brings the flag down" : " kills") : ""}`).join(", ")}">
+      ${row("ob-p", (sg) => cell(sg, "", "", UI.pct1(sg.p)))}
+      ${row("ob-bar", (sg, i) => cell(sg, (i === 0 ? "first " : "") + (i === segs.length - 1 ? "last" : ""), `background:${sg.kills ? "var(--attack)" : `rgba(31,36,33,${sg.opacity.toFixed(3)})`}`, ""))}
+      ${row("ob-d", (sg) => cell(sg, sg.kills ? "kill" : "", "", `−${fmt(sg.dmg)}`))}</div>`;
+    const keyOpen = !!ui.keyOpen;
+    const key = keyOpen ? `<div class="key" id="attackkey"><div class="key-h">IN THIS ATTACK</div>${pv.rows.map((r) => `<div class="key-row">${ic(r.icon, 18, r.red || r.icon === "parry" ? "var(--attack)" : "var(--ink)")}<div>
+        <div class="key-1${r.red ? " hurt" : ""}">${esc(r.name)}</div><div class="key-2">${esc(r.means)}</div><div class="key-3">${esc(r.why)}</div></div></div>`).join("") || `<div class="key-3">Nothing changes the numbers in this attack.</div>`}</div>` : "";
+    const hint = !keyOpen && ui.sheet.hint ? `<div class="key-hint">Pull up for the key</div>` : "";
+    return `<button type="button" class="handle" data-act="key-toggle" aria-expanded="${keyOpen}" aria-controls="attackkey" aria-label="${keyOpen ? "Hide" : "Show"} the key"><span></span></button>${hint}${key}
+      <div class="fo">${faceSide(st, left, false)}
+        <div class="fo-mid"><span>${esc(left === pv.attacker ? pv.from : pv.to)}</span>${ic("arrow", 16, "var(--attack)", pointsLeft ? ' style="transform:scaleX(-1)"' : "", 2.2)}<span>${esc(left === pv.attacker ? pv.to : pv.from)}</span></div>
+        ${faceSide(st, right, true)}</div>
+      ${outcome}`;
+  }
+  function chip(label, color, dot) { return `<span class="chip" style="color:${color};border-color:${color}"><i style="${dot === "hollow" ? `border:2px solid ${color}` : `background:${color}`}"></i>${esc(label)}</span>`; }
+  /** The full unit card (in a match, or on the Lineup screen when `lineup` is given). Text from ui.js, numbers from the engine or the card. */
+  function unitCardHtml(rs, code, opt) {
+    const c = rs.cards[code], team = opt.team, col = teamColor(team), r = UI.rangeStat(c);
+    const head = `<div class="uc-head">${tokenInline(iconKey(rs, code), team, 34, opt.fk)}<div style="flex:1;min-width:0">
+        ${opt.side ? `<div class="uc-side" style="color:${col}">${esc(opt.side)}</div>` : ""}<div class="uc-name">${esc(opt.name || c.name)}</div><div class="uc-type">${esc(UI.cardTypeLine(c))}</div></div>
+        <button type="button" class="iconbtn" data-act="${opt.closeAct || "sheet-close"}" aria-label="Close unit card">${ic("close", 22)}</button></div>`;
+    const stats = opt.stats.map(([label, v]) => `<div><b class="num">${esc(String(v))}</b><span>${esc(label)}</span></div>`).join("");
+    const secs = UI.cardSections(rs, code).map((s) => `<div class="uc-sec"><div class="uc-sh">${esc(s.head.toUpperCase())}<span>${esc(s.sub)}</span></div>
+      ${s.items.map((i) => `<div class="uc-ab"><div class="uc-an">${esc(i.name)}${i.cost ? `<span class="cost">Cost</span>` : ""}</div><div class="uc-at">${esc(i.text)}</div></div>`).join("")}</div>`).join("");
+    return `<div class="grab" aria-hidden="true"></div>${head}${opt.status || ""}<div class="uc-stats">${stats}</div>${secs}`;
+  }
   function renderSheet() {
     const st = App.st, ui = App.ui, el = $("sheet"), sc = $("scrim"), sh = ui.sheet;
+    placeSheet();
+    el.className = "";
     if (!sh || App.ui.cover) { el.hidden = true; sc.hidden = true; return; }
-    el.hidden = false; sc.hidden = sh.kind === "over";
+    el.hidden = false; sc.hidden = sh.kind === "over" || wide();
     const g = st.rs.game, grab = `<div class="grab" aria-hidden="true"></div>`;
     const two = !!(st.rs.switches && st.rs.switches.dice2d6);
     const diceRow = (v, dodge) => `<div class="dice">${E.dieCases(st).map(([d, p, label]) => `<div><small>${two ? "" : "Die "}${label}${two ? ` · ${Math.round(p * 1000) / 10}%` : ""}</small><b>${fmt(E.applyDie(st, v, d, dodge))}</b></div>`).join("")}</div>`;
@@ -865,22 +1029,9 @@
     if (sh.kind === "attack" && o) {
       const a = o.attacks.find((x) => x.target === sh.target);
       if (!a) { ui.sheet = null; el.hidden = true; sc.hidden = true; return; }
-      const t = E.unitByUid(st, a.target), reach = isReachShot(st, u, t);
-      const kc = a.killChance || 0;
-      const verb = a.pooled ? "Brings the flag down (KO)" : "Kills";
-      const kill = kc >= 1 - 1e-9 ? `${verb} on any roll.` : kc <= 0 ? (a.pooled ? "Cannot bring the flag down this turn." : "Cannot kill this turn.") : `${verb} ${Math.round(kc * 1000) / 10}% of the time.`;
-      let warn = "";
-      if (a.capture && a.high >= t.hp) warn += `<p class="ok">If it kills, ${esc(u.id)} moves into ${a.capture.hex}${a.capture.adjacentEnemies.length ? `, next to ${esc(a.capture.adjacentEnemies.join(", "))}` : ""}.</p>`;
-      if (a.capture && a.capture.spike && a.high >= t.hp) warn += `<p class="warn">A braced Anti-Cavalry there deals ${st.rs.spikeDamage}.</p>`;
-      if (a.evade && a.evade.hexes > 0) warn += `<p class="ok">Evade after: up to ${a.evade.hexes} hex${a.evade.hexes === 1 ? "" : "es"}${kc > 0 ? ` if ${esc(t.id)} survives` : ""}${a.evade.unsure ? ` (and if ${esc(u.id)} survives the parry)` : ""}.</p>`;
-      else if (a.evade) warn += `<p class="warn">No Evade after this attack: ${esc(a.evade.reason)}.</p>`;
-      const pv = E.parryPreview(st, u, t);
-      if (pv && pv.used) warn += `<p class="ok">No parry: ${esc(t.id)} has already parried this turn.</p>`;
-      else if (pv) warn += `<p class="warn">Parry: ${esc(u.id)} takes ${fmt(pv.amount)}${pv.ifSurvives ? ` if ${esc(t.id)} survives the hit` : ""}.</p>`;
-      el.innerHTML = `${grab}<div style="font:700 20px/1.1 var(--display);letter-spacing:.02em">${esc(u.id)} ${reach ? "reaches" : "attacks"} ${esc(t.id)} <span class="muted" style="font:500 13px/1 var(--body)">${u.hex} → ${t.hex} · ${a.pooled ? `holds the flag: pool ${fmt(a.effHp)} (flag ${fmt(E.flagShown(st, t.team))} + ${fmt(E.hpShown(st, t))})` : `target HP ${fmt(E.hpShown(st, t))}`}</span></div>
-        <div class="calc">${esc(a.parts.join(" · "))} = <b>${fmt(a.value)}</b></div>${diceRow(a.value, a.dodge)}
-        <p class="ok" style="font-weight:600">${kill}</p>${warn}
-        <div class="row" style="flex-wrap:nowrap"><button class="btn" data-act="sheet-close" style="flex:1">Cancel</button><button class="btn go" data-act="attack-confirm" style="flex:2">${reach ? "Reach" : "Attack"}</button></div>`;
+      const t = E.unitByUid(st, a.target);
+      el.className = "preview"; sc.hidden = true;   // the field stays live under the preview: tap another red ring to switch target
+      el.innerHTML = renderPreview(st, u, t, a);
     } else if (sh.kind === "pull" && o && o.pull) {
       const left = g.poleHP - st.pole[E.foeOf(u.team)];
       el.innerHTML = `${grab}<div style="font:700 20px/1.1 var(--display);letter-spacing:.02em">${esc(u.id)} pulls the ${sideName(E.foeOf(u.team))} flag <span class="muted" style="font:500 13px/1 var(--body)">flag HP ${left}</span></div>
@@ -889,15 +1040,18 @@
     } else if (sh.kind === "info") {
       const x = E.unitByUid(st, sh.uid);
       if (!x) { ui.sheet = null; renderSheet(); return; }
-      const c = E.card(st, x);
-      const rows = [["HP", `${fmt(E.hpShown(st, x))} of ${x.maxHp}`], ["Strength", c.str], ["Range", c.range], ["Armor", c.armor], ["Dodge", c.dodge ? (E.status(st, x).dodge !== null ? `${E.status(st, x).dodge}% now (${st.rs.game.dodgePerHex || 5}% per open hex)` : "Yes") : "No"],
-        ["Movement", `${E.capOf(st, x)} hexes, ${fmt(c.hexCost)} Stamina each`], ["Trait", D.TRAITS[c.trait] || c.trait], ["When braced", D.BRACES[c.brace] || c.brace],
-        ["Zone of Control", c.zone ? "Always" : c.brace === "zone" ? "When braced" : "No"], ["Reloads", c.reload ? "Yes, skips the turn after it attacks" : "No"]];
-      const swaps = o && x.uid === ui.sel ? o.swaps : [];
-      el.innerHTML = `${grab}<div class="row" style="flex-wrap:nowrap">${tokenInline(iconKey(st.rs, x.card), x.team, 30, x.fk)}<div style="font:700 20px/1.1 var(--display)">${esc(c.name)} <span class="muted" style="font:500 13px/1 var(--body)">${esc(x.id)} · ${sideName(x.team)}${x.fk ? " · Flagkeeper" : ""}</span></div></div>
-        <table class="data" style="font-size:13px">${rows.map(([k, v]) => `<tr><th style="background:none">${k}</th><td style="white-space:normal">${esc(v)}</td></tr>`).join("")}</table>
-        ${swaps.length ? `<div class="row">${swaps.map((uid) => { const f = E.unitByUid(st, uid); return `<button class="btn" data-act="swap" data-with="${uid}">Swap with ${esc(f.id)}</button>`; }).join("")}</div><p class="note">Or drag ${esc(x.id)} onto a friend next to it.</p>` : ""}
-        <button class="btn" data-act="sheet-close">Close</button>`;
+      const s = E.status(st, x), mine = st.phase === "play" && x.team === st.toMove, c = E.card(st, x), r = UI.rangeStat(c);
+      const chips = [];
+      if (x.hp > 0) {
+        if (s.reloading) chips.push(chip("Reloading", "var(--attack)"));
+        if (s.braced) chips.push(chip("Braced", "var(--brace)"));
+        else if (s.bracedLast) chips.push(chip("Braced last turn", "var(--brace)", "hollow"));
+        if (s.holder) chips.push(chip("Holding the flag", teamColor(x.team)));
+      }
+      const status = `<div class="uc-status">${hpLine(s.hp, s.maxHp, x.team, 90)}${x.hp > 0 ? stamSquares(x, mine ? s.stamNow : s.stamNext, 0) : ""}${chips.join("")}</div>`;
+      el.className = "card-sheet";
+      el.innerHTML = unitCardHtml(st.rs, x.card, { team: x.team, fk: x.fk, side: `${st.names[x.team]}${x.fk ? " · Flagkeeper" : ""}`, name: UI.unitName(st, x), status,
+        stats: [["Str", fmt(c.str)], [r.label, fmt(r.val)], ["Move", fmt(E.capOf(st, x))]] });
     } else if (sh.kind === "over") {
       const r = st.result;
       el.innerHTML = `${grab}<h2>${r.winner ? esc(st.names[r.winner]) + " wins" : "Draw"}</h2><p class="note">${esc(say(r.how))} on turn ${st.turn}. Saved under Matches.</p>
@@ -947,7 +1101,7 @@
 
   function render() {
     if (App.view !== "play" || !App.st) return;
-    renderTopbar(); renderBoard(); renderUnitbar(); renderActions(); renderSheet(); renderSide(); renderCover(); renderHint();
+    renderTopbar(); renderBoard(); renderUnitbar(); renderActions(); renderSheet(); renderSide(); renderCover(); renderHint(); renderMenu();
     $("namesbtn").setAttribute("aria-pressed", App.ui.names ? "true" : "false");
     if (App.ui.scrollTo) { const h = App.ui.scrollTo; App.ui.scrollTo = null; requestAnimationFrame(() => { revealHex(h, true); updateEdges(); }); }
     else requestAnimationFrame(updateEdges);
@@ -980,7 +1134,7 @@
     if (o) {
       if (here && here.team !== sel.team) {
         const a = targetsFor(o, ui.armed).find((x) => x.target === here.uid);
-        if (a) { ui.sheet = { kind: "attack", target: here.uid }; ui.ghost = null; render(); revealAbove(sel.hex); return; }
+        if (a) { ui.sheet = attackSheet(here.uid); ui.ghost = null; render(); revealAbove(sel.hex); return; }
       }
       if (hex === E.FLAG[E.foeOf(sel.team)] && o.pull) { ui.sheet = { kind: "pull" }; ui.ghost = null; ui.armed = null; render(); revealAbove(sel.hex); return; }
       if (!here && !ui.armed && o.moves[hex]) {
@@ -1037,7 +1191,7 @@
       if (o.swaps.includes(here.uid)) { act({ type: "swap", uid: d.uid, with: here.uid }); return; }
       toast("Swap needs a friend next to it and the Stamina for both moves.");
     } else if (here && targetsFor(o).some((a) => a.target === here.uid)) {
-      App.ui.sheet = { kind: "attack", target: here.uid }; render(); revealAbove(E.unitByUid(st, d.uid).hex); return;
+      App.ui.sheet = attackSheet(here.uid); render(); revealAbove(E.unitByUid(st, d.uid).hex); return;
     } else if (here) toast(`${E.unitByUid(st, d.uid).id} cannot attack that unit from here.`);
     else toast(`${E.unitByUid(st, d.uid).id} cannot reach ${h}.`);
     render();
@@ -1056,7 +1210,7 @@
         if (App.view === "opponent") { App.brainEdit = E.clone(App.brains[App.brainId]); App.brainDirty = false; }
         show(to); break;
       }
-      case "go-units": show("units"); break;
+      case "go-units": if (App.view !== "rules") App.sheetBack = el.dataset.from || "home"; show("units"); break;
       case "go-rules": show("rules"); break;
       case "go-opponent": show("opponent"); break;
       case "go-match": loadMatches(); show("match"); break;
@@ -1086,8 +1240,8 @@
       }
       case "setup-next": setupNext(); break;
       case "teams-next": teamsNext(); break;
-      case "pick-plus": { const p = App.picks[App.lineupSide]; p.counts[el.dataset.card] = (p.counts[el.dataset.card] || 0) + 1; renderLineup(); break; }
-      case "pick-minus": { const p = App.picks[App.lineupSide]; p.counts[el.dataset.card] = Math.max(0, (p.counts[el.dataset.card] || 0) - 1); renderLineup(); break; }
+      case "pick-plus": { const p = App.picks[App.lineupSide]; p.counts[el.dataset.card] = (p.counts[el.dataset.card] || 0) + 1; renderLineup(); renderLineupCard(); break; }
+      case "pick-minus": { const p = App.picks[App.lineupSide]; p.counts[el.dataset.card] = Math.max(0, (p.counts[el.dataset.card] || 0) - 1); renderLineup(); renderLineupCard(); break; }
       case "lineup-next": lineupNext(); break;
       case "cover-ok": $("cover").hidden = true; if (App.view === "play") { ui.cover = null; render(); } break;
       case "names": ui.names = !ui.names; Store.local("names", ui.names); renderBoard(); $("namesbtn").setAttribute("aria-pressed", ui.names ? "true" : "false"); break;
@@ -1120,7 +1274,7 @@
         const kind = a === "arm-attack" ? "attack" : "reach";
         ui.armed = ui.armed === kind ? null : kind; ui.ghost = null; ui.sheet = null;
         const o = selOptions(), list = o ? targetsFor(o, kind) : [];
-        if (ui.armed && list.length === 1) ui.sheet = { kind: "attack", target: list[0].target };
+        if (ui.armed && list.length === 1) ui.sheet = attackSheet(list[0].target);
         render(); if (ui.sheet) revealAbove(E.unitByUid(st, ui.sel).hex); break;
       }
       case "attack-confirm": if (ui.sheet && ui.sheet.kind === "attack") act({ type: "attack", uid: ui.sel, target: ui.sheet.target }); break;
@@ -1134,16 +1288,21 @@
         act({ type: "end" }); break;
       case "info": if (ui.sel) { ui.sheet = { kind: "info", uid: ui.sel }; render(); } break;
       case "sheet-close": ui.sheet = null; ui.armed = null; render(); break;
-      case "menu": {
-        const live = st.phase !== "over";
-        const v = await dialog(`<h2>Turn ${st.turn}</h2><p class="note">${esc(st.names.N)} vs ${esc(st.names.S)} · ${esc(App.match.rs.name)}${esc(buildNote(App.match))}${App.match.opts.seed ? ` · seed <span class="num" style="white-space:nowrap">${esc(App.match.opts.seed)}</span>` : ""}</p>
-          <button class="btn primary" data-dlg="close">Back to the field</button><button class="btn" data-dlg="match">Match log and record</button><button class="btn" data-dlg="home">Home</button>
-          ${live && !isBot(st.toMove) ? `<button class="btn danger" data-dlg="surrender">${esc(sideName(st.toMove))} surrenders</button>` : ""}`);
-        if (v === "match") show("match");
-        else if (v === "home") show("home");
-        else if (v === "surrender" && (await confirmBox(`${sideName(st.toMove)} surrenders?`, "The match ends and is saved.", "Surrender", "danger"))) act({ type: "surrender", team: st.toMove });
+      // Options menu (Brief 009)
+      case "options": if (ui.menu) closeMenu(); else openMenu(); break;
+      case "menu-close": closeMenu(); break;
+      case "menu-match": closeMenu(false); show("match"); break;
+      case "menu-rules": closeMenu(false); App.sheetBack = "play"; show("units"); break;
+      case "menu-home": closeMenu(false); show("home"); break;
+      case "menu-surrender": {
+        closeMenu();
+        if (st.phase === "play" && !isBot(st.toMove) && (await confirmBox(`${sideName(st.toMove)} surrenders?`, "The match ends and is saved.", "Surrender", "danger"))) act({ type: "surrender", team: st.toMove });
         break;
       }
+      case "key-toggle": if (!App.ui.keySwiped) { ui.keyOpen = !ui.keyOpen; renderSheet(); } App.ui.keySwiped = false; break;
+      // Lineup unit card (Brief 009)
+      case "lineup-card": App.lineupCard = el.dataset.card; renderLineupCard(); break;
+      case "lineup-card-close": App.lineupCard = null; renderLineupCard(); break;
       case "surrender": if (await confirmBox(`${sideName(st.toMove)} surrenders?`, "The match ends and is saved.", "Surrender", "danger")) { act({ type: "surrender", team: st.toMove }); show("play"); } break;
       case "copy-record": {
         const rec = recordText(App.match, App.st.result);
@@ -1257,7 +1416,7 @@
   function renderUnits() {
     const rs = App.edit, el = $("view-units");
     if (!rs) { el.innerHTML = ""; return; }
-    let h = `<div class="scroll"><div class="wrap wide">${backbar("Unit data")}${sheetTabs("units")}${rsBar()}`;
+    let h = `<div class="scroll"><div class="wrap wide">${backbar("Unit data", App.sheetBack === "play" && App.st ? "play" : "home")}${sheetTabs("units")}${rsBar()}`;
     h += `<div class="tablewrap"><table class="data"><thead><tr><th>Code</th><th>Name</th>${CARD_FIELDS.map((f) => `<th>${f[1]}</th>`).join("")}</tr></thead><tbody>`;
     for (const code in rs.cards) {
       const c = rs.cards[code];
@@ -1281,7 +1440,7 @@
   function renderRules() {
     const rs = App.edit, el = $("view-rules");
     if (!rs) { el.innerHTML = ""; return; }
-    let h = `<div class="scroll"><div class="wrap wide">${backbar("Rules")}${sheetTabs("rules")}${rsBar()}`;
+    let h = `<div class="scroll"><div class="wrap wide">${backbar("Rules", App.sheetBack === "play" && App.st ? "play" : "home")}${sheetTabs("rules")}${rsBar()}`;
     h += `<div class="formrow"><label>Set name<input type="text" data-top="name" value="${esc(rs.name)}" style="width:240px"></label><label>Note<input type="text" data-top="note" value="${esc(rs.note || "")}" style="width:min(520px,80vw)"></label></div>`;
     h += `<div class="tablewrap"><table class="data"><thead><tr><th>Number</th><th>Value</th><th>What it does</th></tr></thead><tbody>`;
     // Brief 013: v3.4 on stores "Brace tiredness"; older rule sets keep "Stamina after bracing". Show only the one a set has.
@@ -1454,7 +1613,27 @@
       if (App.brainDirty) { e.target.value = App.brainId; toast("Save or revert your changes before switching brains."); return; }
       App.brainId = e.target.value; App.brainEdit = E.clone(App.brains[App.brainId]); renderOpponent();
     });
-    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && App.view === "play" && App.ui.sheet && App.ui.sheet.kind !== "over") { App.ui.sheet = null; App.ui.armed = null; render(); } });
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      if (App.view === "play" && App.ui.menu) { closeMenu(); return; }
+      if (App.view === "lineup" && App.lineupCard) { const code = App.lineupCard; App.lineupCard = null; renderLineupCard(); const b = document.querySelector(`[data-act="lineup-card"][data-card="${code}"]`); if (b) b.focus(); return; }
+      if (App.view === "play" && App.ui.sheet && App.ui.sheet.kind !== "over") { App.ui.sheet = null; App.ui.armed = null; render(); }
+    });
+    // Options menu: tapping the dim closes it. Lineup card: tapping the dim closes it.
+    $("menudim").addEventListener("click", () => closeMenu());
+    $("lscrim").addEventListener("click", () => { App.lineupCard = null; renderLineupCard(); });
+    // The attack preview's grab handle: drag up opens the key, drag down closes it; a tap toggles it (Brief 009 §3a).
+    let keyDrag = null;
+    document.addEventListener("pointerdown", (e) => { const h = e.target.closest && e.target.closest("#sheet .handle"); keyDrag = h ? { y: e.clientY } : null; });
+    document.addEventListener("pointerup", (e) => {
+      if (!keyDrag) return;
+      const dy = e.clientY - keyDrag.y; keyDrag = null;
+      if (Math.abs(dy) < 16) return;   // a tap: the click handler toggles
+      App.ui.keySwiped = true; setTimeout(() => (App.ui.keySwiped = false), 400);
+      const open = dy < 0;
+      if (App.ui.keyOpen !== open) { App.ui.keyOpen = open; renderSheet(); }
+    });
+    window.addEventListener("resize", () => { if (App.view === "play" && App.st) renderSheet(); });
     window.addEventListener("beforeunload", (e) => { if (App.dirty || App.brainDirty) { e.preventDefault(); e.returnValue = ""; } });
   }
 

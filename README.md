@@ -8,7 +8,7 @@ This repository holds the browser playtest board (rules engine and computer oppo
 
 | Folder / file | What it is |
 | --- | --- |
-| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1, v3.2, v3.3, v3.4). `bot.js` and `brain.js` are the computer opponent. `app.js`, `skin.js` and `index.html` are the screen. `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
+| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1, v3.2, v3.3, v3.4). `bot.js` and `brain.js` are the computer opponent. `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
 | `board/tests/` | Automatic pass/fail checks (see below). |
 | `sims/` | Scripts that play games and make results. `sims/lab/` is the lab: it plays job orders on GitHub and files the results (Brief 008). The older scripts (`baseline.js`, `h2h_*.js`, ...) still deal their old seeds, so old studies can be re-run. |
 | `results/` | Every simulation result, one folder per run (`results/README.md` says how). Start at `results/INDEX.md`. The studies from before the lab are in `results/pre-v3.05.00/`. |
@@ -52,6 +52,7 @@ node tests/test_reasons.js
 node tests/test_kitd.js
 node tests/test_brain5.js
 node tests/test_watch.js
+node tests/test_ui.js
 node tests/test_invariants.js
 node tests/test_rng.js
 node tests/test_replay.js ../data/match3_log.txt
@@ -78,6 +79,8 @@ Simulations run on GitHub, not in a Claude session (Brief 008). Put a job order 
 `test_stamina.js` checks the Stamina model (Brief 013): base Stamina per card, next-turn modifiers, and the floor check, which tries every combination of the shipped modifiers on every card of every preset (add `--worst` to print each card's worst case).
 
 For a build that must not change play at all, `node tests/regress_engine.js <board folder> 2 all` also hashes the newest preset and prints one hash per rule set and brain (every brain, Brain 5 included). Run it on the board before and after: every line must match.
+
+`test_ui.js` checks UI v2 (Brief 009): the outcome bar merges equal neighbours, changed numbers are red only when they hurt the side to move, the preview's Evade equals the engine's, every unit card's text, and that nothing the board shows says "being" (units are counted in unit cap, UC).
 
 `test_invariants.js` plays 30 bot games on the newest preset and fails on any impossible state.
 

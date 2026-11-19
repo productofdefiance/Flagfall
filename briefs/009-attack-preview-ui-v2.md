@@ -175,52 +175,56 @@ Every preset plays and replays identically (`regress_engine.js` hashes unchanged
 ## The Editor's hands-on check
 On the play link, on your phone: play a few turns. Open an attack preview on a braced Heavy Melee with a Light Melee (check Parry and Evade), and a Heavy Ranged shot with an enemy next to it (check the red 4.5 and Armor 0). Pull the key up once. Open Options and tap through. Open a unit card in a match and on the Lineup screen.
 
-## Report back
-Beyond the standard items: the screenshots above; every place you had to choose something the brief didn't say (desktop especially); any unit or rule set whose card text you couldn't state in one line.
-
-## Icons
-24×24 viewBox, `fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"`. Each path in its own `<path>` unless noted.
-
-| Icon | Used for | Paths |
-|---|---|---|
-| Menu | Options button | `M4 7h16` · `M4 12h16` · `M4 17h16` |
-| Close | ✕ buttons, Cancel | `M6 6l12 12M18 6L6 18` |
-| Player | Side label (human) | `<circle cx="12" cy="8" r="3.5"/>` · `M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5` |
-| Computer | Side label (bot) | `<rect x="5" y="8" width="14" height="11" rx="3"/>` · `M12 4v4` · `<circle cx="9.5" cy="13.5" r="1.2" fill="currentColor"/>` · `<circle cx="14.5" cy="13.5" r="1.2" fill="currentColor"/>` |
-| Hourglass | Turn counter | `M7 3h10` · `M7 21h10` · `M8 3c0 4.5 8 5 8 9s-8 4.5-8 9` · `M16 3c0 4.5-8 5-8 9s8 4.5 8 9` |
-| Flag | Scoreboard | `M6 21V4` · `M6 4h11l-2.5 4L17 12H6` |
-| Lowered flag | Surrender | `M6 21V4` · `M6 12h11l-2.5 4L17 20H6` · `M3 21h6` *(drawn for this brief from the Editor's pick "lowered flag"; the UI chat may refine it)* |
-| List | Match log and record | `M8 6h12` · `M8 12h12` · `M8 18h12` · `M4 6h.01` · `M4 12h.01` · `M4 18h.01` |
-| Book | Rules and unit data | `M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z` · `M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z` |
-| Home | Home | `M4 11l8-7 8 7` · `M6 10v10h12V10` |
-| Sword | Attack | `M14.5 4.5 19.5 4l-.5 5L9 19l-4-4z` · `M6.5 13.5l4 4` · `M4 20l2.5-2.5` |
-| Spear | Reach | `M4 20 17 7` · `M15 4.5 20 4l-.5 5-3.5-1z` · `M6 15.5l2.5 2.5` |
-| Shield | Brace (button, stats, key) | `M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z` |
-| Bolt | Special (brief 011) | `M13 2 4.5 13.5H11L10 22l8.5-11.5H12z` |
-| Undo | Undo | `M9 13.5 4.5 9 9 4.5` · `M4.5 9H14a6 6 0 0 1 0 12h-3` |
-| End unit | End unit | `<circle cx="12" cy="12" r="8.5"/>` · `M8.2 12.3l2.6 2.6 5-5.6` |
-| End turn | End turn | `M5.5 5v14l9.5-7z` · `M18.5 5v14` |
-| Info | Unit information | `<circle cx="12" cy="12" r="8.5"/>` · `M12 11v5` · `M12 8h.01` |
-| Hex | Square name | `M12 2.5 20.5 7.3v9.4L12 21.5 3.5 16.7V7.3z` |
-| Maul | Strength | `M19.5 19.5 11.5 11.5` · `M7.8 2.9l5.3 5.3-4.9 4.9-5.3-5.3z` · `M6.3 4.4l5.3 5.3` |
-| Support | Support | `<circle cx="9" cy="8" r="3"/>` · `M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5` · `<circle cx="16.5" cy="9" r="2.4"/>` · `M16 14.3c2.3.1 4.1 1.6 4.6 4.2` |
-| Evade | Evade | `M14 12H3.5` · `M7.5 8l-4 4 4 4` · `M18 6.5v2` · `M18 15.5v2` · `M21.5 12h-2` · `M20.5 8.5l-1.2 1.2` · `M20.5 15.5l-1.2-1.2` |
-| Armor | Armor; also Pierce's row | `M8.5 4h7l3.5 3-2 3.2V20H7V10.2L5 7z` · `M10 4c.3 2.2 3.7 2.2 4 0` · `M7 14h10` |
-| Dodge | Dodge | the Hex path with `stroke-dasharray="3 2.6"` |
-| Parry | Parry (always red `#c62828`) | `M4 20 18 6` · `M15 4h5v5` · `M6 15l3 3` · `M20 20 6 6` · `M9 4H4v5` · `M18 15l-3 3` |
-| Arrow | Face-off arrow (stroke 2.2, red) | `M5 12h12` · `M13 7l5 5-5 5` |
-
----
-
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code, 19 Nov 2026. Branch `claude/lucid-fermi-wk5g34`, started from `brief/009-attack-preview-ui-v2`. Game version **v3.06.00 · Build 9** (UI v2).*
 
-- **What's in:**
-- **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
+- **What's in:** all eight items. Match top bar (title row + Options, scoreboard re-laid with Player/Computer icons and a plain turn counter). Options menu (header with format, sides, rule set, bot, seed and version line; Match log and record, Rules and unit data, Home, Surrender; ✕ / dim / Escape; focus goes in and back). Attack preview (grab handle and key drawer, first-two-times hint, face-off, changed numbers, outcome bar from `dieCases` with merging, Attack 3 + Cancel 1 in the action panel). Compact unit bar and full unit card. Lineup rows and Lineup card with the pinned stepper bar and the new hint. Action-button states (reloading dot, braced / braced last turn, Reach only for Reach units). Desktop layout. The "no being on screen" check.
+- **Engine change (read-only, no rule changes):** `breakdown()` now also returns `detail` (Strength before/after Half Strength and Reach, the supporters, Support, Fend, Armor and Pierce, Dodge %/open hexes or flat Dodge, Brace, defender Support, goal-zone reduction); `options().attacks[]` carries it. `evadePreview()` also returns `stam` (Stamina left after the attack). `status()` also returns `bracedLast` and `holder`. Nothing that decides play reads these.
+- **New file:** `board/ui.js` holds the preview's and the card's wording and logic with no drawing, so `tests/test_ui.js` can check it. `say()` moved there from `app.js`.
+- **Screenshots** (`briefs/img/009/`): phone and desktop each for: melee on a braced Heavy Melee, key closed (`*-A-preview-closed.png`) and open (`*-A-preview-key.png`); Heavy Ranged shot with an enemy next to it (`*-B-ranged.png`, shows 9 → 4.5 in red and Armor −3 → 0 in ink); Heavy Ranged card while reloading (`*-C-card.png`); Lineup card (`*-lineup-card.png`); Options menu (`*-menu.png`). The positions were reached with legal engine moves, not edited.
+- **Choices the brief didn't make:**
+  - *Desktop:* the preview, unit card and end-of-match sheet replace the roster in the right-hand column (390 wide, the column was 380). There is no dim over the field there, so you can tap another red ring while the preview is open. The Options menu opens over the centred Options button. The top bar keeps v1's centred 720 px content.
+  - *Phone:* no dim behind the attack preview (the brief only asks for one behind the full card), so you can switch target by tapping another red ring. The key scrolls inside the sheet; the face-off and outcome bar always stay in view.
+  - *Key rows the brief's table doesn't list,* shown only when they apply: **Reach −1** (spear icon, for Reach attacks), **Fend** (support icon, braced Light Anti-Cavalry with helpers next to it), **Holding the flag** (flag icon; the face-off also shows the flag's share as `+N`), and, for older rule sets only, **Goal zone / Keeper at home** and **Defender Support**. A **Parry** row in ink saying "Already parried this turn: no parry" stays in the key even though the stat is left out (today's sheet said this too).
+  - *Reach* is a changed Strength number too (8 → 7, red), like Half Strength.
+  - *"If it kills"* uses the hex icon (the brief gives none).
+  - *Unit names* are card names, numbered when a side has two (`Heavy Melee 2`); the first of two shows as `Heavy Melee 1`.
+  - *Compact unit bar:* it no longer shows the Dodge % and the small status icons; those are now on the full card (chips) and the action buttons. `→ N` is the furthest hex the engine lets the unit reach now (the cap on the other side's turn).
+  - *Stamina squares* on the Attack button show halves as half-filled squares.
+  - *"Braced last turn"* chip: the unit braced in its own previous turn and it is now its side's turn (engine `wasBraced`). On the other side's turn, a braced unit shows "Braced".
+  - *Menu:* "Rules and unit data" opens Unit data; its back arrow returns to the match. The version line adds "(started on Build N)" when the match began on another build, as the old menu did. With two bots: "Bots: A vs B".
+  - *Special button:* left as it was (greyed out, says why when tapped). See F30.
+- **Card text I couldn't state exactly in one line with the brief's names:** none for v3.4. Older rule sets: Tackle before v3.3 says "pays 1 more Stamina to step away" (the flat cost); Mark before v3 says "stop, then may shift one hex" (zones weren't a hard stop); Dodge before v1 says "takes 1 off for every 4 Strength of a hit"; Parry before v1 is a flat amount ("1 damage") and before v3.2 hits back at "a melee attacker that hits it" (not only the first). The match3 Flagkeeper has no line on the card beyond "(Flagkeeper)" in the header and its lower Move: its home reduction isn't in the brief's ability table.
+- **Anything beyond the brief, and why:** `test_ui.js` added to the `checks` workflow; README lists it. Nothing else.
+- **Checks run and results:** all pass. test_rules, test_v1 (12), test_v3 (10), test_v31 (22), test_v32 40 (57), test_v33 (59), test_v34 (20), test_stamina (517), test_reasons (18), test_kitd full 30 games (9; 0 refused), test_brain5 at the CI size 2 (13; 0 refused; the full default count was stopped after more than 20 minutes because it isn't part of `checks`), test_watch (12), test_invariants (30 games, 0 problems), test_rng (20), **test_ui (61, new)**, test_replay (386 checks, 0 mismatches), lab self-test (34), board_check 10 games (0 different).
+- **Regression hashes:** identical to the board from before this build, on both runs.
+  - `node tests/regress_engine.js <board> 3` (same before and after):
+```
+match3       37397ef2bd3ed86b {"turn limit, more pull damage":1,"TKO":2,"KO":1,"turn limit, draw":1,"turn limit, fewer beings lost":1}
+v1           7b25bca651c0cb31 {"turn limit, more pull damage":1,"TKO":2,"turn limit, fewer beings lost":1,"turn limit, draw":1,"KO":1}
+v2           ddbe5fc437ff4e9d {"turn limit, more pull damage":2,"KO":2,"TKO":1,"turn limit, draw":1}
+v3           26371927b53d4413 {"turn limit, fewer beings lost":1,"KO":2,"turn limit, draw":3}
+v3.1         c71e4cd12fc984b0 {"turn limit, draw":3,"turn limit, fewer beings lost":2,"turn limit, more pull damage":1}
+v3.2         f62a061d2c147d83 {"turn limit, fewer beings lost":3,"turn limit, draw":2,"turn limit, more pull damage":1}
+v3.3         e6151bf463d6c9f8 {"turn limit, fewer beings lost":1,"KO":1,"turn limit, draw":3,"turn limit, more pull damage":1}
+```
+  - `node tests/regress_engine.js <board> 2 all` (every preset including v3.4, every brain): all 72 lines identical before and after. v3.4:
+```
+v3.4 standard        a8f8270aceb1eb9e {"turn limit, fewer beings lost":2,"turn limit, more pull damage":1,"KO":1}
+v3.4 easy            4d9a73c80a3cb225 {"turn limit, more pull damage":3,"KO":1}
+v3.4 kitA            f65eba492e49eaaa {"turn limit, draw":1,"turn limit, fewer beings lost":1,"turn limit, more pull damage":2}
+v3.4 kitA2           31439db204aa5ac0 {"KO":2,"turn limit, fewer beings lost":1,"turn limit, more pull damage":1}
+v3.4 kitC            de370a3a914caa7f {"turn limit, draw":1,"turn limit, more pull damage":3}
+v3.4 kitB            88c03eedc951d875 {"turn limit, draw":2,"KO":2}
+v3.4 batchC          88c03eedc951d875 {"turn limit, draw":2,"KO":2}
+v3.4 kitD            73631bc545ab6f1a {"turn limit, draw":2,"KO":2}
+v3.4 brain5          a8bc0b017ad55a10 {"turn limit, fewer beings lost":2,"TKO":1,"KO":1}
+```
+- **New tests (each listed in the brief):** outcome-bar merge (equal neighbours merge, chances sum, slots follow `dieCases` on every preset; v3.4 chances 2.8 / 5.6 / 83.3 / 5.6 / 2.8%); changed numbers (Half Strength 9 → 4.5 red for the attacker, also on South's turn; Pierce Armor −3 → 0 in ink); Evade in the preview equals `evadePreview().hexes`, including a tackled case showing 0 and the engine's reason; the "no being" check (engine log, result, tiebreak, block reasons and Evade reasons through `say()` over a seeded game on every preset and format; every preview key row met in those games; every card's text on every preset; and every line of `app.js`, `ui.js` and `index.html` that contains the word must be code). The Evade "no step" reason on the preview now goes through `say()`.
+- **Skipped:** no simulations (screen only; no rule or bot change). The full test_brain5 count (see above).
 - **Baseline table (rule changes only):** n/a
-- **Bot minimum (met / not met, with numbers):** n/a
+- **Bot minimum (met / not met, with numbers):** n/a (screen only)
 - **Settings review (brain builds only):** n/a
-- **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+- **Known gaps:** the pull preview keeps today's sheet (out of scope). Phone layout checked in a headless browser at 390×844 only; not on a real phone. The key's drag works on pointer release (no live drag animation).
+- **Flags closed / opened:** none closed. Opened **F30** (keep or hide the greyed-out Special button until brief 011).
+- **Pull request:** see the pull request for this branch.
