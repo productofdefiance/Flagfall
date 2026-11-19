@@ -336,40 +336,50 @@
     return c.range > 1 && d <= c.range;
   }
 
-  /** The attack value before the die, with every step named. `h` = the hex attacked from. */
+  /** The attack value before the die, with every step named. `h` = the hex attacked from.
+      `detail` (Brief 009, read-only, for the attack preview): the same steps as numbers and names, so the board never
+      works them out itself. It changes nothing the rules do. */
   function breakdown(st, u, t, h) {
     const g = st.rs.game, c = card(st, u), tc = card(st, t), d = dist(h, t.hex);
     let v = c.str; const parts = [`Strength ${c.str}`];
-    if (c.range === 1 && d === 2) { v -= g.reachPenalty; parts.push(`−${g.reachPenalty} Reach`); }
+    const detail = { str: c.str, reach: 0, halvedBy: null, strAfter: c.str, supporters: [], support: 0, noSupport: false,
+      armor: tc.armor || 0, pierce: false, armorTaken: 0, dodge: null, brace: 0, defenderSupport: 0, home: null };
+    if (c.range === 1 && d === 2) { v -= g.reachPenalty; parts.push(`−${g.reachPenalty} Reach`); detail.reach = g.reachPenalty; }
     if (c.range > 1 && st.rs.switches.rangedHalfWhenAdjacent && alive(st).some((e) => e.team === t.team && dist(e.hex, h) === 1)) {
       v = halve(st, v); parts.push("enemy adjacent: halved");
+      detail.halvedBy = alive(st).filter((e) => e.team === t.team && dist(e.hex, h) === 1).map((e) => e.uid);
     }
+    detail.strAfter = v;
     const helpers = alive(st).filter((a) => a.team === u.team && a !== u && dist(a.hex, t.hex) === 1).length;
+    detail.supporters = alive(st).filter((a) => a.team === u.team && a !== u && dist(a.hex, t.hex) === 1).map((a) => a.uid);
     if (helpers) {
-      if (t.braced && tc.brace === "noSupport") parts.push("no Support (braced)");
+      if (t.braced && tc.brace === "noSupport") { parts.push("no Support (braced)"); detail.noSupport = true; }
       else {
         const sb = sw(st, "supportPerUnit") ? g.supportBonus * helpers : g.supportBonus;
-        v += sb; parts.push(`+${fmt(sb)} Support`);
+        v += sb; parts.push(`+${fmt(sb)} Support`); detail.support = sb;
       }
     }
     const pre = v;
-    if (tc.armor && c.trait !== "ignoreArmor") { v -= tc.armor; parts.push(`−${tc.armor} Armor`); }
+    if (tc.armor && c.trait !== "ignoreArmor") { v -= tc.armor; parts.push(`−${tc.armor} Armor`); detail.armorTaken = tc.armor; }
+    else if (tc.armor) detail.pierce = true;
     let dodge = 0;
     if (tc.dodge && sw(st, "dodgeRoom")) {
       const r = dodgeRoom(st, t); dodge = r.pct;
       parts.push(`Dodge ${r.pct}% after the roll (${r.open} open hex${r.open === 1 ? "" : "es"})`);
+      detail.dodge = { pct: r.pct, open: r.open, doubled: !!(t.braced && tc.brace === "dodgeDouble") };
     } else if (tc.dodge) {
       const div = t.braced && tc.brace === "dodgeDouble" ? Math.max(1, g.dodgeDivisor / 2) : g.dodgeDivisor;
       const dg = Math.floor(pre / div);
       if (dg) { v -= dg; parts.push(`−${dg} Dodge`); }
+      detail.dodge = { flat: dg, per: div, doubled: !!(t.braced && tc.brace === "dodgeDouble") };
     }
-    if (t.braced) { v -= g.braceReduction; parts.push(`−${g.braceReduction} Brace`); }
-    else if (st.rs.switches.defenderSupport && alive(st).some((a) => a.team === t.team && a !== t && dist(a.hex, t.hex) === 1)) { v -= 1; parts.push("−1 defender Support"); }
+    if (t.braced) { v -= g.braceReduction; parts.push(`−${g.braceReduction} Brace`); detail.brace = g.braceReduction; }
+    else if (st.rs.switches.defenderSupport && alive(st).some((a) => a.team === t.team && a !== t && dist(a.hex, t.hex) === 1)) { v -= 1; parts.push("−1 defender Support"); detail.defenderSupport = 1; }
     if (homeOf(t.team).has(t.hex)) {
-      if (t.fk) { v -= g.keeperHomeReduction; parts.push(`−${g.keeperHomeReduction} keeper at home`); }
-      else { v -= g.goalZoneReduction; parts.push(`−${g.goalZoneReduction} goal zone`); }
+      if (t.fk) { v -= g.keeperHomeReduction; parts.push(`−${g.keeperHomeReduction} keeper at home`); detail.home = { keeper: true, amount: g.keeperHomeReduction }; }
+      else { v -= g.goalZoneReduction; parts.push(`−${g.goalZoneReduction} goal zone`); detail.home = { keeper: false, amount: g.goalZoneReduction }; }
     }
-    return { value: Math.max(v, 0), parts, dodge };
+    return { value: Math.max(v, 0), parts, dodge, detail };
   }
 
   /** Dice. One d6 (match 3 rules) or two d6 added, graded (v1 rules). Each case: [roll, chance, label]. */
@@ -714,7 +724,7 @@
         if (t.team === u.team || !canAttackFrom(st, u, u.hex, t)) continue;
         const b = breakdown(st, u, t, u.hex);
         const cs = dieCases(st).map(([d, p]) => [applyDie(st, b.value, d, b.dodge), p]);
-        attacks.push({ target: t.uid, value: b.value, dodge: b.dodge, parts: b.parts, low: cs[0][0], high: cs[cs.length - 1][0], cases: cs,
+        attacks.push({ target: t.uid, value: b.value, dodge: b.dodge, parts: b.parts, detail: b.detail, low: cs[0][0], high: cs[cs.length - 1][0], cases: cs,
           killChance: cs.reduce((s2, [dm, p]) => s2 + (dm >= effHp(st, t) - 1e-9 ? p : 0), 0), pooled: isHolder(st, t), effHp: effHp(st, t), capture: isHolder(st, t) ? null : capturePreview(st, u, t),
           evade: evadePreview(st, u, t) });
       }
@@ -745,7 +755,7 @@
     su.stam -= g.attackCost; s.cmd -= g.attackCost; su.done = false; su.evadeFrom = t.uid; su.evadeMoved = false; su.attackedThis = true;
     const moves = reachMap(s, su), hexes = Object.values(moves).reduce((m, x) => Math.max(m, x.steps), 0);
     const pv = parryPreview(st, u, t);
-    return { hexes, reason: hexes ? null : whyNoMove(s, su), unsure: !!(pv && !pv.used && pv.amount >= effHp(st, u) - EPS) };
+    return { hexes, stam: su.stam, reason: hexes ? null : whyNoMove(s, su), unsure: !!(pv && !pv.used && pv.amount >= effHp(st, u) - EPS) };
   }
   /** Why a unit can't take a single step now, in plain words; null if it can. Every reason is read from the rules. */
   function whyNoMove(st, u) {
@@ -804,7 +814,7 @@
     const c = card(st, u);
     const nextStam = nextStamina(st, u);
     const moving = st.phase === "play" && u.team === st.toMove;
-    return { hp: hpShown(st, u), maxHp: u.maxHp, braced: !!u.braced, stamNow: moving ? u.stam : null, stamNext: nextStam,
+    return { hp: hpShown(st, u), maxHp: u.maxHp, braced: !!u.braced, bracedLast: !!(moving && u.wasBraced && !u.braced), holder: isHolder(st, u), stamNow: moving ? u.stam : null, stamNext: nextStam,
       done: moving && u.done, reloading: !!(c.reload && (moving ? u.attackedLast : u.attackedThis)), zone: projects(st, u),
       dodge: c.dodge && sw(st, "dodgeRoom") && u.hex ? dodgeRoom(st, u).pct : null };
   }
