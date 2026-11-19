@@ -94,20 +94,72 @@ n/a: the build changes nothing the bot can do. Prove the measure watches without
 2. The next time two results pull requests wait at once, both merge themselves without a click.
 Nothing to play.
 
-## Report back
-Beyond the standard items: the "before" table (5v5 and 7v7); anything in a column's meaning that the code forced to change; any column that turned out not to be measurable as written (each as an `ASK`).
-
----
-
 ## Report
 *Filled in by Claude Code.*
 
 - **What's in:**
+  - **`stall` measure** in `sims/lab/measures.js`, added to `ALWAYS`, so every run collects it: release, nightly, screens and studies. Every column is named exactly as the brief says.
+  - **`tables/stall.csv`** per matchup, written by `merge.js`. For each number column it gives the total, the average, and the number of games it applies to; for `limit_decided_by`, a count of each value.
+  - **Three "Stalls" lines** under every `SUMMARY.md` key table. The 5-side-turn share is labelled as a starting cut, not a definition.
+  - **`sims/lab/record.js`** replays copied match records through every measure, with timing left blank. A record that doesn't replay to its saved result is named and skipped. `data/human_records/README.md` says how to add a record; no records are committed.
+  - **F35:**
+    - `sims/lab/index.js` rebuilds `index.csv` and `INDEX.md` from every run folder's `run.json`. Newest date comes first, then the run that finished last.
+    - `merge.js` now writes the answer into `run.json` and rebuilds instead of adding a line.
+    - Quiet nights live in **`results/nightly.csv`** (chosen over a tiny folder per night). `nightly.js` adds them there, then rebuilds.
+    - New workflow **`results refresh`** (`.github/workflows/results-refresh.yml`, running `sims/lab/refresh.sh`). It runs hourly, on every push to `main` that touches `results/`, and on demand. For each open `lab/*` results pull request that conflicts with `main`, it merges `main` in, rebuilds both files, pushes, restarts its checks and keeps auto-merge on.
+    - It only acts when the sole conflicts are the two index files and nothing outside `results/` and `studies/` would change. Anything else is left for a person, with a warning.
 - **Anything beyond the brief, and why:**
+  - One extra column, **`damage_quiet_end`**: side-turns at the end after the last damage. The brief's third summary line counts from the last *damage* in side-turns, and none of its columns can give that: `last_damage_turn` is in turns, and `quiet_end` counts from the last attack or pull, so set spear on a move would be missed. This adds a column and renames nothing.
+  - **The hourly schedule** on the refresh. When a results pull request merges itself, GitHub starts no workflows for that merge (it was made with the workflow's own token). A push trigger alone would never see the most common case.
+- **Choices the code forced on a column's meaning:**
+  - **`quiet_end` in a game with no attack or pull at all** counts every side-turn. `first_attack_turn` is then blank, and `longest_quiet` and `quiet_side_turns` are 0, because both count from the first attack.
+  - **Side-turns are counted as the bots play them:** one per side's turn, from the first decision. The deploy phase isn't counted.
+  - **UC** is each unit's card value for units (`beings`, shown as UC on screen), holder included.
+  - **"Damage"** is any fall in unit HP, or any rise in flag damage, from any action. That covers attacks, pulls, parry and set spear.
 - **Checks run and results (paste regression hashes):**
-- **Baseline table (rule changes only):**
-- **Bot minimum (met / not met, with numbers):**
-- **Settings review (brain builds only): settings with no effect found; settings that seem to be missing (with evidence):**
+  - `board/` engine and brain files are untouched; only `version.js` and `test_version.js` change. So every preset and brain plays as on `main`. Normal mode on `main`'s board: `match3 37397ef2bd3ed86b · v1 7b25bca651c0cb31 · v2 ddbe5fc437ff4e9d · v3 26371927b53d4413 · v3.1 c71e4cd12fc984b0 · v3.2 f62a061d2c147d83 · v3.3 e6151bf463d6c9f8 · v3.4 ee6ce003ac760250 · v3.5 fca989aecfaf21c9`.
+  - **The measure watches without touching:** the before run's outcome table equals v3.08.00's release table exactly, on the same seeds, field for field.
+  - **`sims/lab/test_stall.js`** (new, in `checks`): 39 checks, 0 failures. It covers:
+    - a game ending on a pull;
+    - a turn-limit game with a quiet ending and a holder at limit − 3;
+    - parry, then set spear on a move, as the last damage;
+    - a side with only its holder (`gap` blank);
+    - stall.csv from two parts equals one part;
+    - `record.js` replaying a lab game to the identical row;
+    - a record with a wrong result being skipped;
+    - the rebuild being byte for byte on today's `results/`;
+    - a quiet night surviving a rebuild;
+    - two results branches merged in either order ending with both runs, newest first, and no conflict left.
+  - **Rebuild diff on today's `results/`:** empty, for both `index.csv` and `INDEX.md`.
+  - Also passing: lab self-test (34), `board_check.js 10` (10 games, 0 different), `test_rules`, `test_watch`, `test_version`. CI `checks` is green.
+  - **In-session screen** (50 balanced games per format, Brain 5 mirror, v3.5), stall averages:
+    - 5v5: first attack turn 2.0, last damage 11.0, quiet_end 16.8, units at limit − 3 (holder left out) 0.41 / 0.45, gap at limit − 3 3.3; turn-limit games decided by flag 17, units 10, draw 2.
+    - 7v7: first attack 3.1, last damage 12.3, quiet_end 20.0, units at limit − 3 1.19 / 1.14, gap 7.5; units 12, flag 8, draw 1.
+- **The "before" table** (`results/v3.08.01/2026-11-19_study_stall-before`; balanced Brain 5 mirror, v3.5, 1,000 games per format, the seeds of `release-v3-08-00`). Averages over the games each column applies to:
+
+  | | 5v5 | 7v7 |
+  |---|---|---|
+  | Ended on the turn limit | 58.0% | 40.7% |
+  | First contact (turn) | 2.9 | 3.6 |
+  | First attack or pull (turn) | 2.0 | 3.1 |
+  | Last damage (turn), all games / turn-limit games | 11.4 / 11.1 | 13.0 / 12.7 |
+  | Side-turns with no attack or pull at the end, turn-limit games | 28.3 | 46.3 |
+  | Longest quiet run (side-turns) | 18.3 | 19.6 |
+  | Braces in the last 5 turns | 1.4 | 1.8 |
+  | Units besides the holder at limit − 3, North / South | 0.40 / 0.38 | 0.91 / 0.84 |
+  | Flag held at limit − 3 | 100% / 100% | 100% / 100% |
+  | Closest opposing non-holders at limit − 3 (hexes) | 4.4 | 6.2 |
+  | Turn-limit games decided by flag / units / draw | 399 / 156 / 25 | 225 / 148 / 34 |
+  | Flag-damage margin in turn-limit games | 3.4 | 2.6 |
+
+  - In a turn-limit game the fighting is over by about turn 11 at 5v5 and turn 13 at 7v7. By limit − 3 each side has its holder plus under one unit, and both flags are held.
+  - "Fewer units lost" still decides 27% of turn-limit games at 5v5 and 36% at 7v7.
+  - Likely, not isolated: this is a description, not a cause.
+- **Bot minimum (met / not met, with numbers):** n/a; no bot change. The identical outcome table above shows the measure doesn't change play.
+- **Settings review:** not a brain build; skipped.
 - **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+  - The **5-side-turn cut catches 100% of turn-limit games** (580 of 580 and 407 of 407), so it separates nothing (**F36**, `ASK`).
+  - The **v3.5 / v3.6 pair** asked for in case 015 merged first isn't in this run, because 015 hadn't merged when it started. 015's own lab runs carry no stall columns either, since they were already playing.
+  - The **refresh workflow** is tested locally (the two-branch merge test) but hasn't run on GitHub yet. The first real case will be the next time two results pull requests wait at once.
+- **Flags closed / opened:** closed **F35**; opened **F36** (the stall cut).
+- **Pull request:** #28, branch `claude/016-stall-logging`, started from `brief/016-stall-logging`.
