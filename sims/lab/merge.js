@@ -1,5 +1,5 @@
 // The lab's merge step (Brief 008): adds up the parts' game rows and writes one run folder per job order, as
-// results/README.md describes, then rewrites results/INDEX.md and results/index.csv.
+// results/README.md describes, then rebuilds results/INDEX.md and results/index.csv from the run folders (Brief 016).
 // node sims/lab/merge.js --results <results folder> --parts <folder of .jsonl> [--trigger night|day|pull request]
 //   [--commit <sha>] [--started <iso>] [--failed "<what failed>"] [--move <done folder>] [--board <board>] <order.json> [...]
 // Prints the run folders it wrote, one per line.
@@ -75,6 +75,7 @@ function writeRun(order, list) {
     const cols = MEASURES[mname].columns.filter((c) => measureNames.includes(c));
     if (!cols.length) continue;
     const tab = mus.map(({ mu, list: l }) => { const t = { matchup: mu.name, games: l.length }; for (const c of cols) { const nums = l.map((r) => r[c]).filter((v) => typeof v === "number"); if (nums.length) t[c] = +nums.reduce((a, b) => a + b, 0).toFixed(3); else { const cnt = {}; for (const r of l) if (r[c] !== undefined && r[c] !== "") cnt[r[c]] = (cnt[r[c]] || 0) + 1; t[c] = Object.entries(cnt).map(([v, n]) => `${v}:${n}`).join(" "); } } if (mname === "timing") { t.bot_ms_max_turn = Math.max(0, ...l.map((r) => r.bot_ms_max_turn || 0)); } return t; });
+    if (mname === "stall") { fs.writeFileSync(path.join(dir, "tables", "stall.csv"), stallTable(mus, cols)); continue; }
     fs.writeFileSync(path.join(dir, "tables", mname + ".csv"), toCsv(["matchup", "games"].concat(cols), tab));
   }
 
@@ -93,6 +94,8 @@ function writeRun(order, list) {
   const errors = list.filter((r) => r.error), unknown = [...new Set(list.flatMap((r) => (r.unknown_measures || "").split(" ").filter(Boolean)))];
   const failed = opt.failed || (!list.length ? "no games were played" : errors.length ? `${errors.length} games stopped with an error (first: ${errors[0].error})` : null);
   const answer = failed ? `Failed: ${failed}.` : order.answer || autoAnswer(out);
+  run.answer = answer;   // Brief 016: the index is rebuilt from run.json, so the answer lives here too
+  fs.writeFileSync(path.join(dir, "run.json"), JSON.stringify(run, null, 1) + "\n");
   let s = `# ${order.id}\n\n**Question:** ${order.question}\n\n**Answer:** ${answer}\n\n`;
   s += `**Key table** (${version}, ${list.length} games; tiebreak wins counted apart from KOs and draws)\n\n`;
   s += "| Matchup | Games | A wins (KO/TKO) | B wins (KO/TKO) | A tiebreak | B tiebreak | Draws | Holder KO | Pull KO | TKO | Ended on turn limit | Games with a pull | Avg turn | First mover's share of decisive |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n";
@@ -104,13 +107,43 @@ function writeRun(order, list) {
     const bad = cl.filter(([, o]) => o !== "success");
     s += `\n**Checks:** ${bad.length ? `FAILED: ${bad.map(([a]) => a).join(", ")}` : `all ${cl.length} passed`} (\`tables/checks.csv\`${fs.existsSync(path.join(dir, "tables", "hashes.txt")) ? ", hashes in `tables/hashes.txt`" : ""}).\n`;
   }
+  const sl = stallLines(mus);
+  if (sl) s += `\n${sl}`;
   s += `\n**Likely or proven:** ${likely(out)}\n\n`;
   s += `**Flags raised:** ${order.flags && order.flags.length ? order.flags.join(", ") : "none"}${unknown.length ? `. Unknown measures skipped: ${unknown.join(", ")} (add them to sims/lab/measures.js)` : ""}\n\n`;
   s += `**Replay the odd games:** each row of \`games.csv\` has a \`replay\` link that opens that game on the board.\n${oddGames(list)}`;
   fs.writeFileSync(path.join(dir, "SUMMARY.md"), s);
 
-  idx.add(results, { id: name, date: nyDate(started), version, kind, brief: order.brief || "", tags: (order.tags || []).join(" "), question: order.question, answer, path: path.relative(results, dir).split(path.sep).join("/") });
+  idx.rebuild(results);   // Brief 016 (F35): rebuilt from the run folders, never a line added, so results PRs can't jam
   return dir;
+}
+/** Brief 016: the stall table per matchup. Number columns: their total and their average over the games they apply to
+    (blank cells left out); `limit_decided_by`: a count of each value. */
+function stallTable(mus, cols) {
+  const head = ["matchup", "games"], rowsOut = [];
+  for (const c of cols) { if (c === "limit_decided_by") head.push(c); else head.push(c, c + "_avg", c + "_games"); }
+  for (const { mu, list: l } of mus) {
+    const t = { matchup: mu.name, games: l.length };
+    for (const c of cols) {
+      if (c === "limit_decided_by") { const cnt = {}; for (const r of l) if (r[c]) cnt[r[c]] = (cnt[r[c]] || 0) + 1; t[c] = Object.entries(cnt).map(([v, n]) => `${v}:${n}`).join(" "); continue; }
+      const nums = l.map((r) => r[c]).filter((v) => typeof v === "number");
+      t[c] = +nums.reduce((a, b) => a + b, 0).toFixed(3); t[c + "_games"] = nums.length; t[c + "_avg"] = nums.length ? +(t[c] / nums.length).toFixed(3) : "";
+    }
+    rowsOut.push(t);
+  }
+  return toCsv(head, rowsOut);
+}
+/** Brief 016: three stall lines under the key table, per matchup. The 5-side-turn cut is a starting point, not a definition. */
+function stallLines(mus) {
+  const avg = (l, c) => { const v = l.map((r) => r[c]).filter((x) => typeof x === "number"); return v.length ? (v.reduce((a, b) => a + b, 0) / v.length).toFixed(1) : "-"; };
+  const lines = [];
+  for (const { mu, list: l } of mus) {
+    if (!l.some((r) => "quiet_end" in r)) continue;
+    const tl = l.filter((r) => r.turn_limit === 1 || /^turn limit/.test(r.how || ""));
+    const long = tl.filter((r) => typeof r.damage_quiet_end === "number" && r.damage_quiet_end >= 5).length;
+    lines.push(`- ${mu.name}: first attack on turn ${avg(l, "first_attack_turn")} and last damage on turn ${avg(l, "last_damage_turn")} on average (turn-limit games: ${avg(tl, "first_attack_turn")} and ${avg(tl, "last_damage_turn")}). Turn-limit games end with ${avg(tl, "quiet_end")} side-turns without an attack or pull on average. ${pct(long, tl.length)} of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).`);
+  }
+  return lines.length ? `**Stalls** (\`tables/stall.csv\`):\n${lines.join("\n")}\n` : "";
 }
 function autoAnswer(out) {
   // Many matchups (a sweep): one line for the whole run; the per-matchup numbers are in tables/outcomes.csv.

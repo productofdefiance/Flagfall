@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.08.01 | v3.5 | Brain 5 | v2 | 12 |
 | v3.08.00 | v3.5 | Brain 5 | v2 | 11 |
 | v3.07.00 | v3.4 | Brain 5 | v2 | 10 |
 | v3.06.00 | v3.4 | Brain 5 | v2 | 9 |
@@ -13,6 +14,22 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.08.01 · Build 12 — Brief 016, stall logging (lab only) (19 Nov 2026)
+Rule set: none changed (v3.5 stays the newest). Game version **v3.08.01** (ZZ: lab tooling, nothing about how the game plays changes).
+
+**What a player will notice**
+- Nothing on the board changes.
+- Every lab run's summary now has three **Stalls** lines: when fighting starts and stops on average, how many quiet side-turns a turn-limit game ends with, and the share of turn-limit games whose last damage came 5 or more side-turns before the end (a starting cut for the stall study, not a definition).
+- Lab results pull requests can't jam each other any more (F35). If one falls behind `main` with a conflict, the lab fixes it within the hour and it still merges itself.
+
+**Under the hood**
+- `sims/lab/measures.js`: a new `stall` measure collected on every run: first contact, first attack, last damage, quiet side-turns, braces in the last 5 turns, what each side has left at turn limit − 3 and at the end, and what decided a turn-limit game. `merge.js` writes `tables/stall.csv` (totals and averages) and the summary lines.
+- `sims/lab/index.js`: `INDEX.md` and `index.csv` are rebuilt from the run folders (and `results/nightly.csv` for quiet nights) instead of edited, byte for byte the same as before. New workflow `results refresh` (hourly and on pushes to `main`) merges `main` into a stuck results pull request and rebuilds them.
+- `sims/lab/record.js`: runs the Editor's copied match records (`data/human_records/`) through the same measures as lab games.
+- New check `sims/lab/test_stall.js`; runs in `checks`. A "before" study (`stall-before`, 1,000 balanced games per format on v3.5, same seeds as v3.08.00's release) is the stall baseline for later builds.
+
+**Flags closed:** F35. **Opened:** see the brief's Report.
 
 ## v3.08.00 · Build 11 — Brief 010, rule set v3.5: a little variety in normal rolls (19 Nov 2026)
 Rule set: **v3.5** (new, the new-game default) = v3.4 plus switch `diceVariety`. Game version **v3.08.00** (YY: a new rule set; brief 007 took v3.07.00 first).
