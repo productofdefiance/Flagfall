@@ -19,7 +19,8 @@ function runOut(rs, codes) {
 }
 
 ok(V34 && V34.switches.turnLimitByFormat && V34.game.turnLimit5 === 25 && V34.game.turnLimit7 === 35, "v3.4 exists with 5v5 25 and 7v7 35");
-ok(PRESETS[PRESETS.length - 1].id === "v3.4", "v3.4 is the last preset, so new games default to it");
+// Was "v3.4 is the last preset". Brief 010 adds v3.5 after it; the newest-preset check now lives in test_v35.js.
+ok(PRESETS.indexOf(V34) >= 0 && PRESETS.indexOf(V34) < PRESETS.length - 1, "v3.4 is still offered, behind the newest preset");
 { const a = JSON.parse(JSON.stringify(V33)), b = JSON.parse(JSON.stringify(V34));
   for (const k of ["id", "name", "note"]) { delete a[k]; delete b[k]; }
   delete b.switches.turnLimitByFormat; delete b.game.turnLimit5; delete b.game.turnLimit7;
@@ -33,7 +34,9 @@ for (const [rs, size, codes, want] of [[V34, 7, L7, 35], [V34, 5, L5, 25], [V33,
   ok(r.limit === want && r.turn === want && r.result && /^turn limit/.test(r.result.how), `${rs.id} ${size}v${size}: a match with no fighting ends on turn ${want} (ended on ${r.turn}, ${r.result && r.result.how})`);
 }
 // Every older preset keeps 25 for both formats
-for (const rs of [DEFAULT_RULESET, ...PRESETS.slice(0, -1)]) ok(E.turnLimitFor(rs, 7) === 25 && E.turnLimitFor(rs, 5) === 25, `${rs.id}: 25 turns at 5v5 and 7v7`);
+// Brief 010: v3.5 comes after v3.4 and keeps its per-format limits, so "older" means the presets before v3.4.
+for (const rs of [DEFAULT_RULESET, ...PRESETS.slice(0, PRESETS.indexOf(V34))]) ok(E.turnLimitFor(rs, 7) === 25 && E.turnLimitFor(rs, 5) === 25, `${rs.id}: 25 turns at 5v5 and 7v7`);
+for (const rs of PRESETS.slice(PRESETS.indexOf(V34))) ok(E.turnLimitFor(rs, 5) === 25 && E.turnLimitFor(rs, 7) === 35, `${rs.id}: 25 turns at 5v5, 35 at 7v7`);
 // Other formats on v3.4 fall back to the general limit
 ok(E.turnLimitFor(V34, 9) === V34.game.turnLimit, "v3.4: a format without its own limit uses the general turn limit");
 // The tiebreak at 35 is the usual order

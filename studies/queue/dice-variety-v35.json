@@ -1,0 +1,13 @@
+{
+  "id": "dice-variety-v35",
+  "kind": "study",
+  "brief": "010",
+  "seed_name": "dice-variety",
+  "question": "Does a little dice variety (v3.5) change how balanced games end, with Brain 5 against itself, on the same seeds as the v3.4 run?",
+  "tags": ["dice-variety", "brain5", "v3.5"],
+  "measures": ["play", "light", "clock"],
+  "matchups": [
+    { "name": "5v5", "a": "brain5", "b": "brain5", "rules": "v3.5", "format": "blitz5", "mix": "mixed", "games": 1000 },
+    { "name": "7v7", "a": "brain5", "b": "brain5", "rules": "v3.5", "format": "std7", "mix": "mixed", "games": 1000 }
+  ]
+}
