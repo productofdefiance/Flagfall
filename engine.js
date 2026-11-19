@@ -385,7 +385,19 @@
   /** Dice. One d6 (match 3 rules) or two d6 added, graded (v1 rules). Each case: [roll, chance, label]. */
   const D6_CASES = [[1, 1 / 6, "1"], [3, 4 / 6, "2–5"], [6, 1 / 6, "6"]];
   const TWO_D6_CASES = [[2, 1 / 36, "2"], [3, 2 / 36, "3"], [7, 30 / 36, "4–10"], [11, 2 / 36, "11"], [12, 1 / 36, "12"]];
-  const dieCases = (st) => (sw(st, "dice2d6") ? TWO_D6_CASES : D6_CASES);
+  /* v3.5 (Brief 010, Game Laws 6.13): the normal band splits. 4–5 takes 10% off, 9–10 adds 10%, 6–8 stays normal.
+     Symmetric, so the average multiplier is v3.4's. Each case's roll is a total inside its band. */
+  const VARIETY_CASES = [[2, 1 / 36, "2"], [3, 2 / 36, "3"], [4, 7 / 36, "4–5 · −10%"], [7, 16 / 36, "6–8"], [9, 7 / 36, "9–10 · +10%"], [11, 2 / 36, "11"], [12, 1 / 36, "12"]];
+  const dieCases = (st) => (sw(st, "dice2d6") ? (sw(st, "diceVariety") ? VARIETY_CASES : TWO_D6_CASES) : D6_CASES);
+  /** The two-dice multiplier for a total: 2 ×0.5, 3 ×0.75, 11 ×1.25, 12 ×1.5; with diceVariety 4–5 ×0.9, 9–10 ×1.1. */
+  function diceMultiplier(st, die) {
+    if (die <= 2) return 0.5;
+    if (die === 3) return 0.75;
+    if (die === 11) return 1.25;
+    if (die >= 12) return 1.5;
+    if (sw(st, "diceVariety")) { if (die <= 5) return 0.9; if (die >= 9) return 1.1; }
+    return 1;
+  }
   const normalDie = (st) => (sw(st, "dice2d6") ? 7 : 3);
   /** A roll from a random source: 1-6, or 2-12 as two dice added. */
   function rollWith(st, rnd) {
@@ -396,8 +408,7 @@
   function applyDie(st, v, die, dodge) {
     let dmg;
     if (sw(st, "dice2d6")) {
-      const m = die <= 2 ? 0.5 : die === 3 ? 0.75 : die === 11 ? 1.25 : die >= 12 ? 1.5 : 1;
-      dmg = v * m;
+      dmg = v * diceMultiplier(st, die);
     } else {
       dmg = v;
       if (die === 1) dmg = Math.floor(v / 2);
@@ -826,6 +837,6 @@
   }
 
   const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, foeOf, clone, card, alive, unitByUid,
-    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, STAMINA_EFFECTS, baseStamina, braceTiredness, staminaFloor, staminaMods, addStaminaMod, staminaWith, nextStamina, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
+    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, diceMultiplier, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, STAMINA_EFFECTS, baseStamina, braceTiredness, staminaFloor, staminaMods, addStaminaMod, staminaWith, nextStamina, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
   if (typeof module !== "undefined") module.exports = api; else root.GGEngine = api;
 })(this);
