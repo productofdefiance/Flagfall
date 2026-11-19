@@ -95,6 +95,11 @@ jobs:
         continue-on-error: true
         working-directory: board
         run: node tests/test_watch.js
+      - name: test_ui.js (UI v2 - outcome bar, changed numbers, Evade in the preview, unit card text, no being on screen)
+        id: ui
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_ui.js
       - name: lab self-test (an odd job order makes a complete run folder)
         id: lab
         continue-on-error: true
@@ -112,7 +117,7 @@ jobs:
       - name: Summary
         if: always()
         env:
-          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_brain6.js(2-games)=${{ steps.brain6.outcome }} test_version.js=${{ steps.version.outcome }} test_watch.js=${{ steps.watch.outcome }} lab-self-test=${{ steps.lab.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
+          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_version.js=${{ steps.version.outcome }} test_brain6.js(2-games)=${{ steps.brain6.outcome }} test_watch.js=${{ steps.watch.outcome }} test_ui.js=${{ steps.ui.outcome }} lab-self-test=${{ steps.lab.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
         run: |
           { echo "## Rule tests"; echo; echo "| Check | Result |"; echo "| --- | --- |"
             for kv in $R; do o="${kv#*=}"; echo "| ${kv%%=*} | $( [ "$o" = success ] && echo pass || echo "**FAIL** ($o)" ) |"; done
