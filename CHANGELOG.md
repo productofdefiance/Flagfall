@@ -29,7 +29,9 @@ Rule set: none changed (v3.5 stays the newest). Game version **v3.08.01** (ZZ: l
 - `sims/lab/record.js`: runs the Editor's copied match records (`data/human_records/`) through the same measures as lab games.
 - New check `sims/lab/test_stall.js`; runs in `checks`. A "before" study (`stall-before`, 1,000 balanced games per format on v3.5, same seeds as v3.08.00's release) is the stall baseline for later builds.
 
-**Flags closed:** F35. **Opened:** see the brief's Report.
+**Flags closed:** F35. **Opened:** F36 (the summary's 5-side-turn stall cut catches every turn-limit game).
+
+**The stall "before" (balanced Brain 5 mirrors, v3.5, 1,000 games per format):** in turn-limit games the last damage comes on turn 11.1 (5v5) and 12.7 (7v7), followed by 28 and 46 side-turns with no attack or pull; at turn limit − 3 each side has its holder and under one other unit. Full table in the brief's Report.
 
 ## v3.08.00 · Build 11 — Brief 010, rule set v3.5: a little variety in normal rolls (19 Nov 2026)
 Rule set: **v3.5** (new, the new-game default) = v3.4 plus switch `diceVariety`. Game version **v3.08.00** (YY: a new rule set; brief 007 took v3.07.00 first).
