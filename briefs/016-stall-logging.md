@@ -8,15 +8,15 @@
 | Date | 19 Nov 2026 |
 | Goal | Every lab game records when fighting started and stopped, how quiet the ending was, and what each side had left, so every later build has a before and after on stalls |
 | Branch | Any branch your session may push to, started from `brief/016-stall-logging` |
-| Flags | Supports F10 (stalls; F11, F13 and F32 are folded into it). Closes nothing |
+| Flags | Closes F35 (results pull requests jam). Supports F10 (stalls; F11, F13 and F32 are folded into it) |
 | Order | **Can start now, alongside 015** (different files: this touches `sims/lab/` only, apart from the version line). Better merged **before** 015's overnight runs, so they carry the new columns; whichever merges second takes the next free version |
 
 ## Context
 Mirror games still end on the turn limit about half the time. The Editor's ruling (19 Nov): the stall is a metric to track, study by kind and cause, and coach down over months, with no rule change for now. Today the lab only records how a game ended. It can't say when the fighting stopped, whether the ending was a stand-off or a side with nothing left to push with, or whether a stall starts the same way in different formats. This build adds that record. It is measurement only: no rule, brain or board change.
 
 ## Scope
-In: a new lab measure, `stall`, collected on every run; its table and a few summary lines; a script that runs the same measure over the Editor's own saved matches; a first "before" run.
-Out: any definition of what a stall *is* or of stall kinds (the study does that later, from these columns); any rule or brain change; the results-PR jam (F35, still open with the Editor).
+In: a new lab measure, `stall`, collected on every run; its table and a few summary lines; a script that runs the same measure over the Editor's own saved matches; a first "before" run; the fix for results pull requests jamming (F35, folded in by the Editor on 19 Nov).
+Out: any definition of what a stall *is* or of stall kinds (the study does that later, from these columns); any rule or brain change.
 
 ## What to build
 
@@ -62,11 +62,18 @@ The Matches screen can copy a full match record (`recordText` in `app.js`: rule 
 ### 4. The first "before" run
 A `study` job order in this pull request (`studies/queue/`): default brain mirror, newest rule set on main when the build starts (v3.5, or v3.6 if 015 has merged), balanced 5v5 and 7v7, 1,000 games each, the same seeds as that version's release run (the order's `seed_name` set to the release order's id), so its outcome table must match the release's exactly: a free check that the measure changes nothing. Measures: `play`, `clock`, `light` (with `stall` collected automatically). This run is the baseline every later build compares against. If 015 has merged by the time this runs, add the same two matchups on v3.5 too, so 015's stall effect has a before and after on the same seeds.
 
+### 5. Results pull requests can't jam (F35)
+Today every run adds its line to the top of `results/INDEX.md` and `results/index.csv`, so when one results pull request merges, any other waiting one conflicts and can't merge itself (it happened on 19 Nov: #20 and #22 stuck for hours). The Editor accepted Code's recommendation:
+- The lab **rebuilds** both files from the run folders (`results/*/*/run.json`) instead of adding a line. `INDEX.md` stays written from `index.csv`, so the two always agree.
+- When a results pull request falls behind `main`, the lab merges `main` into it and rebuilds both files, so a conflict can't stay. No repository setting changes (F28 already has them right).
+- **The rebuilt files must list exactly the runs listed today**, same rows, same order, checked before merge (paste the diff, which should be empty). Watch out: a quiet night writes an INDEX line ("no change, passed") with **no run folder**. Those lines must survive a rebuild: give them a home the rebuild reads (for example a small `results/nightly.csv`, or a tiny run folder per quiet night). Say in the Report which you chose.
+
 ## Rules it touches
 None: no rule changes. Tests (`self_test.js` or a new `test_stall.js` in `checks`):
 - Hand-built short games: each column comes out as worked by hand. Cover at least: a game ending on a pull (quiet_end 0); a turn-limit game with a quiet ending; a game where reactions are the last damage (parry or set spear); a holder present at limit − 3; a side down to only its holder (`gap_l3` blank).
 - `merge.js` totals and averages from two parts equal those from one.
 - `record.js` replays a seeded bot game's record to the same row the lab writes for that seed.
+- The rebuild: from today's `results/`, the rebuilt `index.csv` and `INDEX.md` equal the committed ones byte for byte; two results branches each adding a run, merged in either order, end with both runs listed and no conflict.
 
 ## Bot minimum
 n/a: the build changes nothing the bot can do. Prove the measure watches without touching: brain hashes unchanged on every preset.
@@ -74,7 +81,7 @@ n/a: the build changes nothing the bot can do. Prove the measure watches without
 ## Must not change
 - Every preset plays and replays identically; every brain plays exactly as before (paste the hashes).
 - Every existing `games.csv` core column, measure column and table, as `results/README.md` requires (extend, never rename).
-- Past run folders: not rewritten.
+- Past run folders: not rewritten. Every run listed in `results/INDEX.md` today is still listed after the rebuild.
 
 ## Checks before opening the pull request
 - Every check in `README.md` passes, `sims/lab/board_check.js` included.
@@ -83,7 +90,9 @@ n/a: the build changes nothing the bot can do. Prove the measure watches without
 - One short screen run (about 50 games per format) in the session to show the columns fill in sensibly; paste its `stall.csv`.
 
 ## The Editor's hands-on check
-Open the "before" run's `SUMMARY.md` once it lands and check the three stall lines read plainly. Nothing to play.
+1. Open the "before" run's `SUMMARY.md` once it lands and check the three stall lines read plainly.
+2. The next time two results pull requests wait at once, both merge themselves without a click.
+Nothing to play.
 
 ## Report back
 Beyond the standard items: the "before" table (5v5 and 7v7); anything in a column's meaning that the code forced to change; any column that turned out not to be measurable as written (each as an `ASK`).
