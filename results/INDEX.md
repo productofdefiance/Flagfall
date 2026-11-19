@@ -2,6 +2,7 @@
 
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
+- 2026-11-19 · release · v3.08.00 · [2026-11-19_release_release-v3-08-00](v3.08.00/2026-11-19_release_release-v3-08-00/SUMMARY.md): 5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B 482–484.
 - 2026-11-19 · study · v3.08.00 · brief 010 · [2026-11-19_study_dice-variety-v35](v3.08.00/2026-11-19_study_dice-variety-v35/SUMMARY.md): 5v5: mirror, 56.2% ended on the turn limit, A/B 490–494; 7v7: mirror, 43.3% ended on the turn limit, A/B 477–473.
 - 2026-11-19 · study · v3.08.00 · brief 010 · [2026-11-19_study_dice-variety-v34](v3.08.00/2026-11-19_study_dice-variety-v34/SUMMARY.md): 5v5: mirror, 52.6% ended on the turn limit, A/B 498–487; 7v7: mirror, 43.2% ended on the turn limit, A/B 492–474.
 - 2026-11-19 · screen · v3.08.00 · brief 010 · [2026-11-19_screen_dice-variety-bots](v3.08.00/2026-11-19_screen_dice-variety-bots/SUMMARY.md): brain5-v-kitd-5v5: brain5 took 64.5% of games against kitD (decisive 24–14, tiebreak 38–19, draws 5); brain5-v-kitd-7v7: brain5 took 67.0% of games against kitD (decisive 42–20, tiebreak 22–10, draws 6); brain6-v-brain5-5v5: brain6 took 51.5% of games against brain5 (decisive 28–22, tiebreak 22–25, draws 3); brain6-v-brain5-7v7: brain6 took 54.0% of games against brain5 (decisive 27–29, tiebreak 25–15, draws 4).
