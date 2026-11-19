@@ -103,11 +103,13 @@
      numbers stay comparable. */
   const BRAIN_6 = JSON.parse(JSON.stringify(BRAIN_5));
   BRAIN_6.id = "brain6"; BRAIN_6.name = "Brain 6 (knows the clock)";
-  BRAIN_6.note = "Brain 5 with tuned weights. It also knows the turn limit: as the last turn nears it values winning the tiebreak (more flag damage, then fewer units lost), so the side behind pushes and the side ahead keeps its lead. And it prefers attacks that leave a Light unit a step to Evade.";
+  BRAIN_6.note = "Brain 5 that knows the turn limit: as the last turn nears it values winning the tiebreak (more flag damage, then fewer units lost), so the side behind pushes and the side ahead keeps its lead. Its 'Keep an Evade step' setting is off by default: switched on, Light units nearly always keep a step, but all-Light games freeze on the clock (Brief 007).";
   Object.assign(BRAIN_6.model, {
     clock: 20,        // value of being ahead on the tiebreak (and cost of being behind) on the last turn
     clockTurns: 5,    // how many turns before the limit the clock starts to count; it grows to full on the last turn
-    evade: 1          // cost, per point of the target's expected hit back, of an adjacent attack that leaves no Evade step
+    evade: 0          // cost, per point of the target's expected hit back, of an adjacent attack that leaves no Evade step.
+                      // Off by default (Brief 007): at 1, "no legal step" fell from 32% to 7%, but all-Light mirrors ended on
+                      // the turn limit 91% (5v5) and 72% (7v7) of the time, against 52% and 40% for Brain 5. The Editor picks (F31).
   });
 
   const LABELS = {
