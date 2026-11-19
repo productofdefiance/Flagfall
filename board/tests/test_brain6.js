@@ -3,13 +3,17 @@
 const E = require("../engine.js"), Bot = require("../bot.js");
 const { PRESETS } = require("../data.js"); const { DEFAULT_BRAINS } = require("../brain.js");
 const RS = PRESETS[PRESETS.length - 1], B5 = DEFAULT_BRAINS.brain5, B6 = DEFAULT_BRAINS.brain6;
+// The hand-built positions (clock 1, clock 2, Evade) were set up on v3.4's dice and stay there (Brief 010). On v3.5 the
+// clock 2 attack has the same kill chance and average hit, but its spread tips Brain 5 itself into bracing, so the
+// position no longer shows the clock's effect. The seeded games below still play the newest preset.
+const RS_POS = PRESETS.find((p) => p.id === "v3.4");
 const games = +(process.argv[2] || 30);
 let fails = 0, n = 0;
 const ok = (c, m) => { n++; if (!c) { fails++; console.log("FAIL:", m); } };
 const L = (a) => a.map(([id, card]) => ({ id, card }));
 const U = (st, id) => E.unitByUid(st, id);
 function setup(lineN, lineS, place) {
-  const st = E.newMatch(RS, { first: "N", lineups: { N: L(lineN), S: L(lineS) } });
+  const st = E.newMatch(RS_POS, { first: "N", lineups: { N: L(lineN), S: L(lineS) } });
   for (const team of ["N", "S"]) {
     const z = E.deployZone(st, team).filter((h) => h !== E.FLAG[team]), p = {}; let i = 0;
     for (const u of st.units.filter((x) => x.team === team)) p[u.uid] = z[i++];

@@ -119,14 +119,15 @@ const MEASURES = {
   },
 
   play: {
-    about: "How each side played: braces, braces where no enemy could reach that unit next turn, attacks, attacks on a holder, moves, and safety stops.",
-    columns: ["braces", "braces_no_threat", "attacks", "holder_attacks", "moves", "safety_stops", "refused"],
+    about: "How each side played: braces, braces where no enemy could reach that unit next turn, attacks, attacks on a holder, moves, safety stops, actions the engine refused, and turns a brain ended because it hit an error.",
+    columns: ["braces", "braces_no_threat", "attacks", "holder_attacks", "moves", "safety_stops", "refused", "bot_errors"],
     make(ctx) {
-      const { E, Bot } = ctx, o = { braces: 0, braces_no_threat: 0, attacks: 0, holder_attacks: 0, moves: 0, safety_stops: 0, refused: 0 };
+      const { E, Bot } = ctx, o = { braces: 0, braces_no_threat: 0, attacks: 0, holder_attacks: 0, moves: 0, safety_stops: 0, refused: 0, bot_errors: 0 };
       return {
         before(st, c) {
           const a = c.action;
           if (/Safety stop/.test(c.reason || "")) o.safety_stops++;
+          if (/Hit an error/.test(c.reason || "")) o.bot_errors++;
           if (a.type === "brace") { o.braces++; const u = E.unitByUid(st, a.uid); if (u && !E.alive(st).some((e) => e.team !== u.team && Bot.canThreaten(st, e, u.hex))) o.braces_no_threat++; }
           if (a.type === "attack") { o.attacks++; if (E.isHolder(st, E.unitByUid(st, a.target))) o.holder_attacks++; }
           if (a.type === "move") o.moves++;

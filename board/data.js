@@ -138,7 +138,13 @@
   /* Brief 013 (no change in play): from v3.4 on, bracing is stored as a next-turn modifier, "brace tiredness"
      (Stamina it costs next turn), not as a fixed Stamina to start on. 3 − 1 = 2, as before. */
   delete V34.game.staminaAfterBrace; V34.game.braceTiredness = 1;
-  const PRESETS = [V1, V2, V3, V31, V32, V33, V34];
+  /* Rule set v3.5 (Brief 010, Game Laws 6.13, approved for playtest 17 Nov): a little variety in normal rolls.
+     Two dice totalling 4–5 take 10% off the hit, 9–10 add 10%; 2, 3, 6–8, 11 and 12 as v3.4. Average unchanged. */
+  const V35 = JSON.parse(JSON.stringify(V34));
+  V35.id = "v3.5"; V35.name = "v3.5 (2026-11-19)";
+  V35.note = "v3.4 plus dice variety: a roll of 4–5 deals 10% less, 9–10 deals 10% more (average unchanged).";
+  V35.switches.diceVariety = true;
+  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35];
 
   const TRAITS = { tackle: "Tackle", reach: "Reach", ignoreArmor: "Ignores Armor", none: "None" };
   const BRACES = { parry: "Parry", dodgeDouble: "Dodge doubles", spike: "Set spear", zone: "Projects Zone of Control", fullStamina: "Full Stamina next turn", noSupport: "No Support against it", none: "None" };

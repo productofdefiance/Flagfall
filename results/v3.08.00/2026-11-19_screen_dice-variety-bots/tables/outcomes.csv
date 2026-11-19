@@ -1,0 +1,5 @@
+matchup,a,b,rules,format,lineups,games,a_wins,b_wins,a_tiebreak,b_tiebreak,draws,unfinished,errors,holder_ko,pull_ko,tko,tiebreak_win,draw,turn_limit,games_with_pull,avg_turn,decisive,first_mover_share,a_share,a_share_se
+brain5-v-kitd-5v5,brain5,kitD,v3.5,blitz5,mixed,100,24,14,38,19,5,0,0,22,16,0,57,5,62,17,19.61,38,0.5,0.645,0.05
+brain5-v-kitd-7v7,brain5,kitD,v3.5,std7,mixed,100,42,20,22,10,6,0,0,46,16,0,32,6,38,16,20.95,62,0.4355,0.67,0.05
+brain6-v-brain5-5v5,brain6,brain5,v3.5,blitz5,mixed,100,28,22,22,25,3,0,0,5,27,18,47,3,50,27,18.56,50,0.32,0.515,0.05
+brain6-v-brain5-7v7,brain6,brain5,v3.5,std7,mixed,100,27,29,25,15,4,0,0,6,38,12,40,4,44,38,22.77,56,0.3929,0.54,0.05

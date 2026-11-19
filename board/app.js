@@ -1372,6 +1372,7 @@
     ["captureTriggersSpike", "A capture counts as entering", "A unit stepping in after a kill takes a braced Anti-Cavalry's spike damage."],
     ["rangedHalfWhenAdjacent", "Ranged halved when an enemy is adjacent", "A Ranged unit with an enemy next to it shoots at half Strength."],
     ["dice2d6", "Two dice, graded", "Two d6 added: 2 = −50%, 3 = −25%, 4–10 normal, 11 = +25%, 12 = +50%. Off: one d6 (1 halves, 6 adds half)."],
+    ["diceVariety", "Dice variety", "v3.5: with two dice, 4–5 deals 10% less and 9–10 deals 10% more; 6–8 normal. Average unchanged."],
     ["halfPoints", "Half points", "Damage rounds to the nearest half point; 0.5 HP is still in."],
     ["dodgeRoom", "Room Dodge", "Dodge is a percentage from open hexes round the unit, taken off after the roll. Off: 1 per full 4 points of Strength."],
     ["supportPerUnit", "Support per helper", "Support counts every friend next to the target. Off: a flat bonus however many."],
