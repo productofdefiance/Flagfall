@@ -29,9 +29,23 @@ Rule set: **v3.5** (new, the new-game default) = v3.4 plus switch `diceVariety`.
 - New check `test_v35.js` (bands, chances, average, rounding, Dodge after the roll, pulls, the pooled flag, seeded bot games); runs in `checks`.
 - Lab: the `play` measure also counts turns a brain ended on an error (`bot_errors`).
 
-**Flags closed:** none. **Opened:** none.
+**Flags closed:** none. **Opened:** F33 (the first mover wins more decisive games on v3.5), F34 (±10% rounds away on hits of 1–2).
 
-**Baseline (balanced, Brain 5 mirror, 1,000 games per format, same seeds on both rule sets):** see the brief's Report.
+**Baseline (balanced, Brain 5 mirror, 1,000 games per format, same seeds on both rule sets)**
+
+| | 5v5 v3.4 | 5v5 v3.5 | 7v7 v3.4 | 7v7 v3.5 |
+|---|---|---|---|---|
+| Holder KO | 4.8% | 4.2% | 3.2% | 4.3% |
+| Pull KO | 28.1% | 27.5% | 40.0% | 40.8% |
+| TKO | 14.5% | 12.1% | 13.6% | 11.6% |
+| Tiebreak win | 51.1% | 54.6% | 39.8% | 38.3% |
+| Draw | 1.5% | 1.6% | 3.4% | 5.0% |
+| Ended on the turn limit | 52.6% | 56.2% | 43.2% | 43.3% |
+| Games with a pull | 28.1% | 27.5% | 40.1% | 41.0% |
+| Average turn | 18.78 | 19.13 | 22.47 | 22.54 |
+| First mover's share of decisive | 30.0% | 37.7% | 42.6% | 52.4% |
+
+All gaps except the first mover's share are under 8 points (noise, F23).
 
 ## v3.07.00 · Build 10 — Brief 007, Brain 6: Brain 5 tuned, the clock, Evade steps (19 Nov 2026)
 Rule set: none changed (v3.4 stays the newest). New brain **Brain 6**; Brain 5 stays the default. Game version **v3.07.00** (YY: a new brain; brief 009 took v3.06.00 first).
