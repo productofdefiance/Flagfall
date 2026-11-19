@@ -3,6 +3,7 @@
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
 - 2026-11-19 · study · v3.08.01 · brief 016 · [2026-11-19_study_stall-before](v3.08.01/2026-11-19_study_stall-before/SUMMARY.md): 5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B 482–484.
+- 2026-11-19 · nightly · v3.08.00 · [2026-11-19_nightly_health](v3.08.00/2026-11-19_nightly_health/SUMMARY.md): passed: all 4 night checks
 - 2026-11-19 · release · v3.08.00 · [2026-11-19_release_release-v3-08-00](v3.08.00/2026-11-19_release_release-v3-08-00/SUMMARY.md): 5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B 482–484.
 - 2026-11-19 · study · v3.08.00 · brief 010 · [2026-11-19_study_dice-variety-v35](v3.08.00/2026-11-19_study_dice-variety-v35/SUMMARY.md): 5v5: mirror, 56.2% ended on the turn limit, A/B 490–494; 7v7: mirror, 43.3% ended on the turn limit, A/B 477–473.
 - 2026-11-19 · study · v3.08.00 · brief 010 · [2026-11-19_study_dice-variety-v34](v3.08.00/2026-11-19_study_dice-variety-v34/SUMMARY.md): 5v5: mirror, 52.6% ended on the turn limit, A/B 498–487; 7v7: mirror, 43.2% ended on the turn limit, A/B 492–474.
