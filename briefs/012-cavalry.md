@@ -9,7 +9,7 @@
 | Goal | Heavy and Light Cavalry join the game with their traits, brace benefits and specials; 9v9 and 13v13 become playable; the fort rule, the rewritten Mark and the new Command numbers go in (Game Laws 2.1, 2.7, 2.9, 3.4, 3.8, 4.2, 4.5, 4.6, 4.8, 6.4, 6.5, 6.7, 6.9–6.12, 6.14–6.17) |
 | Branch | Any branch your session may push to, started from `brief/012-cavalry` |
 | Flags | none to close; open new ones as found. F20 gets its double-knockout check again (Trample and Breakaway can hurt both sides) |
-| Order | **After 011 and 014 are both merged.** It builds on 011's special system (warm-up, fire, previews, Special button) and on 014's fields (9v9 and 13v13 exist there as data only) |
+| Order | **After 011, 014 and the move-preview brief are all merged.** It builds on 011's special system (warm-up, fire, previews, Special button), on 014's fields (9v9 and 13v13 exist there as data only), and on the move-preview brief's two-tap confirm and danger markers (the Editor, 19 Nov; not written yet, its number is taken when it is pushed) |
 
 ## Context
 Cavalry is the first new unit type since the board was built. Its cards were locked on 18 Nov (Unit Stats sheet, Test units rows 15–16). On 19 Nov the Editor settled the gaps the Laws left: Mark stops a unit only where it comes to stand (3.8, rewritten), set spear still fires on hexes ridden over (6.14), the fort (4.5), Pursuit's damage (6.12), Cavalry only at 9v9 and 13v13 (2.1), and Command and turn limits per format (2.7, 2.9).
@@ -69,7 +69,7 @@ Cavalry may move over other units, friend or enemy, **except** Anti-Cavalry (HA,
 - **For set spear**, every hex it passes through counts as entered. If a spear triggers while the rider is over an occupied hex, it is **turned back**: it stops in the last empty hex it passed, takes the 2, its move ends, and it may attack only that spearman if it can reach it from there. If the spear triggers on an empty hex, it stops there (6.15).
 - **Set spear against Cavalry (6.15):** 2 damage, not reduced by Dodge or Armor; the rider stops and may attack only that Heavy Anti-Cavalry this turn; Evade is unchanged. Only the first enemy to enter each turn triggers each spear, one spear per entry (3.13).
 - **Tackle** works as today: judged from the hex the move starts in to the hex it ends in. Hexes ridden over create no contact.
-- **Which path:** a move names its destination; when several routes reach it, the engine takes the cheapest route that triggers nothing (no spear). If every route triggers a spear, it takes the cheapest one and the move preview says so (`Set spear: −2, stops at F9`). Nothing is cut off unannounced: the preview always shows exactly where the move ends and what it takes on the way. The player may also fix a route by tapping a waypoint hex before the destination (needed for Breakaway, section 10; offered for every Cavalry move).
+- **Which path:** a move names its destination; when several routes reach it, the engine takes the cheapest route that triggers nothing (no spear). If every route triggers a spear, it takes the cheapest one and the move preview says so (`Set spear: −2, stops at F9`). Nothing is cut off unannounced: the preview always shows exactly where the move ends and what it takes on the way. There are **no waypoints** (the Editor, 19 Nov; Laws 6.14): a player who wants another route moves in shorter steps. Breakaway picks its route by its targets instead (section 10).
 - Evade steps (LC) follow the same rules, Vault included.
 
 ### 6. Mark, rewritten (3.8, behind `markWhereStands`)
@@ -97,7 +97,7 @@ When a braced HC is hit by an **adjacent melee attack** (normal attack or specia
 The first enemy each turn to **leave contact** with a braced LC (end up no longer adjacent to it, by moving, swapping, Evading or a special's ride) is **Pursued**:
 - It takes **20% of the LC's own Strength** (1.6, so 1.5 on the half-point scale), flat, no dice, not reduced by Armor or Dodge, at the moment it leaves. If that removes it, its move ends there.
 - It starts its next turn **1 Stamina down**: a new entry in 013's modifier list. Standing rule: **source** an enemy LC; **effect** `pursued`; once per turn however many braced LC it leaves (the unit is Pursued once, damage once); **worst-case stack** brace tiredness −1 plus Pursued −1: a 3-Stamina foot unit starts on 1 (floor holds), Cavalry on 2. Second Wind cancels only the Light Ranged's own brace tiredness, never Pursued (3.14). The floor check must pass on every card.
-- Being swapped by Trample is not leaving contact (the unit didn't choose to move). Raise an `ASK` if another forced move comes up.
+- Being swapped by Trample is not leaving contact (the unit didn't choose to move; Laws 6.12, locked 19 Nov). Raise an `ASK` if another forced move comes up.
 - With the fort, a holder leaving its flag is never Pursued (section 12).
 - Shown on the unit as status `Pursued` (−1 Stamina next turn) until its next turn starts.
 
@@ -106,14 +106,14 @@ Built on 011's special system: warm up one turn (1 Stamina, gold ring), fire the
 - The HC may move normally first, then rides **one of the six straight lines** (Vault allowed) and strikes. The bonus counts the **final straight run** of hexes in one line before the strike, up to 3: **+25% per hex**; **+50% more if head-on** (the target is the next hex along that same line). Multiplier = 1 + 0.25 × hexes (≤ 3) + 0.5 if head-on, so ×1 to ×2.25. A full Charge (3 hexes and the strike) costs exactly 4 Stamina.
 - Damage: the normal hit from the final hex (Strength, Support, the target's Armor or Dodge, Brace and its benefits), no dice, × the multiplier, rounded to the half, at least 1 (6.16.3).
 - **Stopped by a Mark** (first empty zone hex entered): it strikes the enemy whose Mark stopped it, with the bonus earned so far (head-on if that enemy is next in line). If several enemies' Marks cover that hex, the player picks which (the bot picks the best).
-- **Stopped by set spear:** as section 5. It strikes the spearman with the bonus earned so far if it can reach it from where it stopped; otherwise it strikes nothing, and the special is still Used (firing is the attack, 6.16).
+- **Stopped by set spear:** as section 5. It strikes the spearman with the bonus earned so far if it can reach it from where it stopped. A line where it couldn't **can't be fired at all**: the Charge preview refuses it and says why (`Set spear turns you back at F8: nothing in reach`). No Charge is ever fired for nothing (Laws 1.16, 6.14, 6.15; the Editor, 19 Nov). The bot never considers those lines.
 - If the target survives, the HC stays in the last hex before it; if it dies, the HC takes the hex (3.6; set spear on entering applies).
 - A braced HC as the target triggers Trample as normal. A flag holder can be charged only from its goal zone (4.5).
 - The preview shows the line, the hexes counted, `head-on` or not, and the multiplier.
 
 ### 10. Breakaway (LC special, 6.17)
 Also on 011's system.
-- The LC rides **any route it could legally move** (Vault; slips through zones; spears apply), set by waypoints.
+- The LC rides **any route it could legally move** (Vault; slips through zones; spears apply). No waypoints: the player taps the enemies to ride over (at most two), then the final hex, and the engine takes the cheapest legal route through them (Laws 6.17; the Editor, 19 Nov). If no legal route passes over the chosen enemies, the choice isn't offered (1.16). A Breakaway that would strike nothing at all can't be fired (1.16).
 - Each **enemy ridden over** takes ×1 as the rider passes: the normal adjacent hit on that unit (Strength, Support, its Armor or Dodge, Brace, Fend), no dice. **At most two** count; a third ridden over takes nothing. **None of them parries.**
 - Then the **final target** (adjacent to where the ride ends) takes ×1. **Each enemy is hit at most once:** the final target can't be one it rode over (the Editor, 19 Nov).
 - Then Evade (6.5), except after killing the final target (the LC takes the hex and its turn ends, 3.6).
@@ -139,7 +139,7 @@ Builds on 009 (attack preview, unit card, buttons) and 011 (Special button, warm
 - **Lineup:** Cavalry cards appear at 9v9 and 13v13 only; the `In your lineup` bar counts UC; the refusal for a lineup without a foot unit.
 - **Unit card:** Trait `Vault: rides over other units, never over Anti-Cavalry, Cavalry or a flag`. HC unit abilities: `Mark`, brace `Trample: when hit by adjacent melee, swaps with the attacker and deals it 2.5`. LC: `Slips through zones`, brace `Pursuit: the first enemy to leave it takes 1.5 and starts its next turn 1 Stamina down`, class `Evade`. Special section: `Charge: rides a straight line and strikes, +25% per hex (up to 3), +50% head-on` and `Breakaway: rides over up to two enemies, a normal hit on each and on the final target, then Evade`. Numbers come from the rule set.
 - **Status chip:** `Pursued` (−1 Stamina next turn), from the engine's state.
-- **Move preview (Cavalry):** the route drawn on the field, vaulted hexes marked; where it stops and why (`Stopped by Mark at F9`, `Set spear: −2, stops at F9`); a Pursuit it will take (`Pursued: −1.5 now, −1 Stamina next turn`). Waypoint tapping for a route.
+- **Move preview (Cavalry):** the route drawn on the field, vaulted hexes marked; where it stops and why (`Stopped by Mark at F9`, `Set spear: −2, stops at F9`); a Pursuit it will take (`Pursued: −1.5 now, −1 Stamina next turn`). No waypoint tapping: the move-preview brief's two-tap confirm carries the route and its dangers; Cavalry adds the vault marks and the stop reasons above. Breakaway: tap the enemies to ride over, then the final hex.
 - **Attack preview:** key rows for Trample (`You take 2.5 and swap to F9`), Anti-Cavalry's halved Armor (`Armor 3 → 1.5: Anti-Cavalry`), and the fort (`No parry: attacking from the flag`).
 - **Charge preview:** the line highlighted, `3 hexes +75%, head-on +50%: ×2.25`, the exact damage (one segment, no dice).
 - **Breakaway preview:** the route; one 011 extra-target row per enemy ridden over (at most two) plus the final target; the Evade step after.
@@ -153,7 +153,7 @@ Each becomes a test on v3.8 where it applies.
 - Set spear (3.13, 6.14, 6.15): over an occupied hex → turned back, 2, may attack only the spearman; on an empty hex → stops there; not cut by Dodge; first entry per turn; one spear per entry; the fort on stepping onto a flag.
 - Trample: first adjacent melee attack per enemy turn only; not ranged, not Reach; HC removed → attacker takes the hex; swap counts as entering (spear, Mark); damage can remove the attacker (no swap); never onto a flag; LC attacker Evades after; one reaction per action.
 - Pursuit: once per turn per unit; damage and −1 Stamina; floor; Second Wind doesn't cancel it; not on a Trample swap; not on a holder leaving its flag.
-- Charge: bonus per straight hex up to 3, head-on, moved first then straight; stopped by Mark (strike the marker; pick among several); stopped by spear (strike the spearman or nothing, Used); target survives / dies; braced HC target → Trample; holder only from its goal zone; no dice; rounding.
+- Charge: bonus per straight hex up to 3, head-on, moved first then straight; stopped by Mark (strike the marker; pick among several); stopped by spear (strike the spearman; a line that would strike nothing is refused, 1.16); target survives / dies; braced HC target → Trample; holder only from its goal zone; no dice; rounding.
 - Breakaway: up to two ridden over, each at most once, final target not one ridden over, no parry from those ridden over; spear interrupts and earlier hits stay; Evade after, not after a kill.
 - Anti-Cavalry halves Cavalry Armor on every attack type; reactions unchanged.
 - Mounted: no deploying, moving or swapping onto its own flag; may pull an empty enemy flag; at least one foot unit in a lineup.
