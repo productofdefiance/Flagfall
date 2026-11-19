@@ -227,4 +227,4 @@ v3.4 brain5          a8bc0b017ad55a10 {"turn limit, fewer beings lost":2,"TKO":1
 - **Settings review (brain builds only):** n/a
 - **Known gaps:** the pull preview keeps today's sheet (out of scope). Phone layout checked in a headless browser at 390×844 only; not on a real phone. The key's drag works on pointer release (no live drag animation).
 - **Flags closed / opened:** none closed. Opened **F30** (keep or hide the greyed-out Special button until brief 011).
-- **Pull request:** see the pull request for this branch.
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/18 (play: https://productofdefiance.github.io/Flagfall/pr/18/)
