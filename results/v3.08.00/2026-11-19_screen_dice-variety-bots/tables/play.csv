@@ -1,0 +1,5 @@
+matchup,games,braces,braces_no_threat,attacks,holder_attacks,moves,safety_stops,refused,bot_errors
+brain5-v-kitd-5v5,100,528,0,2435,341,4389,0,0,0
+brain5-v-kitd-7v7,100,968,0,3121,395,6693,0,0,0
+brain6-v-brain5-5v5,100,464,0,2417,372,4685,0,0,0
+brain6-v-brain5-7v7,100,875,0,3070,316,6365,0,0,0

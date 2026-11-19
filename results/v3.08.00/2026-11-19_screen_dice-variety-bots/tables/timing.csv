@@ -1,0 +1,5 @@
+matchup,games,bot_turns,bot_ms,bot_ms_max_turn
+brain5-v-kitd-5v5,100,3903,188174,975
+brain5-v-kitd-7v7,100,4163,513555,2745
+brain6-v-brain5-5v5,100,3696,211444,872
+brain6-v-brain5-7v7,100,4532,663486,2414

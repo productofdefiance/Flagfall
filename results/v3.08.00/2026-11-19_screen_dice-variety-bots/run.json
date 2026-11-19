@@ -1,0 +1,68 @@
+{
+ "id": "2026-11-19_screen_dice-variety-bots",
+ "kind": "screen",
+ "version": "v3.08.00",
+ "build": 11,
+ "commit": "ea3388245421880d0c598ddd31bf21274ae282db",
+ "brief": "010",
+ "question": "Bot minimum: do Brain 5, Brain 6 and Kit D play 200 games each on v3.5 with no refused action, no error and no safety stop?",
+ "tags": [
+  "dice-variety",
+  "bot-minimum",
+  "v3.5"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-19T08:11:32.000Z",
+ "finished": "2026-11-19T08:57:32.251Z",
+ "games": 400,
+ "seed_from": "tests/rng.js lab:dice-variety-bots:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "brain5-v-kitd-5v5",
+    "a": "brain5",
+    "b": "kitD",
+    "rules": "v3.5",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 100
+   },
+   {
+    "name": "brain5-v-kitd-7v7",
+    "a": "brain5",
+    "b": "kitD",
+    "rules": "v3.5",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 100
+   },
+   {
+    "name": "brain6-v-brain5-5v5",
+    "a": "brain6",
+    "b": "brain5",
+    "rules": "v3.5",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 100
+   },
+   {
+    "name": "brain6-v-brain5-7v7",
+    "a": "brain6",
+    "b": "brain5",
+    "rules": "v3.5",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 100
+   }
+  ],
+  "measures": [
+   "play"
+  ]
+ },
+ "failed": null,
+ "extra": {}
+}
