@@ -113,6 +113,15 @@ function writeRun(order, list) {
   return dir;
 }
 function autoAnswer(out) {
+  // Many matchups (a sweep): one line for the whole run; the per-matchup numbers are in tables/outcomes.csv.
+  if (out.length > 6) {
+    const vs = out.filter((t) => t.a !== t.b && t.games), mir = out.filter((t) => t.a === t.b && t.games);
+    const best = vs.slice().sort((x, y) => y.a_share - x.a_share)[0], worst = vs.slice().sort((x, y) => x.a_share - y.a_share)[0];
+    const games = out.reduce((n, t) => n + t.games, 0);
+    return `${out.length} matchups, ${games} games (per-matchup numbers in tables/outcomes.csv).` +
+      (vs.length ? ` A's share of games ranged from ${pct(worst.a_share, 1)} (${worst.matchup}) to ${pct(best.a_share, 1)} (${best.matchup}).` : "") +
+      (mir.length ? ` Mirrors ended on the turn limit in ${pct(mir.reduce((n, t) => n + t.turn_limit, 0), mir.reduce((n, t) => n + t.games, 0))} of games.` : "");
+  }
   return out.map((t) => t.a === t.b
     ? `${t.matchup}: mirror, ${pct(t.turn_limit, t.games)} ended on the turn limit, A/B ${t.a_wins + t.a_tiebreak}–${t.b_wins + t.b_tiebreak}`
     : `${t.matchup}: ${t.a} took ${pct(t.a_share, 1)} of games against ${t.b} (decisive ${t.a_wins}–${t.b_wins}, tiebreak ${t.a_tiebreak}–${t.b_tiebreak}, draws ${t.draws})`).join("; ") + ".";

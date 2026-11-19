@@ -6,11 +6,77 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.08.00 | v3.5 | Brain 5 | v2 | 11 |
+| v3.07.00 | v3.4 | Brain 5 | v2 | 10 |
 | v3.06.00 | v3.4 | Brain 5 | v2 | 9 |
 | v3.05.02 | v3.4 | Brain 5 | v1 | 8 |
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.08.00 · Build 11 — Brief 010, rule set v3.5: a little variety in normal rolls (19 Nov 2026)
+Rule set: **v3.5** (new, the new-game default) = v3.4 plus switch `diceVariety`. Game version **v3.08.00** (YY: a new rule set; brief 007 took v3.07.00 first).
+
+**What a player will notice**
+- New games start on rule set v3.5. Normal hits are no longer all the same: two dice totalling 4–5 deal 10% less, 9–10 deal 10% more, 6–8 as before. 2, 3, 11 and 12 are unchanged. The average hit is the same.
+- The attack preview's outcome bar now shows up to 7 outcomes instead of 5 (it still merges outcomes that round to the same damage, so a small hit of 2 shows 5).
+- Pulls use the same dice.
+- v3.4 and every older rule set play exactly as before; saved v3.4 matches replay the same.
+
+**Under the hood**
+- `engine.js`: the v3.5 dice cases (7 instead of 5) and one multiplier function; both brains already average over the dice cases, so they play v3.5 with no brain change.
+- `data.js`: preset v3.5. `app.js`: the "Dice variety" switch on the rule-set editor.
+- New check `test_v35.js` (bands, chances, average, rounding, Dodge after the roll, pulls, the pooled flag, seeded bot games); runs in `checks`.
+- Lab: the `play` measure also counts turns a brain ended on an error (`bot_errors`).
+
+**Flags closed:** none. **Opened:** F33 (the first mover wins more decisive games on v3.5), F34 (±10% rounds away on hits of 1–2).
+
+**Baseline (balanced, Brain 5 mirror, 1,000 games per format, same seeds on both rule sets)**
+
+| | 5v5 v3.4 | 5v5 v3.5 | 7v7 v3.4 | 7v7 v3.5 |
+|---|---|---|---|---|
+| Holder KO | 4.8% | 4.2% | 3.2% | 4.3% |
+| Pull KO | 28.1% | 27.5% | 40.0% | 40.8% |
+| TKO | 14.5% | 12.1% | 13.6% | 11.6% |
+| Tiebreak win | 51.1% | 54.6% | 39.8% | 38.3% |
+| Draw | 1.5% | 1.6% | 3.4% | 5.0% |
+| Ended on the turn limit | 52.6% | 56.2% | 43.2% | 43.3% |
+| Games with a pull | 28.1% | 27.5% | 40.1% | 41.0% |
+| Average turn | 18.78 | 19.13 | 22.47 | 22.54 |
+| First mover's share of decisive | 30.0% | 37.7% | 42.6% | 52.4% |
+
+All gaps except the first mover's share are under 8 points (noise, F23).
+
+## v3.07.00 · Build 10 — Brief 007, Brain 6: Brain 5 tuned, the clock, Evade steps (19 Nov 2026)
+Rule set: none changed (v3.4 stays the newest). New brain **Brain 6**; Brain 5 stays the default. Game version **v3.07.00** (YY: a new brain; brief 009 took v3.06.00 first).
+
+**What a player will notice**
+- A new opponent in the list, **Brain 6 (knows the clock)**: Brain 5 that values winning the tiebreak as the turn limit nears. On the last turns the side behind goes for the enemy holder when it can, and the side ahead stops throwing units away.
+- Brain 5 is still the default: Brain 6 ties it (50.1% of 4,000 games) and didn't beat it in three of the four formats, the bar for becoming the default.
+- Brain 6's new settings are on the Opponent screen: "Clock weight", "Turns of clock pressure", and "Keep an Evade step" (off by default, F31).
+- The game version shows on Home and in saved matches with the build number ("v3.07.00 · Build 10"). Matches saved before Build 7 still show "Build 6".
+
+**Under the hood**
+- `bot.js`: Brain 6's clock term (the tiebreak's likely outcome, from each side's chance to change it from the goal zone on its remaining turns) and the "Keep an Evade step" cost; Brain 5 and every older brain play exactly as before.
+- `version.js`: the game version beside the build, with the line and "started on" helpers; the version check also requires the game version to change.
+- Weights tuned on the lab, in two stages: a screen of every setting at 0, half and double (33,600 games), then the promising ones at 1,000 games per format against Brain 5 and in mirrors (60,000 games). Results in `results/`.
+- Lab fixes found while running it: a pull request's later push no longer replays its job orders; night checks on a pull request no longer start a lab run on `main`; big runs get a one-line answer.
+
+**Flags closed:** F25 (clock), F28, F29. **Opened:** F31 (Keep an Evade step on or off), F32 (the side behind has nothing left to push with). **Updated:** F10, F11, F12, F22, F24.
+
+**Stall re-check (balanced, Brain 6 mirrors vs Brain 5 mirrors, 1,000 games per format, same lab run)**
+
+| | Brain 6 5v5 | Brain 5 5v5 | Brain 6 7v7 | Brain 5 7v7 |
+|---|---|---|---|---|
+| Holder KO | 4.2% | 3.4% | 3.1% | 4.4% |
+| Pull KO | 28.0% | 29.1% | 43.5% | 39.6% |
+| TKO | 12.2% | 12.3% | 14.0% | 13.9% |
+| Tiebreak win | 55.3% | 53.0% | 38.0% | 39.2% |
+| Draw | 0.3% | 2.2% | 1.4% | 2.9% |
+| Ended on the turn limit | 55.6% | 55.2% | 39.4% | 42.1% |
+| Games with a pull | 28.0% | 29.2% | 43.6% | 39.6% |
+| Average turn | 19.16 | 19.08 | 21.62 | 22.29 |
+| First mover's share of decisive games | 33% | 30% | 45% | 44% |
 
 ## v3.06.00 · Build 9 — Brief 009, UI v2: attack preview, unit card, top bar and Options menu (19 Nov 2026)
 Rule set: none changed (v3.4 stays the newest). No brain changed. UI v1 → **v2**. Game version **v3.06.00** (YY: new screens).

@@ -1,0 +1,52 @@
+{
+ "id": "2026-11-19_study_dice-variety-v34",
+ "kind": "study",
+ "version": "v3.08.00",
+ "build": 11,
+ "commit": "ea3388245421880d0c598ddd31bf21274ae282db",
+ "brief": "010",
+ "question": "Brief 010's control: how do balanced games end on v3.4 with the default brain (Brain 5) against itself, on the same seeds as the v3.5 run?",
+ "tags": [
+  "dice-variety",
+  "brain5",
+  "v3.4"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-19T08:11:32.000Z",
+ "finished": "2026-11-19T08:57:32.273Z",
+ "games": 2000,
+ "seed_from": "tests/rng.js lab:dice-variety:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000
+   },
+   {
+    "name": "7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000
+   }
+  ],
+  "measures": [
+   "play",
+   "light",
+   "clock"
+  ]
+ },
+ "failed": null,
+ "extra": {}
+}

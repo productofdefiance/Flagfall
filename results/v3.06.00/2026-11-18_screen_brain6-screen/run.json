@@ -1,0 +1,1548 @@
+{
+ "id": "2026-11-18_screen_brain6-screen",
+ "kind": "screen",
+ "version": "v3.06.00",
+ "build": 9,
+ "commit": "c24e288a439cc4333fa7a72b92b11b979e55053a",
+ "brief": "007",
+ "question": "Screen (stage 1 of 2): which of Brain 6's settings, each set to 0, half or double (and the clock and Evade-step settings), beat Brain 5 or cut the share of games ending on the turn limit? 200 games per format; the promising ones are confirmed at 1,000 overnight.",
+ "tags": [
+  "brain6",
+  "brain5",
+  "sweep",
+  "screen"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-18T21:45:01.000Z",
+ "finished": "2026-11-19T00:59:04.519Z",
+ "games": 33600,
+ "seed_from": "tests/rng.js lab:brain6-screen:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "base-bal5",
+    "a": "brain6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "base-bal7",
+    "a": "brain6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "base-light5",
+    "a": "brain6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "base-light7",
+    "a": "brain6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "unit-0-bal5",
+    "a": "brain6:unit=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "unit-0-bal7",
+    "a": "brain6:unit=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "unit-0-light5",
+    "a": "brain6:unit=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "unit-0-light7",
+    "a": "brain6:unit=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "unit-half-bal5",
+    "a": "brain6:unit=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "unit-half-bal7",
+    "a": "brain6:unit=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "unit-half-light5",
+    "a": "brain6:unit=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "unit-half-light7",
+    "a": "brain6:unit=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "unit-double-bal5",
+    "a": "brain6:unit=12",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "unit-double-bal7",
+    "a": "brain6:unit=12",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "unit-double-light5",
+    "a": "brain6:unit=12",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "unit-double-light7",
+    "a": "brain6:unit=12",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "hp-0-bal5",
+    "a": "brain6:hp=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "hp-0-bal7",
+    "a": "brain6:hp=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "hp-0-light5",
+    "a": "brain6:hp=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "hp-0-light7",
+    "a": "brain6:hp=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "hp-half-bal5",
+    "a": "brain6:hp=0.5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "hp-half-bal7",
+    "a": "brain6:hp=0.5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "hp-half-light5",
+    "a": "brain6:hp=0.5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "hp-half-light7",
+    "a": "brain6:hp=0.5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "hp-double-bal5",
+    "a": "brain6:hp=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "hp-double-bal7",
+    "a": "brain6:hp=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "hp-double-light5",
+    "a": "brain6:hp=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "hp-double-light7",
+    "a": "brain6:hp=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pull-0-bal5",
+    "a": "brain6:pull=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pull-0-bal7",
+    "a": "brain6:pull=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pull-0-light5",
+    "a": "brain6:pull=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pull-0-light7",
+    "a": "brain6:pull=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pull-half-bal5",
+    "a": "brain6:pull=1.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pull-half-bal7",
+    "a": "brain6:pull=1.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pull-half-light5",
+    "a": "brain6:pull=1.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pull-half-light7",
+    "a": "brain6:pull=1.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pull-double-bal5",
+    "a": "brain6:pull=5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pull-double-bal7",
+    "a": "brain6:pull=5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pull-double-light5",
+    "a": "brain6:pull=5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pull-double-light7",
+    "a": "brain6:pull=5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "risk-0-bal5",
+    "a": "brain6:risk=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "risk-0-bal7",
+    "a": "brain6:risk=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "risk-0-light5",
+    "a": "brain6:risk=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "risk-0-light7",
+    "a": "brain6:risk=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "risk-half-bal5",
+    "a": "brain6:risk=0.35",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "risk-half-bal7",
+    "a": "brain6:risk=0.35",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "risk-half-light5",
+    "a": "brain6:risk=0.35",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "risk-half-light7",
+    "a": "brain6:risk=0.35",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "risk-double-bal5",
+    "a": "brain6:risk=1.4",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "risk-double-bal7",
+    "a": "brain6:risk=1.4",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "risk-double-light5",
+    "a": "brain6:risk=1.4",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "risk-double-light7",
+    "a": "brain6:risk=1.4",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pressure-0-bal5",
+    "a": "brain6:pressure=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pressure-0-bal7",
+    "a": "brain6:pressure=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pressure-0-light5",
+    "a": "brain6:pressure=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pressure-0-light7",
+    "a": "brain6:pressure=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pressure-half-bal5",
+    "a": "brain6:pressure=0.15",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pressure-half-bal7",
+    "a": "brain6:pressure=0.15",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pressure-half-light5",
+    "a": "brain6:pressure=0.15",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pressure-half-light7",
+    "a": "brain6:pressure=0.15",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pressure-double-bal5",
+    "a": "brain6:pressure=0.6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pressure-double-bal7",
+    "a": "brain6:pressure=0.6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "pressure-double-light5",
+    "a": "brain6:pressure=0.6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "pressure-double-light7",
+    "a": "brain6:pressure=0.6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "stamina-0-bal5",
+    "a": "brain6:stamina=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "stamina-0-bal7",
+    "a": "brain6:stamina=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "stamina-0-light5",
+    "a": "brain6:stamina=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "stamina-0-light7",
+    "a": "brain6:stamina=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "stamina-half-bal5",
+    "a": "brain6:stamina=0.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "stamina-half-bal7",
+    "a": "brain6:stamina=0.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "stamina-half-light5",
+    "a": "brain6:stamina=0.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "stamina-half-light7",
+    "a": "brain6:stamina=0.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "stamina-double-bal5",
+    "a": "brain6:stamina=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "stamina-double-bal7",
+    "a": "brain6:stamina=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "stamina-double-light5",
+    "a": "brain6:stamina=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "stamina-double-light7",
+    "a": "brain6:stamina=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "advance-0-bal5",
+    "a": "brain6:advance=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "advance-0-bal7",
+    "a": "brain6:advance=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "advance-0-light5",
+    "a": "brain6:advance=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "advance-0-light7",
+    "a": "brain6:advance=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "advance-half-bal5",
+    "a": "brain6:advance=0.15",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "advance-half-bal7",
+    "a": "brain6:advance=0.15",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "advance-half-light5",
+    "a": "brain6:advance=0.15",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "advance-half-light7",
+    "a": "brain6:advance=0.15",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "advance-double-bal5",
+    "a": "brain6:advance=0.6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "advance-double-bal7",
+    "a": "brain6:advance=0.6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "advance-double-light5",
+    "a": "brain6:advance=0.6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "advance-double-light7",
+    "a": "brain6:advance=0.6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "home-0-bal5",
+    "a": "brain6:home=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "home-0-bal7",
+    "a": "brain6:home=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "home-0-light5",
+    "a": "brain6:home=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "home-0-light7",
+    "a": "brain6:home=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "home-half-bal5",
+    "a": "brain6:home=1.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "home-half-bal7",
+    "a": "brain6:home=1.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "home-half-light5",
+    "a": "brain6:home=1.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "home-half-light7",
+    "a": "brain6:home=1.25",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "home-double-bal5",
+    "a": "brain6:home=5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "home-double-bal7",
+    "a": "brain6:home=5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "home-double-light5",
+    "a": "brain6:home=5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "home-double-light7",
+    "a": "brain6:home=5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-0-bal5",
+    "a": "brain6:flagDanger=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-0-bal7",
+    "a": "brain6:flagDanger=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-0-light5",
+    "a": "brain6:flagDanger=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-0-light7",
+    "a": "brain6:flagDanger=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-half-bal5",
+    "a": "brain6:flagDanger=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-half-bal7",
+    "a": "brain6:flagDanger=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-half-light5",
+    "a": "brain6:flagDanger=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-half-light7",
+    "a": "brain6:flagDanger=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-double-bal5",
+    "a": "brain6:flagDanger=40",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-double-bal7",
+    "a": "brain6:flagDanger=40",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-double-light5",
+    "a": "brain6:flagDanger=40",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "flagdanger-double-light7",
+    "a": "brain6:flagDanger=40",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "beam-1-bal5",
+    "a": "brain6:beam=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "beam-1-bal7",
+    "a": "brain6:beam=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "beam-1-light5",
+    "a": "brain6:beam=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "beam-1-light7",
+    "a": "brain6:beam=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "beam-2-bal5",
+    "a": "brain6:beam=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "beam-2-bal7",
+    "a": "brain6:beam=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "beam-2-light5",
+    "a": "brain6:beam=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "beam-2-light7",
+    "a": "brain6:beam=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "beam-6-bal5",
+    "a": "brain6:beam=6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "beam-6-bal7",
+    "a": "brain6:beam=6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "beam-6-light5",
+    "a": "brain6:beam=6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "beam-6-light7",
+    "a": "brain6:beam=6",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "perunit-1-bal5",
+    "a": "brain6:perUnit=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "perunit-1-bal7",
+    "a": "brain6:perUnit=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "perunit-1-light5",
+    "a": "brain6:perUnit=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "perunit-1-light7",
+    "a": "brain6:perUnit=1",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "perunit-3-bal5",
+    "a": "brain6:perUnit=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "perunit-3-bal7",
+    "a": "brain6:perUnit=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "perunit-3-light5",
+    "a": "brain6:perUnit=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "perunit-3-light7",
+    "a": "brain6:perUnit=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "perunit-10-bal5",
+    "a": "brain6:perUnit=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "perunit-10-bal7",
+    "a": "brain6:perUnit=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "perunit-10-light5",
+    "a": "brain6:perUnit=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "perunit-10-light7",
+    "a": "brain6:perUnit=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "evade-0-bal5",
+    "a": "brain6:evade=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "evade-0-bal7",
+    "a": "brain6:evade=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "evade-0-light5",
+    "a": "brain6:evade=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "evade-0-light7",
+    "a": "brain6:evade=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "evade-half-bal5",
+    "a": "brain6:evade=0.5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "evade-half-bal7",
+    "a": "brain6:evade=0.5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "evade-half-light5",
+    "a": "brain6:evade=0.5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "evade-half-light7",
+    "a": "brain6:evade=0.5",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "evade-double-bal5",
+    "a": "brain6:evade=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "evade-double-bal7",
+    "a": "brain6:evade=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "evade-double-light5",
+    "a": "brain6:evade=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "evade-double-light7",
+    "a": "brain6:evade=2",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "clock-0-bal5",
+    "a": "brain6:clock=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "clock-0-bal7",
+    "a": "brain6:clock=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "clock-0-light5",
+    "a": "brain6:clock=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "clock-0-light7",
+    "a": "brain6:clock=0",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "clock-half-bal5",
+    "a": "brain6:clock=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "clock-half-bal7",
+    "a": "brain6:clock=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "clock-half-light5",
+    "a": "brain6:clock=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "clock-half-light7",
+    "a": "brain6:clock=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "clock-double-bal5",
+    "a": "brain6:clock=40",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "clock-double-bal7",
+    "a": "brain6:clock=40",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "clock-double-light5",
+    "a": "brain6:clock=40",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "clock-double-light7",
+    "a": "brain6:clock=40",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "clockturns-3-bal5",
+    "a": "brain6:clockTurns=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "clockturns-3-bal7",
+    "a": "brain6:clockTurns=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "clockturns-3-light5",
+    "a": "brain6:clockTurns=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "clockturns-3-light7",
+    "a": "brain6:clockTurns=3",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "clockturns-10-bal5",
+    "a": "brain6:clockTurns=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "clockturns-10-bal7",
+    "a": "brain6:clockTurns=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "clockturns-10-light5",
+    "a": "brain6:clockTurns=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 200
+   },
+   {
+    "name": "clockturns-10-light7",
+    "a": "brain6:clockTurns=10",
+    "b": "brain5",
+    "rules": "v3.4",
+    "format": "std7",
+    "mix": "light",
+    "games": 200
+   }
+  ],
+  "measures": [
+   "evade",
+   "clock",
+   "light",
+   "play"
+  ]
+ },
+ "failed": null,
+ "extra": {}
+}
