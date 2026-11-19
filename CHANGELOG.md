@@ -32,9 +32,23 @@ Rule set: **v3.6** (new, the new-game default) = v3.5 plus switches `flagBlocksL
 - New check `test_v36.js` (every rule above, each also as unchanged on v3.5, plus a double-knockout count on v3.6); runs in `checks`.
 - Lab: a matchup can switch rules off for a sim-only copy (`switches_off`), and a new `flagrules` measure counts set spear hits, Ranged pulls and shots a flag blocks.
 
-**Flags closed:** F8 (engine side). **Opened:** see the brief's Report.
+**Flags closed:** F8. **Opened:** F37 (a reading of 3.13: leaving a spear and coming back in one move is not arriving).
 
-**Baseline:** see the brief's Report.
+**Baseline (balanced, Brain 5 mirror, 1,000 games per format, same seeds on both rule sets)**
+
+| | 5v5 v3.5 | 5v5 v3.6 | 7v7 v3.5 | 7v7 v3.6 |
+|---|---|---|---|---|
+| Holder KO | 3.6% | 3.7% | 4.3% | 4.4% |
+| Pull KO | 26.7% | 26.3% | 38.3% | 38.3% |
+| TKO | 13.3% | 13.3% | 12.6% | 12.5% |
+| Tiebreak win | 54.1% | 54.4% | 41.1% | 41.1% |
+| Draw | 2.3% | 2.3% | 3.7% | 3.7% |
+| Ended on the turn limit | 56.4% | 56.7% | 44.8% | 44.8% |
+| Games with a pull | 26.8% | 26.4% | 38.5% | 38.5% |
+| Average turn | 19.20 | 19.23 | 22.84 | 22.84 |
+| First mover's share of decisive | 38.5% | 38.6% | 46.7% | 46.9% |
+
+Every gap is under 1 point: the four rules rarely come up in bot play (about 0.03 set spear hits, 0.01–0.02 Ranged pulls and 0.02–0.04 flag-blocked shots per game).
 
 ## v3.08.00 · Build 11 — Brief 010, rule set v3.5: a little variety in normal rolls (19 Nov 2026)
 Rule set: **v3.5** (new, the new-game default) = v3.4 plus switch `diceVariety`. Game version **v3.08.00** (YY: a new rule set; brief 007 took v3.07.00 first).

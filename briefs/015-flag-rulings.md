@@ -97,20 +97,78 @@ One game on v3.6:
 3. Pull with a Heavy Ranged: next turn it shows Reloading and can neither attack nor pull.
 4. Shift a unit along a braced Heavy Anti-Cavalry it's already touching: no spear damage.
 
-## Report back
-Beyond the standard items: the one-switch-off table, and any place where 3.13's wording left room for more than one reading (each as an `ASK`).
-
----
-
 ## Report
 *Filled in by Claude Code.*
 
 - **What's in:**
+  - **Preset v3.6** = v3.5 + `flagBlocksLine`, `pullFullStrength`, `pullCountsForReload`, `spearOnArrival`. It is the last preset, so the new-game default. All four switches are on the rule-set editor. Game version **v3.09.00, Build 12**.
+  - **Flag blocks the line (4.9):**
+    - One helper, `flagBetween(from, to)` in `engine.js`, exported so Javelin (011) and Vault (012) can use it. It returns true only when a flag hex (either side's) sits strictly between the two hexes on one of the six straight lines. A flag at either end never blocks.
+    - `canAttackFrom` uses it for every attack from 2 hexes or more, which covers Volley and Reach.
+    - When a flag is the only thing stopping a shot, `blockReasons` says "A flag blocks the line" for both Attack and Reach.
+  - **Pulls at full Strength (4.6):** `pullValue` no longer halves Ranged units under the switch.
+  - **A pull counts for Reload (3.11):** a pull sets the existing reload marker, so the Reloading chip and status show it. While reloading, `canPullFrom` and `doPull` refuse a pull ("… is reloading this turn"). A pull still gives no Evade and uses no parry.
+  - **Set spear on arrival (3.13):**
+    - `spikeCheck` takes the hex the unit stood on before the action and skips a spear it was already next to. That applies to moves, swaps (each unit separately), Evade steps and taking a hex after a kill.
+    - A per-unit marker (`spearTaken`, cleared at every turn start) limits a unit to one spear a turn. A spear it doesn't take stays loaded for the next unit to arrive.
+  - **Ranged kill stays put (3.6):** no change; locked with a test.
+  - **The brains (`bot.js`), under the v3.6 switches only:**
+    - `canThreaten` treats a shot across a flag from where the unit stands as no threat, unless it can step off that line.
+    - A reloading Heavy Ranged is counted as unable to pull next turn.
+    - Ranged pulls count at full Strength, in the flag-risk and siege estimates.
+    - On every older preset the brains play exactly as before (hashes below).
 - **Anything beyond the brief, and why:**
+  - **Lab:** a matchup can switch rules off for a sim-only copy (`"switches_off": [...]`; those games are marked not replayable). That's the only way to run the four one-switch-off copies the brief asks for, without making them presets.
+  - **Lab:** a new `flagrules` measure counts set spear hits, Ranged pulls, and (attacker, target) pairs a flag blocks at each side-turn start. The pairs are counted on every rule set, so v3.5 shows what v3.6 would block.
+  - **Tests:** `test_v35.js`'s "newest preset" check moved to `test_v36.js`, as each earlier preset's did.
 - **Checks run and results (paste regression hashes):**
-- **Baseline table (rule changes only):**
-- **Bot minimum (met / not met, with numbers):**
-- **Settings review (brain builds only): settings with no effect found; settings that seem to be missing (with evidence):**
+  - `regress_engine.js <board before> 2 all` against this board: **all 90 lines identical** (every preset before v3.6 × every brain); v3.6 only adds lines.
+  - Normal mode, before = after: `match3 37397ef2bd3ed86b · v1 7b25bca651c0cb31 · v2 ddbe5fc437ff4e9d · v3 26371927b53d4413 · v3.1 c71e4cd12fc984b0 · v3.2 f62a061d2c147d83 · v3.3 e6151bf463d6c9f8 · v3.4 ee6ce003ac760250 · v3.5 fca989aecfaf21c9`.
+  - v3.6 (all mode, 2 games): `standard 7cef7428821f4b6f · kitD 59bef5b405201ef0 · brain5 da8bf6315ff5ebca · brain6 30809624beccfebb`.
+  - **`test_v36.js`** (new, in `checks`): 93 checks, 0 failures. Every rule in the brief's list is covered, each changed one also as unchanged on v3.5:
+    - Volley over own and enemy, empty and held flags; off the straight line; out from a flag; at the holder from the goal zone; over other units.
+    - Reach with the flag in the middle.
+    - Light and Heavy Ranged full-Strength pulls; Support unchanged; no Evade after a pull.
+    - Reload after a pull, and no pull on a Reload turn.
+    - Spear on move, swap, Evade step and taking a hex; none on a shift or swap that stays next to the spear; the second spear after stepping from the first.
+    - One spear per unit per turn, with the untaken spear hitting the next arrival; the marker clearing; a unit removed by a spear can't act.
+    - A Ranged kill stays put; a melee kill takes the hex.
+  - All the other quick checks pass locally, `board_check` included in CI. CI `checks` is green. The PR's release checks passed all 16.
+  - **Double knockout on v3.6: 0** in 12,400 lab games (every v3.6 run and switch-off copy) plus `test_v36.js`'s own count.
+- **Baseline table (rule changes only):** balanced, Brain 5 mirror, 1,000 games per format, same seeds (`results/v3.09.00/2026-11-19_study_flag-rulings-v35` and `-v36`). Tiebreak wins are counted apart.
+
+  | | 5v5 v3.5 | 5v5 v3.6 | 7v7 v3.5 | 7v7 v3.6 |
+  |---|---|---|---|---|
+  | Holder KO | 3.6% | 3.7% | 4.3% | 4.4% |
+  | Pull KO | 26.7% | 26.3% | 38.3% | 38.3% |
+  | TKO | 13.3% | 13.3% | 12.6% | 12.5% |
+  | Tiebreak win | 54.1% | 54.4% | 41.1% | 41.1% |
+  | Draw | 2.3% | 2.3% | 3.7% | 3.7% |
+  | Ended on the turn limit | 56.4% | 56.7% | 44.8% | 44.8% |
+  | Games with a pull | 26.8% | 26.4% | 38.5% | 38.5% |
+  | Average turn | 19.20 | 19.23 | 22.84 | 22.84 |
+  | First mover's share of decisive | 38.5% | 38.6% | 46.7% | 46.9% |
+  | Set spear hits per game | 0.033 | 0.032 | 0.028 | 0.027 |
+  | Ranged pulls per game | 0.013 | 0.012 | 0.009 | 0.018 |
+  | Shots a flag blocks (pairs per game) | 0.02 | 0.02 | 0.04 | 0.04 |
+  | Light units removed per game | 3.74 | 3.74 | 5.58 | 5.58 |
+
+  - **One switch off at a time** (sim-only copies of v3.6, same seeds), turn-limit share and Ranged pulls per game:
+    - 5v5: line off 56.5% / 0.014; full-Strength pull off 56.7% / 0.011; pull Reload off 56.7% / 0.012; spear on arrival off 56.6% / 0.012.
+    - 7v7: 44.8% / 0.018; 44.8% / 0.008; 44.7% / 0.021; 44.9% / 0.018.
+    - Every other outcome is within 0.3 points of v3.6.
+  - **Reading (F23: under about 4 points is never evidence):** no outcome moved. The four rules rarely come up in bot play: a set spear fires about once in 30–35 games, a Ranged unit pulls about once in 50–100 games, and a flag stands in a firing line about once in 25–50 games.
+  - The one visible effect is at 7v7: Ranged pulls double with full-Strength pulls (0.009 → 0.018 per game; 0.008 with that switch off), and pull Reload trims them a little (0.021 with it off). That's likely the full-Strength rule, isolated by the switch-off run, but the counts are tiny.
+- **Bot minimum (met / not met, with numbers):** **met.**
+  - On v3.6: Brain 5 mirrors 2,000 games (study) and Brain 6 mirrors 400 games (200 per format), with 0 refused actions, 0 brain errors, 0 safety stops and 0 unfinished games. The four switch-off copies (8,000 games) also had 0.
+  - Ranged pulls per game, v3.5 → v3.6: 5v5 0.013 → 0.012, 7v7 0.009 → 0.018.
+  - Thinking time, Brain 5, average per side-turn (worst turn): 5v5 51 ms (0.92 s) → 53 ms (0.93 s); 7v7 130 ms (3.49 s) → 136 ms (3.58 s).
+- **Settings review:** not a brain build; skipped.
 - **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+  - **Readings of 3.13 I built** (F37, `ASK`):
+    - Arrival is judged from the hex before the action to the hex after it. So stepping away from a spear and back in one move isn't an arrival, and neither is a unit already beside a spear when it braced.
+    - I didn't treat mid-move hexes as arriving, as the brief said.
+  - **Few situations:** the bots rarely put themselves into any of these four, so this build's numbers can't say whether the rules matter in human play. The hands-on check is the real test.
+  - **Lab measures:** 015's runs carry no stall columns, because brief 016 (#28) wasn't merged when they started.
+- **Flags closed / opened:** closed **F8** (the engine side; the special-attack rulings are in brief 011). Opened **F37** (the 3.13 reading).
+- **Pull request:** #27, branch `claude/charming-lovelace-4tx3p7`, started from `brief/015-flag-rulings`.
