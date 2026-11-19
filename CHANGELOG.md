@@ -6,10 +6,33 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.06.00 | v3.4 | Brain 5 | v2 | 9 |
 | v3.05.02 | v3.4 | Brain 5 | v1 | 8 |
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.06.00 · Build 9 — Brief 009, UI v2: attack preview, unit card, top bar and Options menu (19 Nov 2026)
+Rule set: none changed (v3.4 stays the newest). No brain changed. UI v1 → **v2**. Game version **v3.06.00** (YY: new screens).
+
+**What a player will notice**
+- **Attack preview.** Picking a target opens a new sheet: both units face off (North always on the left), with only the numbers this attack changes (Strength, Support, Evade; Armor, Brace, Dodge, Parry). A number that changes shows the old one struck through, then the new one, red when it hurts you (a Heavy Ranged next to an enemy: 9 → 4.5). Below, the outcome bar: one slot per dice outcome with its chance and damage, kills in red, equal neighbours merged.
+- **The key.** Pull the grab handle up (or tap it) for "In this attack": one line per thing in play, what it means and why it applies here (Support names the helpers, Evade says how far, Parry says what you take). Hidden by default; the first two previews say "Pull up for the key".
+- **Attack and Cancel** take over the action panel while the preview is open; Attack shows the Stamina it spends.
+- **Top bar.** "FLAGFALL: Arena" with an Options button; the scoreboard shows Player or Computer icons by the side names and the turn counter on its own.
+- **Options menu** replaces the old match menu: format, sides, rule set, bot, seed and version at the top; Match log and record, Rules and unit data, Home, and Surrender (in red, only on a human side's live turn). Close with ✕, the dim, or Escape.
+- **Unit card.** The ⓘ on the unit bar opens a full card: status chips (Reloading, Braced, Braced last turn, Holding the flag), Str / Range (or Reach) / Move, and the unit's abilities under Trait, Class and Unit, worded for the rule set in play. The swap buttons are gone from the card (dragging onto a friend still swaps).
+- **Lineup.** Tap a unit's token or name for the same card, with HP, Str, Range/Reach, Move and Stamina, and a pinned "In your lineup" bar with a live stepper.
+- **Action buttons.** Attack while reloading shows a red dot; Brace shows blue when braced and a blue ring the turn after; the Reach button only appears for Anti-Cavalry units.
+- **Desktop.** The preview and the unit card sit in the right-hand column instead of over the field.
+- Units are counted in **unit cap (UC)** everywhere; a new check fails if the board could show the old word.
+
+**Under the hood**
+- New `board/ui.js`: the preview's and the card's wording and logic, with no drawing, so it can be tested in Node.
+- `engine.js`: read-only fields for the preview only (the attack's steps as numbers: Strength before and after Half Strength, Support and helpers, Armor and Pierce, Dodge; Stamina left in the Evade preview; "braced last turn" and "holding the flag" in a unit's status). No rule changed; every rule set and brain hashes the same as before (Report).
+- New check `tests/test_ui.js` (in the `checks` workflow).
+
+**Flags closed:** none. **Opened:** F30.
 
 ## v3.05.02 · Build 8 — Brief 008, the lab: heavy runs on GitHub, organised results, watch any game by seed (18 Nov 2026)
 Rule set: none changed (v3.4 stays the newest). No brain changed. Game version **v3.05.02** (ZZ: nothing about how the game plays changes; brief 013 took v3.05.01 first).
