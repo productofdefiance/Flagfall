@@ -123,12 +123,119 @@ Say whether each cause is isolated or only likely.
 ## Report
 *Filled in by Claude Code.*
 
+**In one line:** Brain 6 is built and in the list, but it doesn't beat Brain 5, so Brain 5 stays the default. The clock works as designed but rarely matters, because by the last turns the side behind usually has nothing left to push with. The Evade-step planning met F22's target but froze all-Light games, so it ships switched off (F31, the Editor's pick).
+
+**Branch:** `claude/wizardly-johnson-2223gg`, started from `brief/007-tune-brain-5`. **Version:** v3.07.00, Build 10. Briefs 013, 008 and 009 merged first, and 009 took v3.06.00.
+
+### Plain answers
+- **Which weights changed, by how much, and why.**
+  - **Brain 5's nine model weights and two search settings:** none. The confirmation found no single change that beats Brain 5 by 2 standard errors in at least three formats without more games ending on the clock.
+  - **Two candidates did beat Brain 5 overall** (1,000 games per format, against Brain 5):
+    - Plans kept per step at double: 53.0% (+3.8 SE), but only 2 of 4 formats.
+    - Holder-stays-home off: 52.2% (+2.8 SE), also only 2 formats.
+
+    Both were measured with the Evade-step cost on, which stalls all-Light games, so they inherit that stall. A combined version (one of them plus the cost off) wasn't run (see Known gaps). The two options for the Editor are in F31.
+  - **New settings:**
+    - Clock weight 20 and turns of clock pressure 5: left at their starting values. In the screen, switching the clock off cost about 5 points (46.5% vs 52.0%, likely); half or double the weight, 3 or 10 turns: within noise.
+    - Keep an Evade step: **0 (off)**. At 1, all-Light mirrors end on the turn limit 91% (5v5) and 72% (7v7) of the time, against 52% and 40% for Brain 5.
+- **Does knowing the clock end more games, or make the side ahead sit on its lead?** Neither, measurably.
+  - In balanced mirrors, the side behind on the tiebreak attacks the enemy holder or pulls in 8.0% (5v5) and 4.2% (7v7) of its last-three turns; Brain 5: 0%.
+  - The side ahead at turn limit − 3 still wins on the tiebreak 92% (5v5) and 94% (7v7) of the time; Brain 5: 100%.
+  - Balanced turn-limit share: 55.6% vs 55.2% at 5v5, 39.4% vs 42.1% at 7v7 (within noise).
+  - Why so little: at turn limit − 3 the side behind has on average 0.2 units besides its holder (balanced) and about none (all-Light). Likely, not isolated (F32).
+- **Did planning for Evade bring "no legal step" under 20%?** Yes when switched on: 6.8% in mirrors, against 31.5% for Brain 5. But all-Light games then freeze, and Light units removed per game barely change (all-Light 7v7: 9.8 vs 10.4). So it ships off, at 32.2%.
+  - **The rest looks like a rules question.** Of Brain 5's no-step cases:
+    - 56%: the unit had moved its full cap.
+    - 30%: tackle, which costs a hex of the cap.
+    - 9%: out of Stamina.
+    - 5%: out of Command.
+
+    About 95% is movement or resources used up on the approach. Likely, not isolated: no controlled run gave units a spare Evade hex (F22).
+- **With a tuned, clock-aware bot, do mirror matches still end on the clock?** Yes, as often as before: about 56% at 5v5 and 39% at 7v7 in balanced mirrors.
+
+### The six measurements
+All on the lab, v3.4, board seeds from `tests/rng.js`; every game can be replayed except the sweeps' changed brains. Tiebreak wins are counted apart in each run's `tables/outcomes.csv`.
+
+1. **Weight sweeps (stage 1, 200 games per format per setting, 33,600 games):** `results/v3.06.00/2026-11-18_screen_brain6-screen/`. Every value tried is in `tables/outcomes.csv`. Win share against Brain 5 (800 games each, SE about 1.8 points), best to worst:
+   - Beam 6: 54.4%
+   - Home 0 / Evade 0: 53.0%
+   - Stamina 0 / Advance 0: 52.6%
+   - Brain 6 as built: 52.0%
+   - … down to HP 0 (4.8%) and Risk 0 (5.7%)
+
+   Turn-limit share in those games: base 55.2%; Home 0 49.1%, Evade 0 49.2%, Flag danger 0 49.4%; Advance 0 80.1%, the "sit back and win the tiebreak" warning confirmed.
+2. **Head-to-head, Brain 6 (as shipped) vs Brain 5, 1,000 games per format:** `results/v3.07.00/2026-11-18_study_brain6-confirm/`.
+
+   | Format | Brain 6 share | SE from even |
+   |---|---|---|
+   | Balanced 5v5 | 51.6% | +1.0 |
+   | Balanced 7v7 | 51.2% | +0.8 |
+   | All-Light 5v5 | 50.2% | +0.1 |
+   | All-Light 7v7 | 47.5% | −1.6 |
+
+   Overall 50.1%. Decisive and tiebreak wins are counted separately in the table. **Does not pass item 6** (needs 3 of 4 formats). Brain 5 stays the default.
+3. **Clock play:** see the answer above; per format in `tables/clock.csv`. All-Light: 0% pressing for both brains, since there's no one left to press with.
+4. **Evade (mirrors, Brain 6 shipped / Brain 5):**
+   - No legal step: 32.2% / 31.5%. With the cost on: 6.8%.
+   - Evade taken where a safer hex existed: 83.7% / 83.5%.
+   - Light units removed per game: balanced 5v5 3.74 / 3.75; all-Light 7v7 10.18 / 10.35.
+   - Average Dodge when attacked: 17.5% / 17.5% (balanced 5v5).
+5. **Stall re-check:** the full baseline table is in `CHANGELOG.md` (Brain 6 mirrors next to Brain 5 mirrors, 1,000 games per format, same run). Every row is within noise of Brain 5. Data for the Editor, not a trigger for a rule change.
+6. **Speed (lab machines, mirrors):**
+   - Brain 6: 126 ms per turn on average, worst 4.6 s.
+   - Brain 5: 123 ms on average, worst 5.6 s, on the same machines.
+   - Not slower. At the 4.6 s mark, but the lab machines are slower than the build machine Brief 006 measured on. Plans kept per step at double peaks at 6.6 s.
+
+### Report fields
 - **What's in:**
+  - Brain 6 (`brain.js`, `bot.js`): the clock and Keep an Evade step, with plain labels on the Opponent screen.
+  - The game version on the board (`version.js`, Home line, saved matches, the Matches screen; matches from Build 6 and earlier still show their build), and the version check in `checks`.
+  - Tests: `test_brain6.js` (the two clock positions, the Evade cost, legal play) and `test_version.js`.
+  - Two job orders and their results, plus three lab fixes found while using it.
 - **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
-- **Baseline table (rule changes only):**
-- **Bot minimum (met / not met, with numbers):**
-- **Settings review:**
+  - Home shows "v3.07.00 · Build 10", not the version alone as the brief said: the newer `CLAUDE.md` rule says the build number stays in small type.
+  - The weight sweep ran in two stages on the lab (the Editor's change of plan) instead of in this session.
+  - Lab fixes:
+    - A pull request's second push no longer replays its job orders.
+    - A pull request's night checks no longer queue-jump `main`'s lab runs.
+    - Big runs get a one-line answer.
+    - `studies/queue` stays in the repository.
+- **Checks run and results:**
+  - On GitHub, `checks` passes, including `test_brain6.js` and `test_version.js`.
+  - The v3.06.00 release run on this pull request passed all 16 checks at full count, among them `test_brain6.js` over 30 games per format and lineup (legal play), `test_invariants` 100 and `test_v32` 400 + 400.
+  - Locally after the last merge:
+    - `test_brain6` 23/23 and `test_version` 22/22
+    - `test_watch` 12/12, `test_ui` 61/61, `test_stamina` 517/517, `test_rng` 20/20, `test_rules` (all pass)
+    - lab self-test 34/34
+    - board check 3 of 3 games identical
+  - Regression: no engine change in this build. The release runs' regression hashes matched the earlier board. One-off per-brain hashes (2 seeded games per format, every rule set), before vs after Brain 6, are identical for Standard, Easy, Kit A, Kit A2, Kit C, Kit B, Batch C, Kit D and Brain 5 (Brain 5 `19efc529f12908e2`).
+- **Baseline table:** no rule change; the stall re-check is in `CHANGELOG.md`.
+- **Bot minimum:** met. Every measurement has a number. Brain 6 plays the clock: on the last turn it attacks the holder when 1 flag point behind, and won't trade a unit when ahead only on units lost (the `test_brain6.js` positions). In games, the side behind presses in 4–8% of its last-3 turns in balanced mirrors, against 0% for Brain 5.
+- **Settings review** (stage 1: each setting at 0, half and double, 800 games against Brain 5; ±3.5 points is noise):
+  - **No effect found** (all three values within noise, both ways):
+    - Stamina: 0 +0.2, half −1.9, double −1.2 SE
+    - Turns of clock pressure: 3 −1.9, 10 −1.0
+    - Clock weight at half or double: −0.8 and −1.7. Off is −2.2, so the clock itself does matter.
+    - Flag danger at half or double: −0.5 and −0.8.
+
+    Kept; retire only if the Editor agrees.
+  - **Change how games end, not who wins:**
+    - Holder stays home: off cuts the turn-limit share 6 points.
+    - Empty-flag danger: off cuts it 6 points balanced and raises it in all-Light.
+    - Keep an Evade step: changes stalls and no-step, not the win share.
+    - Flag value: double cuts the turn-limit share 4 points.
+    - Advance: off raises the turn-limit share to 80% and wins by tiebreak.
+  - **Clearly matter:** unit, HP, fear of damage (risk), threat value (pressure), advance (double −4.2 SE), choices per unit (1: −4.2 SE), plans kept per step (1: −2.8 SE).
+  - **Missing settings:** F32. Late in games the side behind has almost no units left to push with, and no setting can create them. It's harder to prove than the lists above, because no example game was pulled out.
 - **Known gaps:**
+  - **Combinations not run.** Holder-stays-home off or Plans kept per step at double, each with Keep an Evade step off, were not tested at 1,000 games. They're the next lab job order if the Editor wants another tuning round. About 3 hours overnight.
+  - **Version label.** The confirmation run is filed under v3.07.00 because the branch was renumbered while it ran; it played on the identical brain code. The lab labels a run with the version at filing time, not play time (fix: record the played commit's version).
+  - **Index conflicts.** `results/INDEX.md` and `index.csv` conflict whenever `main` and a pull request both add runs; three times here, each resolved by combining lines. Fix: rebuild the index from the run folders.
+  - Phone speed not measured (F24).
+  - The container restarted three times during the build, killing the in-session sweep. The two-stage plan on the lab replaced it.
+- **Code and brief disagree:** the brief asked Home to show the version in place of "Build N". `CLAUDE.md`, newer, keeps both; this build follows `CLAUDE.md`.
 - **Flags closed / opened:**
-- **Pull request:**
+  - Closed: F25 (clock built), F28, F29.
+  - Opened: F31 (Keep an Evade step on or off), F32 (nothing left to push with).
+  - Updated: F10, F11, F12, F22, F24.
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/14

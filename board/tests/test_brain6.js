@@ -85,17 +85,20 @@ for (const k of ["clock", "clockTurns", "evade"]) ok(B6.model[k] !== undefined &
 // Attacking leaves it no step to Evade: Brain 6 counts the Anti-Cavalry's expected hit back against the attack.
 { const st = setup([["LM", "LM"], ["HM", "HM"]], [["HA", "HA"], ["HR", "HR"]], { "N-LM": "E9", "N-HM": "E3", "S-HA": "E10", "S-HR": "I16" });
   U(st, "S-HA").hp = 10; U(st, "N-LM").moved = 4;
+  // The setting is off by default (F31); the mechanism is tested switched on at 1.
+  const EV = Object.assign(JSON.parse(JSON.stringify(B6)), { model: Object.assign({}, B6.model, { evade: 1 }) });
   const noEv = Object.assign(JSON.parse(JSON.stringify(B6)), { model: Object.assign({}, B6.model, { evade: 0 }) });
-  const with6 = Bot.attackLine5(st, "N", B6, [], "N-LM", "S-HA"), without = Bot.attackLine5(st, "N", noEv, [], "N-LM", "S-HA");
+  ok(B6.model.evade === 0, "Brain 6 ships with Keep an Evade step off (Brief 007 confirmation: on, all-Light games freeze on the clock)");
+  const with6 = Bot.attackLine5(st, "N", EV, [], "N-LM", "S-HA"), without = Bot.attackLine5(st, "N", noEv, [], "N-LM", "S-HA");
   const s1 = with6.s, steps = Object.keys(E.options(s1, "N-LM").moves).length;
   const back = (() => { const t = U(s1, "S-HA"), u = U(s1, "N-LM"); const b = E.breakdown(s1, t, u, t.hex); return E.dieCases(s1).reduce((a, [d, p]) => a + p * E.applyDie(s1, b.value, d, b.dodge), 0); })();
   console.log(`  evade: after the attack, legal Evade steps: ${steps} (${E.whyNoMove(s1, U(s1, "N-LM")) || "has a step"}); the Anti-Cavalry's expected hit back: ${back.toFixed(2)}`);
-  console.log(`         the attack's value with the cost ${with6.v.toFixed(2)}, without ${without.v.toFixed(2)} (Keep an Evade step = ${B6.model.evade})`);
+  console.log(`         the attack's value with the cost ${with6.v.toFixed(2)}, without ${without.v.toFixed(2)} (Keep an Evade step = ${EV.model.evade})`);
   ok(steps === 0, "evade: a Light Melee that used its cap has no step after attacking");
-  ok(Math.abs((without.v - with6.v) - B6.model.evade * back) < 1e-6, "evade: the cost is Keep an Evade step × the target's expected hit back");
+  ok(Math.abs((without.v - with6.v) - EV.model.evade * back) < 1e-6, "evade: the cost is Keep an Evade step × the target's expected hit back");
   // and with a step left, no cost
   U(st, "N-LM").moved = 0;
-  const a1 = Bot.attackLine5(st, "N", B6, [], "N-LM", "S-HA"), a0 = Bot.attackLine5(st, "N", noEv, [], "N-LM", "S-HA");
+  const a1 = Bot.attackLine5(st, "N", EV, [], "N-LM", "S-HA"), a0 = Bot.attackLine5(st, "N", noEv, [], "N-LM", "S-HA");
   ok(Math.abs(a1.v - a0.v) < 1e-9, "evade: no cost when a step is left");
 }
 

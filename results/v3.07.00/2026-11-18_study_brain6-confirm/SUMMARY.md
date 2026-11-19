@@ -2,7 +2,7 @@
 
 **Question:** Confirmation (stage 2 of 2) and measurements 2-6: does Brain 6, as built or with one screened setting changed, beat Brain 5 by at least 2 standard errors at 1,000 games per format, and does it end fewer mirror games on the turn limit? Brain 5 mirrors give the reference for clock play, Evade and speed.
 
-**Answer:** 60 matchups, 60000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 41.3% (stamina-0-vs-brain5-light7) to 56.1% (home-0-vs-brain5-bal5). Mirrors ended on the turn limit in 54.4% of games.
+**Answer:** No Brain 6 version passes the default bar. Best: Plans kept per step at double (53.0%, +3.8 SE) and Holder-stays-home off (52.2%, +2.8 SE), each winning only 2 of 4 formats. Keep an Evade step on freezes all-Light mirrors (91% and 72% on the turn limit, against 52% and 40% for Brain 5) while cutting no legal step from 32% to 7%. With it off, Brain 6 ties Brain 5 (50.1%) and stalls no more.
 
 **Key table** (v3.07.00, 60000 games; tiebreak wins counted apart from KOs and draws)
 
