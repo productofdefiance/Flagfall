@@ -78,7 +78,7 @@ On the lab, default brain, 1,000 games per format overnight, same seeds on every
 - The full baseline table, v3.6 next to v3.5 (holder KO, pull KO, TKO, tiebreak win, draw, ended on the turn limit, games with a pull, average turn, first mover's share of decisive games), balanced 5v5 and 7v7.
 - **One switch off at a time:** four sim-only copies of v3.6 (not presets, not on the board), each with one of the four switches off. Same games, same table. Four rule changes ship in one preset, and this run is how a shift can still be traced to one of them.
 - Per game, v3.6 next to v3.5: set spear hits; attacks refused because a flag blocked the line (the bot's tried-and-refused count, or shots the engine's options dropped for that reason); pulls by Ranged units; Light units removed.
-Under F23, call any gap under about 8 points noise.
+Reading rule (F23, closed by the Editor 19 Nov): a gap under about 4 points is never evidence at these sizes; compare rule sets on the same seeds first, with a second seed set as backup.
 
 ## Must not change
 - Every existing preset, v3.5 included, plays and replays identically (paste the hashes).
