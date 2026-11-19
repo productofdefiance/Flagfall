@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.09.00 | v3.6 | Brain 5 | v2 | 12 |
 | v3.08.00 | v3.5 | Brain 5 | v2 | 11 |
 | v3.07.00 | v3.4 | Brain 5 | v2 | 10 |
 | v3.06.00 | v3.4 | Brain 5 | v2 | 9 |
@@ -13,6 +14,27 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.09.00 · Build 12 — Brief 015, rule set v3.6: the flag rulings (19 Nov 2026)
+Rule set: **v3.6** (new, the new-game default) = v3.5 plus switches `flagBlocksLine`, `pullFullStrength`, `pullCountsForReload`, `spearOnArrival`. Game version **v3.09.00** (YY: a new rule set).
+
+**What a player will notice**
+- A flag hex (either side's, held or empty) blocks Volley and Reach when it sits straight between attacker and target. The button says "A flag blocks the line". A unit standing on a flag still shoots out from it, and a holder can still be shot from its goal zone.
+- Ranged units pull at full Strength.
+- A Heavy Ranged that pulls must reload next turn (it shows Reloading), and it can't pull while reloading.
+- Set spear only hits a unit arriving next to it. Shifting along a spear you already touch is safe, and a unit takes set spear damage at most once a turn.
+- v3.5 and every older rule set play exactly as before.
+
+**Under the hood**
+- `engine.js`: one line helper, `flagBetween`, for every line rule (later Javelin and Vault); spear arrival judged spear by spear, with a per-unit marker cleared each turn; pull Strength and pull Reload behind their switches.
+- `bot.js`: under the v3.6 switches only, the brains' own estimates follow the new rules (a shot across a flag from where a unit stands is no threat, a reloading Heavy Ranged can't pull, Ranged pulls count at full Strength).
+- `data.js`: preset v3.6. `app.js`: the four switches on the rule-set editor.
+- New check `test_v36.js` (every rule above, each also as unchanged on v3.5, plus a double-knockout count on v3.6); runs in `checks`.
+- Lab: a matchup can switch rules off for a sim-only copy (`switches_off`), and a new `flagrules` measure counts set spear hits, Ranged pulls and shots a flag blocks.
+
+**Flags closed:** F8 (engine side). **Opened:** see the brief's Report.
+
+**Baseline:** see the brief's Report.
 
 ## v3.08.00 · Build 11 — Brief 010, rule set v3.5: a little variety in normal rolls (19 Nov 2026)
 Rule set: **v3.5** (new, the new-game default) = v3.4 plus switch `diceVariety`. Game version **v3.08.00** (YY: a new rule set; brief 007 took v3.07.00 first).

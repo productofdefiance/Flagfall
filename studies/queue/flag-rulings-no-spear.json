@@ -1,0 +1,45 @@
+{
+  "id": "flag-rulings-no-spear",
+  "kind": "study",
+  "brief": "015",
+  "question": "One switch off: v3.6 with spearOnArrival off (a sim-only copy), Brain 5 mirror, same seeds as the v3.6 run. Which of the four rules moves the results?",
+  "tags": [
+    "flag-rulings",
+    "brain5",
+    "v3.6",
+    "switch-off",
+    "spearOnArrival"
+  ],
+  "measures": [
+    "play",
+    "light",
+    "flagrules"
+  ],
+  "matchups": [
+    {
+      "name": "5v5",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.6",
+      "format": "blitz5",
+      "mix": "mixed",
+      "games": 1000,
+      "switches_off": [
+        "spearOnArrival"
+      ]
+    },
+    {
+      "name": "7v7",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.6",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 1000,
+      "switches_off": [
+        "spearOnArrival"
+      ]
+    }
+  ],
+  "seed_name": "flag-rulings"
+}

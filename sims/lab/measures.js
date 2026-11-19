@@ -118,6 +118,36 @@ const MEASURES = {
     }
   },
 
+  flagrules: {
+    about: "Brief 015: set spear hits; Ranged pulls; and (attacker, target) pairs at each side-turn start that a flag straight between makes illegal under flagBlocksLine (counted on every rule set, so v3.5 shows how many it would block).",
+    columns: ["spear_hits", "ranged_pulls", "flag_line_pairs"],
+    make(ctx) {
+      const { E } = ctx, o = { spear_hits: 0, ranged_pulls: 0, flag_line_pairs: 0 };
+      let seen = 0, key = "", pull = false;
+      const open = (st) => Object.assign({}, st, { rs: Object.assign({}, st.rs, { switches: Object.assign({}, st.rs.switches, { flagBlocksLine: false }) }) });
+      return {
+        before(st, c) {
+          const k = st.turn + st.toMove;
+          if (k !== key) {
+            key = k;
+            const s2 = open(st);
+            for (const u of E.alive(st)) if (u.team === st.toMove) for (const t of E.alive(st)) {
+              if (t.team !== u.team && E.dist(u.hex, t.hex) >= 2 && E.flagBetween(u.hex, t.hex) && E.canAttackFrom(s2, u, u.hex, t)) o.flag_line_pairs++;
+            }
+          }
+          const u = c.action.uid && E.unitByUid(st, c.action.uid);
+          pull = c.action.type === "pull" && !!u && E.card(st, u).range > 1;
+        },
+        after(st, c, r) {
+          if (pull && r.ok && !c.refusedEnd) o.ranged_pulls++;
+          pull = false;
+          for (; seen < st.log.length; seen++) { const t = st.log[seen].text || ""; const m = t.match(/braced \S+ at \S+ deals/g); if (m) o.spear_hits += m.length; }
+        },
+        end() { return o; }
+      };
+    }
+  },
+
   play: {
     about: "How each side played: braces, braces where no enemy could reach that unit next turn, attacks, attacks on a holder, moves, safety stops, actions the engine refused, and turns a brain ended because it hit an error.",
     columns: ["braces", "braces_no_threat", "attacks", "holder_attacks", "moves", "safety_stops", "refused", "bot_errors"],
