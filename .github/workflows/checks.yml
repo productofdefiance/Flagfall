@@ -85,7 +85,7 @@ jobs:
         continue-on-error: true
         working-directory: board
         run: node tests/test_watch.js
-      - name: test_ui.js (UI v2: outcome bar, changed numbers, Evade in the preview, unit card text, no "being" on screen)
+      - name: test_ui.js (UI v2 - outcome bar, changed numbers, Evade in the preview, unit card text, no being on screen)
         id: ui
         continue-on-error: true
         working-directory: board
