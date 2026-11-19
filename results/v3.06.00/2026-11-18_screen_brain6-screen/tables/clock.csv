@@ -1,0 +1,169 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+base-bal5,200,297,2,297,7,ended_earlier:100 S:49 N:48 level:3,won_tiebreak:93 lost:4,15
+base-bal7,200,256,2,256,4,N:40 ended_earlier:110 level:8 S:42,won_tiebreak:80 lost:2,8
+base-light5,200,408,0,408,0,N:69 ended_earlier:61 S:67 level:3,won_tiebreak:136,1
+base-light7,200,319,0,318,3,S:57 ended_earlier:85 N:50 level:8,won_tiebreak:104 lost:3,8
+unit-0-bal5,200,298,14,297,13,ended_earlier:90 S:51 N:47 level:12,won_tiebreak:91 lost:7,27
+unit-0-bal7,200,166,4,163,0,ended_earlier:140 N:17 S:37 level:6,won_tiebreak:51 lost:3,41
+unit-0-light5,200,291,0,291,0,level:6 N:54 S:43 ended_earlier:97,won_tiebreak:97,1
+unit-0-light7,200,166,0,166,1,ended_earlier:140 N:29 S:27 level:4,won_tiebreak:55 lost:1,3
+unit-half-bal5,200,306,8,304,5,ended_earlier:98 S:41 N:56 level:5,won_tiebreak:95 lost:2,16
+unit-half-bal7,200,243,2,241,3,ended_earlier:112 S:39 level:10 N:39,won_tiebreak:77 lost:1,14
+unit-half-light5,200,327,1,326,0,S:54 ended_earlier:76 N:54 level:16,won_tiebreak:108,1
+unit-half-light7,200,229,0,228,1,N:43 ended_earlier:113 S:33 level:11,won_tiebreak:75 lost:1,9
+unit-double-bal5,200,275,5,275,3,N:46 level:7 S:42 ended_earlier:105,won_tiebreak:87 lost:1,15
+unit-double-bal7,200,257,1,256,3,ended_earlier:104 S:35 level:12 N:49,won_tiebreak:81 lost:3,23
+unit-double-light5,200,360,0,359,2,N:59 ended_earlier:75 S:58 level:8,won_tiebreak:116 lost:1,4
+unit-double-light7,200,331,2,331,0,ended_earlier:73 N:64 S:51 level:12,won_tiebreak:109 lost:6,24
+hp-0-bal5,200,175,7,171,8,S:25 ended_earlier:140 N:34 level:1,won_tiebreak:54 lost:5,29
+hp-0-bal7,200,62,1,61,0,ended_earlier:179 S:11 N:10,won_tiebreak:20 lost:1,15
+hp-0-light5,200,201,0,201,0,ended_earlier:133 S:31 N:36,won_tiebreak:67,16
+hp-0-light7,200,30,0,30,0,ended_earlier:190 S:6 N:4,won_tiebreak:10,4
+hp-half-bal5,200,282,0,282,7,S:39 N:47 ended_earlier:105 level:9,won_tiebreak:85 lost:1,9
+hp-half-bal7,200,216,1,215,0,ended_earlier:124 N:42 level:6 S:28,won_tiebreak:70,6
+hp-half-light5,200,293,0,293,1,ended_earlier:93 N:43 S:55 level:9,won_tiebreak:96 lost:2,9
+hp-half-light7,200,288,3,288,6,ended_earlier:93 N:53 S:47 level:7,won_tiebreak:92 lost:7 won_decisive:1,20
+hp-double-bal5,200,337,11,333,11,ended_earlier:77 N:53 S:65 level:5,won_tiebreak:104 lost:11 won_decisive:3,30
+hp-double-bal7,200,322,6,324,7,S:57 ended_earlier:87 N:52 level:4,won_tiebreak:102 lost:7,31
+hp-double-light5,200,378,0,378,0,N:68 ended_earlier:67 level:7 S:58,won_tiebreak:125 lost:1,6
+hp-double-light7,200,268,1,265,0,S:41 ended_earlier:96 N:48 level:15,won_tiebreak:87 lost:2,6
+pull-0-bal5,200,453,25,447,8,S:74 ended_earlier:49 N:72 level:5,won_tiebreak:139 lost:7,49
+pull-0-bal7,200,323,4,321,6,ended_earlier:91 N:52 S:55 level:2,won_tiebreak:103 lost:4,18
+pull-0-light5,200,432,3,433,1,N:73 S:72 ended_earlier:53 level:2,won_tiebreak:143 lost:2,12
+pull-0-light7,200,282,3,281,1,N:47 S:47 ended_earlier:92 level:14,won_tiebreak:90 lost:4,12
+pull-half-bal5,200,340,3,342,4,ended_earlier:83 N:67 S:48 level:2,won_tiebreak:109 lost:6,39
+pull-half-bal7,200,315,1,313,1,ended_earlier:88 N:56 S:48 level:8,won_tiebreak:102 lost:2,19
+pull-half-light5,200,450,1,450,0,N:71 S:79 ended_earlier:47 level:3,won_tiebreak:148 lost:2,10
+pull-half-light7,200,264,4,262,3,ended_earlier:96 S:44 level:16 N:44,won_tiebreak:85 lost:2 draw:1,10
+pull-double-bal5,200,324,9,318,9,S:50 level:4 N:55 ended_earlier:91,won_tiebreak:98 lost:7,24
+pull-double-bal7,200,249,4,248,6,ended_earlier:114 S:31 N:50 level:5,won_tiebreak:77 lost:4,12
+pull-double-light5,200,399,0,399,2,N:67 S:66 ended_earlier:65 level:2,won_tiebreak:132 lost:1,4
+pull-double-light7,200,199,0,199,0,level:11 ended_earlier:122 N:32 S:35,won_tiebreak:66 lost:1,3
+risk-0-bal5,200,459,0,459,0,ended_earlier:38 S:81 level:9 N:72,won_tiebreak:153,3
+risk-0-bal7,200,316,2,313,2,ended_earlier:92 S:49 N:56 level:3,won_tiebreak:103 lost:2,4
+risk-0-light5,200,297,0,297,0,S:52 ended_earlier:100 N:47 level:1,won_tiebreak:99,7
+risk-0-light7,200,198,0,198,0,S:33 ended_earlier:134 N:33,won_tiebreak:66,16
+risk-half-bal5,200,393,0,393,0,N:64 ended_earlier:67 S:67 level:2,won_tiebreak:131,2
+risk-half-bal7,200,222,0,222,0,ended_earlier:125 S:38 N:36 level:1,won_tiebreak:74,3
+risk-half-light5,200,285,0,285,0,S:36 N:59 ended_earlier:96 level:9,won_tiebreak:95,1
+risk-half-light7,200,210,0,210,0,S:36 ended_earlier:127 N:34 level:3,won_tiebreak:70,0
+risk-double-bal5,200,275,9,270,32,ended_earlier:97 S:34 level:16 N:53,won_tiebreak:77 won_decisive:6 lost:4,41
+risk-double-bal7,200,237,4,231,11,ended_earlier:107 N:39 level:19 S:35,won_tiebreak:68 lost:4 won_decisive:2,29
+risk-double-light5,200,368,9,364,2,ended_earlier:56 N:67 S:57 level:20,won_tiebreak:119 lost:4 draw:1,16
+risk-double-light7,200,293,9,288,3,N:56 ended_earlier:93 S:44 level:7,won_tiebreak:93 lost:6 draw:1,26
+pressure-0-bal5,200,238,7,237,19,S:37 ended_earlier:118 N:33 level:12,won_tiebreak:68 lost:2,32
+pressure-0-bal7,200,177,0,177,6,ended_earlier:104 level:38 N:33 S:25,won_tiebreak:56 lost:2,31
+pressure-0-light5,200,376,9,376,9,ended_earlier:61 N:68 S:65 level:6,won_tiebreak:122 won_decisive:8 lost:2 draw:1,36
+pressure-0-light7,200,285,4,282,5,ended_earlier:61 level:42 N:45 S:52,won_tiebreak:89 lost:8,60
+pressure-half-bal5,200,342,13,345,13,S:61 N:54 ended_earlier:84 level:1,lost:11 won_tiebreak:104,34
+pressure-half-bal7,200,248,2,247,4,ended_earlier:116 S:36 N:45 level:3,won_tiebreak:79 lost:2,18
+pressure-half-light5,200,427,1,424,6,N:77 ended_earlier:40 level:18 S:65,won_tiebreak:139 won_decisive:1 lost:2,8
+pressure-half-light7,200,316,2,316,9,ended_earlier:77 level:16 S:57 N:50,won_tiebreak:100 lost:7,17
+pressure-double-bal5,200,375,2,375,0,ended_earlier:67 level:8 S:55 N:70,won_tiebreak:125,12
+pressure-double-bal7,200,276,1,276,0,ended_earlier:107 N:42 S:50 level:1,won_tiebreak:92,8
+pressure-double-light5,200,335,1,335,0,ended_earlier:83 N:63 S:50 level:4,won_tiebreak:111 lost:2,9
+pressure-double-light7,200,219,0,219,0,N:31 ended_earlier:118 S:42 level:9,won_tiebreak:73,3
+stamina-0-bal5,200,320,4,319,8,S:54 ended_earlier:92 N:49 level:5,won_tiebreak:98 lost:5,16
+stamina-0-bal7,200,259,1,259,3,ended_earlier:112 S:33 N:51 level:4,won_tiebreak:83 lost:1,11
+stamina-0-light5,200,398,2,398,1,ended_earlier:61 N:77 S:58 level:4,won_tiebreak:132 lost:3,11
+stamina-0-light7,200,291,1,292,3,ended_earlier:92 N:49 S:51 level:8,won_tiebreak:94 lost:6,17
+stamina-half-bal5,200,349,3,350,9,N:62 S:52 ended_earlier:81 level:5,won_tiebreak:109 lost:5,27
+stamina-half-bal7,200,263,4,260,6,ended_earlier:109 N:42 S:43 level:6,won_tiebreak:80 lost:5,16
+stamina-half-light5,200,408,3,406,1,N:67 S:70 ended_earlier:59 level:4,won_tiebreak:134 lost:2 draw:1,8
+stamina-half-light7,200,280,0,280,1,S:53 ended_earlier:97 level:8 N:42,won_tiebreak:93 won_decisive:1 lost:1,3
+stamina-double-bal5,200,333,5,332,4,S:56 ended_earlier:86 N:54 level:4,won_tiebreak:108 won_decisive:1 lost:1,16
+stamina-double-bal7,200,218,8,215,1,ended_earlier:125 S:35 N:37 level:3,won_tiebreak:69 lost:3,17
+stamina-double-light5,200,396,0,396,1,ended_earlier:61 N:69 S:63 level:7,won_tiebreak:131 lost:1,7
+stamina-double-light7,200,284,3,284,1,S:45 ended_earlier:96 N:51 level:8,won_tiebreak:94 lost:2,11
+advance-0-bal5,200,471,1,472,1,S:73 ended_earlier:29 level:15 N:83,won_tiebreak:155 won_decisive:1,63
+advance-0-bal7,200,402,0,402,0,level:23 ended_earlier:43 N:64 S:70,won_tiebreak:133 lost:1,27
+advance-0-light5,200,505,16,501,17,S:90 ended_earlier:20 N:75 level:15,won_tiebreak:152 lost:13,74
+advance-0-light7,200,384,10,376,2,ended_earlier:56 S:63 N:67 level:14,won_tiebreak:121 lost:9,68
+advance-half-bal5,200,338,8,329,4,ended_earlier:86 N:46 level:9 S:59,won_tiebreak:104 lost:1,18
+advance-half-bal7,200,277,1,275,1,S:44 N:48 ended_earlier:104 level:4,won_tiebreak:90 lost:2,21
+advance-half-light5,200,326,1,326,2,N:49 level:26 ended_earlier:64 S:61,won_tiebreak:108 lost:2,6
+advance-half-light7,200,326,4,325,7,N:56 S:57 ended_earlier:73 level:14,won_tiebreak:105 lost:8,23
+advance-double-bal5,200,324,12,318,3,S:54 ended_earlier:93 N:50 level:3,won_tiebreak:101 lost:3,14
+advance-double-bal7,200,237,4,237,2,ended_earlier:121 S:45 N:34,won_tiebreak:77 lost:2,12
+advance-double-light5,200,441,0,441,0,N:75 S:72 ended_earlier:51 level:2,won_tiebreak:147,0
+advance-double-light7,200,270,0,270,0,level:10 ended_earlier:99 S:49 N:42,won_tiebreak:90 won_decisive:1,2
+home-0-bal5,200,276,5,275,8,ended_earlier:106 S:46 N:44 level:4,won_tiebreak:86 lost:4,32
+home-0-bal7,200,237,3,237,4,ended_earlier:113 S:26 N:51 level:10,won_tiebreak:77,22
+home-0-light5,200,351,0,351,0,ended_earlier:82 N:64 S:53 level:1,won_tiebreak:116 lost:1,25
+home-0-light7,200,264,4,262,0,ended_earlier:101 S:37 N:51 level:11,won_tiebreak:85 lost:3,27
+home-half-bal5,200,356,5,352,6,ended_earlier:81 S:70 N:47 level:2,won_tiebreak:109 lost:8,24
+home-half-bal7,200,268,4,264,4,ended_earlier:108 S:34 N:51 level:7,won_tiebreak:84 lost:1,10
+home-half-light5,200,433,1,433,2,N:72 S:73 ended_earlier:53 level:2,won_tiebreak:143 lost:2,5
+home-half-light7,200,336,0,336,0,N:64 ended_earlier:76 level:12 S:48,won_tiebreak:111 won_decisive:1,5
+home-double-bal5,200,329,9,324,6,S:57 ended_earlier:89 N:51 level:3,won_tiebreak:102 lost:6,23
+home-double-bal7,200,257,2,256,4,ended_earlier:110 S:43 N:40 level:7,won_tiebreak:79 lost:4,16
+home-double-light5,200,419,2,417,0,ended_earlier:60 N:64 S:74 level:2,won_tiebreak:138,3
+home-double-light7,200,272,1,270,2,ended_earlier:91 S:53 N:39 level:17,won_tiebreak:88 lost:2 won_decisive:2,7
+flagdanger-0-bal5,200,235,4,230,5,ended_earlier:119 S:34 N:41 level:6,won_tiebreak:71 lost:4,19
+flagdanger-0-bal7,200,206,3,202,2,N:37 ended_earlier:130 S:30 level:3,won_tiebreak:65 lost:2,18
+flagdanger-0-light5,200,410,5,410,4,ended_earlier:61 S:77 N:61 level:1,won_tiebreak:135 lost:3,14
+flagdanger-0-light7,200,305,2,305,6,N:54 ended_earlier:88 S:49 level:9,won_tiebreak:96 lost:7,16
+flagdanger-half-bal5,200,330,2,328,4,N:59 S:49 ended_earlier:89 level:3,won_tiebreak:107 lost:1,14
+flagdanger-half-bal7,200,246,0,245,1,N:40 ended_earlier:115 S:41 level:4,won_tiebreak:80 lost:1,10
+flagdanger-half-light5,200,432,0,430,0,N:64 ended_earlier:52 S:78 level:6,won_tiebreak:141 lost:1,2
+flagdanger-half-light7,200,294,4,295,1,ended_earlier:86 N:56 S:45 level:13,won_tiebreak:98 lost:2 won_decisive:1,12
+flagdanger-double-bal5,200,241,7,239,2,S:48 ended_earlier:118 N:32 level:2,won_tiebreak:77 lost:2 won_decisive:1,13
+flagdanger-double-bal7,200,221,1,220,4,ended_earlier:122 S:37 N:35 level:6,won_tiebreak:71 lost:1,13
+flagdanger-double-light5,200,461,1,460,2,S:80 ended_earlier:41 N:74 level:5,won_tiebreak:152 lost:2,6
+flagdanger-double-light7,200,306,0,305,1,N:55 S:47 ended_earlier:87 level:11,won_tiebreak:101 lost:1,4
+beam-1-bal5,200,283,5,277,2,ended_earlier:101 N:48 S:44 level:7,won_tiebreak:86 lost:5 won_decisive:1,18
+beam-1-bal7,200,285,2,286,4,N:48 level:7 ended_earlier:98 S:47,won_tiebreak:94 lost:1,15
+beam-1-light5,200,339,2,339,1,level:26 N:70 S:44 ended_earlier:60,won_tiebreak:112 lost:2,8
+beam-1-light7,200,220,1,217,2,ended_earlier:116 N:40 level:12 S:32,won_tiebreak:71 lost:1,4
+beam-2-bal5,200,315,6,310,8,N:49 ended_earlier:89 S:51 level:11,won_tiebreak:95 lost:4 won_decisive:1,19
+beam-2-bal7,200,279,9,278,3,ended_earlier:105 N:56 S:37 level:2,won_tiebreak:91 lost:2,14
+beam-2-light5,200,432,1,431,2,N:75 ended_earlier:47 level:7 S:71,won_tiebreak:141 lost:5,11
+beam-2-light7,200,254,3,254,4,S:31 level:15 ended_earlier:98 N:56,won_tiebreak:83 lost:4,13
+beam-6-bal5,200,400,10,398,6,ended_earlier:66 S:76 N:57 level:1,won_tiebreak:126 lost:7,23
+beam-6-bal7,200,238,1,237,3,S:34 ended_earlier:115 N:42 level:9,won_tiebreak:75 lost:1,10
+beam-6-light5,200,483,1,483,0,N:80 level:8 ended_earlier:30 S:82,won_tiebreak:161 lost:1,6
+beam-6-light7,200,342,1,342,2,N:64 ended_earlier:80 S:53 level:3,won_tiebreak:113 lost:4,12
+perunit-1-bal5,200,335,6,333,5,N:57 ended_earlier:85 S:50 level:8,won_tiebreak:102 lost:5,24
+perunit-1-bal7,200,256,6,253,3,ended_earlier:111 N:46 S:36 level:7,won_tiebreak:80 lost:2,12
+perunit-1-light5,200,329,0,329,1,ended_earlier:86 N:61 S:51 level:2,won_tiebreak:109 lost:3,9
+perunit-1-light7,200,305,1,304,5,ended_earlier:86 N:53 S:50 level:11,won_tiebreak:99 lost:4,10
+perunit-3-bal5,200,377,12,373,9,S:63 N:56 ended_earlier:70 level:11,won_tiebreak:114 lost:5,29
+perunit-3-bal7,200,252,5,251,3,N:40 ended_earlier:113 S:43 level:4,won_tiebreak:80 lost:3,28
+perunit-3-light5,200,387,0,387,0,N:62 S:67 ended_earlier:61 level:10,won_tiebreak:129,1
+perunit-3-light7,200,277,0,277,1,S:43 ended_earlier:97 N:50 level:10,won_tiebreak:92 lost:1,8
+perunit-10-bal5,200,319,4,316,3,ended_earlier:90 N:52 S:53 level:5,won_tiebreak:103 lost:2,23
+perunit-10-bal7,200,224,4,224,6,ended_earlier:123 N:30 S:43 level:4,won_tiebreak:69 lost:4,14
+perunit-10-light5,200,378,0,379,1,ended_earlier:68 N:58 S:69 level:5,won_tiebreak:125 lost:2,5
+perunit-10-light7,200,320,3,320,2,S:58 N:53 ended_earlier:80 level:9,won_tiebreak:105 lost:5 won_decisive:1,16
+evade-0-bal5,200,339,12,333,3,N:61 level:4 S:49 ended_earlier:86,won_tiebreak:109 lost:1,23
+evade-0-bal7,200,266,2,263,7,ended_earlier:107 S:33 N:53 level:7,won_tiebreak:81 lost:5,16
+evade-0-light5,200,320,0,320,0,N:52 ended_earlier:89 S:54 level:5,won_tiebreak:106,0
+evade-0-light7,200,192,0,192,0,ended_earlier:123 N:31 level:13 S:33,won_tiebreak:64,0
+evade-half-bal5,200,353,5,352,7,N:57 S:59 ended_earlier:79 level:5,won_tiebreak:113 lost:3,22
+evade-half-bal7,200,248,4,250,4,ended_earlier:113 N:47 S:34 level:6,won_tiebreak:77 lost:4,16
+evade-half-light5,200,362,2,361,0,ended_earlier:77 S:66 N:55 level:2,won_tiebreak:120 lost:1,4
+evade-half-light7,200,210,0,210,0,ended_earlier:123 S:36 N:34 level:7,won_tiebreak:70,4
+evade-double-bal5,200,322,4,320,4,ended_earlier:92 S:46 N:60 level:2,won_tiebreak:103 lost:3,18
+evade-double-bal7,200,278,1,278,3,N:45 ended_earlier:107 level:2 S:46,won_tiebreak:88 lost:3,22
+evade-double-light5,200,384,2,381,0,N:71 S:56 ended_earlier:69 level:4,won_tiebreak:125 lost:2,8
+evade-double-light7,200,304,2,304,4,ended_earlier:84 N:48 level:15 S:53,won_tiebreak:99 lost:2,7
+clock-0-bal5,200,321,0,321,0,N:57 ended_earlier:87 S:50 level:6,won_tiebreak:107,15
+clock-0-bal7,200,261,0,261,0,N:49 S:38 ended_earlier:107 level:6,won_tiebreak:87,16
+clock-0-light5,200,426,0,426,0,N:79 S:63 ended_earlier:56 level:2,won_tiebreak:142,2
+clock-0-light7,200,303,0,303,0,ended_earlier:87 N:52 S:49 level:12,won_tiebreak:101,10
+clock-half-bal5,200,326,8,319,2,ended_earlier:91 S:44 N:64 level:1,won_tiebreak:103 lost:4 draw:1,18
+clock-half-bal7,200,253,6,254,5,ended_earlier:112 N:37 level:7 S:44,won_tiebreak:78 lost:3,15
+clock-half-light5,200,429,1,429,0,N:67 ended_earlier:53 S:76 level:4,won_tiebreak:142 lost:1,4
+clock-half-light7,200,297,5,296,3,S:52 ended_earlier:88 N:46 level:14,won_tiebreak:95 lost:3,11
+clock-double-bal5,200,341,7,340,7,ended_earlier:83 S:53 N:60 level:4,won_tiebreak:107 lost:6,22
+clock-double-bal7,200,245,2,246,8,S:38 ended_earlier:117 level:5 N:40,won_tiebreak:76 lost:2,15
+clock-double-light5,200,412,2,413,1,N:69 ended_earlier:57 S:70 level:4,won_tiebreak:133 lost:6,15
+clock-double-light7,200,332,0,333,3,N:55 S:59 ended_earlier:77 level:9,won_tiebreak:109 lost:5,13
+clockturns-3-bal5,200,339,12,337,0,ended_earlier:83 S:58 N:54 level:5,won_tiebreak:111 lost:1,22
+clockturns-3-bal7,200,227,8,226,3,ended_earlier:120 S:42 level:6 N:32,won_tiebreak:72 lost:2,10
+clockturns-3-light5,200,424,4,422,1,N:72 S:69 ended_earlier:56 level:3,won_tiebreak:140 lost:1,7
+clockturns-3-light7,200,237,10,233,4,ended_earlier:112 N:35 S:45 level:8,won_tiebreak:72 lost:8,24
+clockturns-10-bal5,200,319,0,319,1,ended_earlier:92 N:60 S:47 level:1,lost:1 won_tiebreak:106,12
+clockturns-10-bal7,200,225,0,225,0,S:40 ended_earlier:118 N:35 level:7,won_tiebreak:75,4
+clockturns-10-light5,200,459,0,459,0,ended_earlier:46 N:76 S:77 level:1,won_tiebreak:153,0
+clockturns-10-light7,200,258,0,258,0,ended_earlier:103 N:43 S:43 level:11,won_tiebreak:86,1

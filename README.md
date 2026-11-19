@@ -51,6 +51,8 @@ node tests/test_stamina.js
 node tests/test_reasons.js
 node tests/test_kitd.js
 node tests/test_brain5.js
+node tests/test_brain6.js
+node tests/test_version.js
 node tests/test_watch.js
 node tests/test_ui.js
 node tests/test_invariants.js
@@ -84,6 +86,6 @@ For a build that must not change play at all, `node tests/regress_engine.js <boa
 
 `test_invariants.js` plays 30 bot games on the newest preset and fails on any impossible state.
 
-On GitHub, `checks` runs the quick set on every pull request, in parallel jobs, in a few minutes. `test_v32.js` runs there with a short count (`node tests/test_v32.js 40`). The `night-checks` workflow runs the full 400 + 400 count and 100 impossible-state games every night at 08:07 UTC. It can also be started from the Actions tab (night-checks → Run workflow), or by giving a pull request the label `full checks`. A failing night run opens a "Night checks failed" issue. A pull request that changes `board/` must raise the build number in `board/version.js`.
+On GitHub, `checks` runs the quick set on every pull request, in parallel jobs, in a few minutes. `test_v32.js` runs there with a short count (`node tests/test_v32.js 40`). The `night-checks` workflow runs the full 400 + 400 count and 100 impossible-state games every night at 08:07 UTC. It can also be started from the Actions tab (night-checks → Run workflow), or by giving a pull request the label `full checks`. A failing night run opens a "Night checks failed" issue. A pull request that changes `board/` must raise the build number in `board/version.js` and change its game version (the brief states the new one).
 
 Last full pass: 17 Nov 2026 (replay: 386 checks, 0 mismatches; match3, v1, v2 and v3 hashes identical to the previous board).

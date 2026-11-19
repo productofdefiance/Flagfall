@@ -5,7 +5,7 @@
 (function () {
   "use strict";
   const E = window.GGEngine, D = window.GGData, SK = window.GGSkin, Bot = window.GGBot, BR = window.GGBrain;
-  const V = window.GGVersion || { build: null, preview: null };   // build number: board/version.js is the only source
+  const V = window.GGVersion || { game: null, build: null, preview: null };   // game version and build number: board/version.js is the only source
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const UI = window.GGUi;   // UI v2 wording and preview logic (Brief 009); its say() turns engine text into what the player reads
@@ -151,7 +151,7 @@
       return this.write("live/current", { match }).catch(() => {});
     },
     summary(match, st, how, winner) {
-      return { id: match.id, started: match.started, finished: new Date().toISOString(), ruleset: match.rs.name, build: match.build || null, format: match.opts.format || null,
+      return { id: match.id, started: match.started, finished: new Date().toISOString(), ruleset: match.rs.name, game: match.game || null, build: match.build || null, format: match.opts.format || null,
         names: match.opts.names, winner, how, turn: st.turn, seed: match.opts.seed || null,
         pull: { N: st.pole.S, S: st.pole.N }, lost: { N: E.beingsLost(st, "N"), S: E.beingsLost(st, "S") } };
     },
@@ -272,7 +272,7 @@
         lineups[t] = toLineup(rs, App.picks[t]);
       }
     }
-    App.match = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), build: V.build, rs: E.clone(rs),
+    App.match = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), game: V.game || null, build: V.build, rs: E.clone(rs),
       opts: { first: "N", players, names, lineups, seed: s.seed, format: fm.id, coin: s.first === "coin" }, brains, actions: [], draws: 0 };
     App.match.opts.first = s.first === "coin" ? (rand() < 0.5 ? "N" : "S") : s.first;
     rebuild();
@@ -432,16 +432,14 @@
     const where = st.phase === "deploy" ? "Deploying" : `Turn ${st.turn} · ${sideName(st.toMove)} to move`;
     return `${where} · ${opp}`;
   }
-  /** "Playtest board · v3.05.01 · Build 7 · Rules v3.4"; a preview copy also says which pull request it is. */
+  /** "Playtest board · v3.06.00 · Rules v3.4"; a preview copy also says which pull request it is (version.js). */
   function homeLine() {
     const newest = D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id;
-    return ["Playtest board", V.game || null, V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null, `Rules ${newest}`].filter(Boolean).join(" · ");
+    return V.line ? V.line(newest) : `Playtest board · Rules ${newest}`;
   }
-  /** " · Build 3", plus the build a match was started on when that differs (never guessed for older matches). */
-  function buildNote(m) {
-    if (!V.build) return "";
-    return (V.game ? ` · ${V.game}` : "") + ` · Build ${V.build}` + (m && m.build && m.build !== V.build ? ` (started on Build ${m.build})` : "");
-  }
+  /** " · v3.06.00", plus what a match was started on when that differs: its game version, or "Build 6" for matches
+      saved before Build 7 (never a guessed version). */
+  function buildNote(m) { return V.note ? V.note(m) : ""; }
   function renderHome() {
     const cont = liveSummary();
     const item = (act, icon, t, s, primary) => `<button type="button" class="menuitem${primary ? " primary" : ""}" data-act="${act}">${ic(icon, 24)}<span><span class="mt">${t}</span>${s ? `<span class="ms">${s}</span>` : ""}</span></button>`;
@@ -1539,7 +1537,7 @@
   // ---------- Matches ----------
   /** The record Claude reads: the same fields for the current match and any finished one. */
   function recordText(m, result) {
-    return JSON.stringify({ ruleset: m.rs, opts: m.opts, brains: m.brains, started: m.started, build: m.build || null, actions: m.actions, botMoves: m.botMoves || [], result: result || null }, null, 1);
+    return JSON.stringify({ ruleset: m.rs, opts: m.opts, brains: m.brains, started: m.started, game: m.game || null, build: m.build || null, actions: m.actions, botMoves: m.botMoves || [], result: result || null }, null, 1);
   }
   /** A saved match's result, worked out by replaying its moves (summaries don't keep the engine's result). */
   function replayResult(m) {
@@ -1566,7 +1564,7 @@
     if (!App.matches.length) h += `<p class="note">None saved yet.</p>`;
     else {
       h += `<div class="tablewrap"><table class="data"><thead><tr><th></th><th>Finished</th><th>Rule set</th><th>Result</th><th>Turn</th><th>Pull damage N–S</th><th>Unit cap lost N–S</th></tr></thead><tbody>`;
-      for (const x of App.matches) h += `<tr><td><button type="button" class="iconbtn" data-act="copy-finished" data-id="${esc(x.id)}" aria-label="Copy this match's record for Claude" title="Copy match record">${ic("copy", 18)}</button></td><td>${x.finished ? new Date(x.finished).toLocaleDateString() : ""}</td><td>${esc(x.ruleset)}${x.build ? `<br><span class="muted">Build ${esc(String(x.build))}</span>` : ""}</td><td>${x.how === "abandoned" ? "Abandoned" : x.winner ? esc(x.names ? x.names[x.winner] : sideName(x.winner)) + " (" + sideName(x.winner) + "), " + esc(say(x.how)) : "Draw, " + esc(say(x.how))}</td><td class="num">${x.turn}</td><td class="num">${x.pull ? x.pull.N + "–" + x.pull.S : ""}</td><td class="num">${x.lost ? x.lost.N + "–" + x.lost.S : ""}</td></tr>`;
+      for (const x of App.matches) h += `<tr><td><button type="button" class="iconbtn" data-act="copy-finished" data-id="${esc(x.id)}" aria-label="Copy this match's record for Claude" title="Copy match record">${ic("copy", 18)}</button></td><td>${x.finished ? new Date(x.finished).toLocaleDateString() : ""}</td><td>${esc(x.ruleset)}${V.startedOn && V.startedOn(x) ? `<br><span class="muted">${esc(V.startedOn(x))}</span>` : ""}</td><td>${x.how === "abandoned" ? "Abandoned" : x.winner ? esc(x.names ? x.names[x.winner] : sideName(x.winner)) + " (" + sideName(x.winner) + "), " + esc(say(x.how)) : "Draw, " + esc(say(x.how))}</td><td class="num">${x.turn}</td><td class="num">${x.pull ? x.pull.N + "–" + x.pull.S : ""}</td><td class="num">${x.lost ? x.lost.N + "–" + x.lost.S : ""}</td></tr>`;
       h += `</tbody></table></div><textarea id="record-finished" class="copyarea" readonly hidden></textarea>`;
     }
     h += `</div></div></div>`;
