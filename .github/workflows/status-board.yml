@@ -66,6 +66,8 @@ jobs:
         id: board
         env:
           GH_TOKEN: ${{ github.token }}
+          # A run started by hand or by the page's Refresh button always publishes, so the "Updated" time moves (Brief 023).
+          STATUS_FORCE: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           node sims/status/board.js status-out > result.txt
           cat result.txt >> "$GITHUB_OUTPUT"
@@ -114,25 +116,43 @@ jobs:
     if: needs.build.outputs.changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Its own group (Brief 023, F021-2): it no longer shares play-links' group, so it can never make GitHub cancel a
+    # waiting play-link publish. It touches only status/ on gh-pages, and its push retries on rejection.
     concurrency:
-      group: play-links     # shared with play-links, so two publishes to gh-pages never overwrite each other
+      group: status-page
       cancel-in-progress: false
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: status-page
           path: page
-      - name: Copy the page to gh-pages under status/
+      - name: Copy the page to gh-pages under status/ (retry on rejection, up to 5 times)
         env:
+          GH_TOKEN: ${{ github.token }}
           REPO_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
         run: |
-          git init -q site && cd site
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote add origin "$REPO_URL"
-          if git fetch -q --depth 1 origin gh-pages; then git checkout -q -B gh-pages FETCH_HEAD; else git checkout -q --orphan gh-pages; touch .nojekyll; fi
-          mkdir -p status && cp ../page/index.html ../page/board.json status/
-          git add -A
-          if git diff --cached --quiet; then echo "Nothing changed on gh-pages."; exit 0; fi
-          git commit -q -m "Publish the status page"
-          git push -q origin gh-pages
+          # play-links pushes without a retry: wait while one is running (up to 2 minutes), so this push doesn't land
+          # between its fetch and its push and get its update rejected.
+          wait_play_links() {
+            for _ in $(seq 1 24); do
+              busy=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow play-links.yml --limit 10 --json status --jq '[.[] | select(.status != "completed")] | length' 2>/dev/null || echo 0)
+              [ "$busy" = "0" ] && return 0
+              sleep 5
+            done
+          }
+          for i in 1 2 3 4 5; do
+            rm -rf site && git init -q site && cd site
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git remote add origin "$REPO_URL"
+            # Start from the newest gh-pages each time and change only status/: nothing else is ever overwritten.
+            if git fetch -q --depth 1 origin gh-pages; then git checkout -q -B gh-pages FETCH_HEAD; else git checkout -q --orphan gh-pages; touch .nojekyll; fi
+            rm -rf status && mkdir -p status && cp ../page/index.html ../page/board.json status/
+            git add -A status .nojekyll 2>/dev/null || git add -A status
+            if git diff --cached --quiet; then echo "Nothing changed on gh-pages."; exit 0; fi
+            git commit -q -m "Publish the status page"
+            wait_play_links
+            if git push -q origin gh-pages; then echo "Published (attempt $i)."; exit 0; fi
+            cd ..; sleep $((i * 5))
+          done
+          echo "Could not publish the status page after 5 tries."; exit 1

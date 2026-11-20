@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-/* Status board (Brief 021). Builds one small board for the Editor: VERSION, RESULTS, FLAGS, BUILDS, CHATS.
+/* Status board (Brief 021, page redesign Brief 023). Builds one small board for the Editor: VERSION, RESULTS, FLAGS,
+   BUILDS, CHATS. BOARD.md is the plain text for chats; board.json adds the structured facts the page (page.js) draws.
    - buildBoard(facts) turns plain facts into the board (text, sections, json). No network: the test feeds it fixtures.
    - gather(opts) collects the facts from the repository: files through git (no API limit), pull requests, checks and
      the night checks through `gh api` with the workflow's token.
@@ -12,7 +13,8 @@ const fs = require("fs");
 const path = require("path");
 const { execFileSync } = require("child_process");
 
-const LIMITS = { results: 8, flags: 12, merged: 3, closedChats: 5, staleDays: 3, maxBytes: 4096 };
+const LIMITS = { results: 8, flags: 12, pageFlags: 8, issueChars: 300, merged: 3, closedChats: 5, staleDays: 3, maxBytes: 4096 };
+const PAGE = require("./page.js");
 const FLAG_OPEN = ["OPEN", "ASK", "DECIDE", "TEST"];
 const FLAG_BANG = ["ASK", "DECIDE"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -45,6 +47,8 @@ function cut(s, n) {
   const sp = head.lastIndexOf(" ");
   return (sp > n * 0.6 ? head.slice(0, sp) : head).replace(/[\s,;:.(–-]+$/, "") + "…";
 }
+/** Plain one-line text, whole (no cut): markdown bold and code marks removed. */
+function plain(s) { return String(s || "").replace(/\*\*|`/g, "").replace(/\s+/g, " ").trim(); }
 const pad3 = (n) => String(n).padStart(3, "0");
 /** "v3.10.00" → [3,10,0] (null if not a version). */
 function ver(v) { const m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(String(v || "")); return m ? m.slice(1).map(Number) : null; }
@@ -95,7 +99,7 @@ function parseFlags(md) {
     if (!/^\|\s*F[\w-]*\d/.test(line)) continue;
     const c = line.split("|").slice(1, -1).map((x) => x.trim());
     if (c.length < 5) continue;
-    rows.push({ name: c[0], date: c[1], issue: c[3], status: (c[4].replace(/[`*]/g, "").split(/\s+/)[0] || "").toUpperCase(), raw: line.trim() });
+    rows.push({ name: c[0], date: c[1], issue: c[3], next: c[5] || "", status: (c[4].replace(/[`*]/g, "").split(/\s+/)[0] || "").toUpperCase(), raw: line.trim() });
   }
   return rows;
 }
@@ -153,6 +157,54 @@ function shortChatDate(s) {
   return dm ? `${Number(dm[1])} ${dm[2]}` : String(s || "");
 }
 
+// ---------- Brief 023: needs sync, build state, results shares ----------
+
+/** Paths that never make a build "behind main": lab results merge to main all day. */
+const SYNC_IGNORE = /^(results|studies)\//;
+/** "conflict" when GitHub says the pull request can't merge cleanly, "behind" when main has changed anything outside
+    results/ and studies/ since the pull request last met main, else null. mergeable: true | false | null (unknown). */
+function syncState(mergeable, behindFiles) {
+  if (mergeable === false) return "conflict";
+  if ((behindFiles || []).some((f) => !SYNC_IGNORE.test(f))) return "behind";
+  return null;
+}
+/** One state per building row, in the brief's order: Broken, Needs sync, On hold, Ready to merge, Review, Running. */
+function buildState(p) {
+  if (p.checks === "fail") return "broken";
+  if (p.sync) return "sync";
+  if (p.review === "hold") return "hold";
+  if (p.review === "merge") return "merge";
+  if (!p.draft && p.checks === "pass") return "review";
+  return "running";
+}
+/** Share of games that ended on the turn limit, per format, from a run's own tables/outcomes.csv: the first mirror
+    matchup of that format (same brain both sides), else the format's only matchup. A format with several matchups and
+    no mirror has no number. Also the fallback line (matchups and games). */
+function resultShares(outcomesCsv) {
+  const rows = parseCsv(outcomesCsv || "").filter((r) => r.matchup);
+  const out = { share5: null, share7: null, line: null };
+  if (!rows.length) return out;
+  const pick = (n) => {
+    const of = rows.filter((r) => new RegExp(`${n}$`).test(r.format || ""));
+    const r = of.find((x) => x.a && x.a === x.b) || (of.length === 1 ? of[0] : null);
+    if (!r) return null;
+    const g = Number(r.games), t = Number(r.turn_limit);
+    return g > 0 && Number.isFinite(t) && r.turn_limit !== "" ? t / g : null;
+  };
+  out.share5 = pick(5); out.share7 = pick(7);
+  const games = rows.reduce((a, r) => a + (Number(r.games) || 0), 0);
+  out.line = `${rows.length} ${rows.length === 1 ? "matchup" : "matchups"}, ${games.toLocaleString("en-US")} games`;
+  return out;
+}
+const pct1 = (x) => `${(Math.round(x * 1000) / 10).toFixed(1)}%`;
+/** The short BOARD.md form of a result: "release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov". */
+function resultLine(r, chars) {
+  const head = [r.kind, r.version].filter(Boolean).join(" ");
+  const sh = [r.share5 != null ? `5v5 ${pct1(r.share5)}` : null, r.share7 != null ? `7v7 ${pct1(r.share7)}` : null].filter(Boolean);
+  const mid = sh.length ? `${sh.join(" · ")} on the turn limit` : (r.line || cut(r.answer, chars || 60));
+  return `${head} · ${mid} · ${isoDay(r.date)}`;
+}
+
 // ---------- the board ----------
 
 /**
@@ -208,7 +260,7 @@ function buildBoard(facts, opts) {
     if (!r.id || seen.has(r.id) || String(r.date) < since) return false;
     seen.add(r.id); return true;
   }).sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.id).localeCompare(String(a.id)));
-  for (const r of recent.slice(0, LIMITS.results)) rl.push(line(`${[r.kind, r.version].filter(Boolean).join(" ")} · ${cut(r.answer, L.resultChars)} · ${isoDay(r.date)}`));
+  for (const r of recent.slice(0, LIMITS.results)) rl.push(line(resultLine(r, L.resultChars)));
   if (!recent.length) rl.push(line("none"));
   if (recent.length > LIMITS.results) rl.push(line(`+${recent.length - LIMITS.results} more in results/INDEX.md`));
   sections.push({ title: "RESULTS (last 24 hours)", lines: rl });
@@ -240,7 +292,7 @@ function buildBoard(facts, opts) {
   bl.push(line("Building"));
   for (const p of open) {
     const review = p.review ? `reviewed: ${p.review}` : "not reviewed";
-    bl.push(line(`${p.brief} ${briefName(p.brief, p)} · PR #${p.number} · ${p.draft ? "Draft" : "Ready"} · ${p.checks && p.checks !== "none" ? `checks ${p.checks}` : "no checks yet"} · ${review}`, 2));
+    bl.push(line(`${p.brief} ${briefName(p.brief, p)} · PR #${p.number} · ${p.sync ? "needs sync" : p.draft ? "Draft" : "Ready"} · ${p.checks && p.checks !== "none" ? `checks ${p.checks}` : "no checks yet"} · ${review}`, 2));
   }
   if (!open.length) bl.push(line("none", 2));
   const ready = [], waiting = [];
@@ -282,6 +334,53 @@ function buildBoard(facts, opts) {
   if (!closedChats.length) cl.push(line("none", 2));
   sections.push({ title: "CHATS", lines: cl });
 
+  // The page's structured facts (Brief 023). Everything the page draws comes from here, never kept separately.
+  const view = {
+    schema: 2,
+    updatedText: etTime(now),
+    main: { game: m.game || null, build: m.build || null, rules: m.rules || null, brain: m.brain || null },
+    nightly: facts.nightly ? { state: facts.nightly.conclusion, time: facts.nightly.time, timeText: etTime(facts.nightly.time).replace(/^(\d+ \w+) \d{4},/, "$1,") } : null,
+    builds: {
+      building: open.map((p) => {
+        const taken = p.game && verGreater(p.game, m.game);
+        return { brief: p.brief, name: briefName(p.brief, p), pr: p.number, draft: !!p.draft, checks: p.checks || "none", review: p.review || null,
+          sync: p.sync || null, state: buildState(p), version: taken ? p.game : null, size: p.size || (briefs.get(p.brief) || {}).size || null,
+          play: `https://productofdefiance.github.io/Flagfall/pr/${p.number}/` };
+      }),
+      waiting: nums.map((n) => {
+        const b = briefs.get(n);
+        const w = b.waitsOn === null || b.waitsOn === undefined ? null : b.waitsOn.filter((x) => !mergedSet.has(x));
+        return { brief: n, name: briefName(n), waitsOn: w && w.length ? w : null, ready: !!(w && !w.length), stated: !!w };
+      }).sort((a, b) => Number(a.ready) - Number(b.ready) || a.brief.localeCompare(b.brief)),
+      merged: lastMerged.map((p) => ({ brief: p.brief, name: briefName(p.brief, p), pr: p.number,
+        version: (/\bv\d+\.\d+\.\d+\b/.exec(p.title) || /\bBuild \d+\b/.exec(p.title) || [])[0] || null, date: p.mergedAt ? etDay(p.mergedAt) : null })),
+      mergedLimit: LIMITS.merged
+    },
+    results: recent.slice(0, LIMITS.results).map((r) => ({ id: r.id, kind: r.kind || null, version: r.version || null, date: r.date, dateText: isoDay(r.date),
+      share5: r.share5 != null ? r.share5 : null, share7: r.share7 != null ? r.share7 : null, line: r.line || cut(r.answer, 60) })),
+    resultsMore: Math.max(0, recent.length - LIMITS.results),
+    // The issue's first ~300 characters (the two-line preview), plus the whole issue and its "Resolved in / next step"
+    // text for the rows shown, so a tap on the row can open them.
+    flags: live.slice(0, LIMITS.pageFlags).map((f) => ({ name: f.name, status: f.status, date: f.date, issue: cut(f.issue, LIMITS.issueChars),
+      issueFull: plain(f.issue), next: plain(f.next) })),
+    chats: {
+      open: openChats.map((c) => ({ name: c.name || c.file, subject: c.subject || null, opened: c.opened ? shortChatDate(c.opened) : null,
+        stale: !!(c.lastChange && now - new Date(c.lastChange) >= LIMITS.staleDays * 864e5) })),
+      closed: closedChats.slice(0, LIMITS.closedChats).map((c) => ({ name: c.finalName || c.name || c.file, closed: c.closed ? shortChatDate(c.closed) : null, outcome: c.outcome ? cut(c.outcome, 120) : null })),
+      closedLimit: LIMITS.closedChats
+    }
+  };
+  // A brief whose Waits on row is missing shows "Waits on not stated" (waitsOn null, ready false).
+  const asks = live.filter((f) => FLAG_BANG.includes(f.status));
+  const shownFlags = live.slice(0, LIMITS.pageFlags);
+  view.tiles = {
+    building: open.length,
+    flagsAsk: asks.length,
+    flagsNewest: asks.length ? asks[0].name : null,
+    flagsMoreAsk: asks.length - shownFlags.filter((f) => FLAG_BANG.includes(f.status)).length,
+    flagsMoreOpen: (live.length - asks.length) - shownFlags.filter((f) => !FLAG_BANG.includes(f.status)).length
+  };
+
   const header = `STATUS · updated ${etTime(now)}`;
   const body = sections.map((s) => [s.title, ...s.lines.map((l) => "  ".repeat(l.indent) + l.text)].join("\n")).join("\n\n");
   const text = `${header}\n\n${body}\n`;
@@ -289,44 +388,53 @@ function buildBoard(facts, opts) {
   if (Buffer.byteLength(text) > LIMITS.maxBytes && L.resultChars > 50) {
     return buildBoard(facts, { lengths: { resultChars: L.resultChars - 20, flagChars: L.flagChars - 15 } });
   }
-  return { text, header, body, sections, updated: now.toISOString() };
+  return { text, header, body, sections, updated: now.toISOString(), view };
 }
 
-/** The status page: the same sections, plain and light, readable on a phone. No scripts, no dependencies. */
-function renderHtml(board) {
-  const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  const secs = board.sections.map((s) => `<section><h2>${esc(s.title)}</h2>\n${s.lines.map((l) =>
-    `<div class="l i${l.indent}${l.mark ? " " + l.mark : ""}">${esc(l.text.replace(/^! /, "").replace(/^ {2}/, ""))}</div>`).join("\n")}\n</section>`).join("\n");
+/** The page data: board.json without the plain-text copies and the cache. */
+function pageData(json) {
+  const d = Object.assign({}, json);
+  delete d.board; delete d.sections; delete d.cache;
+  return d;
+}
+/** The status page (Brief 023): one self-contained file. Drawn once here from the board, and redrawn in the browser
+    by the same code (page.js, inlined) when a newer board arrives. */
+function renderHtml(board, json) {
+  const data = pageData(json || boardJson(board, {}));
+  const src = fs.readFileSync(path.join(__dirname, "page.js"), "utf8");
+  // JSON inside a script element: "<" is escaped so no text can close the element early.
+  const dataJson = JSON.stringify(data).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
   return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flagfall status</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fbfaf7;--fg:#1d1d1b;--muted:#6b6a65;--line:#e4e1d8;--ask:#a3361b}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-main{max-width:720px;margin:0 auto;padding:16px}
-h1{font-size:18px;margin:0 0 4px}.upd{color:var(--muted);font-size:13px;margin-bottom:12px}
-section{border-top:1px solid var(--line);padding:10px 0}
-h2{font-size:12px;letter-spacing:.06em;color:var(--muted);margin:0 0 6px}
-.l{overflow-wrap:anywhere}.i1{padding-left:0}.i2{padding-left:16px}.i3{padding-left:32px}
-.ask{color:var(--ask);font-weight:600}.ask::before{content:"! "}
-</style></head>
-<body><main>
-<h1>Flagfall status</h1>
-<div class="upd">${esc(board.header.replace(/^STATUS · /, "").replace(/^updated/, "Updated"))}</div>
-${secs}
-</main></body></html>
+${PAGE.CSS}
+</style>
+</head>
+<body>
+<div id="app">${PAGE.renderApp(data, {})}</div>
+<script id="board-data" type="application/json">${dataJson}</script>
+<script>
+${src.replace(/<\/script/gi, "<\\/script")}
+</script>
+</body>
+</html>
 `;
 }
 
 /** board.json: the facts the page shows, plus a cache of which brief each closed pull request built. */
 function boardJson(board, cache) {
-  return { updated: board.updated, board: board.text, sections: board.sections, cache: cache || {} };
+  return Object.assign({ updated: board.updated, board: board.text, sections: board.sections, cache: cache || {} }, board.view || {});
 }
 
 /** True when the new board says something different from the old one (the "updated" line aside). */
 function changed(oldJson, newJson) {
   if (!oldJson) return true;
-  const strip = (j) => JSON.stringify({ s: j.sections, c: j.cache });
+  const strip = (j) => { const o = Object.assign({}, j); delete o.updated; delete o.updatedText; delete o.board; return JSON.stringify(o); };
   return strip(oldJson) !== strip(newJson);
 }
 
@@ -414,6 +522,16 @@ function gather(opts) {
         } catch (e) { rec.checks = "unknown"; }
         const labels = (p.labels || []).map((l) => l.name);
         rec.review = labels.includes("review: hold") ? "hold" : labels.includes("review: merge") ? "merge" : null;
+        // Needs sync (Brief 023): GitHub's mergeable (worked out lazily: ask once more after a short wait if unknown),
+        // and the files main changed since the pull request last met it, lab results and job orders aside.
+        let mergeable = null;
+        for (let i = 0; i < 2 && mergeable === null; i++) {
+          if (i) sh("sleep", ["5"]);
+          try { const one = api(`pulls/${p.number}`); mergeable = typeof one.mergeable === "boolean" ? one.mergeable : null; } catch (e) { mergeable = null; }
+        }
+        let behind = [];
+        try { if (base) behind = git("diff", "--name-only", base, MAIN).split("\n").filter(Boolean); } catch (e) { behind = []; }
+        rec.sync = syncState(mergeable, behind);
       }
       rec.base = base;
     } else {
@@ -436,7 +554,9 @@ function gather(opts) {
   const rowsAt = (ref) => flagFiles(ref).flatMap((f) => parseFlags(show(ref, f) || ""));
   const flags = rowsAt(MAIN).map((r) => Object.assign(r, { fromPr: false }));
   const results = [];
-  const csvRows = (ref) => parseCsv(show(ref, "results/index.csv") || "");
+  // Each run's two shares come from its own tables/outcomes.csv, read at the same place as its index row.
+  const csvRows = (ref) => parseCsv(show(ref, "results/index.csv") || "").map((r) =>
+    Object.assign(r, r.path ? resultShares(show(ref, `results/${r.path}/tables/outcomes.csv`)) : { share5: null, share7: null, line: null }));
   results.push(...csvRows(MAIN));
   for (const p of openPrs) {
     const head = `${NS}/pr/${p.number}`;
@@ -486,14 +606,15 @@ function main() {
   const board = buildBoard(facts);
   const json = boardJson(board, cache);
   // Everything is worked out before anything is written.
-  const html = renderHtml(board);
+  if (process.env.STATUS_FORCE === "true") process.stderr.write("Forced: a rebuild asked for on demand always publishes.\n");
+  const html = renderHtml(board, json);
   fs.mkdirSync(out, { recursive: true });
   writeAtomic(path.join(out, "BOARD.md"), board.text);
   writeAtomic(path.join(out, "board.json"), JSON.stringify(json, null, 1) + "\n");
   writeAtomic(path.join(out, "index.html"), html);
   process.stderr.write(board.text + `\n(${Buffer.byteLength(board.text)} bytes, ${((Date.now() - t0) / 1000).toFixed(1)} s)\n`);
-  process.stdout.write(`changed=${changed(old, json)}\n`);
+  process.stdout.write(`changed=${process.env.STATUS_FORCE === "true" || changed(old, json)}\n`);
 }
 
-module.exports = { buildBoard, renderHtml, boardJson, changed, parseFlags, parseBrief, parseCsv, parseChat, briefFromTitle, nameFromTitle, cut, etTime, LIMITS };
+module.exports = { buildBoard, renderHtml, boardJson, pageData, changed, syncState, buildState, resultShares, resultLine, parseFlags, parseBrief, parseCsv, parseChat, briefFromTitle, nameFromTitle, cut, etTime, LIMITS };
 if (require.main === module) main();

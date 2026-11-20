@@ -61,6 +61,30 @@ Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `g
 **Baseline** (Brain 5 mirror, balanced, 1,000 games per format, same seeds as v3.7; full table in brief 014's Report):
 - 5v5: ended on the turn limit **61.9%** (v3.7: 35.1%), pull KO 23.5% (44.0%), first mover's share of decisive games **58.0%** (3.2%). Likely the smaller deploy area; not isolated.
 - 7v7: ended on the turn limit 44.2% (42.7%), pull KO 39.4% (41.6%), first mover's share 31.4% (29.0%): no change beyond the noise.
+## No game version — Brief 023, tooling: status page redesign, Needs sync, a Refresh that rebuilds (20 Nov 2026)
+Nothing in the game changes (`board/` untouched).
+
+**What the Editor will notice**
+- The status page (https://productofdefiance.github.io/Flagfall/status/) has the approved design: a dark header, four tiles (On main, Building, Nightly checks, Flags), then Builds, Results, Chats, Flags and a Key. One layout for phone and computer.
+- Every mark has an icon and a word, never colour alone: Review, Ready to merge, Needs sync, Heads up / On hold, Broken, Running, Needs an answer, Passing, Merged.
+- A build that conflicts with `main`, or has fallen behind it (lab results aside), shows **Needs sync** instead of Review or Ready to merge, with "Your move: type "sync" in its Code chat". `BOARD.md` says "needs sync" in place of "Ready".
+- Results show the share of games that ended on the turn limit, 5v5 and 7v7, read from each run's own table. `BOARD.md` uses the same short line.
+- **Refresh**: with a key saved on that device, it rebuilds the board (about 1 to 3 minutes) and redraws when the new one lands. Without a key it re-reads the latest board. "Set up one-tap rebuild" explains making the key. The page also re-reads by itself every 5 minutes while open.
+
+**Under the hood**
+- New `sims/status/page.js`: draws the page, in Node when the board is built and in the browser when a newer board arrives; holds the Refresh logic.
+- `board.json` gains the structured facts the page draws (builds, results with their two shares, flags with ~300 characters of issue, chats, tiles). The `board` text and every old field stay.
+- The status page publishes in its own concurrency group with a retrying push (F021-2), and waits for a running play-link publish before pushing.
+- A run started by hand (or by Refresh) always publishes, so the "Updated" time moves.
+- New checks in `test_board.js` and `test_page.js` (no network).
+
+- **Flags** (the Editor's design): each row is name and date, the status pill, then the issue on its own full-width line as a two-line preview. Tap a row to open the whole issue and its "Resolved in / next step" text; tap again to close.
+- **Builds** has a Ready to start group between Building and Waiting.
+- The set-up panel asks for a 90-day key.
+- `play-links.yml` retries its push, so a status publish can't make a play link miss an update.
+
+**Flags closed:** F021-2, F023-1, F023-2, F023-3.
+
 ## No game version — Brief 021, tooling: status board, chat log, flag and version numbering (20 Nov 2026)
 Nothing in the game changes (`board/` untouched: no game version, no build number).
 
