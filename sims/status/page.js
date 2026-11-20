@@ -106,7 +106,8 @@
   function renderBuilds(d) {
     var B = d.builds || {}, bl = B.building || [], wl = B.waiting || [], ml = B.merged || [];
     var note = stateCounts(bl).map(function (s) { return countWord(s.state, s.n); });
-    var nWait = wl.filter(function (w) { return !w.ready; }).length;
+    var nReady = wl.filter(function (w) { return w.ready; }).length, nWait = wl.length - nReady;
+    if (nReady) note.push(nReady + " ready to start");
     if (nWait) note.push(nWait + " waiting");
     var h = h3("Building", String(bl.length));
     if (!bl.length) h += none();
@@ -120,12 +121,17 @@
         sub('<a href="' + esc(PLAY + "pr/" + Number(b.pr) + "/") + '" class="b">Play this build</a>');
       h += row(left, pill(b.state, buildPillWord(b)));
     });
-    h += h3("Waiting", String(wl.length));
-    if (!wl.length) h += none();
-    wl.forEach(function (w) {
-      var right = w.ready ? '<span class="wait">' + svg("play", "#5f6762") + "Ready to start</span>"
-        : '<span class="wait">' + svg("running", "#5f6762") + esc(w.waitsOn ? "After " + w.waitsOn.join(", ") : "Waits on not stated") + "</span>";
-      h += row('<div class="nm">' + esc(w.brief + " " + w.name) + "</div>", right);
+    var rl = wl.filter(function (w) { return w.ready; }), ww = wl.filter(function (w) { return !w.ready; });
+    h += h3("Ready to start", String(rl.length));
+    if (!rl.length) h += none();
+    rl.forEach(function (w) {
+      h += row('<div class="nm">' + esc(w.brief + " " + w.name) + "</div>", '<span class="wait">' + svg("play", "#5f6762") + "Ready to start</span>");
+    });
+    h += h3("Waiting", String(ww.length));
+    if (!ww.length) h += none();
+    ww.forEach(function (w) {
+      h += row('<div class="nm">' + esc(w.brief + " " + w.name) + "</div>",
+        '<span class="wait">' + svg("running", "#5f6762") + esc(w.waitsOn ? "After " + w.waitsOn.join(", ") : "Waits on not stated") + "</span>");
     });
     h += h3("Merged", "last " + (B.mergedLimit || 3));
     if (!ml.length) h += none();
@@ -160,18 +166,27 @@
   }
 
   var FLAG_MARK = { ASK: ["ask", "Needs an answer"], DECIDE: ["ask", "Needs a decision"], OPEN: ["heads", "Heads up"], TEST: ["running", "Being tested"] };
-  function renderFlags(d) {
+  function renderFlags(d, ui) {
+    ui = ui || {};
     var fs = d.flags || [], t = d.tiles || {}, asks = t.flagsAsk || 0;
     var h = "";
     if (!fs.length) h += '<div class="empty">No open flags.</div>';
     else {
-      h += '<div class="tw"><table><thead><tr><th scope="col" class="w64">Flag</th><th scope="col" class="w150">Status</th><th scope="col">Issue</th></tr></thead><tbody>';
+      // One row per flag, on every width: name and date, the status pill, then the issue on its own full-width line as
+      // a two-line preview. The row is a details/summary, so a tap, a click or the keyboard opens it to the whole issue
+      // and its "Resolved in / next step" text, and closes it again.
+      var open = ui.openFlags || {};
       fs.forEach(function (f) {
         var m = FLAG_MARK[f.status] || ["heads", "Heads up"];
-        h += '<tr><td class="nw"><div class="b">' + esc(f.name) + "</div>" + sub(esc(f.date)) + "</td><td>" + pill(m[0], m[1]) +
-          '<div class="sub st">' + esc(f.status) + '</div></td><td><div class="clamp">' + esc(f.issue) + "</div></td></tr>";
+        var full = f.issueFull || f.issue || "";
+        h += '<details class="flag" data-flag="' + esc(f.name) + '"' + (open[f.name] ? " open" : "") + '><summary>' +
+          '<div class="fhead"><div class="fname"><span class="b">' + esc(f.name) + '</span> <span class="sub0">' + esc(f.date) + "</span></div>" +
+          '<div class="fpill">' + pill(m[0], m[1]) + '<span class="sub0 st">' + esc(f.status) + "</span></div>" +
+          '<svg aria-hidden="true" viewBox="0 0 24 24" class="i14 chev" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>' +
+          '<div class="clamp">' + esc(f.issue) + "</div></summary>" +
+          '<div class="fbody"><div class="ftext">' + esc(full) + "</div>" +
+          (f.next ? '<div class="fnext"><span class="tl">Resolved in / next step</span><div>' + esc(f.next) + "</div></div>" : "") + "</div></details>";
       });
-      h += "</tbody></table></div>";
     }
     var moreAsk = t.flagsMoreAsk || 0, moreOpen = t.flagsMoreOpen || 0, parts = [];
     if (moreAsk) parts.push(moreAsk + " more " + (moreAsk === 1 ? "needs" : "need") + " an answer");
@@ -225,12 +240,12 @@
     return '<section class="card" id="setup"><div class="shead"><h2>One-tap rebuild</h2><div class="note">' + (has ? "A key is saved on this device" : "Not set up on this device") + "</div></div>" +
       '<ol class="steps">' +
       '<li>On GitHub, open <a class="b" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">a new fine-grained token</a> (Settings → Developer settings → Fine-grained tokens → Generate new token).</li>' +
-      "<li>Under Repository access pick <b>Only select repositories</b> and choose <b>Flagfall</b>. Under Permissions, set <b>Actions</b> to <b>Read and write</b>. Leave everything else as it is. Pick an expiry, then tap Generate token.</li>" +
+      "<li>Under Repository access pick <b>Only select repositories</b> and choose <b>Flagfall</b>. Under Permissions, set <b>Actions</b> to <b>Read and write</b>. Set Expiration to <b>90 days</b>. Leave everything else as it is, then tap Generate token.</li>" +
       "<li>Copy the token, paste it in the box below and tap Save.</li></ol>" +
       '<input id="keybox" type="password" autocomplete="off" spellcheck="false" placeholder="Paste the token here" aria-label="GitHub token">' +
       '<div class="srow"><button type="button" class="sbtn" data-act="save">Save</button><button type="button" class="sbtn ghost" data-act="remove">Remove</button><button type="button" class="sbtn ghost" data-act="close">Close</button></div>' +
       (ui.setupNote ? '<div class="sub0" role="status">' + esc(ui.setupNote) + "</div>" : "") +
-      '<div class="foot">The key stays on this device, in this browser only. It expires when GitHub says so. It can only work the jobs that already exist in the repository (start, stop or re-run them); it can\'t change the game, the flags or any setting.</div></section>';
+      '<div class="foot">The key stays on this device, in this browser only. It expires after 90 days (the expiry you set on GitHub); then make a new one the same way. It can only work the jobs that already exist in the repository (start, stop or re-run them); it can\'t change the game, the flags or any setting.</div></section>';
   }
 
   /** The whole page body for a board (the board.json object). ui: { button, note, setupOpen, hasKey, setupNote }. */
@@ -243,7 +258,7 @@
       '<a href="#setup" data-act="setup">' + (ui.hasKey ? "Refresh settings" : "Set up one-tap rebuild") + "</a></div></div></div></header>";
     return head + '<main class="mn">' + (ui.setupOpen ? renderSetup(ui) : "") + renderTiles(d) +
       '<div class="cols">' + renderBuilds(d) + '<div class="side">' + renderResults(d) + renderChats(d) + "</div></div>" +
-      renderFlags(d) + renderKey() + "</main>";
+      renderFlags(d, ui) + renderKey() + "</main>";
   }
 
   var CSS = [
@@ -277,6 +292,11 @@
     ".tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.35}",
     "th{text-align:left;padding:0 10px 8px 0;border-bottom:1px solid #b8beb6}td{text-align:left;vertical-align:top;padding:11px 10px 11px 0;border-bottom:1px solid #dfe3dc}",
     ".num{text-align:right}.w64{width:64px}.w150{width:150px}.big{font-variant-numeric:tabular-nums;font-weight:600}.dt{color:#5f6762;font-size:13px;white-space:nowrap}.fb{font-size:13px}.nw{white-space:nowrap}",
+    ".flag{border-bottom:1px solid #dfe3dc}.flag summary{list-style:none;cursor:pointer;padding:11px 0;display:block}.flag summary::-webkit-details-marker{display:none}",
+    ".flag summary:focus-visible{outline:2px solid #1f2421;outline-offset:2px;border-radius:4px}",
+    ".fhead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}.fname{min-width:64px}.fpill{display:inline-flex;align-items:center;gap:8px;flex:1 1 auto}.chev{margin-left:auto;transition:transform .15s}",
+    ".flag[open] .chev{transform:rotate(180deg)}.flag summary .clamp{margin-top:6px}.flag[open] summary .clamp{display:none}",
+    ".fbody{padding:0 0 12px;font-size:13px;line-height:1.45}.ftext{overflow-wrap:anywhere}.fnext{margin-top:8px;overflow-wrap:anywhere}.fnext .tl{display:block;margin-bottom:2px}",
     ".clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.4}",
     ".foot{font-size:12px;color:#5f6762;padding:10px 0}.empty{padding:4px 0 14px;font-size:14px}",
     ".key{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px 20px;padding-bottom:12px}.kitem{display:flex;flex-direction:column;align-items:flex-start;gap:4px}",
@@ -359,7 +379,12 @@
     try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
     var storage = null;
     try { storage = window.localStorage; } catch (e) { storage = null; }
-    var ui = { button: null, note: "", setupOpen: false, setupNote: "", hasKey: !!getKey(storage) };
+    var ui = { button: null, note: "", setupOpen: false, setupNote: "", hasKey: !!getKey(storage), openFlags: {} };
+    // Remember which flag rows are open, so a redraw (a newer board, every 5 minutes) doesn't close them.
+    document.addEventListener("toggle", function (ev) {
+      var el = ev.target;
+      if (el && el.getAttribute && el.getAttribute("data-flag")) ui.openFlags[el.getAttribute("data-flag")] = el.open;
+    }, true);
     var lastRead = Date.now(), busy = false;
     function draw() {
       var box = document.getElementById("keybox"), typed = box ? box.value : "";

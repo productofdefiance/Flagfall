@@ -47,6 +47,8 @@ function cut(s, n) {
   const sp = head.lastIndexOf(" ");
   return (sp > n * 0.6 ? head.slice(0, sp) : head).replace(/[\s,;:.(–-]+$/, "") + "…";
 }
+/** Plain one-line text, whole (no cut): markdown bold and code marks removed. */
+function plain(s) { return String(s || "").replace(/\*\*|`/g, "").replace(/\s+/g, " ").trim(); }
 const pad3 = (n) => String(n).padStart(3, "0");
 /** "v3.10.00" → [3,10,0] (null if not a version). */
 function ver(v) { const m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(String(v || "")); return m ? m.slice(1).map(Number) : null; }
@@ -97,7 +99,7 @@ function parseFlags(md) {
     if (!/^\|\s*F[\w-]*\d/.test(line)) continue;
     const c = line.split("|").slice(1, -1).map((x) => x.trim());
     if (c.length < 5) continue;
-    rows.push({ name: c[0], date: c[1], issue: c[3], status: (c[4].replace(/[`*]/g, "").split(/\s+/)[0] || "").toUpperCase(), raw: line.trim() });
+    rows.push({ name: c[0], date: c[1], issue: c[3], next: c[5] || "", status: (c[4].replace(/[`*]/g, "").split(/\s+/)[0] || "").toUpperCase(), raw: line.trim() });
   }
   return rows;
 }
@@ -357,7 +359,10 @@ function buildBoard(facts, opts) {
     results: recent.slice(0, LIMITS.results).map((r) => ({ id: r.id, kind: r.kind || null, version: r.version || null, date: r.date, dateText: isoDay(r.date),
       share5: r.share5 != null ? r.share5 : null, share7: r.share7 != null ? r.share7 : null, line: r.line || cut(r.answer, 60) })),
     resultsMore: Math.max(0, recent.length - LIMITS.results),
-    flags: live.slice(0, LIMITS.pageFlags).map((f) => ({ name: f.name, status: f.status, date: f.date, issue: cut(f.issue, LIMITS.issueChars) })),
+    // The issue's first ~300 characters (the two-line preview), plus the whole issue and its "Resolved in / next step"
+    // text for the rows shown, so a tap on the row can open them.
+    flags: live.slice(0, LIMITS.pageFlags).map((f) => ({ name: f.name, status: f.status, date: f.date, issue: cut(f.issue, LIMITS.issueChars),
+      issueFull: plain(f.issue), next: plain(f.next) })),
     chats: {
       open: openChats.map((c) => ({ name: c.name || c.file, subject: c.subject || null, opened: c.opened ? shortChatDate(c.opened) : null,
         stale: !!(c.lastChange && now - new Date(c.lastChange) >= LIMITS.staleDays * 864e5) })),

@@ -180,6 +180,23 @@ check("the page escapes text from the repository", (() => {
   const h = B.renderHtml(evil, B.boardJson(evil, {}));
   return !h.includes("<img src=x") && !/<\/script>\s*<img/.test(h) && h.split("</script>").length === 3;
 })());
+// Editor's follow-ups (F023-3, Ready to start group).
+const longIssue = "Start of the issue. " + "middle words ".repeat(60) + "END OF ISSUE";
+const bx = B.buildBoard(Object.assign({}, facts, { flags: [{ name: "F51", date: "20 Nov", status: "ASK", issue: longIssue, next: "Recommended: **do it**", fromPr: false }] }));
+const fx = bx.view.flags[0];
+check("board.json carries the whole issue and its next step for the flags shown", fx.issueFull.endsWith("END OF ISSUE") && fx.issue.length <= 301 && fx.next === "Recommended: do it", JSON.stringify(fx).slice(0, 200));
+check("parseFlags reads the Resolved in / next step column", B.parseFlags("| F7 | 16 Nov | Code | an issue | ASK | the next step |\n")[0].next === "the next step");
+const hx = B.renderHtml(bx, B.boardJson(bx, {}));
+const P2 = require("./page.js");
+check("each flag row is a details/summary (keyboard and tap) with the preview, the whole issue and the next step",
+  /<details class="flag" data-flag="F51"><summary>[\s\S]*class="clamp">Start of the issue[\s\S]*<\/summary><div class="fbody"><div class="ftext">[^<]*END OF ISSUE<\/div><div class="fnext">[\s\S]*Recommended: do it/.test(hx));
+check("an open flag row stays open when the page is redrawn", /<details class="flag" data-flag="F51" open>/.test(P2.renderApp(B.boardJson(bx, {}), { openFlags: { F51: true } })));
+const hb = P2.renderApp(B.boardJson(b, {}), {});
+const grpAt = (t) => hb.indexOf(`<h3 class="grp">${t} `);
+check("Builds: a Ready to start group between Building and Waiting", grpAt("Building") < grpAt("Ready to start") && grpAt("Ready to start") < grpAt("Waiting") && grpAt("Waiting") < grpAt("Merged"));
+const waitPart = hb.slice(grpAt("Waiting"), grpAt("Merged")), readyPart = hb.slice(grpAt("Ready to start"), grpAt("Waiting"));
+check("ready briefs leave Waiting", readyPart.includes("017 Move preview") && !waitPart.includes("017 Move preview") && waitPart.includes("014 Fields") && !waitPart.includes("Ready to start</span>"));
+check("the set-up panel says the key expires after 90 days", /90 days/.test(P2.renderApp(B.boardJson(b, {}), { setupOpen: true })));
 const pageChecks = require("./test_page.js").run(check, B, b23, j23);
 
 pageChecks.catch((e) => check("page checks ran", false, e && e.stack)).then(() => {

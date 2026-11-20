@@ -58,7 +58,12 @@ Nothing in the game changes (`board/` untouched).
 - A run started by hand (or by Refresh) always publishes, so the "Updated" time moves.
 - New checks in `test_board.js` and `test_page.js` (no network).
 
-**Flags closed:** F021-2. **Opened:** F023-1, F023-2, F023-3 (all ASK).
+- **Flags** (the Editor's design): each row is name and date, the status pill, then the issue on its own full-width line as a two-line preview. Tap a row to open the whole issue and its "Resolved in / next step" text; tap again to close.
+- **Builds** has a Ready to start group between Building and Waiting.
+- The set-up panel asks for a 90-day key.
+- `play-links.yml` retries its push, so a status publish can't make a play link miss an update.
+
+**Flags closed:** F021-2, F023-1, F023-2, F023-3.
 
 ## No game version — Brief 021, tooling: status board, chat log, flag and version numbering (20 Nov 2026)
 Nothing in the game changes (`board/` untouched: no game version, no build number).
