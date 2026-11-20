@@ -1,8 +1,8 @@
-STATUS · updated 20 Nov 2026, 11:15 am ET
+STATUS · updated 20 Nov 2026, 11:31 am ET
 
 VERSION
   On main: v3.11.00 · Build 15 · Rules v3.7 · Brain 5
-  Building: 014 → YY · 021 → none
+  Building: 014 → YY
 
 RESULTS (last 24 hours)
   Nightly checks: pass (19 Nov, 12:17 pm ET)
@@ -34,17 +34,18 @@ FLAGS (open, newest first)
 BUILDS
   Building
     014 Fields · PR #36 · Ready · checks pass · not reviewed
-    021 Status board · PR #34 · Ready · checks running · not reviewed
   Ready to start
-    020 Victory values
+    none
   Waiting
     012 Cavalry ← 014, 017, 018
     017 Move preview ← 014
     018 Turn cue zoom ← 017
+    020 Victory values ← 022
+    022 Safe approach ← 014
   Merged (last 3)
+    021 Status board · 20 Nov
     019 Brain 7 · v3.11.00 · 20 Nov
     011 Special attacks · v3.10.00 · 20 Nov
-    016 Stall logging · v3.09.01 · 19 Nov
 
 CHATS
   Open
