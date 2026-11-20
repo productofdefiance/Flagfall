@@ -50,5 +50,6 @@ BUILDS
 CHATS
   Open
     FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov
+    FF UI v3.12.00 - · brief 017 review; phone fit for brief 018 · opened 20 Nov
   Closed (last 5)
     none
