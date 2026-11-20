@@ -137,6 +137,10 @@ jobs:
         id: lead
         continue-on-error: true
         run: node sims/lab/test_lead.js
+      - name: test_capacity.js (the lab's share of machines, and waves change no result; no network)
+        id: capacity
+        continue-on-error: true
+        run: node sims/lab/test_capacity.js
       - name: test_board.js (status board, fixture data, no network)
         id: statusboard
         continue-on-error: true
@@ -154,7 +158,7 @@ jobs:
       - name: Summary
         if: always()
         env:
-          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_v35.js(6-games)=${{ steps.v35.outcome }} test_v36.js=${{ steps.v36.outcome }} test_v37.js=${{ steps.v37.outcome }} test_fields.js=${{ steps.fields.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_version.js=${{ steps.version.outcome }} test_brain6.js(2-games)=${{ steps.brain6.outcome }} test_brain7.js(2-games)=${{ steps.brain7.outcome }} test_watch.js=${{ steps.watch.outcome }} test_ui.js=${{ steps.ui.outcome }} lab-self-test=${{ steps.lab.outcome }} test_stall.js=${{ steps.stall.outcome }} test_board.js=${{ steps.statusboard.outcome }} test_lead.js=${{ steps.lead.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
+          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_v35.js(6-games)=${{ steps.v35.outcome }} test_v36.js=${{ steps.v36.outcome }} test_v37.js=${{ steps.v37.outcome }} test_fields.js=${{ steps.fields.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_version.js=${{ steps.version.outcome }} test_brain6.js(2-games)=${{ steps.brain6.outcome }} test_brain7.js(2-games)=${{ steps.brain7.outcome }} test_watch.js=${{ steps.watch.outcome }} test_ui.js=${{ steps.ui.outcome }} lab-self-test=${{ steps.lab.outcome }} test_stall.js=${{ steps.stall.outcome }} test_board.js=${{ steps.statusboard.outcome }} test_capacity.js=${{ steps.capacity.outcome }} test_lead.js=${{ steps.lead.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
         run: |
           { echo "## Rule tests"; echo; echo "| Check | Result |"; echo "| --- | --- |"
             for kv in $R; do o="${kv#*=}"; echo "| ${kv%%=*} | $( [ "$o" = success ] && echo pass || echo "**FAIL** ($o)" ) |"; done

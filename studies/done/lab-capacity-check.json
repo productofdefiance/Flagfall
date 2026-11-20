@@ -1,0 +1,11 @@
+{
+  "id": "lab-capacity-check",
+  "kind": "experiment",
+  "brief": "024",
+  "question": "Does a lab run on a pull request choose its share of machines, say why in one line, and write its queue log line (Brief 024)?",
+  "tags": ["lab", "capacity", "v3.8"],
+  "matchups": [
+    { "name": "mirror-5v5", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "blitz5", "mix": "mixed", "games": 10 },
+    { "name": "mirror-7v7", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "std7", "mix": "mixed", "games": 10 }
+  ]
+}
