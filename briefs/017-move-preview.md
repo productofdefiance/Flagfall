@@ -4,12 +4,12 @@
 |---|---|
 | Game version | Next free **YY** at merge (new screens and a routing rule: a real change), ZZ = 00. Take it when you open the pull request; re-check after any `sync`. |
 | Lane | UI (with one rules piece: routes, Game Laws 2.11) |
-| Rule set | **New preset**, next free id at merge (expected v3.8 or v3.9, after 011 and 014): the current preset plus the 2.11 route rules behind a switch `routeRule211`. Older presets keep today's movement and replay exactly. |
+| Rule set | **New preset**, next free id at merge (after 011 and 014): the current preset plus the 2.11 route rules behind a switch `routeRule211`. Older presets keep today's movement and replay exactly. |
 | Date | 19 Nov 2026 |
 | Goal | Let players plan moves and attacks without moving, checking and undoing: route and dangers before a move confirms, range for planning, the special's range, the Evade preview after an attack, and the enemy's moves and range. Build the screens the Editor approved on 19 Nov as Approved UI v3. |
 | Branch | Any branch your session may push to, started from `brief/017-move-preview` |
 | Flags | none to close |
-| Order | **After brief 011 merges** (011 changes the same preview, buttons and specials) and **before brief 012** (Cavalry adds Vault, stop reasons and Trample on top). It carries a rule change, so it does not run alongside another rule brief (014): whichever of 014 and 017 merges second runs `sync` and takes the next preset id. |
+| Order | **After briefs 011 and 014 merge** (the Editor, 19 Nov: 011, then 014, then 017; 011 changes the same preview, buttons and specials; 014 adds the fields this preview must draw) and **before brief 012** (Cavalry adds Vault, stop reasons and Trample on top). Run `sync` first and take the next preset id. |
 
 
 ## Context
