@@ -1,20 +1,20 @@
-STATUS · updated 20 Nov 2026, 12:49 pm ET
+STATUS · updated 20 Nov 2026, 12:53 pm ET
 
 VERSION
-  On main: v3.11.00 · Build 15 · Rules v3.7 · Brain 5
-  Building: 014 → v3.12.00
+  On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
+  Building: none
 
 RESULTS (last 24 hours)
   Nightly checks: pass (19 Nov, 12:17 pm ET)
+  study v3.11.00 · 5v5: mirror, 61.9% ended on the turn limit, A/B 459–477; 7v7: mirror, 44.2% ended on the turn limit, A/B… · 20 Nov
+  study v3.11.00 · 5v5: mirror, 35.1% ended on the turn limit, A/B 497–492; 7v7: mirror, 42.7% ended on the turn limit, A/B… · 20 Nov
   study v3.10.00 · 52 matchups, 52000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 43.7%… · 20 Nov
   screen v3.10.00 · balanced-5v5: mirror, 34.8% ended on the turn limit, A/B 209–187; balanced-7v7: mirror, 38.8% ended on the… · 20 Nov
   release v3.11.00 · 5v5: mirror, 36.7% ended on the turn limit, A/B 503–492; 7v7: mirror, 41.4% ended on the turn limit, A/B… · 20 Nov
   release v3.10.00 · 5v5: mirror, 37.0% ended on the turn limit, A/B 478–512; 7v7: mirror, 45.1% ended on the turn limit, A/B… · 20 Nov
   study v3.08.01 · 5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B… · 19 Nov
   study v3.10.00 · 5v5: brain5:warmSlack=0 took 48.2% of games against brain5 (decisive 311–293, tiebreak 164–218, draws 14)… · 19 Nov
-  study v3.10.00 · 5v5: mirror, 34.3% ended on the turn limit, A/B 491–504; 7v7: mirror, 41.7% ended on the turn limit, A/B… · 19 Nov
-  study v3.10.00 · 5v5: mirror, 17.8% ended on the turn limit, A/B 497–494; 7v7: mirror, 45.6% ended on the turn limit, A/B… · 19 Nov
-  +27 more in results/INDEX.md
+  +29 more in results/INDEX.md
 
 FLAGS (open, newest first)
   ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…
@@ -33,19 +33,19 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    014 Fields · PR #36 · Ready · checks pass · not reviewed
+    none
   Ready to start
+    017 Move preview
+    022 Safe approach
     023 Status page
   Waiting
-    012 Cavalry ← 014, 017, 018
-    017 Move preview ← 014
+    012 Cavalry ← 017, 018
     018 Turn cue zoom ← 017
     020 Victory values ← 022
-    022 Safe approach ← 014
   Merged (last 3)
+    014 Fields · v3.12.00 · 20 Nov
     021 Status board · 20 Nov
     019 Brain 7 · v3.11.00 · 20 Nov
-    011 Special attacks · v3.10.00 · 20 Nov
 
 CHATS
   Open
