@@ -1,0 +1,62 @@
+{
+ "id": "2026-11-19_screen_specials-bots",
+ "kind": "screen",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "488d934dd21045e0eb5006da8de069f57aa25b72",
+ "brief": "011",
+ "question": "Bot minimum: does Brain 5 use all six specials on v3.7 (each fired 50+ times, 60%+ of warm-ups fired next turn, no refused action, every game finished), 400 games per format?",
+ "tags": [
+  "specials",
+  "bot-minimum",
+  "brain5",
+  "v3.7"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T03:23:28.000Z",
+ "finished": "2026-11-20T04:29:12.461Z",
+ "games": 1200,
+ "seed_from": "tests/rng.js lab:specials-bots:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "balanced-5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 400
+   },
+   {
+    "name": "balanced-7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 400
+   },
+   {
+    "name": "light-7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "light",
+    "games": 400
+   }
+  ],
+  "measures": [
+   "play",
+   "specials"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "balanced-5v5: mirror, 22.0% ended on the turn limit, A/B 205–193; balanced-7v7: mirror, 44.8% ended on the turn limit, A/B 205–191; light-7v7: mirror, 47.5% ended on the turn limit, A/B 207–188."
+}
