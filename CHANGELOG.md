@@ -32,9 +32,9 @@ Rule set: none changed (v3.6 stays the newest). Game version **v3.10.00** (YY: a
 - Lab: three new measures on every run (`lead_lost`, `lead_unused`, units lost alone or together and holder strikes solo or group), positions scored per side-turn in `timing`, a `brain7` measure (how often each behaviour was active, and lone losing attacks for any brain), `seed_as` in job orders so many matchups share one deal. `sims/lab/report019.js` builds the Report's tables.
 - New checks: `test_brain7.js` (all off = Brain 5, the five positions, legal play) and `sims/lab/test_lead.js` (the new measures on five saved games, checked by hand).
 
-**Flags opened:** F38 to F41. **Evidence for:** F10.
+**Flags opened:** F38 to F43. **Evidence for:** F10.
 
-**Measurements:** queued overnight at 1,000 games per format (job orders `brain7-baselines`, `brain7-vs-brain5`, `brain7-storm-lead`, `brain7-one-at-a-time`, `brain7-settings`); results in the brief's Report.
+**Results (34,000 games):** Brain 7 does not pass. It loses to Brain 5 at balanced 5v5 (45.6%) and all-Light 7v7 (45.6%), ties at 7v7, and leaves leads unused about as often at 5v5 (24.0% vs 26.9%), but mirror games end on the clock far less (26.6% vs 57.9% at 5v5, 17.6% vs 40.4% at 7v7), almost all from the holder joining the storm. The settings review (brain7-settings) lands later.
 ## v3.09.01 · Build 13 — Brief 016, stall logging (lab only) (19 Nov 2026)
 Rule set: none changed (v3.6 stays the newest). Game version **v3.09.01** (ZZ: lab tooling, nothing about how the game plays changes; brief 015 took v3.09.00 and Build 12 first).
 

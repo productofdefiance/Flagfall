@@ -148,7 +148,96 @@ This build is the bot work. It is met when every measurement has a number and th
   5. Mirrors: Brain 7 v Brain 7 in `brain7-vs-brain5`.
   6. One behaviour at a time: `brain7-one-at-a-time` (B1; B1+B2; B1+B3; B1+B4; B1+B5; each against Brain 5 and in mirrors, both formats) at full size, not screen size.
   7. Speed: every run's `timing` columns.
-- **Results:** pending the overnight runs (see the top of this Report).
+- **Results (34,000 games, 0 errors, 0 refused actions; run folders `results/v3.10.00/2026-11-19_study_brain7-*`):**
+  - **Success bar: Brain 7 does not pass.**
+    1. Beats Brain 5 by 2+ SE: **fails.** Balanced 5v5 45.6% (−2.8 SE: it loses), 7v7 50.0% (0.0 SE). All-Light 5v5 50.1%, all-Light 7v7 45.6% (−2.8 SE: loses clearly, which the brief rules out).
+    2. Uses its leads (both measures down 4+ points in mirrors): **fails.** Lead unused falls 2.9 points at 5v5 (26.9% → 24.0%, under the 4-point bar) and 9.7 at 7v7 (23.1% → 13.4%). Lead lost *rises* 0.9 and 2.0 points (1.8% → 2.7%, 1.6% → 3.6%; small either way).
+    3. Doesn't stall more: **passes, by a lot.** Mirror games ending on the turn limit: 57.9% → 26.6% at 5v5, 40.4% → 17.6% at 7v7.
+  - **The v3.5 baseline re-measure** replayed all 2,000 stall "before" games identically (same winner, how, turns and flag damage in 2,000 of 2,000), so its new columns are the old run's games. v3.6 changes almost nothing against v3.5 on these deals (every line within 0.5 points).
+  - **In plain words:**
+    - *Did Brain 7 turn leads into wins?* When it got ahead on both units and flag damage it nearly always won (97–98% of those games, none lost by KO, at every stormLead value). But it seldom gets ahead against Brain 5, and leads go unused about as often as before at 5v5. **Which behaviour did it:** B4 (holder joins) does almost all of the work: B1+B4 alone cuts mirror stalls from 57.9% to 26.9% (5v5) and 40.4% to 17.8% (7v7), and lead unused at 7v7 from 23.1% to 13.8%, the same as all five together. **B2 does the opposite:** B1+B2 raises stalls to 73.8% and 65.8% and lead unused to 47% at both sizes. B3 and B5 move nothing beyond noise against B1 alone. B1 alone costs about 4 points against Brain 5 at 5v5 (46.1%, −2.5 SE). These are isolated by the one-at-a-time runs (same deals, one behaviour added to B1), at one setting each.
+    - *Sitting or finishing?* **Finishing.** 73% of Brain 7's wins against Brain 5 at 5v5 are KO or TKO (Brain 5 mirror: 43%); at 7v7 80% (62%). Its **losses** are the tiebreak: Brain 5 wins 289 tiebreaks to Brain 7's 121 at 5v5 (192 to 96 at 7v7). In those lost tiebreaks Brain 7 was almost never ahead (1 of 289 games); in 124 it had been behind (105 regrouping). Likely cause, not isolated: when level or behind, B1's ratio makes Brain 7 avoid even trades and B5 pulls it back, so Brain 5 out-damages it on the flag (184 of the 289 were lost on flag damage).
+    - *Could gathering (B3) be built inside a one-turn planner?* **Yes in the test position, not measurably in games.** It needed the extra `press` value (F38) to strike at all. In games, B1+B3 is within noise of B1 alone, and group strikes on the holder move little (mirror 5v5 1.05 per game against Brain 5's 0.94; solo 1.25 against 1.50). Making it matter likely needs a two-turn look-ahead (plan this turn's gather together with next turn's strike), which is the coaching revisit's planner, not a setting.
+    - *Storm or hold when ahead on both?* **It makes no difference.** Brain 7's share against Brain 5 is 45.4% / 45.6% / 45.6% at 5v5 and 49.9% / 50.0% / 50.0% at 7v7 for stormLead 1.0 / 1.5 / 2.0; the ahead-on-both games are won 97–98% of the time at every value (they are the same deals, and they mostly end the same way). stormLead only changes how many of those side-turns count as storming (1.0: all; 2.0: about 60%). Replay links per value are below.
+    - *With Brain 7 on both sides, do games still end on the clock?* Far less: 26.6% at 5v5 and 17.6% at 7v7, against 57.9% and 40.4% for Brain 5. Average game length falls from 19.5 to 15.3 turns (5v5) and 22.0 to 17.1 (7v7). Pulls decide most games now (pull KO 47.2% and 59.5%). The first mover's share of decisive games moves from 43.5% to 37.2% at 5v5 (further from F12's 45–55% target) and from 53.4% to 46.4% at 7v7.
+  - **Speed:** Brain 7 mirrors average 66 ms per side-turn at 5v5 (Brain 5 54 ms) and 184 ms at 7v7 (149 ms), worst 0.91 s and 2.62 s; 17–20% more positions scored. **Flag:** the worst side-turn in Brain 7 against Brain 5, all-Light 7v7, was 5.90 s (over 4.6 s). The timing column doesn't say which brain's turn it was; Brain 5's own worst was 5.6 s in brief 007. No search cap was added (F24).
+  - **Lone losing attacks while ahead** (B2's own test, both brains): Brain 5 mirrors 0.048 per game at 5v5, 0.058 at 7v7; Brain 7 0.027 and 0.038. They are rare either way, so B2's big effect on stalls doesn't come from them. Likely it comes from `aheadCaution` (fear of damage × 1.5 while ahead), not isolated; the settings review tests 1 and 2.5.
+
+
+#### Baseline and mirrors (balanced, 1,000 games each, same deals)
+
+| | Holder KO | Pull KO | TKO | Tiebreak win | Draw | Ended on turn limit | Games with a pull | Avg turn | First mover's share of decisive | Lead lost | Lead unused | Units lost alone / together | Holder strikes solo / group | Last damage (turn-limit games) | Quiet side-turns at the end (turn-limit games) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Brain 5 mirror, v3.5, 5v5 | 5.6% | 25.1% | 11.3% | 55.5% | 2.5% | 58.0% | 25.1% | 19.5 | 43.3% | 1.8% | 27.0% | 2.52 / 4.26 | 1.51 / 0.94 | 11.1 | 28.3 |
+| Brain 5 mirror, v3.6, 5v5 | 5.6% | 25.2% | 11.3% | 55.4% | 2.5% | 57.9% | 25.2% | 19.5 | 43.5% | 1.8% | 26.9% | 2.52 / 4.26 | 1.50 / 0.94 | 11.1 | 28.3 |
+| Brain 7 mirror, v3.6, 5v5 | 8.2% | 47.2% | 18.0% | 25.9% | 0.7% | 26.6% | 47.2% | 15.3 | 37.2% | 2.7% | 24.0% | 2.34 / 4.53 | 1.25 / 1.05 | 9.4 | 31.7 |
+| Brain 5 mirror, v3.5, 7v7 | 5.2% | 40.4% | 13.7% | 37.3% | 3.4% | 40.7% | 40.5% | 22.0 | 53.6% | 1.6% | 23.6% | 3.57 / 6.41 | 1.09 / 0.97 | 12.7 | 46.3 |
+| Brain 5 mirror, v3.6, 7v7 | 5.2% | 40.6% | 13.8% | 37.0% | 3.4% | 40.4% | 40.6% | 22.0 | 53.4% | 1.6% | 23.1% | 3.56 / 6.41 | 1.09 / 0.98 | 12.7 | 46.3 |
+| Brain 7 mirror, v3.6, 7v7 | 5.2% | 59.5% | 17.7% | 14.4% | 3.2% | 17.6% | 59.6% | 17.1 | 46.4% | 3.6% | 13.4% | 3.31 / 6.78 | 1.27 / 0.98 | 12.0 | 49.0 |
+
+#### Brain 7 against Brain 5 (1,000 games each; Brain 7 is A, each side and move order equally)
+
+- balanced 5v5: Brain 7 took 45.6% (-2.8 SE; decisive 329–249, tiebreak 121–289, draws 12); ended on the turn limit 42.2%.
+- balanced 7v7: Brain 7 took 50.0% (+0.0 SE; decisive 387–291, tiebreak 96–192, draws 34); ended on the turn limit 32.2%.
+- all-Light 5v5: Brain 7 took 50.1% (+0.1 SE; decisive 461–289, tiebreak 38–207, draws 5); ended on the turn limit 25.0%.
+- all-Light 7v7: Brain 7 took 45.6% (-2.8 SE; decisive 420–350, tiebreak 24–181, draws 25); ended on the turn limit 23.0%.
+
+**How the games are won** (share of all wins in the matchup):
+
+| | KO (holder) | KO (pull) | TKO | Tiebreak |
+|---|---|---|---|---|
+| Brain 7's wins against Brain 5, 5v5 | 7.3% | 44.7% | 21.1% | 26.9% | (450 wins)
+| Brain 5's wins against Brain 7, 5v5 | 4.3% | 23.2% | 18.8% | 53.7% | (538 wins)
+| Brain 5 mirror wins, v3.6, 5v5 | 5.7% | 25.8% | 11.6% | 56.8% | (975 wins)
+| Brain 7's wins against Brain 5, 7v7 | 4.6% | 57.1% | 18.4% | 19.9% | (483 wins)
+| Brain 5's wins against Brain 7, 7v7 | 2.5% | 41.8% | 15.9% | 39.8% | (483 wins)
+| Brain 5 mirror wins, v3.6, 7v7 | 5.4% | 42.0% | 14.3% | 38.3% | (966 wins)
+
+#### B6: ahead on both material and flag damage, storm or hold (against Brain 5)
+
+| stormLead | Format | Games against Brain 5 | Brain 7's share | Games where Brain 7 was ahead on both | Of those: Brain 7 won KO/TKO | won tiebreak | draw | lost tiebreak | lost KO/TKO | First turn ahead on both (avg) | Side-turns storming / holding |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1.0 | 5v5 | 1000 | 45.4% | 114 | 112 | 2 | 0 | 0 | 0 | 9.6 | 643 / 0 |
+| 1.0 | 7v7 | 1000 | 49.9% | 244 | 238 | 6 | 0 | 0 | 0 | 11.1 | 1347 / 0 |
+| 1.5 (shipped) | 5v5 | 1000 | 45.6% | 116 | 107 | 9 | 0 | 0 | 0 | 9.6 | 460 / 260 |
+| 1.5 (shipped) | 7v7 | 1000 | 50.0% | 246 | 239 | 7 | 0 | 0 | 0 | 11.2 | 1069 / 403 |
+| 2.0 | 5v5 | 1000 | 45.6% | 116 | 106 | 10 | 0 | 0 | 0 | 9.6 | 418 / 302 |
+| 2.0 | 7v7 | 1000 | 50.0% | 246 | 239 | 7 | 0 | 0 | 0 | 11.2 | 924 / 570 |
+
+Replay links (Brain 7 ahead on both at some point; a mix of wins and losses):
+
+- stormLead 1.0: [5v5 win, KO, turn 10](https://productofdefiance.github.io/Flagfall/pr/33/?watch=7ZCW-MZCD-L7RQ&v=v3.10.00&rules=v3.6&format=blitz5&n=brain7%3AstormLead%3D1&s=brain5&mixn=mixed&mixs=mixed&first=N) · [5v5 win, TKO, turn 12](https://productofdefiance.github.io/Flagfall/pr/33/?watch=BSRP-J9KR-6XYS&v=v3.10.00&rules=v3.6&format=blitz5&n=brain7%3AstormLead%3D1&s=brain5&mixn=mixed&mixs=mixed&first=N) · [5v5 win, KO, turn 10](https://productofdefiance.github.io/Flagfall/pr/33/?watch=P4CW-TN2B-47U8&v=v3.10.00&rules=v3.6&format=blitz5&n=brain7%3AstormLead%3D1&s=brain5&mixn=mixed&mixs=mixed&first=N) · [7v7 win, KO, turn 13](https://productofdefiance.github.io/Flagfall/pr/33/?watch=WHKN-VTQF-2CYS&v=v3.10.00&rules=v3.6&format=std7&n=brain7%3AstormLead%3D1&s=brain5&mixn=mixed&mixs=mixed&first=N) · [7v7 win, KO, turn 11](https://productofdefiance.github.io/Flagfall/pr/33/?watch=8N6P-Z3KF-58FY&v=v3.10.00&rules=v3.6&format=std7&n=brain7%3AstormLead%3D1&s=brain5&mixn=mixed&mixs=mixed&first=N) · [7v7 win, KO, turn 14](https://productofdefiance.github.io/Flagfall/pr/33/?watch=JN7P-DR8D-QUF7&v=v3.10.00&rules=v3.6&format=std7&n=brain7%3AstormLead%3D1&s=brain5&mixn=mixed&mixs=mixed&first=N)
+- stormLead 1.5 (shipped): [5v5 win, KO, turn 10](https://productofdefiance.github.io/Flagfall/pr/33/?watch=7ZCW-MZCD-L7RQ&v=v3.10.00&rules=v3.6&format=blitz5&n=brain7&s=brain5&mixn=mixed&mixs=mixed&first=N) · [5v5 win, TKO, turn 12](https://productofdefiance.github.io/Flagfall/pr/33/?watch=BSRP-J9KR-6XYS&v=v3.10.00&rules=v3.6&format=blitz5&n=brain7&s=brain5&mixn=mixed&mixs=mixed&first=N) · [5v5 win, KO, turn 10](https://productofdefiance.github.io/Flagfall/pr/33/?watch=P4CW-TN2B-47U8&v=v3.10.00&rules=v3.6&format=blitz5&n=brain7&s=brain5&mixn=mixed&mixs=mixed&first=N) · [7v7 win, KO, turn 13](https://productofdefiance.github.io/Flagfall/pr/33/?watch=WHKN-VTQF-2CYS&v=v3.10.00&rules=v3.6&format=std7&n=brain7&s=brain5&mixn=mixed&mixs=mixed&first=N) · [7v7 win, KO, turn 11](https://productofdefiance.github.io/Flagfall/pr/33/?watch=8N6P-Z3KF-58FY&v=v3.10.00&rules=v3.6&format=std7&n=brain7&s=brain5&mixn=mixed&mixs=mixed&first=N) · [7v7 win, KO, turn 14](https://productofdefiance.github.io/Flagfall/pr/33/?watch=JN7P-DR8D-QUF7&v=v3.10.00&rules=v3.6&format=std7&n=brain7&s=brain5&mixn=mixed&mixs=mixed&first=N)
+- stormLead 2.0: [5v5 win, KO, turn 10](https://productofdefiance.github.io/Flagfall/pr/33/?watch=7ZCW-MZCD-L7RQ&v=v3.10.00&rules=v3.6&format=blitz5&n=brain7%3AstormLead%3D2&s=brain5&mixn=mixed&mixs=mixed&first=N) · [5v5 win, TKO, turn 12](https://productofdefiance.github.io/Flagfall/pr/33/?watch=BSRP-J9KR-6XYS&v=v3.10.00&rules=v3.6&format=blitz5&n=brain7%3AstormLead%3D2&s=brain5&mixn=mixed&mixs=mixed&first=N) · [5v5 win, TKO, turn 10](https://productofdefiance.github.io/Flagfall/pr/33/?watch=P4CW-TN2B-47U8&v=v3.10.00&rules=v3.6&format=blitz5&n=brain7%3AstormLead%3D2&s=brain5&mixn=mixed&mixs=mixed&first=N) · [7v7 win, KO, turn 13](https://productofdefiance.github.io/Flagfall/pr/33/?watch=WHKN-VTQF-2CYS&v=v3.10.00&rules=v3.6&format=std7&n=brain7%3AstormLead%3D2&s=brain5&mixn=mixed&mixs=mixed&first=N) · [7v7 win, KO, turn 11](https://productofdefiance.github.io/Flagfall/pr/33/?watch=8N6P-Z3KF-58FY&v=v3.10.00&rules=v3.6&format=std7&n=brain7%3AstormLead%3D2&s=brain5&mixn=mixed&mixs=mixed&first=N) · [7v7 win, KO, turn 14](https://productofdefiance.github.io/Flagfall/pr/33/?watch=JN7P-DR8D-QUF7&v=v3.10.00&rules=v3.6&format=std7&n=brain7%3AstormLead%3D2&s=brain5&mixn=mixed&mixs=mixed&first=N)
+
+#### One behaviour at a time (1,000 games each)
+
+| Brain 7 with | vs Brain 5, 5v5 | vs Brain 5, 7v7 | Mirror 5v5: turn limit / lead lost / lead unused | Mirror 7v7: turn limit / lead lost / lead unused |
+|---|---|---|---|---|
+| B1 only | 46.1% (-2.5 SE) | 48.0% (-1.3 SE) | 60.3% / 0.9% / 31.1% | 44.8% / 1.8% / 26.1% |
+| B1 + B2 | 45.0% (-3.2 SE) | 48.0% (-1.3 SE) | 73.8% / 0.7% / 47.3% | 65.8% / 1.4% / 48.2% |
+| B1 + B3 | 47.2% (-1.8 SE) | 47.9% (-1.3 SE) | 62.4% / 1.2% / 28.1% | 48.8% / 2.9% / 21.2% |
+| B1 + B4 | 44.9% (-3.3 SE) | 48.2% (-1.1 SE) | 26.9% / 2.8% / 24.5% | 17.8% / 3.6% / 13.8% |
+| B1 + B5 | 46.4% (-2.3 SE) | 49.6% (-0.2 SE) | 59.3% / 1.2% / 33.3% | 41.7% / 1.5% / 22.6% |
+| all five (shipped) | 45.6% (-2.8 SE) | 50.0% (+0.0 SE) | 26.6% / 2.7% / 24.0% | 17.6% / 3.6% / 13.4% |
+| Brain 5 (baseline) | - | - | 57.9% / 1.8% / 26.9% | 40.4% / 1.6% / 23.1% |
+
+#### Speed (the lab's machines; positions scored = plans examined, machine-independent)
+
+- Brain 5 mirror 5v5: 54 ms per side-turn on average, worst 0.87 s; 343 positions scored per side-turn, worst 3624.
+- Brain 7 mirror 5v5: 66 ms per side-turn on average, worst 0.91 s; 403 positions scored per side-turn, worst 4336.
+- Brain 5 mirror 7v7: 149 ms per side-turn on average, worst 4.10 s; 559 positions scored per side-turn, worst 7531.
+- Brain 7 mirror 7v7: 184 ms per side-turn on average, worst 2.62 s; 672 positions scored per side-turn, worst 5881.
+- Brain 7 v Brain 5 all-Light 7v7: 369 ms per side-turn on average, worst 5.90 s (over 4.6 s: flagged); 1011 positions scored per side-turn, worst 9134.
+
+#### Lone losing attacks made while ahead (B2's test, counted for both brains)
+
+- Brain 5 mirror 5v5: 0.048 per game
+- Brain 7 mirror 5v5: 0.027 per game
+- Brain 5 mirror 7v7: 0.058 per game
+- Brain 7 mirror 7v7: 0.038 per game
+
+
 - **Checks run and results (paste regression hashes):** every check in `README.md` passes locally (test_version.js updated to pin v3.10.00). `test_brain7.js 30`: 48 checks, 0 failures. `sims/lab/test_lead.js`: 6/6. `board_check.js 6`: 0 different. `regress_engine.js` (3 games per set), old board → new board, every line identical:
   `match3 37397ef2bd3ed86b · v1 7b25bca651c0cb31 · v2 ddbe5fc437ff4e9d · v3 26371927b53d4413 · v3.1 c71e4cd12fc984b0 · v3.2 f62a061d2c147d83 · v3.3 e6151bf463d6c9f8 · v3.4 ee6ce003ac760250 · v3.5 fca989aecfaf21c9`.
   `sims/brainhash.js` (every preset): brain5 `24f5ff8dbb19e3ea` (new board); **Brain 7 all off (`brain7:lead=0,care=0,storm=0,holderJoins=0,regroup=0@brain5`) `24f5ff8dbb19e3ea`, the same**; brain6 `a9c7422db34c8c9c` before and after. Standard and Easy: same hashes before and after; Kit A–D share no code with the change (`regress_engine` covers them). The full all-brains brainhash run was stopped for time.
@@ -160,11 +249,11 @@ This build is the bot work. It is met when every measurement has a number and th
   4. Regroup: behind by 1.01; 15 turns left (need 6 + 2 spare): Brain 7 pulls its Light Melee back next to its Heavy Melee instead of the lone attack Brain 5 makes; 2 turns left: it commits and attacks.
   5. Hold or storm: ahead by 1.5 and on flag damage. stormLead 1.0: storms (two units in reach of the holder after its turn); 2.0: holds (one unit in reach; Brain 5's plan).
   Legal play: 30 seeded games per format and lineup (balanced and all-Light, 5v5 and 7v7, Brain 7 against Brain 5 and itself): 0 refused actions, 0 errors, 0 unfinished.
-- **Settings review (brain builds only):** pending `brain7-settings` (each setting up, down and off where it has one, against Brain 5 on the same deals as the shipped Brain 7). Missing settings found so far: `press` (F38; built, since B3 failed without it). F41 asks whether B2's "a friend could support it" is too generous; `lone_losing` will show it.
+- **Settings review (brain builds only):** the switches are covered above (one at a time). `stormLead`: **no effect found** (1.0, 1.5 and 2.0 within 0.2 points in both formats, 1,000 games each, same deals). The numeric settings (each up, down and off against Brain 5) are in `brain7-settings`, which plays as its own run after this one; its table goes here when it lands. Missing settings found: `press` (F38, built); a holder-joins behaviour that doesn't need B1 (F42: B4 does the good work, B1 costs points).
 - **Known gaps:**
   - Lead logic doesn't lean on the "fewer beings lost" tiebreak step: it reads units on the field only, as the brief asked. Brain 7 has no clock (Brain 6's), so near the limit it doesn't play for the tiebreak.
   - B3 is built inside the one-turn planner as value for "spare units that could strike next turn" plus a cost on lone strikes and the `press` value. It works in the test position (gather, then strike with three). Whether it plays out that way in games is what the one-at-a-time runs measure.
   - B4's race check uses distances, not paths (F40).
   - The holder for B1's material is the designated keeper (Brain 5's `keeperOf`), not "whoever stands on the flag".
-- **Flags closed / opened:** opened F38 (press), F39 (two readings in the new measures), F40 (race check without Mark), F41 (B2's support test). Evidence for F10 pending the runs.
+- **Flags closed / opened:** opened F38 (press), F39 (two readings in the new measures), F40 (race check without Mark), F41 (B2's support test, now with numbers), F42 (a holder-joins brain without B1), F43 (default brain: stays Brain 5). Evidence added to F10.
 - **Pull request:** this one; build branch `claude/funny-babbage-cm70ld`, started from `brief/019-brain-7`.
