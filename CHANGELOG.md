@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.11.00 | v3.8 | Brain 5 | v2 | 15 |
 | v3.10.00 | v3.7 | Brain 5 | v2 | 14 |
 | v3.09.01 | v3.6 | Brain 5 | v2 | 13 |
 | v3.09.00 | v3.6 | Brain 5 | v2 | 12 |
@@ -16,6 +17,27 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.11.00 · Build 15 — Brief 014, rule set v3.8: one field per format, and the hot-seat snap (20 Nov 2026)
+Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `game.deployRadius5: 2`. Default brain: Brain 5, unchanged. Game version **v3.11.00** (YY: a new rule set). The brief planned this as v3.7; brief 011 took v3.7 first, so it is v3.8.
+
+**What a player will notice**
+- **5v5 has its own small field** on v3.8: 103 hexes, 7 columns (A–G), flags D3 and D15. You deploy **two rings** round your flag (19 hexes, the flag hex included for one unit).
+- **7v7 plays on the rounded 147-hex field** on v3.8: the old field plus 8 corner hexes (B2, H2, B17, H17, A4, I4, A16, I16). Flags and the 3-ring deploy area as before.
+- **Human vs human on a phone:** each time the turn passes, the field scrolls to the side to move's own end (North: the very top, South: the very bottom). Also on the first turn after the start cover. Not against the bot, not during deployment, not when the whole field fits on screen.
+- Older rule sets, and old saved matches, play and replay on the old 139-hex field exactly as before.
+- 9v9 and 13v13 still say "come later"; their fields are in the data for brief 012.
+
+**Under the hood**
+- New `board/fields.js`: the five fields as data (legacy, 5v5, 7v7, 9v9, 13v13), checked hex for hex against `briefs/014-fields.json`.
+- `engine.js`: the field is no longer built once at the top. Each field's geometry (hexes, neighbours, distances, straight lines, goal zones, flags, centre hex) is built from the data, with positions worked out from the middle column (Game Laws 2.4; on 7 and 11 columns this is the opposite of the old column-index rule). Every rule reads the match's field (`fieldOf(st)`); a v3.8 match records which field it plays on. The old exports (`E.dist`, `E.FLAG`, …) stay as the legacy field for old tests.
+- `bot.js`, `app.js`, `ui.js` and the lab read the match's field; the fixed centre "E10" became the field's centre hex (D9, E10, F12, G13). The drawing's size comes from the field.
+- Lab: a `fields` measure (field played, units deployed outside their area, units started on their flag).
+- New check `test_fields.js` (the data, deploy areas, gaps, goal zones, symmetry, the turn-1 design rule, the rules the brief lists on the 7-column field, and Brain 5 on both new fields).
+
+**Flags closed:** none. **Opened:** F43 (the hot-seat snap can't show a whole 5v5 half on a 390 × 844 phone).
+
+**Baseline:** see brief 014's Report (v3.8 against v3.7, Brain 5 mirror, 1,000 games per format, same seeds).
 
 ## v3.10.00 · Build 14 — Brief 011, rule set v3.7: special attacks (20 Nov 2026)
 Rule set: **v3.7** (new, the new-game default): v3.6 plus switch `specials`. Default brain: Brain 5, now using specials on v3.7 only. Game version **v3.10.00** (YY: a new rule set).

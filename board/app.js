@@ -252,10 +252,10 @@
     if (t) {
       App.ui.placements = {}; App.ui.deploySel = nextUnplaced(t);
       App.ui.cover = bothHuman() ? { kind: "deploy", team: t } : null;
-      App.ui.scrollTo = E.FLAG[t];
+      App.ui.scrollTo = fld().FLAG[t];
     } else {
       App.ui.cover = bothHuman() ? { kind: "start" } : null;
-      App.ui.scrollTo = "E10";
+      App.ui.scrollTo = fld().centre;
     }
   }
   function startMatch() {
@@ -628,9 +628,12 @@
 
   // ---------- Board geometry ----------
   const R = SK.board.hexRadius, H = Math.sqrt(3) * R, PAD = SK.board.pad;
-  const W = 14 * R + 2 * PAD, HH = 19 * H + 2 * PAD;
+  /* The field comes from the match (Brief 014): its size, positions and hex names. fld() is the match's field; the
+     drawing is as wide as its columns (14 R for 9 columns) and as tall as its middle column (19 H for 19 rows). */
+  const fld = () => E.fieldOf(App.st);
+  const boardW = () => (1.5 * (fld().NCOL - 1) + 2) * R + 2 * PAD, boardH = () => fld().NROW * H + 2 * PAD;
   function pos(h) {
-    const [q, r] = E.parse(h); const [gx, gy] = E.geo(q, r);
+    const G = fld(), [q, r] = G.parse(h); const [gx, gy] = G.geo(q, r);
     return [PAD + R + 1.5 * R * gx, PAD + H / 2 + H * (gy - 1)];
   }
   const hexPts = (x, y, r) => [0, 1, 2, 3, 4, 5].map((i) => { const a = (Math.PI / 3) * i; return (x + r * Math.cos(a)).toFixed(1) + "," + (y + r * Math.sin(a)).toFixed(1); }).join(" ");
@@ -642,7 +645,7 @@
     if (!sel || st.phase !== "play" || sel.team !== st.toMove || isBot(st.toMove) || sel.hp <= 0) return null;
     return E.options(st, sel.uid);
   }
-  const isReachShot = (st, u, t) => E.card(st, u).trait === "reach" && E.card(st, u).range === 1 && E.dist(u.hex, t.hex) === 2;
+  const isReachShot = (st, u, t) => E.card(st, u).trait === "reach" && E.card(st, u).range === 1 && E.fieldOf(st).dist(u.hex, t.hex) === 2;
   function targetsFor(o, kind) {
     const st = App.st, u = E.unitByUid(st, App.ui.sel);
     return o.attacks.filter((a) => { const r = isReachShot(st, u, E.unitByUid(st, a.target)); return kind === "reach" ? r : kind === "attack" ? !r : true; });
@@ -651,7 +654,7 @@
   // ---------- Drawing: field ----------
   function renderBoard() {
     const st = App.st, ui = App.ui, svg = $("board");
-    svg.setAttribute("viewBox", `0 0 ${W.toFixed(0)} ${HH.toFixed(0)}`);
+    svg.setAttribute("viewBox", `0 0 ${boardW().toFixed(0)} ${boardH().toFixed(0)}`);
     const g = st.rs.game;
     const arcs = { N: new Set(E.deployZone(st, "N")), S: new Set(E.deployZone(st, "S")) };
     const dTeam = deployTeam();
@@ -660,19 +663,20 @@
     const zones = st.phase !== "deploy" ? E.zones(st) : null;
     const names = !!ui.names;
     let out = "";
-    for (const h of E.CELLS) {
+    const G = E.fieldOf(st);
+    for (const h of G.CELLS) {
       const [x, y] = pos(h);
       let fill = "var(--hex)";
       if (arcs.N.has(h)) fill = "var(--northArc)";
       if (arcs.S.has(h)) fill = "var(--southArc)";
-      if (E.GOAL.N.has(h)) fill = "var(--northGoal)";
-      if (E.GOAL.S.has(h)) fill = "var(--southGoal)";
-      const isFlag = h === E.FLAG.N || h === E.FLAG.S;
+      if (G.GOAL.N.has(h)) fill = "var(--northGoal)";
+      if (G.GOAL.S.has(h)) fill = "var(--southGoal)";
+      const isFlag = h === G.FLAG.N || h === G.FLAG.S;
       if (isFlag) fill = "var(--flag)";
       out += `<g class="cell" data-hex="${h}"><polygon points="${hexPts(x, y, R)}" fill="${fill}" stroke="var(--line)" stroke-width="0.8"/>`;
       if (names && !isFlag) out += `<text x="${x}" y="${y - H * 0.3}" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="var(--mono)" pointer-events="none">${h}</text>`;
       if (isFlag) {
-        const team = h === E.FLAG.N ? "N" : "S";
+        const team = h === G.FLAG.N ? "N" : "S";
         const held = E.holderOf && st.phase !== "deploy" ? E.holderOf(st, team) : null;
         if (held) out += `<text x="${x}" y="${(y - R * 0.6).toFixed(1)}" text-anchor="middle" font-size="${(R * 0.32).toFixed(0)}" font-weight="700" fill="#fff" font-family="var(--mono)" pointer-events="none">${fmt(E.flagShown(st, team))}+${fmt(E.hpShown(st, held))}</text>`;
         else out += `<text x="${x}" y="${y + 5}" text-anchor="middle" font-size="${(R * 0.5).toFixed(0)}" font-weight="700" fill="#fff" font-family="var(--mono)" pointer-events="none">${fmt(g.poleHP - st.pole[team])}</text>`;
@@ -689,7 +693,7 @@
       if (ui.ghost && opts.moves[ui.ghost]) { const [x, y] = pos(ui.ghost); out += `<g class="cell" data-hex="${ui.ghost}"><polygon points="${hexPts(x, y, R - 1.5)}" fill="var(--move)" fill-opacity="0.3" stroke="var(--move)" stroke-width="3"/></g>`; }
     }
     if (opts && opts.pull && !ui.armed) {
-      const [x, y] = pos(E.FLAG[E.foeOf(sel.team)]);
+      const [x, y] = pos(G.FLAG[E.foeOf(sel.team)]);
       out += `<polygon points="${hexPts(x, y, R - 1)}" fill="none" stroke="var(--attack)" stroke-width="${ui.sheet && ui.sheet.kind === "pull" ? 4 : 2.6}" pointer-events="none"/>`;
     }
     // units
@@ -747,7 +751,7 @@
   function revealHex(h, center) {
     const sc = $("fieldscroll"), svg = $("board");
     if (!sc || !svg.clientHeight) return;
-    const k = svg.clientHeight / HH, y = pos(h)[1] * k;
+    const k = svg.clientHeight / boardH(), y = pos(h)[1] * k;
     const top = sc.scrollTop, vis = sc.clientHeight;
     if (!center && y > top + 70 && y < top + vis - 70) return;
     sc.scrollTo({ top: Math.max(0, y - vis / 2), behavior: center ? "auto" : "smooth" });
@@ -756,19 +760,19 @@
   function revealAbove(h) {
     const sc = $("fieldscroll"), svg = $("board");
     if (!svg.clientHeight || window.innerWidth >= 900) return;
-    const y = pos(h)[1] * (svg.clientHeight / HH);
+    const y = pos(h)[1] * (svg.clientHeight / boardH());
     sc.scrollTo({ top: Math.max(0, y - sc.clientHeight * 0.28), behavior: "smooth" });
   }
   function updateEdges() {
     const st = App.st, sc = $("fieldscroll"), svg = $("board");
     if (!st || App.view !== "play" || !svg.clientHeight) return;
-    const top = sc.scrollTop, vis = sc.clientHeight, k = svg.clientHeight / HH;
+    const top = sc.scrollTop, vis = sc.clientHeight, k = svg.clientHeight / boardH();
     $("fadeTop").style.opacity = top > 2 ? 1 : 0;
     $("fadeBottom").style.opacity = top + vis < sc.scrollHeight - 2 ? 1 : 0;
     const above = { N: 0, S: 0 }, below = { N: 0, S: 0 }, flags = { up: [], down: [] };
     const units = st.phase === "deploy" ? [] : E.alive(st);
     for (const u of units) { const y = pos(u.hex)[1] * k; if (y < top + 30) above[u.team]++; else if (y > top + vis - 30) below[u.team]++; }
-    for (const t of ["N", "S"]) { const y = pos(E.FLAG[t])[1] * k; if (y < top + 30) flags.up.push(t); else if (y > top + vis - 30) flags.down.push(t); }
+    for (const t of ["N", "S"]) { const y = pos(fld().FLAG[t])[1] * k; if (y < top + 30) flags.up.push(t); else if (y > top + vis - 30) flags.down.push(t); }
     const chip = (t, n) => `<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="${teamColor(t)}"/><text x="10" y="14" text-anchor="middle" font-size="11" font-weight="600" fill="#fff" font-family="var(--mono)">${n}</text></svg>`;
     const label = (cnt, fl) => ["N", "S"].filter((t) => cnt[t]).map((t) => `${cnt[t]} ${sideName(t)} unit${cnt[t] > 1 ? "s" : ""}`).concat(fl.map((t) => `${sideName(t)} flag`)).join(", ");
     const fill = (el, cnt, fl, dir) => {
@@ -1168,6 +1172,22 @@
     el.hidden = !t || !!ui.sheet; el.textContent = t;
   }
 
+  // ---------- The hot-seat snap (Brief 014) ----------
+  /* When both sides are human, each time the side to move changes during play (the first turn after the start cover
+     included) the field scrolls so that side's own end is at the edge of the view nearest it: North to the very top,
+     South to the very bottom. Not against the bot, not during deployment (its covers scroll on their own), not while a
+     cover is up. The player can scroll freely after it. */
+  function snapDue() {
+    const st = App.st;
+    return !!(st && st.phase === "play" && bothHuman() && !App.ui.cover && App.ui.snapped !== st.turn + st.toMove);
+  }
+  function hotSeatSnap() {
+    const st = App.st, sc = $("fieldscroll");
+    App.ui.snapped = st.turn + st.toMove;
+    if (!sc || sc.scrollHeight <= sc.clientHeight + 2) return;   // the whole field already fits (desktop)
+    sc.scrollTo({ top: st.toMove === "N" ? 0 : sc.scrollHeight - sc.clientHeight, behavior: "smooth" });
+  }
+
   // ---------- Covers ----------
   function showCover(html) { $("coverbox").innerHTML = html; $("cover").hidden = false; }
   function renderCover() {
@@ -1181,7 +1201,8 @@
     if (App.view !== "play" || !App.st) return;
     renderTopbar(); renderBoard(); renderUnitbar(); renderActions(); renderSheet(); renderSide(); renderCover(); renderHint(); renderMenu();
     $("namesbtn").setAttribute("aria-pressed", App.ui.names ? "true" : "false");
-    if (App.ui.scrollTo) { const h = App.ui.scrollTo; App.ui.scrollTo = null; requestAnimationFrame(() => { revealHex(h, true); updateEdges(); }); }
+    if (snapDue()) { App.ui.scrollTo = null; requestAnimationFrame(() => { hotSeatSnap(); updateEdges(); }); }
+    else if (App.ui.scrollTo) { const h = App.ui.scrollTo; App.ui.scrollTo = null; requestAnimationFrame(() => { revealHex(h, true); updateEdges(); }); }
     else requestAnimationFrame(updateEdges);
     botTick();
   }
@@ -1217,7 +1238,7 @@
         const a = targetsFor(o, ui.armed).find((x) => x.target === here.uid);
         if (a) { ui.sheet = attackSheet(here.uid); ui.ghost = null; render(); revealAbove(sel.hex); return; }
       }
-      if (hex === E.FLAG[E.foeOf(sel.team)] && o.pull) { ui.sheet = { kind: "pull" }; ui.ghost = null; ui.armed = null; render(); revealAbove(sel.hex); return; }
+      if (hex === fld().FLAG[E.foeOf(sel.team)] && o.pull) { ui.sheet = { kind: "pull" }; ui.ghost = null; ui.armed = null; render(); revealAbove(sel.hex); return; }
       if (!here && !ui.armed && o.moves[hex]) {
         if (ui.ghost === hex) { act({ type: "move", uid: sel.uid, to: hex }); return; }
         ui.ghost = hex; ui.sheet = null; render(); return;
@@ -1302,7 +1323,7 @@
       case "go-opponent": show("opponent"); break;
       case "go-match": loadMatches(); show("match"); break;
       case "continue": {
-        if (App.live && (!App.match || App.match.id !== App.live.id)) { App.match = E.clone(App.live); rebuild(); resetUi(); if (App.st.phase === "deploy") beginDeploy(); else App.ui.scrollTo = "E10"; }
+        if (App.live && (!App.match || App.match.id !== App.live.id)) { App.match = E.clone(App.live); rebuild(); resetUi(); if (App.st.phase === "deploy") beginDeploy(); else App.ui.scrollTo = fld().centre; }
         show("play"); break;
       }
       case "new": {
@@ -1340,7 +1361,7 @@
       case "deploy-fill": {
         const t = deployTeam(), auto = Bot.deploy(st, t, BR.DEFAULT_BRAINS.standard, () => 0.5);
         const taken = new Set(Object.values(ui.placements));
-        const free = E.deployZone(st, t).filter((h) => !taken.has(h)).sort((a, b) => E.dist(a, "E10") - E.dist(b, "E10"));
+        const free = E.deployZone(st, t).filter((h) => !taken.has(h)).sort((a, b) => fld().dist(a, fld().centre) - fld().dist(b, fld().centre));
         for (const u of st.units.filter((x) => x.team === t && !ui.placements[x.uid])) {
           let h = auto[u.uid]; if (!h || taken.has(h)) h = free.find((x) => !taken.has(x));
           ui.placements[u.uid] = h; taken.add(h);
@@ -1465,7 +1486,8 @@
     ["turnLimit", "Turn limit", "Turns per player. Then more pull damage wins, then less unit cap lost."],
     ["turnLimit5", "Turn limit, 5v5", "v3.4: turns per player at 5v5 (with the per-format switch on)."],
     ["turnLimit7", "Turn limit, 7v7", "v3.4: turns per player at 7v7 (with the per-format switch on)."],
-    ["deployRadius", "Deployment radius", "Deploy within this many hexes of your own flag."]
+    ["deployRadius", "Deployment radius", "Deploy within this many hexes of your own flag."],
+    ["deployRadius5", "Deployment radius, 5v5", "v3.8: deploy within this many hexes of your own flag at 5v5 (with the fields switch on)."]
   ];
   const SWITCHES = [
     ["tkoNeedsKeeper", "TKO needs the Flagkeeper to fall", "Off: removing every other unit is enough for a TKO."],
@@ -1494,7 +1516,8 @@
     ["tackleHexCost", "Tackle costs a hex", "v3.3: breaking tackle costs the leaving unit its own hex cost (Heavy 1, Light 0.5) instead of the flat tackle cost."],
     ["tackleUsesCap", "Tackle uses a hex of movement", "v3.3: breaking tackle also uses up one hex of the unit's movement cap."],
     ["doubleKoToTiebreak", "A double knockout goes to the tiebreaks", "v3.2: if one action finishes both sides, the turn-limit order decides: more pull damage, then less unit cap lost, then a draw."],
-    ["turnLimitByFormat", "Turn limit per format", "v3.4: 5v5 and 7v7 each have their own turn limit (Turn limit, 5v5 / 7v7); other formats use Turn limit."]
+    ["turnLimitByFormat", "Turn limit per format", "v3.4: 5v5 and 7v7 each have their own turn limit (Turn limit, 5v5 / 7v7); other formats use Turn limit."],
+    ["fields", "One field per format", "v3.8: 5v5 and 7v7 each play on their own field (5v5: 103 hexes, flags D3 and D15, deploy radius 5v5; 7v7: 147 hexes). Off: every format plays on the old 139-hex field."]
   ];
   const CARD_FIELDS = [
     ["icon", "Icon", "icon"],

@@ -105,22 +105,40 @@ Brain 5, the default, plays v3.7 at 5v5 and 7v7 with no illegal action, no crash
 2. Play a 5v5 against the bot on v3.7: the small field, deploy two rings round the flag.
 3. Open an old saved match: it replays on the old field.
 
-## Report back
-- The baseline table, v3.7 against the previous preset, at 5v5 and 7v7: holder KO, pull KO, TKO, tiebreak win, draw, ended on turn limit, pulls.
-- The snap measurements (section 6).
-- Every place the field was built in, and what replaced it.
-
----
-
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code.* Branch: `claude/peaceful-gates-2o8r34` (started from `brief/014-fields`, `main` merged in). Game version **v3.11.00**, Build 15.
 
 - **What's in:**
+  - **Rule set v3.8** (not v3.7: brief 011 took v3.7 first). v3.7 plus switch `fields` and `game.deployRadius5: 2`. Newest preset, so the new-game default. Turn limits unchanged (25 / 35).
+  - **Field data** in `board/fields.js`: legacy (139), 5v5 (103), 7v7 (147), 9v9 (203), 13v13 (263), each column as first/last row. Matches `briefs/014-fields.json` hex for hex (checked in `test_fields.js`).
+  - **Hex names (2.4):** positions and distances are worked out from each column's offset from the middle column. On 9 and 13 columns this equals the old index rule; on 7 and 11 it is flipped (tested on 5v5 and 9v9).
+  - **Which field:** a v3.8 match records `field` ("5v5", "7v7") in its state, from its unit cap; every older rule set records nothing and plays on legacy for every format. 9v9 and 13v13 stay greyed out on Setup.
+  - **Hot-seat snap:** both sides human, side to move changes (first turn after the start cover included) → smooth scroll to the very top (North) or very bottom (South). Skipped against the bot, during deployment, behind a cover, and when the field fits. Watch links are bot vs bot, so never.
+  - Bot: no tuning. Brain 5 reads the match's field everywhere.
+- **Every place the field was built in, and what replaced it:**
+  - `engine.js` top: `COLS`, `NCOL`, `NROW`, `FLAG`, `CELLS` (the oval formula), `CELLSET`, `NBRS`, `GOAL`, `parse`, `geo`, `cube`, `dist`, `straight2`, `middle`, `flagBetween`, `deployZone`; and further down `fromCube`, `lineBetween`, `hexBehind`, `arcOf`, `onFlag`, `homeOf` → one `makeField()` per field; every rule calls `fieldOf(st)`. `deployZone` reads `deployRadiusFor(rs, size)`. The old exports stay, bound to legacy, for old tests.
+  - `bot.js`: `E.dist`, `E.FLAG`, `E.GOAL`, `E.NBRS`, `E.flagBetween` (about 30 uses) → `E.fieldOf(st)`. Deploy: `mid = "E10"` → the field's centre hex; "column E is central" (`parse(h)[0] - 4`) → the hex's offset from the middle column.
+  - `app.js`: `W = 14 * R + …`, `HH = 19 * H + …` → from the field's columns and rows; `pos()`, hex drawing, goal and flag colours, edge markers, the pull ring, flag taps, `"E10"` as the opening scroll (three places) and the hand-deploy "Fill rest" order → the match's field and its centre hex.
+  - `ui.js`: Reach check in the attack preview (`E.dist`) → the match's field.
+  - Lab and sims: `sims/lab/measures.js` (flag-line pairs, stall gap and adjacency), `sims/baseline.js` (holder dragged off), `sims/sim_games.js` (keeper home at pull) → the match's field. `watch.js` and `brain.js` had none.
+  - Hex names in the board's code: none left (`test_fields.js` fails on any `E.dist`/`E.FLAG`/… or a quoted hex name in `bot.js`, `brain.js`, `app.js`, `ui.js`, `watch.js`).
 - **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
-- **Baseline table (rule changes only):**
-- **Bot minimum (met / not met, with numbers):**
-- **Settings review (brain builds only): settings with no effect found; settings that seem to be missing (with evidence):**
+  - A lab measure `fields` (field played, units deployed outside their area, units started on their flag), to prove the bot minimum's deploy check on the lab's games.
+  - Two job orders, `fields-v38` and `fields-v37` (same seeds, 1,000 games per format each), for the baseline table.
+  - Two old checks adjusted for a new newest preset, no rule change: `test_v37.js` (v3.7 is no longer the newest; its "no specials" loop now picks rule sets without the switch) and `test_reasons.js` (its hand-made positions are legacy hexes, and one lineup happens to be 5 units, which on v3.8 means the 5v5 field: the check now keeps the legacy field).
+  - Rules screen: "Deployment radius, 5v5" and the "One field per format" switch.
+- **Checks run and results (paste regression hashes):** PENDING
+- **Baseline table (rule changes only):** PENDING (lab run on this pull request)
+- **The snap measurements (390 × 844 phone, headless Chromium, this build):** visible field view between the top bar and the action panel: **487 px** (design estimate ~590). Whole half in view = own edge to the middle of the centre hex's row.
+  - 5v5: field 1,014 px tall (hexes 68 px wide; it fills the width), half 507 px: **not in view** (20 px short; 49 px to the centre hex's far edge). F43.
+  - 7v7: field 897 px, half 449 px: in view.
+  - 9v9: field 898 px, half 449 px: in view (worked out from the same drawing; not playable to measure live).
+  - 13v13: field 833 px, half 416 px: in view (same).
+  - The snap itself, measured: 5v5 and 7v7, North's turn 1 at the top (0 px), after End turn South at the bottom (526 / 410 px, the scroll maximum), after South's End turn North back at 0. Also checked on v3.7 (legacy field).
+- **Bot minimum (met / not met, with numbers):** PENDING
+- **Settings review (brain builds only):** not a brain build (no brain added or tuned).
 - **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+  - F43: a whole 5v5 half doesn't fit on a 390 × 844 phone after the snap.
+  - A match whose unit cap matches no field (not possible from Setup today) falls back to the legacy field on v3.8.
+- **Flags closed / opened:** closed none; opened F43.
+- **Pull request:** PENDING
