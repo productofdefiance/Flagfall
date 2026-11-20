@@ -1,0 +1,53 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+leadweight-10-5v5,1000,1209,0,1209,0,ended_earlier:580 level:17 N:189 S:214,won_tiebreak:403,84
+leadweight-10-7v7,1000,870,0,870,0,N:147 ended_earlier:678 S:143 level:32,won_tiebreak:290,105
+leadweight-40-5v5,1000,1216,1,1214,0,ended_earlier:576 level:18 S:223 N:183,won_tiebreak:404 lost:1 won_decisive:1,65
+leadweight-40-7v7,1000,855,0,855,0,ended_earlier:683 S:133 N:152 level:32,won_tiebreak:285,88
+leadweight-0-5v5,1000,1185,0,1185,0,ended_earlier:581 level:23 N:194 S:202,won_tiebreak:395 won_decisive:1,116
+leadweight-0-7v7,1000,780,0,780,1,S:118 ended_earlier:708 N:142 level:32,won_tiebreak:260,98
+aheadat-05-5v5,1000,1114,2,1108,1,S:179 ended_earlier:605 N:190 level:26,won_tiebreak:367 lost:1 won_decisive:1,76
+aheadat-05-7v7,1000,807,2,806,0,ended_earlier:689 S:141 N:129 level:41,won_tiebreak:267 lost:1 won_decisive:1 draw:1,83
+aheadat-2-5v5,1000,1266,0,1266,0,ended_earlier:562 S:218 level:15 N:205,won_tiebreak:422 lost:1,84
+aheadat-2-7v7,1000,804,0,804,0,ended_earlier:702 S:147 level:30 N:121,won_tiebreak:268,82
+killchance-03-5v5,1000,1230,0,1230,0,ended_earlier:577 level:12 N:197 S:214,won_tiebreak:410 lost:1,73
+killchance-03-7v7,1000,864,0,864,0,ended_earlier:678 S:146 level:34 N:142,won_tiebreak:288,87
+killchance-07-5v5,1000,1230,0,1230,0,ended_earlier:577 level:12 N:197 S:214,won_tiebreak:410 lost:1,73
+killchance-07-7v7,1000,864,0,864,0,ended_earlier:678 S:146 level:34 N:142,won_tiebreak:288,87
+aheadcaution-1-5v5,1000,1225,0,1225,0,ended_earlier:577 level:13 N:198 S:212,won_tiebreak:408 lost:1 won_decisive:1,75
+aheadcaution-1-7v7,1000,864,0,864,0,ended_earlier:679 S:145 level:33 N:143,won_tiebreak:288,87
+aheadcaution-25-5v5,1000,1242,0,1242,0,ended_earlier:572 level:13 N:203 S:212,won_tiebreak:414 lost:1,74
+aheadcaution-25-7v7,1000,861,0,861,0,ended_earlier:679 S:141 level:34 N:146,won_tiebreak:287,88
+stormmin-1-5v5,1000,1242,0,1242,0,ended_earlier:573 level:12 N:199 S:216,won_tiebreak:414 lost:1,75
+stormmin-1-7v7,1000,867,0,867,0,ended_earlier:678 S:147 level:33 N:142,won_tiebreak:289,86
+stormmin-3-5v5,1000,1230,0,1230,0,ended_earlier:577 level:12 N:197 S:214,won_tiebreak:410 lost:1,73
+stormmin-3-7v7,1000,867,0,867,0,ended_earlier:677 S:146 level:34 N:143,won_tiebreak:289,88
+gather-15-5v5,1000,1218,0,1218,0,ended_earlier:581 level:12 N:198 S:209,won_tiebreak:406 lost:1,68
+gather-15-7v7,1000,864,0,864,0,ended_earlier:678 S:144 level:34 N:144,won_tiebreak:288,88
+gather-6-5v5,1000,1230,0,1230,0,ended_earlier:577 level:12 N:196 S:215,won_tiebreak:410 lost:1,77
+gather-6-7v7,1000,885,0,885,0,ended_earlier:673 S:150 level:32 N:145,won_tiebreak:295,90
+gather-0-5v5,1000,1242,0,1242,0,ended_earlier:573 level:12 N:201 S:214,won_tiebreak:414 lost:1,75
+gather-0-7v7,1000,876,0,876,0,ended_earlier:675 S:147 level:33 N:145,won_tiebreak:292,89
+press-1-5v5,1000,1224,0,1224,0,ended_earlier:579 level:12 N:196 S:213,won_tiebreak:408 lost:1,73
+press-1-7v7,1000,849,0,849,0,ended_earlier:684 S:140 level:33 N:143,won_tiebreak:283,85
+press-4-5v5,1000,1242,0,1242,0,ended_earlier:573 level:12 N:200 S:215,won_tiebreak:414 lost:1,74
+press-4-7v7,1000,879,0,879,0,ended_earlier:674 S:150 level:33 N:143,won_tiebreak:293,88
+press-0-5v5,1000,1224,0,1224,0,ended_earlier:579 level:12 N:197 S:212,won_tiebreak:408 lost:1,81
+press-0-7v7,1000,846,0,846,0,ended_earlier:685 S:140 level:33 N:142,won_tiebreak:282,85
+regroupspare-0-5v5,1000,1230,0,1230,0,ended_earlier:577 level:12 N:197 S:214,won_tiebreak:410 lost:1,73
+regroupspare-0-7v7,1000,864,0,864,0,ended_earlier:678 S:146 level:34 N:142,won_tiebreak:288,87
+regroupspare-4-5v5,1000,1230,0,1230,0,ended_earlier:577 level:12 N:197 S:214,won_tiebreak:410 lost:1,73
+regroupspare-4-7v7,1000,864,0,864,0,ended_earlier:678 S:146 level:34 N:142,won_tiebreak:288,87
+together-1-5v5,1000,1245,0,1245,0,ended_earlier:572 level:12 N:196 S:220,won_tiebreak:415 lost:1,78
+together-1-7v7,1000,852,0,852,0,ended_earlier:682 S:151 level:34 N:133,won_tiebreak:284,88
+together-4-5v5,1000,1236,0,1236,0,ended_earlier:575 S:218 level:12 N:195,won_tiebreak:412 lost:1,78
+together-4-7v7,1000,861,0,861,0,ended_earlier:684 S:153 level:29 N:134,won_tiebreak:287,86
+together-0-5v5,1000,1245,0,1245,0,ended_earlier:572 level:12 N:196 S:220,won_tiebreak:415 lost:1,77
+together-0-7v7,1000,810,0,810,0,ended_earlier:699 S:146 level:31 N:124,won_tiebreak:270,86
+no-care-5v5,1000,1231,0,1231,0,ended_earlier:575 level:13 N:199 S:213,won_tiebreak:410 lost:1 won_decisive:1,76
+no-care-7v7,1000,870,0,870,0,ended_earlier:677 S:146 level:33 N:144,won_tiebreak:290,88
+no-storm-5v5,1000,1479,0,1479,0,ended_earlier:494 level:12 N:254 S:240,won_tiebreak:493 lost:1,129
+no-storm-7v7,1000,1098,0,1098,0,N:193 ended_earlier:601 S:173 level:33,won_tiebreak:366,107
+no-holderjoins-5v5,1000,1728,0,1728,0,N:278 ended_earlier:411 level:13 S:298,won_tiebreak:576,59
+no-holderjoins-7v7,1000,1302,0,1302,0,ended_earlier:532 N:216 S:218 level:34,won_tiebreak:434,89
+no-regroup-5v5,1000,1260,0,1260,0,ended_earlier:566 S:223 level:13 N:198,won_tiebreak:420 lost:1,73
+no-regroup-7v7,1000,828,0,828,0,ended_earlier:693 S:150 level:31 N:126,won_tiebreak:276,78

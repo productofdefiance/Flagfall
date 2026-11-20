@@ -1,0 +1,62 @@
+{
+ "id": "brain7-baselines",
+ "kind": "study",
+ "brief": "019",
+ "seed_name": "release-v3-08-00",
+ "question": "The Brain 5 baselines for Brain 7 with the three new measures (lead lost, lead unused, units lost alone or together): v3.5 replays the stall 'before' games exactly (same seeds, so its outcome table must match 2026-11-19_study_stall-before), and v3.6 plays the same deals on the newest rule set.",
+ "tags": [
+  "brain5",
+  "baseline",
+  "lead",
+  "v3.5",
+  "v3.6"
+ ],
+ "measures": [
+  "play",
+  "clock",
+  "light",
+  "brain7"
+ ],
+ "matchups": [
+  {
+   "name": "b5-v35-5v5",
+   "a": "brain5",
+   "b": "brain5",
+   "rules": "v3.5",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "b5-v35-7v7",
+   "a": "brain5",
+   "b": "brain5",
+   "rules": "v3.5",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "b5-v36-5v5",
+   "a": "brain5",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "b5-v36-7v7",
+   "a": "brain5",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  }
+ ]
+}
