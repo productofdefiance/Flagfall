@@ -15,6 +15,7 @@ const { execFileSync } = require("child_process");
 
 const LIMITS = { results: 8, flags: 12, pageFlags: 8, issueChars: 300, merged: 3, closedChats: 5, staleDays: 3, maxBytes: 4096 };
 const PAGE = require("./page.js");
+const CAP = require("../lab/capacity.js");
 const FLAG_OPEN = ["OPEN", "ASK", "DECIDE", "TEST"];
 const FLAG_BANG = ["ASK", "DECIDE"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -254,6 +255,9 @@ function buildBoard(facts, opts) {
   const rl = [];
   if (facts.nightly) rl.push(line(`Nightly checks: ${facts.nightly.conclusion} (${etTime(facts.nightly.time).replace(/^(\d+ \w+) \d{4},/, "$1,")})`));
   else rl.push(line("Nightly checks: no run found"));
+  // Brief 024: how deep GitHub's queue is, and how many machines the lab holds.
+  const queue = facts.queue !== undefined ? CAP.queueLine(facts.queue) : null;
+  if (queue) rl.push(line(queue.text));
   const since = new Date(now - 864e5).toISOString().slice(0, 10);
   const seen = new Set();
   const recent = (facts.results || []).filter((r) => {
@@ -339,6 +343,7 @@ function buildBoard(facts, opts) {
     schema: 2,
     updatedText: etTime(now),
     main: { game: m.game || null, build: m.build || null, rules: m.rules || null, brain: m.brain || null },
+    queue: queue ? { text: queue.text, mark: queue.mark, jobsWaiting: facts.queue ? facts.queue.jobsWaiting : null, oldestWaitMin: facts.queue ? facts.queue.oldestWaitMin : null, labUsing: facts.queue ? facts.queue.labUsing : null } : null,
     nightly: facts.nightly ? { state: facts.nightly.conclusion, time: facts.nightly.time, timeText: etTime(facts.nightly.time).replace(/^(\d+ \w+) \d{4},/, "$1,") } : null,
     builds: {
       building: open.map((p) => {
@@ -568,6 +573,10 @@ function gather(opts) {
     for (const r of rowsAt(head)) if (!baseRaw.has(r.raw)) flags.push(Object.assign(r, { fromPr: true, pr: p.number, added: !baseNames.has(r.name) }));
   }
 
+  // GitHub's queue right now (Brief 024). null when it can't be read: the board says "Queue: unknown".
+  let queue = null;
+  try { queue = CAP.gatherQueue((p) => api(p), { selfRun: process.env.GITHUB_RUN_ID }); } catch (e) { queue = null; }
+
   // The last night-checks run on main.
   let nightly = null;
   try {
@@ -589,7 +598,7 @@ function gather(opts) {
   }
 
   for (const p of prs) delete p.base;
-  return { facts: { now: (opts.now || new Date()).toISOString(), main, nightly, results, flags, briefs, prs, chats }, cache, old };
+  return { facts: { now: (opts.now || new Date()).toISOString(), main, nightly, queue, results, flags, briefs, prs, chats }, cache, old };
 }
 
 /** Write a file through a temp file and a rename, so a failed run never leaves half a file. */
