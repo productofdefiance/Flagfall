@@ -1,0 +1,38 @@
+{
+  "id": "specials-v37-b",
+  "kind": "study",
+  "brief": "011",
+  "question": "Re-run on the fixed bot (it now counts an enemy's warmed-up Arrow Storm without Dodge, as the engine deals it; Skewer warms only for a plausible line-up), same seeds as specials-v37. How do balanced games end on v3.7 (specials), Brain 5 against itself, on the same seeds as the v3.6 run (flag-rulings-v36)?",
+  "tags": [
+    "specials",
+    "brain5",
+    "v3.7"
+  ],
+  "measures": [
+    "play",
+    "light",
+    "flagrules",
+    "specials"
+  ],
+  "matchups": [
+    {
+      "name": "5v5",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "blitz5",
+      "mix": "mixed",
+      "games": 1000
+    },
+    {
+      "name": "7v7",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 1000
+    }
+  ],
+  "seed_name": "flag-rulings"
+}

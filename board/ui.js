@@ -153,6 +153,44 @@
     };
   }
 
+  // ---------- Specials (Brief 011) ----------
+  const times = (m) => (m === 2 ? "Twice" : m === 1 ? "A normal hit:" : `${fmt(m)} times`);
+  /** What a special does, worded from the rule set's numbers (Brief 011, 5e). */
+  function specialAbout(rs, kind) {
+    const n = (rs.specials && rs.specials[kind]) || {};
+    if (kind === "arcHit") return n.mult === 1 ? "A normal hit on every enemy in a 3-hex arc around its target." : `${times(n.mult)} a normal hit on every enemy in a 3-hex arc around its target.`;
+    if (kind === "pickOff") return `${times(n.mult)} a normal hit, ${fmt((n.lessPerFriend || 0) * 100)}% less for each friend next to the target (never below ${n.floor === 1 ? "a normal hit" : `${fmt(n.floor)} times a normal hit`}).`;
+    if (kind === "bullseye") return `${fmt(n.mult)} times a normal shot, ignoring Armor.`;
+    if (kind === "arrowStorm") return `${n.mult === 2 ? "Twice" : fmt(n.mult) + " times"} a normal shot. Dodge doesn't count.`;
+    if (kind === "skewer") return n.first === 1 && n.behind === 1 ? "A full hit on the enemy next to it and on the enemy behind that one." : `${fmt(n.first)} times a hit on the enemy next to it and ${fmt(n.behind)} times a hit on the enemy behind that one.`;
+    if (kind === "javelin") return `Strikes ${fmt(n.minRange || 2)} or ${fmt(n.maxRange || 3)} hexes away in a straight line, ${n.mult === 2 ? "twice" : fmt(n.mult) + " times"} a normal hit. Over friends, never over enemies.`;
+    return "";
+  }
+  /** The line under the Special list on every card. */
+  const specialNote = (rs) => `Warm up one turn (${fmt(rs.game.warmupCost)} Stamina, no attack or brace), fire the next. No dice.`;
+  /** The special's multiplier as the key shows it: "×2". */
+  const multText = (m) => "×" + fmt(m);
+  /** Everything the special's preview shows (Brief 011, 5c), from the engine's preview `p` (E.options().special.targets).
+      It reuses the attack preview for the face-off and the key, then makes the outcome one exact number and adds the
+      special's own row and the extra targets. */
+  function specialPreview(st, u, t, p) {
+    const h0 = p.hits[0];
+    const a = { detail: h0.detail, cases: [[h0.dmg, 1]], effHp: h0.hpBefore, killChance: h0.kills ? 1 : 0, pooled: false, capture: p.capture, evade: p.evade };
+    const pv = attackPreview(st, u, t, a);
+    if (h0.dodgeIgnored) {   // Arrow Storm: Dodge doesn't count, so neither its stat nor its key row
+      pv.target.stats = pv.target.stats.filter((x) => x.key !== "dodge");
+      pv.rows = pv.rows.filter((r) => r.icon !== "dodge");
+    }
+    const p2 = p.parry && p.parry.by !== t.uid ? E.unitByUid(st, p.parry.by) : null;
+    if (p2) pv.rows.push({ icon: "parry", name: "Parry", red: true, means: `A braced ${E.card(st, p2).name} hits back at the first melee attacker each turn. One parry per action.`,
+      why: `${unitName(st, p2)} is braced in the arc: you take ${fmt(p.parry.amount)}${p.parry.ifSurvives ? " if it survives the hit" : ""}.` });
+    const kind = p.kind, mults = [...new Set(p.hits.map((h) => h.mult))];
+    const why = h0.why || (kind === "arcHit" ? `${plural(p.hits.length, "enemy", "enemies")} in the arc.` : kind === "skewer" ? (p.hits.length > 1 ? `${unitName(st, E.unitByUid(st, p.hits[1].uid))} is behind ${unitName(st, t)}.` : `Nobody behind ${unitName(st, t)}: a single hit.`) : "No dice: exactly this much.");
+    pv.rows.unshift({ icon: "special", name: `${p.name} ${mults.map(multText).join(" / ")}`, means: specialAbout(st.rs, kind), why, special: true });
+    pv.special = { kind, name: p.name, arc: p.arc, extra: p.hits.slice(1).map((h) => { const x = E.unitByUid(st, h.uid); return { uid: x.uid, team: x.team, name: unitName(st, x), hp: E.hpShown(st, x), maxHp: x.maxHp, dmg: h.dmg, kills: h.kills }; }) };
+    return pv;
+  }
+
   // ---------- Unit card ----------
   /** Type and class from the card's icon (the unit-type symbol), with the card's numbers as a fallback. */
   function typeOf(c) {
@@ -195,10 +233,13 @@
     if (c.brace === "fullStamina") unit.push({ name: "Second Wind", text: "Its brace costs no Stamina next turn." });
     if (c.brace === "spike") unit.push({ name: "Set Spear", text: `When braced, deals ${fmt(rs.spikeDamage)} to an enemy that steps next to it.` });
     if (c.brace === "noSupport") unit.push({ name: "Fend", text: "When braced, attackers get no Support against it." });
+    // Special (Brief 011): once a match, on rule sets with specials
+    const special = sw.specials && c.special ? [{ name: E.specialName(c.special), text: specialAbout(rs, c.special), special: c.special }] : [];
     return [
       { head: "Trait", sub: type, items: trait },
       { head: "Class", sub: cls, items: klass },
-      { head: "Unit", sub: c.name, items: unit }
+      { head: "Unit", sub: c.name, items: unit },
+      { head: "Special", sub: "Once a match", items: special, note: special.length ? specialNote(rs) : null }
     ].filter((s) => s.items.length);
   }
   /** "Ranged · Heavy · 1 UC" */
@@ -206,6 +247,6 @@
   /** The Lineup row's numbers: "HP 20 · Str 10 · Range 1 · Move 3" (Anti-Cavalry: "Reach 2"). */
   const lineupStats = (c) => { const r = rangeStat(c); return `HP ${fmt(c.hp)} · Str ${fmt(c.str)} · ${r.label} ${fmt(r.val)} · Move ${fmt(c.cap)}`; };
 
-  const api = { say, BANNED, unitName, whose, outcomeSegments, pct1, changeTone, attackPreview, typeOf, classOf, rangeStat, cardSections, cardTypeLine, lineupStats };
+  const api = { specialAbout, specialNote, specialPreview, say, BANNED, unitName, whose, outcomeSegments, pct1, changeTone, attackPreview, typeOf, classOf, rangeStat, cardSections, cardTypeLine, lineupStats };
   if (typeof module !== "undefined") module.exports = api; else root.GGUi = api;
 })(this);

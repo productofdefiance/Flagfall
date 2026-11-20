@@ -1,0 +1,4 @@
+matchup,games,sw_threat_turns,sw_units_start,sw_exposed_start,sw_left,sw_stayed,sw_entered,sw_exposed_end,sw_braced_in_reach,sw_removed_in_reach,sw_stayed_braced,sw_stayed_unbraced,sw_hit_next,sw_hit_next_braced
+balanced-5v5,400,1489,5420,4582,2122,2460,763,3223,209,0,121,2339,934,68
+balanced-7v7,400,2200,10909,7596,1441,6155,1333,7488,121,0,102,6053,2188,18
+light-7v7,400,2459,10743,8386,1292,7094,1215,8309,244,0,239,6855,2644,18

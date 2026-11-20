@@ -148,6 +148,128 @@ const MEASURES = {
     }
   },
 
+  specials: {
+    about: "Brief 011 (v3.7): per special, times warmed up, fired, lapsed, warmed units removed before firing, kills, damage dealt and the average normal hit it replaced (engine preview, from the same hex); special hits on braced targets; and actions that left both sides with a win condition (F20).",
+    columns: (() => {
+      const c = ["sp_warm", "sp_fired", "sp_lapsed", "sp_removed", "sp_braced_hits", "sp_braced_dmg", "both_win_actions"];
+      for (const k of ["arcHit", "pickOff", "bullseye", "arrowStorm", "skewer", "javelin"]) for (const x of ["warm", "fired", "lapsed", "removed", "kills", "hits", "dmg", "normal"]) c.push(`sp_${k}_${x}`);
+      return c;
+    })(),
+    make(ctx) {
+      const { E } = ctx, o = Object.fromEntries(MEASURES.specials.columns.map((k) => [k, 0]));
+      const warm = new Map();   // uid -> kind, while warmed up and not yet fired, lapsed or removed
+      let pend = null;
+      const winBoth = (st) => {
+        const w = {};
+        for (const team of ["N", "S"]) {
+          const foe = E.foeOf(team);
+          if (st.pole[foe] >= st.rs.game.poleHP - 1e-9) w[team] = 1;
+          else if (!st.units.some((u) => u.team === foe && u.hp > 0 && (st.rs.switches.tkoNeedsKeeper || !u.fk))) w[team] = 1;
+        }
+        return w.N && w.S;
+      };
+      return {
+        before(st, c) {
+          const a = c.action, u = a.uid && E.unitByUid(st, a.uid);
+          pend = null;
+          if (a.type === "end") {
+            for (const x of E.alive(st)) if (x.team === st.toMove && x.sp === "charged" && warm.has(x.uid)) { const k = warm.get(x.uid); o.sp_lapsed++; o[`sp_${k}_lapsed`]++; warm.delete(x.uid); }
+            return;
+          }
+          if (!u) return;
+          const kind = E.specialOf(st, u);
+          if (a.type === "warmup" && kind) pend = { type: "warmup", uid: u.uid, kind, again: warm.has(u.uid) };
+          if (a.type === "special" && kind) {
+            const t = E.unitByUid(st, a.target);
+            if (!t || !E.specialCanTarget(st, u, t)) return;
+            const hits = E.specialHits(st, u, t), b = E.breakdown(st, u, t, u.hex);
+            const normal = E.dieCases(st).reduce((s2, [d, p]) => s2 + p * E.applyDie(st, b.value, d, b.dodge), 0);
+            pend = { type: "special", uid: u.uid, kind, hits: hits.map((h) => ({ uid: h.uid, dmg: h.dmg, braced: !!E.unitByUid(st, h.uid).braced })), normal };
+          }
+        },
+        after(st, c, r) {
+          if (!r.ok || c.refusedEnd) { pend = null; return; }
+          if (winBoth(st)) o.both_win_actions++;
+          if (pend && pend.type === "warmup") {
+            if (pend.again) { /* a re-warm on the firing turn: the earlier warm-up neither fired nor lapsed */ o.sp_lapsed++; o[`sp_${pend.kind}_lapsed`]++; }
+            o.sp_warm++; o[`sp_${pend.kind}_warm`]++; warm.set(pend.uid, pend.kind);
+          }
+          if (pend && pend.type === "special") {
+            const k = pend.kind;
+            o.sp_fired++; o[`sp_${k}_fired`]++; o[`sp_${k}_normal`] += pend.normal; warm.delete(pend.uid);
+            for (const h of pend.hits) {
+              o[`sp_${k}_hits`]++; o[`sp_${k}_dmg`] += h.dmg;
+              if (E.unitByUid(st, h.uid).hp <= 0) o[`sp_${k}_kills`]++;
+              if (h.braced) { o.sp_braced_hits++; o.sp_braced_dmg += h.dmg; }
+            }
+          }
+          pend = null;
+          for (const [uid, k] of [...warm]) { const x = E.unitByUid(st, uid); if (!x || x.hp <= 0) { o.sp_removed++; o[`sp_${k}_removed`]++; warm.delete(uid); } }
+        },
+        end() { for (const k in o) if (/_(dmg|normal)$/.test(k)) o[k] = Math.round(o[k] * 100) / 100; return o; }
+      };
+    }
+  },
+
+  specialsafety: {
+    about: "Brief 011 follow-up: how the other side reacts to a warmed-up special. At the start of each side-turn that faces at least one enemy special warmed up the turn before, counts that side's units inside its reach for next turn (the warmed unit's movement next turn plus the special's reach; flag holders are immune and left out), then at the end of that side-turn counts how many left, stayed (braced or not), came in, and how many inside reach braced. Then, on the warmed side's next turn, counts how many of the units that ended inside reach were hit by one of those warmed specials (each unit once).",
+    columns: ["sw_threat_turns", "sw_units_start", "sw_exposed_start", "sw_left", "sw_stayed", "sw_entered", "sw_exposed_end", "sw_braced_in_reach", "sw_removed_in_reach",
+      "sw_stayed_braced", "sw_stayed_unbraced", "sw_hit_next", "sw_hit_next_braced"],
+    make(ctx) {
+      const { E, Bot } = ctx, o = Object.fromEntries(MEASURES.specialsafety.columns.map((k) => [k, 0]));
+      let key = "", start = null, watch = null, pend = null;   // watch: units that ended inside reach, waiting for the warmed side's next turn
+      const reachOf = (st, w) => {
+        const k = E.specialOf(st, w), n = (st.rs.specials && st.rs.specials[k]) || {}, c = E.card(st, w);
+        if (k === "javelin") return n.maxRange || 3;
+        if (k === "arcHit" || k === "pickOff" || k === "skewer") return 1;
+        return c.range > 1 ? c.range : 1;
+      };
+      const warmers = (st, team) => E.alive(st).filter((w) => w.team !== team && w.sp === "warm").map((w) => w.uid);
+      /** uids of `team`'s units (not holders) inside the reach of any warmed-up enemy special. */
+      const exposed = (st, team) => {
+        const warm = E.alive(st).filter((w) => w.team !== team && w.sp === "warm");
+        if (!warm.length) return null;
+        const out = new Set();
+        for (const u of E.alive(st)) if (u.team === team && !E.isHolder(st, u) && warm.some((w) => Bot.canThreaten(st, w, u.hex, reachOf(st, w)))) out.add(u.uid);
+        return out;
+      };
+      const close = (st) => {
+        if (!start) return;
+        const now = exposed(st, start.team) || new Set();
+        for (const uid of start.set) {
+          const u = E.unitByUid(st, uid); if (!u || u.hp <= 0) { o.sw_removed_in_reach++; continue; }
+          if (now.has(uid)) { o.sw_stayed++; if (u.braced) o.sw_stayed_braced++; else o.sw_stayed_unbraced++; } else o.sw_left++;
+        }
+        for (const uid of now) { if (!start.set.has(uid)) o.sw_entered++; if (E.unitByUid(st, uid).braced) o.sw_braced_in_reach++; }
+        o.sw_exposed_end += now.size;
+        watch = now.size ? { warmers: new Set(warmers(st, start.team)), units: new Map([...now].map((uid) => [uid, !!E.unitByUid(st, uid).braced])), hit: new Set(), side: E.foeOf(start.team), turn: null } : null;
+        start = null;
+      };
+      return {
+        before(st, c) {
+          const k = st.turn + st.toMove;
+          if (k !== key) {
+            key = k;
+            if (watch) { if (watch.turn === null && st.toMove === watch.side) watch.turn = k; else if (watch.turn !== null) watch = null; }   // the warmed side's next turn only
+            const set = exposed(st, st.toMove);
+            if (set) { o.sw_threat_turns++; o.sw_units_start += E.alive(st).filter((u) => u.team === st.toMove && !E.isHolder(st, u)).length; o.sw_exposed_start += set.size; start = { team: st.toMove, set }; }
+          }
+          if (c.action.type === "end") close(st);
+          pend = null;
+          if (watch && watch.turn === k && c.action.type === "special" && watch.warmers.has(c.action.uid)) {
+            const u = E.unitByUid(st, c.action.uid), t = E.unitByUid(st, c.action.target);
+            if (u && t && E.specialCanTarget(st, u, t)) pend = E.specialHits(st, u, t).map((h) => h.uid);
+          }
+        },
+        after(st, c, r) {
+          if (pend && r.ok && !c.refusedEnd) for (const uid of pend) if (watch.units.has(uid) && !watch.hit.has(uid)) { watch.hit.add(uid); o.sw_hit_next++; if (watch.units.get(uid)) o.sw_hit_next_braced++; }
+          pend = null;
+        },
+        end(st) { close(st); return o; }
+      };
+    }
+  },
+
   play: {
     about: "How each side played: braces, braces where no enemy could reach that unit next turn, attacks, attacks on a holder, moves, safety stops, actions the engine refused, and turns a brain ended because it hit an error.",
     columns: ["braces", "braces_no_threat", "attacks", "holder_attacks", "moves", "safety_stops", "refused", "bot_errors"],
