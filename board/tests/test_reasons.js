@@ -57,7 +57,10 @@ const baseEv = (extra) => setup([["LM", "LM"], ["HM", "HM"]], [["HA", "HA"], ["L
   const r = E.blockReasons(st, "N-LM");
   ok(r.attack === "Needs 1 Command, 0.5 left" && r.brace === "Needs 1 Command, 0.5 left", `attack and brace with too little Command: ${r.attack} / ${r.brace}`);
   ok(r.reach === "Only Anti-Cavalry units can Reach", `reach on a non-Reach unit: ${r.reach}`);
-  ok(/No special actions/.test(r.special), "special: none in this rule set yet"); }
+  // Brief 011: on the newest rule set (specials) the Special button gives the warm-up's reason; older rule sets have none.
+  ok(RS.switches.specials ? r.special === "Not enough Stamina" : /No special actions/.test(r.special), `special: ${r.special}`);
+  const old = PRESETS.find((p) => p.id === "v3.6"), s6 = E.newMatch(old, { first: "N", lineups: { N: [{ id: "LM", card: "LM" }], S: [{ id: "HM", card: "HM" }] } });
+  ok(/No special actions/.test(E.blockReasons(s6, "N-LM").special), "v3.6: no special actions in this rule set"); }
 { const st = baseEv({ "S-HA": "E14" }); const r = E.blockReasons(st, "N-LM");
   ok(r.attack === "No enemy in range", `no target: ${r.attack}`); }
 { const st = baseEv(); U(st, "N-LM").stam = 0.5; const r = E.blockReasons(st, "N-LM");

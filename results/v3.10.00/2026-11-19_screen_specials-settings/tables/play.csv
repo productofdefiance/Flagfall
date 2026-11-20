@@ -1,0 +1,10 @@
+matchup,games,braces,braces_no_threat,attacks,holder_attacks,moves,safety_stops,refused,bot_errors
+special-0,200,1304,62,5223,684,12018,0,0,0
+special-1,200,1238,94,4199,661,11633,0,0,0
+warm-slack-0,200,1338,117,4294,618,11865,0,0,0
+warm-slack-2,200,1400,118,4717,578,11653,0,0,0
+warm-cost-0,200,1367,61,4363,652,11578,0,0,0
+warm-cost-3,200,1516,102,4958,638,11828,0,0,0
+special-margin-3,200,1442,117,4578,668,12011,0,0,0
+warm-moves-1,200,1442,124,4400,612,11606,0,0,0
+warm-moves-8,200,1528,133,4380,573,12106,0,0,0
