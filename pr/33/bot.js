@@ -42,11 +42,11 @@
 
   /** Can enemy `e` reach striking distance of `hex` on its next turn (ignoring blockers and zones)?
       v3.6 (flagBlocksLine): a shot from where it stands across a flag is no threat unless it can step off that line. */
-  function canThreaten(st, e, hex) {
+  function canThreaten(st, e, hex, reachOver) {
     const c = E.card(st, e), g = st.rs.game;
     const stam = E.status(st, e).stamNext;
     const steps = Math.max(0, Math.min(E.capOf(st, e), Math.floor((stam - g.attackCost) / c.hexCost + 1e-9)));
-    const reach = c.range > 1 ? c.range : (c.trait === "reach" ? 2 : 1);
+    const reach = reachOver || (c.range > 1 ? c.range : (c.trait === "reach" ? 2 : 1));   // reachOver: v3.7, a warmed Javelin
     const d = E.dist(e.hex, hex);
     if (d > steps + reach) return false;
     if (steps === 0 && d >= 2 && st.rs.switches.flagBlocksLine && E.flagBetween(e.hex, hex)) return false;
@@ -397,18 +397,71 @@
   /** What the enemy can realistically do to `team` next turn: each enemy that can reach a unit attacks once, within the
       enemy's Command for the turn (movement plus the attack), damage piling up so focus fire can remove a unit, and each
       extra attacker on the same unit adding Support. Our Armor, Brace, Dodge room and holder pool all count (engine). */
-  function risk5(st, team, B) { return risk5Detail(st, team, B).total; }
+  // ---------- Specials (v3.7, Brief 011): what a warmed-up special is likely worth next turn ----------
+  /* Only units with u.sp (the specials switch) ever reach these, so every older rule set plays exactly as before. */
+  const specOn = (B) => !(B.model && B.model.useSpecials === 0);
+  /** Rough multiplier a warmed-up special `e` would put on its usual hit on `u` next turn (rule-set numbers): Arc Hit counts
+      half a hit for each friend of `u` that could share the arc, Pick Off its friends, Skewer half a hit behind when `u`
+      has a friend next to it. */
+  function specMult(st, e, u) {
+    const kind = E.specialOf(st, e); if (!kind || e.sp !== "warm") return 1;
+    const n = (st.rs.specials && st.rs.specials[kind]) || {};
+    const near = E.alive(st).filter((f) => f.team === u.team && f !== u && E.dist(f.hex, u.hex) === 1).length;
+    if (kind === "arcHit") return n.mult * (1 + 0.5 * Math.min(2, near));
+    if (kind === "pickOff") return Math.max(n.floor !== undefined ? n.floor : 1, n.mult - (n.lessPerFriend || 0) * near);
+    if (kind === "skewer") return n.first + (near ? n.behind / 2 : 0);   // a second hit only if a friend of `u` could stand behind it
+    return n.mult || 1;
+  }
+  /** v3.7: what a warmed-up special by `e` would deal to `u` next turn, as the engine works it out: no dice, the
+      multiplier on the finished hit, and Arrow Storm with no Dodge (a Light unit's Dodge doesn't save it). Normal
+      positions as expectedHit (no Support counted). */
+  function specHit(st, e, u) {
+    const c = E.card(st, e);
+    if (c.reload && e.attackedThis) return 0;
+    const from = c.range > 1 ? e.hex : E.NBRS[u.hex][0];
+    const b = E.breakdown(st, e, u, from), dodge = E.specialOf(st, e) === "arrowStorm" ? 0 : b.dodge;
+    return Math.max(st.rs.game.minDamage, b.value * (1 - dodge / 100) * specMult(st, e, u));
+  }
+  /** Reach of a warmed-up special next turn: Javelin up to its maxRange; Arc Hit, Pick Off and Skewer only next to the target. */
+  function reachNext(st, e) {
+    const ce = E.card(st, e), kind = E.specialOf(st, e);
+    if (kind === "javelin") return ((st.rs.specials && st.rs.specials.javelin) || {}).maxRange || 3;
+    if (kind === "arcHit" || kind === "pickOff" || kind === "skewer") return 1;   // next to its target
+    return ce.range > 1 ? ce.range : (ce.trait === "reach" ? 2 : 1);
+  }
+  /** Brain 5 under specials: what our warmed-up special adds next turn over a normal hit, at its best reachable target. */
+  function warmEdge(st, u, W) {
+    let best = 0;
+    for (const e of E.alive(st)) {
+      if (e.team === u.team || E.isHolder(st, e)) continue;   // no special on a flag hex
+      // in reach next turn (its movement plus the special's reach), with `warmSlack` hexes to spare: the target moves too
+      const c = E.card(st, u), steps = Math.max(0, Math.min(E.capOf(st, u), Math.floor((E.status(st, u).stamNext - st.rs.game.attackCost) / c.hexCost + 1e-9)));
+      const d0 = E.dist(u.hex, e.hex), kind = E.specialOf(st, u);
+      if (d0 > steps + reachNext(st, u) - (W.warmSlack || 0)) continue;
+      if (kind === "javelin" && steps === 0 && d0 < 2) continue;
+      const d = expectedHit(st, u, e), ds = specHit(st, u, e), hp = E.effHp(st, e);
+      // extra HP taken over a normal hit, plus a unit's worth (in HP terms) when only the special removes it
+      best = Math.max(best, Math.min(ds, hp) - Math.min(d, hp) + (ds >= hp && d < hp ? W.unit / (W.hp || 1) : 0));
+    }
+    return best;
+  }
+
+  /** `foeSpecials` (v3.7): count the attackers' warmed-up specials. On for the risk to us, off for our own pressure (our
+      warmed specials are valued once, by model.special in value5). */
+  function risk5(st, team, B, foeSpecials) { return risk5Detail(st, team, B, foeSpecials).total; }
   /** risk5 with the damage it piles on each unit (Brain 7 reads who it expects to be removed). Same sums as before. */
-  function risk5Detail(st, team, B) {
+  function risk5Detail(st, team, B, foeSpecials) {
     const W = B.model, foe = E.foeOf(team), g = st.rs.game;
     const own = E.alive(st).filter((u) => u.team === team), enemies = E.alive(st).filter((e) => e.team === foe);
     const opts = [];
     for (const e of enemies) {
-      const ce = E.card(st, e), reach = ce.range > 1 ? ce.range : (ce.trait === "reach" ? 2 : 1);
+      const sp = foeSpecials && e.sp === "warm" && specOn(B);
+      const ce = E.card(st, e), reach = sp ? reachNext(st, e) : ce.range > 1 ? ce.range : (ce.trait === "reach" ? 2 : 1);
       for (const u of own) {
-        if (!canThreaten(st, e, u.hex)) continue;
+        if (!canThreaten(st, e, u.hex, sp ? reach : undefined)) continue;
         const steps = Math.max(0, E.dist(e.hex, u.hex) - reach);
-        opts.push({ e, u, d: expectedHit(st, e, u), cost: g.attackCost + steps * ce.hexCost });
+        // v3.7: a warmed-up enemy special fires next turn as the engine deals it (not on a holder: no special on a flag hex)
+        opts.push({ e, u, d: sp && !E.isHolder(st, u) ? specHit(st, e, u) : expectedHit(st, e, u), cost: g.attackCost + steps * ce.hexCost });
       }
     }
     // greedy: the enemy's most valuable hit first, as long as its Command lasts
@@ -443,13 +496,14 @@
       v += u.team === team ? val : -val;
       if (u.team === team) {
         v += W.stamina * E.status(st, u).stamNext;                        // next turn: Stamina it starts with (2 after a brace)
+        if (u.sp === "warm" && W.special && specOn(B)) v += W.special * W.hp * warmEdge(st, u, W);   // v3.7: a warmed special's edge next turn
         if (!isKeeper(st, u)) v -= W.advance * E.dist(u.hex, E.FLAG[foe]); // placement for the goal
         else if (c7 && c7.join) v -= W.advance * E.dist(u.hex, E.FLAG[foe]);   // Brain 7 B4: the holder joins the storm
         else if (flagHolderRules(st)) v -= W.home * E.dist(u.hex, E.FLAG[team]);   // placement for defence
       }
     }
     v += W.pull * (st.pole[foe] - st.pole[team]);
-    const r = risk5(st, team, B);
+    const r = risk5(st, team, B, true);
     v -= W.risk * r;
     v += W.pressure * risk5(st, foe, B);
     if (!(c7 && c7.join)) v -= W.flagDanger * Math.min(1, flagRisk(st, team, Object.assign({}, B, { weights: Object.assign({}, B.weights, { flagRisk: 1 }) })));
@@ -592,7 +646,7 @@
     const u1 = after && E.unitByUid(after, uid);
     if (!u1 || u1.hp <= 0) return true;   // the parry already removed it
     if (after.result) return false;
-    const det = risk5Detail(after, team, B), a = [...det.acc].find(([x]) => x.uid === uid);
+    const det = risk5Detail(after, team, B, true), a = [...det.acc].find(([x]) => x.uid === uid);
     return !!a && a[1] >= E.effHp(after, u1) - 1e-9;
   }
   /** Brain 7's cost on one attack in a plan (B2, B3, B5), from the position before it (`st`) and after it (`after`). */
@@ -657,11 +711,17 @@
   const tryAct = (st, a, die) => { const s = E.cloneLite(st); try { E.apply(s, a, () => die || E.normalDie(st)); return s; } catch (e) { return null; } };
   /** Play an attack (and, for an evading Light unit, its best step away) on a copy. Dice: the score is the average over
       the rule set's dice; the plan carries on from the usual roll. Returns { s, acts, v } or null. */
-  function attackLine(st, team, B, pre, uid, target) {
-    let v = 0;
-    for (const [d, p] of E.dieCases(st)) { const s1 = tryAct(st, { type: "attack", uid, target }, d); if (!s1) return null; v += p * value5(s1, team, B); }
-    let s = tryAct(st, { type: "attack", uid, target });
-    const acts = pre.concat([{ type: "attack", uid, target }]);
+  function attackLine(st, team, B, pre, uid, target, kind) {
+    let v = 0, s;
+    const act = { type: kind || "attack", uid, target };
+    if (act.type === "special") {   // v3.7: no dice. It must beat the normal attack by the margin (model.specialMargin).
+      s = tryAct(st, act); if (!s) return null;
+      v = value5(s, team, B) - (B.model.specialMargin || 0);
+    } else {
+      for (const [d, p] of E.dieCases(st)) { const s1 = tryAct(st, act, d); if (!s1) return null; v += p * value5(s1, team, B); }
+      s = tryAct(st, act);
+    }
+    const acts = pre.concat([act]);
     const u = s && E.unitByUid(s, uid);
     if (u && u.hp > 0 && E.options(s, uid).evading) {
       // Evade: the step that scores best, or none
@@ -679,6 +739,8 @@
     if (pen) v += pen;
     return s ? { s, acts, v, pen } : null;
   }
+  /** v3.7: the cost (value points) the plan books for a warm-up: the Stamina and Command it spends this turn. */
+  const warmPen = (B) => B.model.warmCost || 0;
   /** Every whole activation of one unit from position st: [{ acts, s, v }]. */
   function activations5(st, team, B, uid) {
     const u = E.unitByUid(st, uid); if (!u || u.hp <= 0 || u.done) return [];
@@ -688,15 +750,28 @@
     const fromHere = (s0, pre) => {
       const o0 = E.options(s0, uid);
       for (const a of o0.attacks) add(attackLine(s0, team, B, pre, uid, a.target));
+      if (o0.special && specOn(B)) {   // v3.7 (Brief 011): fire at every legal target; warm up (no attack, pull or brace after)
+        if (o0.special.fire) for (const t of o0.special.targets) add(attackLine(s0, team, B, pre, uid, t.target, "special"));
+        if (o0.special.warmup) { const s1 = tryAct(s0, { type: "warmup", uid }); if (s1) add({ acts: pre.concat([{ type: "warmup", uid }]), s: s1, v: value5(s1, team, B) - warmPen(B) }); }
+      }
       if (o0.brace) { const s1 = tryAct(s0, { type: "brace", uid }); if (s1) add({ acts: pre.concat([{ type: "brace", uid }]), s: s1, v: value5(s1, team, B) }); }
       if (o0.pull) { let v = 0; for (const [d, p] of E.dieCases(s0)) { const s1 = tryAct(s0, { type: "pull", uid }, d); if (s1) v += p * value5(s1, team, B); } const s1 = tryAct(s0, { type: "pull", uid }); if (s1) add({ acts: pre.concat([{ type: "pull", uid }]), s: s1, v }); }
     };
     fromHere(st, []);
+    const moved = [];
     for (const h in o.moves) {
       const s1 = tryAct(st, { type: "move", uid, to: h }); if (!s1) continue;
       const mv = [{ type: "move", uid, to: h }];
-      add({ acts: mv, s: s1, v: value5(s1, team, B) });
+      const m1 = { acts: mv, s: s1, v: value5(s1, team, B) };
+      add(m1); moved.push(m1);
       const u1 = E.unitByUid(s1, uid); if (u1 && u1.hp > 0 && !u1.done) fromHere(s1, mv);
+    }
+    // v3.7: warm up, then move. Same end state as moving first, so it is tried after the best few moves only.
+    if (o.special && o.special.warmup && specOn(B)) {
+      moved.sort((x, y) => y.v - x.v);
+      for (const m1 of moved.slice(0, (B.plan5 && B.plan5.warmMoves) || 4)) {
+        const s2 = tryAct(m1.s, { type: "warmup", uid }); if (s2) add({ acts: [{ type: "warmup", uid }].concat(m1.acts), s: s2, v: value5(s2, team, B) - warmPen(B) });
+      }
     }
     return out;
   }
@@ -730,9 +805,9 @@
             if (!acts.length) { s2 = b.s; v2 = b.v; }
             else if (b.s === st) { s2 = a.s; v2 = a.v; pen = a.pen || 0; }
             else {
-              const atk = acts.findIndex((x) => x.type === "attack");
-              if (atk >= 0) { const s0 = replay5(b.s, acts.slice(0, atk)); if (!s0) continue; const r = attackLine(s0, team, B, acts.slice(0, atk), uid, acts[atk].target); if (!r) continue; s2 = r.s; v2 = r.v; acts = r.acts; if (b.pen) v2 += b.pen; if (r.pen) pen += r.pen; }
-              else { s2 = replay5(b.s, acts); if (!s2) continue; v2 = value5(s2, team, B); if (b.pen) v2 += b.pen; }
+              const atk = acts.findIndex((x) => x.type === "attack" || x.type === "special");
+              if (atk >= 0) { const s0 = replay5(b.s, acts.slice(0, atk)); if (!s0) continue; const r = attackLine(s0, team, B, acts.slice(0, atk), uid, acts[atk].target, acts[atk].type); if (!r) continue; s2 = r.s; v2 = r.v; acts = r.acts; if (b.pen) v2 += b.pen; if (r.pen) pen += r.pen; }
+              else { s2 = replay5(b.s, acts); if (!s2) continue; v2 = value5(s2, team, B) - (acts.some((x) => x.type === "warmup") ? warmPen(B) : 0); if (b.pen) v2 += b.pen; }
             }
             const nb = { s: s2, v: v2, steps: b.steps.concat(acts), left: b.left.filter((x) => x !== uid) };
             if (pen) nb.pen = pen;
@@ -763,8 +838,8 @@
     if (!a) return { action: { type: "end" }, reason: "Plan done; ends its turn", score: 0 };
     p.at = st.actions.length + 1; p.rolled = a.type === "attack" || a.type === "pull" ? -1 : p.rolled;
     const u = E.unitByUid(st, a.uid), t = a.target && E.unitByUid(st, a.target);
-    const nx = p.steps[0], intent = a.type === "move" && nx && nx.uid === a.uid && nx.type === "attack" ? E.unitByUid(st, nx.target) : null;
-    const why = a.type === "attack" ? `${u.id} attacks ${t.id}` : a.type === "move" ? `${u.id} moves to ${a.to}${intent ? ` to attack ${intent.id}` : u.evadeFrom ? " (evade)" : ""}` : a.type === "brace" ? `${u.id} braces` : a.type === "pull" ? `${u.id} pulls` : a.type;
+    const nx = p.steps[0], intent = a.type === "move" && nx && nx.uid === a.uid && (nx.type === "attack" || nx.type === "special") ? E.unitByUid(st, nx.target) : null;
+    const why = a.type === "special" ? `${u.id} fires ${E.specialName(E.specialOf(st, u))} at ${t.id}` : a.type === "warmup" ? `${u.id} warms up ${E.specialName(E.specialOf(st, u))}` : a.type === "attack" ? `${u.id} attacks ${t.id}` : a.type === "move" ? `${u.id} moves to ${a.to}${intent ? ` to attack ${intent.id}` : u.evadeFrom ? " (evade)" : ""}` : a.type === "brace" ? `${u.id} braces` : a.type === "pull" ? `${u.id} pulls` : a.type;
     return { action: a, reason: `${why} (plan: ${p.steps.length + 1} step${p.steps.length ? "s" : ""} left)`, score: p.v };
   }
 
@@ -889,7 +964,7 @@
     return beings === size ? Object.assign({}, want) : null;
   }
 
-  const api = { chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5, tiebreakStanding, tiebreakOutlook, flagPotential, clockNear, attackLine5: attackLine,
+  const api = { specMult, warmEdge, chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5, tiebreakStanding, tiebreakOutlook, flagPotential, clockNear, attackLine5: attackLine,
     risk5, risk5Detail, lead7Context, lead7Value, material7, race7, loneLosing7, attack7Cost, turnsTo7, keeperOf };
   if (typeof module !== "undefined") module.exports = api; else root.GGBot = api;
 })(this);
