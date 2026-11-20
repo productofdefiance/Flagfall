@@ -1,0 +1,76 @@
+{
+ "id": "2026-11-19_study_brain7-storm-lead",
+ "kind": "study",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "def08784c5f75e95432cc97b020c72d8445f6ed4",
+ "brief": "019",
+ "question": "B6: when Brain 7 is ahead on material and on flag damage, storm or hold? stormLead 1.0 and 2.0 against Brain 5 (1.5, the shipped value, is in brain7-vs-brain5 on the same seeds).",
+ "tags": [
+  "brain7",
+  "sweep",
+  "stormLead",
+  "v3.6"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T04:56:32.000Z",
+ "finished": "2026-11-20T08:12:41.962Z",
+ "games": 4000,
+ "seed_from": "tests/rng.js lab:release-v3-08-00:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "storm1-v-b5-5v5",
+    "a": "brain7:stormLead=1",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "storm1-v-b5-7v7",
+    "a": "brain7:stormLead=1",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "storm2-v-b5-5v5",
+    "a": "brain7:stormLead=2",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "storm2-v-b5-7v7",
+    "a": "brain7:stormLead=2",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   }
+  ],
+  "measures": [
+   "play",
+   "clock",
+   "brain7"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "storm1-v-b5-5v5: brain7:stormLead=1 took 45.4% of games against brain5 (decisive 334–251, tiebreak 114–289, draws 12); storm1-v-b5-7v7: brain7:stormLead=1 took 49.9% of games against brain5 (decisive 387–291, tiebreak 95–193, draws 34); storm2-v-b5-5v5: brain7:stormLead=2 took 45.6% of games against brain5 (decisive 328–249, tiebreak 122–289, draws 12); storm2-v-b5-7v7: brain7:stormLead=2 took 50.0% of games against brain5 (decisive 387–291, tiebreak 96–192, draws 34)."
+}

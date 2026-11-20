@@ -1,0 +1,5 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+storm1-v-b5-5v5,1000,32,N:20 S:12,55,275,252,N:118 S:134
+storm1-v-b5-7v7,1000,25,N:13 S:12,45,245,200,S:95 N:105
+storm2-v-b5-5v5,1000,32,N:20 S:12,55,275,260,N:123 S:137
+storm2-v-b5-7v7,1000,25,N:13 S:12,45,245,202,S:98 N:104

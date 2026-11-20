@@ -229,6 +229,6 @@ CHATS
   - Pushes to old `brief/*` branches (cut before this merge) don't start a run. The hourly run covers them.
   - A pull request that conflicts with `main` gets no `pull_request` runs (GitHub can't build its merge commit). The hourly run covers it.
   - Not seen live from this session: the page loading in a browser (this session can't reach github.io). Pages already serves the play links from the same branch.
-  - Already happening under the old rule: PR #32 and PR #33 both use F42, and PR #33's F38–F43 clash with `main`'s F38–F41. Those pull requests keep old-style rows (§8) but must renumber at their next `sync`.
+  - Under the old rule, PR #32 and PR #33 clashed on F38–F43 while this was open. Both renumbered at their sync before merging (F42, F43–F48), so `FLAGS.md` now holds F1 to F48. `CLAUDE.md`, `FLAGS.md` and `README.md` say F1 to F48 (synced 20 Nov after PRs 32 and 33 merged).
 - **Flags closed / opened:** none closed. Opened `flags/021.md`: F021-1 (ASK: accept hourly plus run-on-demand for chat files), F021-2 (OPEN), F021-3 (OPEN).
 - **Pull request:** https://github.com/productofdefiance/Flagfall/pull/34

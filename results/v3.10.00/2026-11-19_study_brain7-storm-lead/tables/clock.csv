@@ -1,0 +1,5 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+storm1-v-b5-5v5,1000,1209,0,1209,0,ended_earlier:584 level:12 N:193 S:211,won_tiebreak:403 lost:1,72
+storm1-v-b5-7v7,1000,864,0,864,0,ended_earlier:678 S:146 level:34 N:142,won_tiebreak:288,89
+storm2-v-b5-5v5,1000,1233,0,1233,0,ended_earlier:576 level:12 N:198 S:214,won_tiebreak:411 lost:1,73
+storm2-v-b5-7v7,1000,864,0,864,0,ended_earlier:678 S:147 level:34 N:141,won_tiebreak:288,86

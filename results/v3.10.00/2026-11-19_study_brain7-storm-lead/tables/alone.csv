@@ -1,0 +1,5 @@
+matchup,games,lost_alone_n,lost_alone_s,lost_together_n,lost_together_s,holder_strikes_solo_n,holder_strikes_solo_s,holder_strikes_group_n,holder_strikes_group_s
+storm1-v-b5-5v5,1000,1205,1242,2196,2261,719,716,574,474
+storm1-v-b5-7v7,1000,1663,1821,3299,3317,659,573,506,414
+storm2-v-b5-5v5,1000,1211,1242,2187,2258,668,690,598,493
+storm2-v-b5-7v7,1000,1667,1822,3293,3311,609,529,544,441
