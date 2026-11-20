@@ -1,4 +1,4 @@
-STATUS · updated 20 Nov 2026, 11:57 am ET
+STATUS · updated 20 Nov 2026, 12:49 pm ET
 
 VERSION
   On main: v3.11.00 · Build 15 · Rules v3.7 · Brain 5
@@ -35,7 +35,7 @@ BUILDS
   Building
     014 Fields · PR #36 · Ready · checks pass · not reviewed
   Ready to start
-    none
+    023 Status page
   Waiting
     012 Cavalry ← 014, 017, 018
     017 Move preview ← 014
