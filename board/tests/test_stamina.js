@@ -94,7 +94,10 @@ for (const rs of ALL) {
   ok(u.stam === 0, `a saved rule set with "Stamina after bracing" 0 and no floor still starts a braced unit on 0 (got ${u.stam})`);
 }
 ok(NEWEST.game.braceTiredness === 1 && NEWEST.game.staminaAfterBrace === undefined, `${NEWEST.id} stores Brace tiredness 1 (not Stamina after bracing)`);
-ok(ALL.slice(0, -1).every((rs) => rs.game.staminaAfterBrace === 2 && rs.game.braceTiredness === undefined), "older presets keep Stamina after bracing 2");
+// Brief 010 adds v3.5 after v3.4; it inherits v3.4's Brace tiredness. "Older" means the presets before v3.4.
+const FROM_V34 = ALL.findIndex((rs) => rs.id === "v3.4");
+ok(ALL.slice(FROM_V34).every((rs) => rs.game.braceTiredness === 1 && rs.game.staminaAfterBrace === undefined), "v3.4 and later store Brace tiredness 1");
+ok(ALL.slice(0, FROM_V34).every((rs) => rs.game.staminaAfterBrace === 2 && rs.game.braceTiredness === undefined), "older presets keep Stamina after bracing 2");
 
 // ---- Set spear (3.13): one spear per entry; the other braced Heavy Anti-Cavalry stays loaded ----
 { const X = "E10", ring = E.NBRS[X];

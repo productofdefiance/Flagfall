@@ -1,0 +1,52 @@
+{
+ "id": "2026-11-19_screen_flag-rulings-bots",
+ "kind": "screen",
+ "version": "v3.09.00",
+ "build": 12,
+ "commit": "8bd76ba51b756a4f192ab8747b38dc368a036956",
+ "brief": "015",
+ "question": "Bot minimum: does Brain 6 play 200 balanced games per format on v3.6 against itself with no refused action, no error and no unfinished game? (Brain 5's mirrors are the 1,000-game v3.6 study.)",
+ "tags": [
+  "flag-rulings",
+  "bot-minimum",
+  "brain6",
+  "v3.6"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-19T21:57:20.000Z",
+ "finished": "2026-11-19T23:44:03.976Z",
+ "games": 400,
+ "seed_from": "tests/rng.js lab:flag-rulings-bots:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "brain6-mirror-5v5",
+    "a": "brain6",
+    "b": "brain6",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "brain6-mirror-7v7",
+    "a": "brain6",
+    "b": "brain6",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   }
+  ],
+  "measures": [
+   "play",
+   "flagrules"
+  ]
+ },
+ "failed": null,
+ "extra": {}
+}

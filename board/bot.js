@@ -40,14 +40,22 @@
     return bh[key] * (tm === undefined ? 1 : tm) * (cm === undefined ? 1 : cm);
   }
 
-  /** Can enemy `e` reach striking distance of `hex` on its next turn (ignoring blockers and zones)? */
+  /** Can enemy `e` reach striking distance of `hex` on its next turn (ignoring blockers and zones)?
+      v3.6 (flagBlocksLine): a shot from where it stands across a flag is no threat unless it can step off that line. */
   function canThreaten(st, e, hex) {
     const c = E.card(st, e), g = st.rs.game;
     const stam = E.status(st, e).stamNext;
     const steps = Math.max(0, Math.min(E.capOf(st, e), Math.floor((stam - g.attackCost) / c.hexCost + 1e-9)));
     const reach = c.range > 1 ? c.range : (c.trait === "reach" ? 2 : 1);
-    return E.dist(e.hex, hex) <= steps + reach;
+    const d = E.dist(e.hex, hex);
+    if (d > steps + reach) return false;
+    if (steps === 0 && d >= 2 && st.rs.switches.flagBlocksLine && E.flagBetween(e.hex, hex)) return false;
+    return true;
   }
+  /** v3.6 rules for a unit's pull next turn: its Strength before Support (full under pullFullStrength), and whether it
+      can pull at all (not while reloading under pullCountsForReload: it acted this turn, so next turn it reloads). */
+  const pullStr = (st, c) => (c.range > 1 && !st.rs.switches.pullFullStrength ? c.str / 2 : c.str);
+  const canPullNext = (st, u) => !(st.rs.switches.pullCountsForReload && E.card(st, u).reload && u.attackedThis);
 
   /** Expected damage of e attacking u (normal positions, no Support counted). */
   function expectedHit(st, e, u) {
@@ -70,7 +78,7 @@
     for (const e of enemies) for (const u of own) if (canThreaten(st, e, u.hex)) hits.set(e.uid + ">" + u.uid, expectedHit(st, e, u));
     const goal = [...E.GOAL[team]];
     const pulls = new Map();
-    for (const e of enemies) if (goal.some((h) => canThreaten(st, e, h))) pulls.set(e.uid, avgDamage(st, E.pullValue(st, e).value) * w.pull);
+    for (const e of enemies) if (canPullNext(st, e) && goal.some((h) => canThreaten(st, e, h))) pulls.set(e.uid, avgDamage(st, E.pullValue(st, e).value) * w.pull);
     let total = 0;
     const left = new Set(enemies);
     while (left.size) {
@@ -166,9 +174,9 @@
     const foe = E.foeOf(team), goal = [...E.GOAL[team]];
     let pot = 0;
     for (const e of E.alive(st)) {
-      if (e.team !== foe || !goal.some((h) => canThreaten(st, e, h))) continue;
+      if (e.team !== foe || !canPullNext(st, e) || !goal.some((h) => canThreaten(st, e, h))) continue;
       const c = E.card(st, e);
-      pot += avgDamage(st, c.range > 1 ? c.str / 2 : c.str);
+      pot += avgDamage(st, pullStr(st, c));
     }
     if (!pot) return 0;
     const W = B.weights.flagRisk === undefined ? 60 : B.weights.flagRisk;
@@ -189,7 +197,8 @@
     for (const u of E.alive(st)) {
       if (u.team !== team || E.isHolder(st, u) || !goal.some((h) => canThreaten(st, u, h))) continue;
       const c = E.card(st, u);
-      pot += holder ? expectedHit(st, u, holder) : avgDamage(st, c.range > 1 ? c.str / 2 : c.str);
+      if (!holder && !canPullNext(st, u)) continue;
+      pot += holder ? expectedHit(st, u, holder) : avgDamage(st, pullStr(st, c));
     }
     return 40 * raid * Math.min(1, pot / target);
   }
@@ -440,7 +449,55 @@
     v -= W.risk * risk5(st, team, B);
     v += W.pressure * risk5(st, foe, B);
     v -= W.flagDanger * Math.min(1, flagRisk(st, team, Object.assign({}, B, { weights: Object.assign({}, B.weights, { flagRisk: 1 }) })));
+    if (W.clock) { const near = clockNear(st, W); if (near > 0) v += W.clock * near * tiebreakOutlook(st, team); }   // Brain 6 (Brief 007): the clock
     return v;
+  }
+  /** Brain 6 (Brief 007): how close the turn limit is, from 0 (clockTurns or more turns to go) to 1 (the last turn).
+      Turns to go counts this one: on the last turn it is 0, so the weight is full. */
+  function clockNear(st, W) {
+    const H = W.clockTurns > 0 ? W.clockTurns : 0;
+    if (!H) return 0;
+    const left = E.turnLimit(st) - st.turn;
+    return Math.max(0, Math.min(1, 1 - left / H));
+  }
+  /** Brain 6: expected flag damage `team` could do to the enemy flag on its next turn: hits on the enemy holder (the
+      flag's share of the pool, as the engine splits it) or pulls on an empty flag, by every unit that can reach, each once,
+      best first, as many as its Command pays for. */
+  function flagPotential(st, team) {
+    const foe = E.foeOf(team), h = E.holderOf(st, foe), g = st.rs.game, goal = [...E.GOAL[foe]], fl = E.flagLeft(st, foe);
+    if (fl <= 0) return 0;
+    const pots = [];
+    for (const u of E.alive(st)) {
+      if (u.team !== team || (h && u.uid === h.uid)) continue;
+      // Both a pull and an attack on a held flag are made from its goal zone (engine canPullFrom, canAttackFrom), so the
+      // unit must be able to walk into it next turn and still pay for the action.
+      const c = E.card(st, u), steps = Math.max(0, Math.min(E.capOf(st, u), Math.floor((E.status(st, u).stamNext - g.attackCost) / c.hexCost + 1e-9)));
+      if (!goal.some((x) => E.dist(u.hex, x) <= steps)) continue;
+      if (h) pots.push(expectedHit(st, u, h) * fl / (h.hp + fl));
+      else if (canPullNext(st, u)) pots.push(avgDamage(st, E.pullValue(st, u).value));
+    }
+    pots.sort((a, b) => b - a);
+    return pots.slice(0, Math.max(0, Math.floor(g.command / g.attackCost))).reduce((a, b) => a + b, 0);
+  }
+  /** Brain 6: the tiebreak as it is likely to finish, from +1 (we win it) to -1 (we lose it). It starts from the standing
+      now and moves it by the chance that a side still to play can change it: the enemy's next turn against our lead, our
+      next turn against our deficit (each its flag potential against the gap, plus half a point to get past it). Only
+      turns still left count, so on the last turn of the second mover it is the standing itself. */
+  function tiebreakOutlook(st, team) {
+    const foe = E.foeOf(team), s = tiebreakStanding(st, team), lim = E.turnLimit(st);
+    const usLeft = lim - st.turn, themLeft = lim - st.turn + (st.first === team ? 1 : 0);
+    const gap = Math.abs(st.pole[foe] - st.pole[team]);   // flag damage between the sides; 0 when level
+    const p = (pot) => Math.min(1, pot / (gap + 0.5));
+    let out = s;
+    if (s >= 0 && themLeft > 0) out -= (s > 0 ? 2 : 1) * p(flagPotential(st, foe));
+    if (s <= 0 && usLeft > 0) out += (s < 0 ? 2 : 1) * p(flagPotential(st, team));
+    return Math.max(-1, Math.min(1, out));
+  }
+  /** Brain 6: the tiebreak as it stands (Game Laws 2.7, engine tiebreak): +1 if `team` would win it now, -1 if it would
+      lose, 0 if level. More damage on the enemy flag first (hits on its holder's pool count, F20), then fewer units lost. */
+  function tiebreakStanding(st, team) {
+    const w = E.tiebreak(st).winner;
+    return w === team ? 1 : w ? -1 : 0;
   }
   const tryAct = (st, a, die) => { const s = E.cloneLite(st); try { E.apply(s, a, () => die || E.normalDie(st)); return s; } catch (e) { return null; } };
   /** Play an attack (and, for an evading Light unit, its best step away) on a copy. Dice: the score is the average over
@@ -454,8 +511,13 @@
     if (u && u.hp > 0 && E.options(s, uid).evading) {
       // Evade: the step that scores best, or none
       let best = { s, v: value5(s, team, B), h: null };
-      for (const h in E.options(s, uid).moves) { const s2 = tryAct(s, { type: "move", uid, to: h }); if (s2) { const v2 = value5(s2, team, B); if (v2 > best.v) best = { s: s2, v: v2, h }; } }
+      const steps = E.options(s, uid).moves;
+      for (const h in steps) { const s2 = tryAct(s, { type: "move", uid, to: h }); if (s2) { const v2 = value5(s2, team, B); if (v2 > best.v) best = { s: s2, v: v2, h }; } }
       if (best.h) { v += best.v - value5(s, team, B); s = best.s; acts.push({ type: "move", uid, to: best.h }); }
+      // Brain 6 (Brief 007): an adjacent attack that leaves no legal Evade step (movement, Stamina or Command used up on
+      // the approach, tackle, no free hex) leaves the attacker beside a target that can hit back. It costs `evade` times
+      // that target's expected hit on it next turn, so the plan prefers approaches that keep a step.
+      else if (B.model.evade && !Object.keys(steps).length) { const t = E.unitByUid(s, target); if (t && t.hp > 0) v -= B.model.evade * expectedHit(s, t, u); }
     }
     return s ? { s, acts, v } : null;
   }
@@ -665,6 +727,6 @@
     return beings === size ? Object.assign({}, want) : null;
   }
 
-  const api = { chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5 };
+  const api = { chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5, tiebreakStanding, tiebreakOutlook, flagPotential, clockNear, attackLine5: attackLine };
   if (typeof module !== "undefined") module.exports = api; else root.GGBot = api;
 })(this);

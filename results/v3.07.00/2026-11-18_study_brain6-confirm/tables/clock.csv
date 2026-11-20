@@ -1,0 +1,61 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+base-vs-brain5-bal5,1000,1701,28,1681,18,ended_earlier:430 N:270 S:286 level:14,won_tiebreak:540 lost:15 draw:1,85
+base-mirror-bal5,1000,1558,76,1518,33,ended_earlier:481 S:252 N:238 level:29,won_tiebreak:454 lost:34 won_decisive:1 draw:1,112
+base-vs-brain5-bal7,1000,1256,11,1248,15,ended_earlier:563 N:223 S:191 level:23,won_tiebreak:405 lost:9,59
+base-mirror-bal7,1000,1301,41,1286,19,ended_earlier:553 N:215 S:209 level:23,won_tiebreak:405 lost:15 draw:2 won_decisive:2,51
+base-vs-brain5-light5,1000,2162,7,2158,5,N:341 level:12 ended_earlier:263 S:384,won_tiebreak:710 lost:14 won_decisive:1,40
+base-mirror-light5,1000,2699,1,2699,4,S:476 N:423 ended_earlier:87 level:14,won_tiebreak:897 lost:1 won_decisive:1,11
+base-vs-brain5-light7,1000,1428,7,1429,7,ended_earlier:460 S:237 N:254 level:49,won_tiebreak:471 lost:15 won_decisive:5,52
+base-mirror-light7,1000,2039,14,2034,13,S:340 N:357 ended_earlier:251 level:52,won_tiebreak:666 lost:30 won_decisive:1,88
+home-0-vs-brain5-bal5,1000,1526,24,1514,22,S:230 ended_earlier:468 N:268 level:34,won_tiebreak:479 lost:17 won_decisive:2,154
+home-0-mirror-bal5,1000,1260,25,1239,27,ended_earlier:546 level:51 N:217 S:186,won_tiebreak:389 lost:10 won_decisive:3 draw:1,170
+home-0-vs-brain5-bal7,1000,1152,28,1147,25,ended_earlier:591 N:190 S:186 level:33,won_tiebreak:363 lost:13,152
+home-0-mirror-bal7,1000,1033,28,1025,16,ended_earlier:622 N:166 S:171 level:41,won_tiebreak:327 lost:8 draw:2,145
+home-0-vs-brain5-light5,1000,1747,7,1739,4,N:276 ended_earlier:389 level:26 S:309,won_tiebreak:577 lost:7 won_decisive:1,147
+home-0-mirror-light5,1000,1811,4,1806,6,S:329 ended_earlier:352 N:288 level:31,won_tiebreak:598 lost:14 won_decisive:5,275
+home-0-vs-brain5-light7,1000,1270,14,1266,2,ended_earlier:501 S:223 N:203 level:73,won_tiebreak:417 lost:9,115
+home-0-mirror-light7,1000,1264,1,1248,7,N:194 ended_earlier:504 S:228 level:74,won_tiebreak:408 lost:11 won_decisive:2 draw:1,89
+evade-0-vs-brain5-bal5,1000,1625,47,1602,16,N:312 ended_earlier:443 S:217 level:28,won_tiebreak:518 lost:11,98
+evade-0-mirror-bal5,1000,1680,134,1632,42,ended_earlier:442 S:242 N:298 level:18,won_tiebreak:495 lost:44 won_decisive:1,106
+evade-0-vs-brain5-bal7,1000,1167,18,1167,27,N:192 ended_earlier:583 level:36 S:189,won_tiebreak:363 lost:18,79
+evade-0-mirror-bal7,1000,1140,48,1132,31,N:166 S:205 ended_earlier:605 level:24,won_tiebreak:349 lost:20 draw:1 won_decisive:1,70
+evade-0-vs-brain5-light5,1000,1497,1,1497,0,ended_earlier:481 N:234 S:265 level:20,won_tiebreak:499,13
+evade-0-mirror-light5,1000,1440,0,1440,0,N:211 ended_earlier:503 S:268 level:18,won_tiebreak:479,5
+evade-0-vs-brain5-light7,1000,1076,0,1076,2,N:181 ended_earlier:590 level:52 S:177,won_tiebreak:357 lost:1,21
+evade-0-mirror-light7,1000,1009,0,1005,2,S:183 ended_earlier:611 level:55 N:151,won_tiebreak:334,7
+flagdanger-0-vs-brain5-bal5,1000,1296,38,1282,9,ended_earlier:564 S:212 N:218 level:6,won_tiebreak:407 lost:21 draw:1 won_decisive:1,94
+flagdanger-0-mirror-bal5,1000,1139,58,1103,15,ended_earlier:591 N:185 S:188 level:36,won_tiebreak:334 lost:34 draw:4 won_decisive:1,110
+flagdanger-0-vs-brain5-bal7,1000,1017,23,1018,14,N:172 S:164 ended_earlier:638 level:26,won_tiebreak:323 lost:12 won_decisive:1,64
+flagdanger-0-mirror-bal7,1000,849,31,832,14,ended_earlier:696 N:138 level:26 S:140,won_tiebreak:260 draw:1 lost:17,64
+flagdanger-0-vs-brain5-light5,1000,2061,13,2057,7,N:340 ended_earlier:293 S:353 level:14,won_tiebreak:680 lost:12 draw:1,48
+flagdanger-0-mirror-light5,1000,2155,0,2154,3,N:332 S:389 ended_earlier:249 level:30,won_tiebreak:716 lost:4 won_decisive:1,39
+flagdanger-0-vs-brain5-light7,1000,1340,12,1340,12,N:254 ended_earlier:487 S:208 level:51,won_tiebreak:436 lost:25 won_decisive:1,79
+flagdanger-0-mirror-light7,1000,1592,8,1589,4,S:259 ended_earlier:408 N:273 level:60,won_tiebreak:521 lost:8 won_decisive:2 draw:1,28
+pull-double-vs-brain5-bal5,1000,1514,30,1499,21,N:259 S:234 ended_earlier:490 level:17,won_tiebreak:473 lost:16 won_decisive:4,96
+pull-double-mirror-bal5,1000,1385,76,1344,19,N:208 S:232 ended_earlier:534 level:26,won_tiebreak:406 lost:29 draw:4 won_decisive:1,100
+pull-double-vs-brain5-bal7,1000,1168,16,1161,17,N:189 ended_earlier:592 S:190 level:29,won_tiebreak:369 lost:10,70
+pull-double-mirror-bal7,1000,1083,40,1069,18,level:27 ended_earlier:619 S:181 N:173,won_tiebreak:336 draw:3 lost:14 won_decisive:1,44
+pull-double-vs-brain5-light5,1000,1786,3,1785,2,N:296 S:298 ended_earlier:393 level:13,won_tiebreak:593 lost:1,10
+pull-double-mirror-light5,1000,1992,2,1992,0,N:321 ended_earlier:324 S:342 level:13,won_tiebreak:662 lost:1,11
+pull-double-vs-brain5-light7,1000,1056,1,1056,4,ended_earlier:595 S:165 N:187 level:53,won_tiebreak:352,8
+pull-double-mirror-light7,1000,1075,1,1071,4,ended_earlier:597 N:173 S:182 level:48,won_tiebreak:355,7
+beam-6-vs-brain5-bal5,1000,1805,45,1786,25,ended_earlier:389 N:316 S:276 level:19,won_tiebreak:569 lost:22 draw:1,110
+beam-6-mirror-bal5,1000,1942,140,1854,41,S:313 ended_earlier:359 N:315 level:13,won_tiebreak:555 lost:69 won_decisive:2 draw:2,133
+beam-6-vs-brain5-bal7,1000,1148,13,1132,10,level:21 ended_earlier:613 N:205 S:161,won_tiebreak:357 lost:9,53
+beam-6-mirror-bal7,1000,1234,42,1217,25,ended_earlier:588 N:178 S:216 level:18,lost:11 won_tiebreak:380 draw:1 won_decisive:2,52
+beam-6-vs-brain5-light5,1000,2233,2,2233,2,S:396 N:350 ended_earlier:235 level:19,won_tiebreak:744 lost:2,19
+beam-6-mirror-light5,1000,2482,3,2482,4,S:427 N:408 ended_earlier:134 level:31,won_tiebreak:822 lost:11 won_decisive:2,33
+beam-6-vs-brain5-light7,1000,1544,4,1546,8,ended_earlier:429 N:262 S:266 level:43,won_tiebreak:510 lost:15 won_decisive:3,44
+beam-6-mirror-light7,1000,2100,8,2101,7,N:367 S:347 ended_earlier:244 level:42,won_tiebreak:691 lost:20 won_decisive:3,56
+stamina-0-vs-brain5-bal5,1000,1666,40,1654,38,S:240 ended_earlier:438 N:300 level:22,won_tiebreak:521 lost:17 won_decisive:2,106
+stamina-0-mirror-bal5,1000,1541,44,1529,23,S:288 N:219 ended_earlier:483 level:10,won_tiebreak:486 lost:19 draw:2,57
+stamina-0-vs-brain5-bal7,1000,1175,29,1160,16,N:216 ended_earlier:593 level:27 S:164,won_tiebreak:369 lost:11,66
+stamina-0-mirror-bal7,1000,1345,58,1332,38,ended_earlier:529 S:226 level:31 N:214,lost:29 won_tiebreak:407 won_decisive:2 draw:2,102
+stamina-0-vs-brain5-light5,1000,2069,11,2069,15,N:351 ended_earlier:280 S:354 level:15,won_tiebreak:678 lost:26 won_decisive:1,80
+stamina-0-mirror-light5,1000,2753,15,2751,12,S:474 ended_earlier:56 N:452 level:18,won_tiebreak:906 lost:19 won_decisive:1,54
+stamina-0-vs-brain5-light7,1000,1372,2,1372,4,ended_earlier:500 S:237 N:230 level:33,won_tiebreak:453 lost:13 won_decisive:1,49
+stamina-0-mirror-light7,1000,2017,17,2017,17,ended_earlier:277 N:349 S:346 level:28,won_tiebreak:657 lost:35 won_decisive:3,102
+brain5-mirror-bal5,1000,1591,0,1591,1,ended_earlier:447 N:287 S:244 level:22,won_tiebreak:530 won_decisive:1,110
+brain5-mirror-bal7,1000,1176,0,1176,0,N:211 ended_earlier:579 level:29 S:181,won_tiebreak:392,90
+brain5-mirror-light5,1000,1533,0,1533,0,N:233 ended_earlier:475 S:278 level:14,won_tiebreak:511,9
+brain5-mirror-light7,1000,1041,0,1041,0,ended_earlier:605 level:48 N:190 S:157,won_tiebreak:347,18

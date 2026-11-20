@@ -1,0 +1,37 @@
+{
+  "id": "flag-rulings-v35",
+  "kind": "study",
+  "brief": "015",
+  "question": "Brief 015's control: how do balanced games end on v3.5 with Brain 5 against itself, on the same seeds as the v3.6 runs?",
+  "tags": [
+    "flag-rulings",
+    "brain5",
+    "v3.5"
+  ],
+  "measures": [
+    "play",
+    "light",
+    "flagrules"
+  ],
+  "matchups": [
+    {
+      "name": "5v5",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.5",
+      "format": "blitz5",
+      "mix": "mixed",
+      "games": 1000
+    },
+    {
+      "name": "7v7",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.5",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 1000
+    }
+  ],
+  "seed_name": "flag-rulings"
+}

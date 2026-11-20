@@ -6,10 +6,153 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.09.01 | v3.6 | Brain 5 | v2 | 13 |
+| v3.09.00 | v3.6 | Brain 5 | v2 | 12 |
+| v3.08.00 | v3.5 | Brain 5 | v2 | 11 |
+| v3.07.00 | v3.4 | Brain 5 | v2 | 10 |
+| v3.06.00 | v3.4 | Brain 5 | v2 | 9 |
 | v3.05.02 | v3.4 | Brain 5 | v1 | 8 |
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.09.01 · Build 13 — Brief 016, stall logging (lab only) (19 Nov 2026)
+Rule set: none changed (v3.6 stays the newest). Game version **v3.09.01** (ZZ: lab tooling, nothing about how the game plays changes; brief 015 took v3.09.00 and Build 12 first).
+
+**What a player will notice**
+- Nothing on the board changes.
+- Every lab run's summary now has three **Stalls** lines: when fighting starts and stops on average, how many quiet side-turns a turn-limit game ends with, and the share of turn-limit games whose last damage came 5 or more side-turns before the end (a starting cut for the stall study, not a definition).
+- Lab results pull requests can't jam each other any more (F35). If one falls behind `main` with a conflict, the lab fixes it within the hour and it still merges itself.
+
+**Under the hood**
+- `sims/lab/measures.js`: a new `stall` measure collected on every run: first contact, first attack, last damage, quiet side-turns, braces in the last 5 turns, what each side has left at turn limit − 3 and at the end, and what decided a turn-limit game. `merge.js` writes `tables/stall.csv` (totals and averages) and the summary lines.
+- `sims/lab/index.js`: `INDEX.md` and `index.csv` are rebuilt from the run folders (and `results/nightly.csv` for quiet nights) instead of edited, byte for byte the same as before. New workflow `results refresh` (hourly and on pushes to `main`) merges `main` into a stuck results pull request and rebuilds them.
+- `sims/lab/record.js`: runs the Editor's copied match records (`data/human_records/`) through the same measures as lab games.
+- New check `sims/lab/test_stall.js`; runs in `checks`. A "before" study (`stall-before`, 1,000 balanced games per format on v3.5, same seeds as v3.08.00's release) is the stall baseline for later builds.
+
+**Flags closed:** F35. **Opened:** F36 (the summary's 5-side-turn stall cut catches every turn-limit game).
+
+**The stall "before" (balanced Brain 5 mirrors, v3.5, 1,000 games per format):** in turn-limit games the last damage comes on turn 11.1 (5v5) and 12.7 (7v7), followed by 28 and 46 side-turns with no attack or pull; at turn limit − 3 each side has its holder and under one other unit. Full table in the brief's Report.
+## v3.09.00 · Build 12 — Brief 015, rule set v3.6: the flag rulings (19 Nov 2026)
+Rule set: **v3.6** (new, the new-game default) = v3.5 plus switches `flagBlocksLine`, `pullFullStrength`, `pullCountsForReload`, `spearOnArrival`. Game version **v3.09.00** (YY: a new rule set).
+
+**What a player will notice**
+- A flag hex (either side's, held or empty) blocks Volley and Reach when it sits straight between attacker and target. The button says "A flag blocks the line". A unit standing on a flag still shoots out from it, and a holder can still be shot from its goal zone.
+- Ranged units pull at full Strength.
+- A Heavy Ranged that pulls must reload next turn (it shows Reloading), and it can't pull while reloading.
+- Set spear only hits a unit arriving next to it. Shifting along a spear you already touch is safe, and a unit takes set spear damage at most once a turn.
+- v3.5 and every older rule set play exactly as before.
+
+**Under the hood**
+- `engine.js`: one line helper, `flagBetween`, for every line rule (later Javelin and Vault); spear arrival judged spear by spear, with a per-unit marker cleared each turn; pull Strength and pull Reload behind their switches.
+- `bot.js`: under the v3.6 switches only, the brains' own estimates follow the new rules (a shot across a flag from where a unit stands is no threat, a reloading Heavy Ranged can't pull, Ranged pulls count at full Strength).
+- `data.js`: preset v3.6. `app.js`: the four switches on the rule-set editor.
+- New check `test_v36.js` (every rule above, each also as unchanged on v3.5, plus a double-knockout count on v3.6); runs in `checks`.
+- Lab: a matchup can switch rules off for a sim-only copy (`switches_off`), and a new `flagrules` measure counts set spear hits, Ranged pulls and shots a flag blocks.
+
+**Flags closed:** F8. **Opened:** F37 (a reading of 3.13: leaving a spear and coming back in one move is not arriving).
+
+**Baseline (balanced, Brain 5 mirror, 1,000 games per format, same seeds on both rule sets)**
+
+| | 5v5 v3.5 | 5v5 v3.6 | 7v7 v3.5 | 7v7 v3.6 |
+|---|---|---|---|---|
+| Holder KO | 3.6% | 3.7% | 4.3% | 4.4% |
+| Pull KO | 26.7% | 26.3% | 38.3% | 38.3% |
+| TKO | 13.3% | 13.3% | 12.6% | 12.5% |
+| Tiebreak win | 54.1% | 54.4% | 41.1% | 41.1% |
+| Draw | 2.3% | 2.3% | 3.7% | 3.7% |
+| Ended on the turn limit | 56.4% | 56.7% | 44.8% | 44.8% |
+| Games with a pull | 26.8% | 26.4% | 38.5% | 38.5% |
+| Average turn | 19.20 | 19.23 | 22.84 | 22.84 |
+| First mover's share of decisive | 38.5% | 38.6% | 46.7% | 46.9% |
+
+Every gap is under 1 point: the four rules rarely come up in bot play (about 0.03 set spear hits, 0.01–0.02 Ranged pulls and 0.02–0.04 flag-blocked shots per game).
+
+## v3.08.00 · Build 11 — Brief 010, rule set v3.5: a little variety in normal rolls (19 Nov 2026)
+Rule set: **v3.5** (new, the new-game default) = v3.4 plus switch `diceVariety`. Game version **v3.08.00** (YY: a new rule set; brief 007 took v3.07.00 first).
+
+**What a player will notice**
+- New games start on rule set v3.5. Normal hits are no longer all the same: two dice totalling 4–5 deal 10% less, 9–10 deal 10% more, 6–8 as before. 2, 3, 11 and 12 are unchanged. The average hit is the same.
+- The attack preview's outcome bar now shows up to 7 outcomes instead of 5 (it still merges outcomes that round to the same damage, so a small hit of 2 shows 5).
+- Pulls use the same dice.
+- v3.4 and every older rule set play exactly as before; saved v3.4 matches replay the same.
+
+**Under the hood**
+- `engine.js`: the v3.5 dice cases (7 instead of 5) and one multiplier function; both brains already average over the dice cases, so they play v3.5 with no brain change.
+- `data.js`: preset v3.5. `app.js`: the "Dice variety" switch on the rule-set editor.
+- New check `test_v35.js` (bands, chances, average, rounding, Dodge after the roll, pulls, the pooled flag, seeded bot games); runs in `checks`.
+- Lab: the `play` measure also counts turns a brain ended on an error (`bot_errors`).
+
+**Flags closed:** none. **Opened:** F33 (the first mover wins more decisive games on v3.5), F34 (±10% rounds away on hits of 1–2).
+
+**Baseline (balanced, Brain 5 mirror, 1,000 games per format, same seeds on both rule sets)**
+
+| | 5v5 v3.4 | 5v5 v3.5 | 7v7 v3.4 | 7v7 v3.5 |
+|---|---|---|---|---|
+| Holder KO | 4.8% | 4.2% | 3.2% | 4.3% |
+| Pull KO | 28.1% | 27.5% | 40.0% | 40.8% |
+| TKO | 14.5% | 12.1% | 13.6% | 11.6% |
+| Tiebreak win | 51.1% | 54.6% | 39.8% | 38.3% |
+| Draw | 1.5% | 1.6% | 3.4% | 5.0% |
+| Ended on the turn limit | 52.6% | 56.2% | 43.2% | 43.3% |
+| Games with a pull | 28.1% | 27.5% | 40.1% | 41.0% |
+| Average turn | 18.78 | 19.13 | 22.47 | 22.54 |
+| First mover's share of decisive | 30.0% | 37.7% | 42.6% | 52.4% |
+
+All gaps except the first mover's share are under 8 points (noise, F23).
+
+## v3.07.00 · Build 10 — Brief 007, Brain 6: Brain 5 tuned, the clock, Evade steps (19 Nov 2026)
+Rule set: none changed (v3.4 stays the newest). New brain **Brain 6**; Brain 5 stays the default. Game version **v3.07.00** (YY: a new brain; brief 009 took v3.06.00 first).
+
+**What a player will notice**
+- A new opponent in the list, **Brain 6 (knows the clock)**: Brain 5 that values winning the tiebreak as the turn limit nears. On the last turns the side behind goes for the enemy holder when it can, and the side ahead stops throwing units away.
+- Brain 5 is still the default: Brain 6 ties it (50.1% of 4,000 games) and didn't beat it in three of the four formats, the bar for becoming the default.
+- Brain 6's new settings are on the Opponent screen: "Clock weight", "Turns of clock pressure", and "Keep an Evade step" (off by default, F31).
+- The game version shows on Home and in saved matches with the build number ("v3.07.00 · Build 10"). Matches saved before Build 7 still show "Build 6".
+
+**Under the hood**
+- `bot.js`: Brain 6's clock term (the tiebreak's likely outcome, from each side's chance to change it from the goal zone on its remaining turns) and the "Keep an Evade step" cost; Brain 5 and every older brain play exactly as before.
+- `version.js`: the game version beside the build, with the line and "started on" helpers; the version check also requires the game version to change.
+- Weights tuned on the lab, in two stages: a screen of every setting at 0, half and double (33,600 games), then the promising ones at 1,000 games per format against Brain 5 and in mirrors (60,000 games). Results in `results/`.
+- Lab fixes found while running it: a pull request's later push no longer replays its job orders; night checks on a pull request no longer start a lab run on `main`; big runs get a one-line answer.
+
+**Flags closed:** F25 (clock), F28, F29. **Opened:** F31 (Keep an Evade step on or off), F32 (the side behind has nothing left to push with). **Updated:** F10, F11, F12, F22, F24.
+
+**Stall re-check (balanced, Brain 6 mirrors vs Brain 5 mirrors, 1,000 games per format, same lab run)**
+
+| | Brain 6 5v5 | Brain 5 5v5 | Brain 6 7v7 | Brain 5 7v7 |
+|---|---|---|---|---|
+| Holder KO | 4.2% | 3.4% | 3.1% | 4.4% |
+| Pull KO | 28.0% | 29.1% | 43.5% | 39.6% |
+| TKO | 12.2% | 12.3% | 14.0% | 13.9% |
+| Tiebreak win | 55.3% | 53.0% | 38.0% | 39.2% |
+| Draw | 0.3% | 2.2% | 1.4% | 2.9% |
+| Ended on the turn limit | 55.6% | 55.2% | 39.4% | 42.1% |
+| Games with a pull | 28.0% | 29.2% | 43.6% | 39.6% |
+| Average turn | 19.16 | 19.08 | 21.62 | 22.29 |
+| First mover's share of decisive games | 33% | 30% | 45% | 44% |
+
+## v3.06.00 · Build 9 — Brief 009, UI v2: attack preview, unit card, top bar and Options menu (19 Nov 2026)
+Rule set: none changed (v3.4 stays the newest). No brain changed. UI v1 → **v2**. Game version **v3.06.00** (YY: new screens).
+
+**What a player will notice**
+- **Attack preview.** Picking a target opens a new sheet: both units face off (North always on the left), with only the numbers this attack changes (Strength, Support, Evade; Armor, Brace, Dodge, Parry). A number that changes shows the old one struck through, then the new one, red when it hurts you (a Heavy Ranged next to an enemy: 9 → 4.5). Below, the outcome bar: one slot per dice outcome with its chance and damage, kills in red, equal neighbours merged.
+- **The key.** Pull the grab handle up (or tap it) for "In this attack": one line per thing in play, what it means and why it applies here (Support names the helpers, Evade says how far, Parry says what you take). Hidden by default; the first two previews say "Pull up for the key".
+- **Attack and Cancel** take over the action panel while the preview is open; Attack shows the Stamina it spends.
+- **Top bar.** "FLAGFALL: Arena" with an Options button; the scoreboard shows Player or Computer icons by the side names and the turn counter on its own.
+- **Options menu** replaces the old match menu: format, sides, rule set, bot, seed and version at the top; Match log and record, Rules and unit data, Home, and Surrender (in red, only on a human side's live turn). Close with ✕, the dim, or Escape.
+- **Unit card.** The ⓘ on the unit bar opens a full card: status chips (Reloading, Braced, Braced last turn, Holding the flag), Str / Range (or Reach) / Move, and the unit's abilities under Trait, Class and Unit, worded for the rule set in play. The swap buttons are gone from the card (dragging onto a friend still swaps).
+- **Lineup.** Tap a unit's token or name for the same card, with HP, Str, Range/Reach, Move and Stamina, and a pinned "In your lineup" bar with a live stepper.
+- **Action buttons.** Attack while reloading shows a red dot; Brace shows blue when braced and a blue ring the turn after; the Reach button only appears for Anti-Cavalry units.
+- **Desktop.** The preview and the unit card sit in the right-hand column instead of over the field.
+- Units are counted in **unit cap (UC)** everywhere; a new check fails if the board could show the old word.
+
+**Under the hood**
+- New `board/ui.js`: the preview's and the card's wording and logic, with no drawing, so it can be tested in Node.
+- `engine.js`: read-only fields for the preview only (the attack's steps as numbers: Strength before and after Half Strength, Support and helpers, Armor and Pierce, Dodge; Stamina left in the Evade preview; "braced last turn" and "holding the flag" in a unit's status). No rule changed; every rule set and brain hashes the same as before (Report).
+- New check `tests/test_ui.js` (in the `checks` workflow).
+
+**Flags closed:** none. **Opened:** F30.
 
 ## v3.05.02 · Build 8 — Brief 008, the lab: heavy runs on GitHub, organised results, watch any game by seed (18 Nov 2026)
 Rule set: none changed (v3.4 stays the newest). No brain changed. Game version **v3.05.02** (ZZ: nothing about how the game plays changes; brief 013 took v3.05.01 first).

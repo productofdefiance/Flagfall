@@ -1,0 +1,13 @@
+{
+  "id": "stall-before",
+  "kind": "study",
+  "brief": "016",
+  "seed_name": "release-v3-08-00",
+  "question": "The stall baseline: when does fighting start and stop, how quiet is the ending, and what does each side have left, in balanced Brain 5 mirrors on v3.5? Same seeds as v3.08.00's release run, so the outcome table must match it exactly.",
+  "tags": ["stall", "brain5", "v3.5", "baseline"],
+  "measures": ["play", "clock", "light"],
+  "matchups": [
+    { "name": "5v5", "a": "brain5", "b": "brain5", "rules": "v3.5", "format": "blitz5", "mix": "mixed", "games": 1000 },
+    { "name": "7v7", "a": "brain5", "b": "brain5", "rules": "v3.5", "format": "std7", "mix": "mixed", "games": 1000 }
+  ]
+}

@@ -48,6 +48,15 @@ for (const file of orders) {
       mixN: aTeam === "N" ? mu.mix_a || mu.mix || "mixed" : mu.mix_b || mu.mix || "mixed",
       mixS: aTeam === "S" ? mu.mix_a || mu.mix || "mixed" : mu.mix_b || mu.mix || "mixed", first };
     const brains = { N: sideOf("N").brain, S: sideOf("S").brain };
+    // A matchup may switch rules off for a sim-only copy of its rule set (Brief 015): "switches_off": ["flagBlocksLine"].
+    const off = Array.isArray(mu.switches_off) ? mu.switches_off : [];
+    let rsChanged = null;
+    if (off.length) {
+      const base = W.rulesById(mu.rules);
+      if (!base) throw new Error(`Rule set ${mu.rules} is not on this board`);
+      rsChanged = JSON.parse(JSON.stringify(base));
+      for (const k of off) { if (!(k in rsChanged.switches)) throw new Error(`Rule set ${mu.rules} has no switch ${k}`); rsChanged.switches[k] = false; }
+    }
     const ctx = { E, Bot, aTeam, brains };
     const names = ALWAYS.concat((mu.measures || order.measures || []).filter((n) => !ALWAYS.includes(n)));
     const unknown = names.filter((n) => !MEASURES[n]);
@@ -55,7 +64,7 @@ for (const file of orders) {
     let row;
     try {
       const { m, st } = W.playOut(spec, {
-        brains,
+        brains, rs: rsChanged || undefined,
         before: (s, c, t) => { for (const x of ms) if (x.before) x.before(s, c, t); },
         after: (s, c, r) => { for (const x of ms) if (x.after) x.after(s, c, r); }
       });
@@ -66,7 +75,8 @@ for (const file of orders) {
         winner: res ? res.winner || "draw" : "unfinished", how: res ? res.how : "unfinished", turns: st.turn,
         flag_damage_n: +st.pole.S.toFixed(2), flag_damage_s: +st.pole.N.toFixed(2), units_lost_n: E.beingsLost(st, "N"), units_lost_s: E.beingsLost(st, "S"),
         a_side: aTeam,
-        replay: A.changed || B.changed ? "not replayable: brain settings changed for this run" : site + W.toQuery(spec) };
+        replay: A.changed || B.changed ? "not replayable: brain settings changed for this run" : rsChanged ? "not replayable: rule switches changed for this run" : site + W.toQuery(spec) };
+      if (off.length) row.switches_off = off.join(" ");
       for (const x of ms) Object.assign(row, x.end(st));
       if (unknown.length) row.unknown_measures = unknown.join(" ");
     } catch (e) {
