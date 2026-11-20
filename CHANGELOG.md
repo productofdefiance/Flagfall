@@ -34,11 +34,11 @@ Rule set: **v3.7** (new, the new-game default): v3.6 plus switch `specials`. Def
 - Lab: a `specials` measure (uptake, lapses, kills, damage vs the normal hit, hits on braced units, actions where both sides could win), and job orders may now change rule numbers for a sim-only copy (`"set"`).
 - New check `test_v37.js` (180 checks); `test_invariants.js` now plays Brain 5 games too, so specials are in play.
 
-**Flags closed:** none (F20 gets its new double-knockout check, stays closed). **Opened:** F38 (Skewer's second hit: full hit or Reach −1?), F39 (Arrow Storm at × 2 decides balanced 5v5: the first mover won 1.8% of decisive games).
+**Flags closed:** none (F20 gets its new double-knockout check, stays closed). **Opened:** F38 (Skewer's second hit: full hit or Reach −1?), F39 (move order decides balanced 5v5 under specials), F40 (Skewer almost never fires).
 
-**Baseline** (Brain 5 mirror, balanced, 1,000 games per format, same seeds; first runs, before the overnight bot fix; full table in brief 011's Report):
-- 5v5: ended on the turn limit 17.8% (v3.6: 56.7%), pull KO 56.6% (26.3%), first mover's share of decisive games **1.8%** (38.6%): see F39.
-- 7v7: ended on the turn limit 45.6% (44.8%), pull KO 39.0% (38.3%), first mover's share 33.5% (46.9%).
+**Baseline** (Brain 5 mirror, balanced, 1,000 games per format, same seeds as v3.6; full table in brief 011's Report):
+- 5v5: ended on the turn limit 34.3% (v3.6: 56.7%), pull KO 41.3% (26.3%), first mover's share of decisive games **5.3%** (38.6%): see F39.
+- 7v7: ended on the turn limit 41.7% (44.8%), pull KO 41.6% (38.3%), first mover's share 31.6% (46.9%).
 
 ## v3.09.01 · Build 13 — Brief 016, stall logging (lab only) (19 Nov 2026)
 Rule set: none changed (v3.6 stays the newest). Game version **v3.09.01** (ZZ: lab tooling, nothing about how the game plays changes; brief 015 took v3.09.00 and Build 12 first).
