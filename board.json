@@ -1,17 +1,17 @@
 {
- "updated": "2026-11-20T15:02:56.611Z",
- "board": "STATUS · updated 20 Nov 2026, 10:02 am ET\n\nVERSION\n  On main: v3.10.00 · Build 14 · Rules v3.7 · Brain 5\n  Building: 014 → v3.11.00 · 019 → v3.11.00 · 021 → none\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (19 Nov, 12:17 pm ET)\n  screen v3.10.00 · balanced-5v5: mirror, 34.8% ended on the turn limit, A/B 209–187; balanced-7v7: mirror, 38.8% ended on the… · 20 Nov\n  release v3.10.00 · 5v5: mirror, 37.0% ended on the turn limit, A/B 478–512; 7v7: mirror, 45.1% ended on the turn limit, A/B… · 20 Nov\n  study v3.08.01 · 5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B… · 19 Nov\n  study v3.10.00 · 5v5: brain5:warmSlack=0 took 48.2% of games against brain5 (decisive 311–293, tiebreak 164–218, draws 14)… · 19 Nov\n  study v3.10.00 · 5v5: mirror, 34.3% ended on the turn limit, A/B 491–504; 7v7: mirror, 41.7% ended on the turn limit, A/B… · 19 Nov\n  study v3.10.00 · 5v5: mirror, 17.8% ended on the turn limit, A/B 497–494; 7v7: mirror, 45.6% ended on the turn limit, A/B… · 19 Nov\n  study v3.10.00 · 5v5: mirror, 55.2% ended on the turn limit, A/B 506–489; 7v7: mirror, 45.0% ended on the turn limit, A/B… · 19 Nov\n  study v3.10.00 · 5v5: mirror, 60.2% ended on the turn limit, A/B 464–510; 7v7: mirror, 41.4% ended on the turn limit, A/B… · 19 Nov\n  +21 more in results/INDEX.md\n\nFLAGS (open, newest first)\n  ! F48 · DECIDE · 20 Nov · Brief 019: Brain 7 fails the success bar (beats Brain 5: no; uses its leads: no; doesn't…\n  ! F47 · ASK · 20 Nov · Brief 019: of Brain 7's five behaviours, B4 (holder joins the storm) does nearly all the…\n  ! F45 · ASK · 20 Nov · Brief 019, B4's race check counts Command, Stamina and movement cap but not Mark or other…\n  ! F44 · ASK · 20 Nov · Brief 019, two readings in the new lab measures. (1) lead_lost counts a side that led by…\n  ! F43 · ASK · 20 Nov · Brief 019, B3 (storm together): the brief's gather and strike rules alone weren't enough…\n  ! F42 · ASK · 20 Nov · Missing brain behaviour (the Editor's reading of the stall data, confirmed): stalled…\n  ! F41 · ASK · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n  ! F40 · ASK · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n  ! F39 · ASK · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  ! F38 · ASK · 20 Nov · Skewer's second hit (Game Laws 6.17, brief 011): the brief says a special's hit is worked…\n    F021-3 · OPEN · 20 Nov · The header comment in board/version.js still says the design chat picks the version and…\n    F021-2 · OPEN · 20 Nov · The status page shares the play-links concurrency group (brief 021 §1). GitHub keeps only…\n  +7 older in FLAGS.md\n\nBUILDS\n  Building\n    014 Fields · PR #36 · Draft · checks running · not reviewed\n    019 Brain 7 · PR #33 · Ready · checks running · not reviewed\n    021 Status board · PR #34 · Ready · checks pass · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 014, 017, 018\n    017 Move preview ← 014\n    018 Turn cue zoom ← 017\n    020 Victory values ← 019\n  Merged (last 3)\n    011 Special attacks · v3.10.00 · 20 Nov\n    016 Stall logging · v3.09.01 · 19 Nov\n    015 Flag rulings · v3.09.00 · 19 Nov\n\nCHATS\n  Open\n    none\n  Closed (last 5)\n    none\n",
+ "updated": "2026-11-20T16:15:09.780Z",
+ "board": "STATUS · updated 20 Nov 2026, 11:15 am ET\n\nVERSION\n  On main: v3.11.00 · Build 15 · Rules v3.7 · Brain 5\n  Building: 014 → YY · 021 → none\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (19 Nov, 12:17 pm ET)\n  study v3.10.00 · 52 matchups, 52000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 43.7%… · 20 Nov\n  screen v3.10.00 · balanced-5v5: mirror, 34.8% ended on the turn limit, A/B 209–187; balanced-7v7: mirror, 38.8% ended on the… · 20 Nov\n  release v3.10.00 · 5v5: mirror, 37.0% ended on the turn limit, A/B 478–512; 7v7: mirror, 45.1% ended on the turn limit, A/B… · 20 Nov\n  study v3.08.01 · 5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B… · 19 Nov\n  study v3.10.00 · 5v5: brain5:warmSlack=0 took 48.2% of games against brain5 (decisive 311–293, tiebreak 164–218, draws 14)… · 19 Nov\n  study v3.10.00 · 5v5: mirror, 34.3% ended on the turn limit, A/B 491–504; 7v7: mirror, 41.7% ended on the turn limit, A/B… · 19 Nov\n  study v3.10.00 · 5v5: mirror, 17.8% ended on the turn limit, A/B 497–494; 7v7: mirror, 45.6% ended on the turn limit, A/B… · 19 Nov\n  study v3.10.00 · 5v5: mirror, 55.2% ended on the turn limit, A/B 506–489; 7v7: mirror, 45.0% ended on the turn limit, A/B… · 19 Nov\n  +26 more in results/INDEX.md\n\nFLAGS (open, newest first)\n  ! F48 · DECIDE · 20 Nov · Brief 019: Brain 7 fails the success bar (beats Brain 5: no; uses its leads: no; doesn't…\n  ! F47 · ASK · 20 Nov · Brief 019: of Brain 7's five behaviours, B4 (holder joins the storm) does nearly all the…\n  ! F45 · ASK · 20 Nov · Brief 019, B4's race check counts Command, Stamina and movement cap but not Mark or other…\n  ! F44 (PR #36) · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F44 · ASK · 20 Nov · Brief 019, two readings in the new lab measures. (1) lead_lost counts a side that led by…\n  ! F43 (PR #36) · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n  ! F43 · ASK · 20 Nov · Brief 019, B3 (storm together): the brief's gather and strike rules alone weren't enough…\n  ! F42 · ASK · 20 Nov · Missing brain behaviour (the Editor's reading of the stall data, confirmed): stalled…\n  ! F41 · ASK · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n  ! F40 · ASK · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n  ! F39 · ASK · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  ! F38 · ASK · 20 Nov · Skewer's second hit (Game Laws 6.17, brief 011): the brief says a special's hit is worked…\n  +9 older in FLAGS.md\n\nBUILDS\n  Building\n    014 Fields · PR #36 · Ready · checks pass · not reviewed\n    021 Status board · PR #34 · Ready · checks running · not reviewed\n  Ready to start\n    020 Victory values\n  Waiting\n    012 Cavalry ← 014, 017, 018\n    017 Move preview ← 014\n    018 Turn cue zoom ← 017\n  Merged (last 3)\n    019 Brain 7 · v3.11.00 · 20 Nov\n    011 Special attacks · v3.10.00 · 20 Nov\n    016 Stall logging · v3.09.01 · 19 Nov\n\nCHATS\n  Open\n    none\n  Closed (last 5)\n    none\n",
  "sections": [
   {
    "title": "VERSION",
    "lines": [
     {
-     "text": "On main: v3.10.00 · Build 14 · Rules v3.7 · Brain 5",
+     "text": "On main: v3.11.00 · Build 15 · Rules v3.7 · Brain 5",
      "indent": 1,
      "mark": null
     },
     {
-     "text": "Building: 014 → v3.11.00 · 019 → v3.11.00 · 021 → none",
+     "text": "Building: 014 → YY · 021 → none",
      "indent": 1,
      "mark": null
     }
@@ -22,6 +22,11 @@
    "lines": [
     {
      "text": "Nightly checks: pass (19 Nov, 12:17 pm ET)",
+     "indent": 1,
+     "mark": null
+    },
+    {
+     "text": "study v3.10.00 · 52 matchups, 52000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 43.7%… · 20 Nov",
      "indent": 1,
      "mark": null
     },
@@ -61,12 +66,7 @@
      "mark": null
     },
     {
-     "text": "study v3.10.00 · 5v5: mirror, 60.2% ended on the turn limit, A/B 464–510; 7v7: mirror, 41.4% ended on the turn limit, A/B… · 19 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "+21 more in results/INDEX.md",
+     "text": "+26 more in results/INDEX.md",
      "indent": 1,
      "mark": null
     }
@@ -91,7 +91,17 @@
      "mark": "ask"
     },
     {
+     "text": "! F44 (PR #36) · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
      "text": "! F44 · ASK · 20 Nov · Brief 019, two readings in the new lab measures. (1) lead_lost counts a side that led by…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "! F43 (PR #36) · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…",
      "indent": 1,
      "mark": "ask"
     },
@@ -126,17 +136,7 @@
      "mark": "ask"
     },
     {
-     "text": "  F021-3 · OPEN · 20 Nov · The header comment in board/version.js still says the design chat picks the version and…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "  F021-2 · OPEN · 20 Nov · The status page shares the play-links concurrency group (brief 021 §1). GitHub keeps only…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "+7 older in FLAGS.md",
+     "text": "+9 older in FLAGS.md",
      "indent": 1,
      "mark": null
     }
@@ -151,17 +151,12 @@
      "mark": null
     },
     {
-     "text": "014 Fields · PR #36 · Draft · checks running · not reviewed",
+     "text": "014 Fields · PR #36 · Ready · checks pass · not reviewed",
      "indent": 2,
      "mark": null
     },
     {
-     "text": "019 Brain 7 · PR #33 · Ready · checks running · not reviewed",
-     "indent": 2,
-     "mark": null
-    },
-    {
-     "text": "021 Status board · PR #34 · Ready · checks pass · not reviewed",
+     "text": "021 Status board · PR #34 · Ready · checks running · not reviewed",
      "indent": 2,
      "mark": null
     },
@@ -171,7 +166,7 @@
      "mark": null
     },
     {
-     "text": "none",
+     "text": "020 Victory values",
      "indent": 2,
      "mark": null
     },
@@ -196,13 +191,13 @@
      "mark": null
     },
     {
-     "text": "020 Victory values ← 019",
-     "indent": 2,
+     "text": "Merged (last 3)",
+     "indent": 1,
      "mark": null
     },
     {
-     "text": "Merged (last 3)",
-     "indent": 1,
+     "text": "019 Brain 7 · v3.11.00 · 20 Nov",
+     "indent": 2,
      "mark": null
     },
     {
@@ -212,11 +207,6 @@
     },
     {
      "text": "016 Stall logging · v3.09.01 · 19 Nov",
-     "indent": 2,
-     "mark": null
-    },
-    {
-     "text": "015 Flag rulings · v3.09.00 · 19 Nov",
      "indent": 2,
      "mark": null
     }
