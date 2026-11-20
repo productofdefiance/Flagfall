@@ -48,6 +48,7 @@ node tests/test_v32.js
 node tests/test_v33.js
 node tests/test_v34.js
 node tests/test_v35.js
+node tests/test_v36.js
 node tests/test_stamina.js
 node tests/test_reasons.js
 node tests/test_kitd.js
