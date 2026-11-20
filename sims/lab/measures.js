@@ -168,6 +168,63 @@ const MEASURES = {
     }
   }
 };
-// Always collected: the outcome (it feeds the summary's key table) and timing.
-const ALWAYS = ["outcome", "timing"];
+// Brief 016: when the fighting started and stopped, how quiet the ending was, what each side had left. Read only.
+const STALL_COLS = ["first_contact_turn", "first_attack_turn", "last_damage_turn", "quiet_end", "longest_quiet", "quiet_side_turns", "braces_last5",
+  "units_n_l3", "units_s_l3", "uc_n_l3", "uc_s_l3", "holder_n_l3", "holder_s_l3", "flag_n_l3", "flag_s_l3", "gap_l3",
+  "units_n_end", "units_s_end", "gap_end", "limit_decided_by", "limit_flag_margin", "damage_quiet_end"];
+MEASURES.stall = {
+  about: "Stalls (Brief 016): first contact, first attack or pull, last damage (turns); side-turns with no attack or pull at the end, longest run and in all after the first attack; braces in the last 5 turns; each side's units (holder left out), unit cap (UC, holder in), held flag and flag health at turn limit − 3 and at the end; the closest two opposing non-holder units; what decided a turn-limit game and by how much flag damage; and side-turns at the end after the last damage (damage_quiet_end, added for the summary's 5-side-turn line).",
+  columns: STALL_COLS,
+  make(ctx) {
+    const { E } = ctx;
+    let firstContact = "", firstAttack = "", lastDamage = "", lastDamageSide = -1, turn0 = 0, totals = null, l3 = null;
+    const sides = [];   // one per side-turn, in order: { key, turn, attack }
+    const braces = [];   // turn of every brace
+    const total = (st) => st.units.reduce((a, u) => a + Math.max(u.hp, 0), 0) - st.pole.N - st.pole.S;   // falls when anything takes damage
+    const adjacent = (st) => E.alive(st).some((u) => E.alive(st).some((e) => e.team !== u.team && E.dist(u.hex, e.hex) === 1));
+    const others = (st, t) => E.alive(st).filter((u) => u.team === t && !E.isHolder(st, u));
+    const gap = (st) => { const a = others(st, "N"), b = others(st, "S"); if (!a.length || !b.length) return ""; let g = Infinity; for (const x of a) for (const y of b) g = Math.min(g, E.dist(x.hex, y.hex)); return g; };
+    const uc = (st, t) => E.alive(st).filter((u) => u.team === t).reduce((a, u) => a + (E.card(st, u).beings || 1), 0);
+    const snap = (st) => ({ units_n_l3: others(st, "N").length, units_s_l3: others(st, "S").length, uc_n_l3: uc(st, "N"), uc_s_l3: uc(st, "S"),
+      holder_n_l3: E.holderOf(st, "N") ? 1 : 0, holder_s_l3: E.holderOf(st, "S") ? 1 : 0, flag_n_l3: +E.flagShown(st, "N").toFixed(2), flag_s_l3: +E.flagShown(st, "S").toFixed(2), gap_l3: gap(st) });
+    return {
+      before(st, c) {
+        turn0 = st.turn;
+        const key = st.turn + st.toMove;
+        if (!sides.length || sides[sides.length - 1].key !== key) sides.push({ key, turn: st.turn, attack: false });
+        if (firstContact === "" && adjacent(st)) firstContact = st.turn;
+        if (!l3 && st.phase === "play" && st.turn >= E.turnLimit(st) - 3) l3 = snap(st);
+        totals = total(st);
+      },
+      after(st, c, r) {
+        if (!r.ok || c.refusedEnd) return;
+        const t = c.action.type;
+        if (t === "attack" || t === "pull") { sides[sides.length - 1].attack = true; if (firstAttack === "") firstAttack = turn0; }
+        if (t === "brace") braces.push(turn0);
+        if (totals !== null && total(st) < totals - 1e-9) { lastDamage = turn0; lastDamageSide = sides.length - 1; }
+        if (firstContact === "" && adjacent(st)) firstContact = turn0;
+      },
+      end(st) {
+        let lastA = -1; sides.forEach((s, i) => { if (s.attack) lastA = i; });
+        const firstA = sides.findIndex((s) => s.attack);
+        let longest = 0, run = 0, quiet = 0;
+        if (firstA >= 0) for (const s of sides.slice(firstA)) { if (s.attack) run = 0; else { run++; quiet++; longest = Math.max(longest, run); } }
+        const res = st.result, how = res ? res.how : "", tl = /^turn limit/.test(how);
+        return Object.assign({
+          first_contact_turn: firstContact, first_attack_turn: firstAttack, last_damage_turn: lastDamage,
+          quiet_end: sides.length - 1 - lastA, longest_quiet: longest, quiet_side_turns: quiet,
+          braces_last5: braces.filter((t) => t >= st.turn - 4).length
+        }, l3 || { units_n_l3: "", units_s_l3: "", uc_n_l3: "", uc_s_l3: "", holder_n_l3: "", holder_s_l3: "", flag_n_l3: "", flag_s_l3: "", gap_l3: "" }, {
+          units_n_end: others(st, "N").length, units_s_end: others(st, "S").length, gap_end: gap(st),
+          limit_decided_by: !tl ? "" : /pull damage/.test(how) ? "flag" : /fewer/.test(how) ? "units" : /draw/.test(how) ? "draw" : how,
+          limit_flag_margin: tl ? +Math.abs(st.pole.S - st.pole.N).toFixed(2) : "",
+          damage_quiet_end: sides.length - 1 - lastDamageSide
+        });
+      }
+    };
+  }
+};
+
+// Always collected: the outcome (it feeds the summary's key table), timing, and (Brief 016) stall.
+const ALWAYS = ["outcome", "timing", "stall"];
 module.exports = { MEASURES, ALWAYS };
