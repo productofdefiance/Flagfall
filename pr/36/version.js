@@ -4,7 +4,7 @@
    Every build that changes board/ raises `build` by one and changes `game`; the checks workflow fails a pull request
    that doesn't. `preview` stays null here; the play-link workflow sets it (for example "PR #6") on preview copies only. */
 (function (root) {
-  const VERSION = { game: "v3.11.00", build: 15, date: "2026-11-20", preview: "PR #36" };
+  const VERSION = { game: "v3.12.00", build: 16, date: "2026-11-20", preview: "PR #36" };
   /** "Playtest board · v3.09.01 · Build 13 · Rules v3.6" (CLAUDE.md: the version, with the build in small type); a
       preview copy also says which pull request it is. */
   VERSION.line = function (newestRules, V) {
