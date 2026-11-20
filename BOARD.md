@@ -10,11 +10,11 @@ RESULTS (last 24 hours)
   study v3.11.00 · 5v5: mirror, 35.1% ended on the turn limit, A/B 497–492; 7v7: mirror, 42.7% ended on the turn limit, A/B… · 20 Nov
   study v3.10.00 · 52 matchups, 52000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 43.7%… · 20 Nov
   screen v3.10.00 · balanced-5v5: mirror, 34.8% ended on the turn limit, A/B 209–187; balanced-7v7: mirror, 38.8% ended on the… · 20 Nov
+  release v3.12.00 · 5v5: mirror, 63.0% ended on the turn limit, A/B 453–481; 7v7: mirror, 43.9% ended on the turn limit, A/B… · 20 Nov
   release v3.11.00 · 5v5: mirror, 36.7% ended on the turn limit, A/B 503–492; 7v7: mirror, 41.4% ended on the turn limit, A/B… · 20 Nov
   release v3.10.00 · 5v5: mirror, 37.0% ended on the turn limit, A/B 478–512; 7v7: mirror, 45.1% ended on the turn limit, A/B… · 20 Nov
   study v3.08.01 · 5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B… · 19 Nov
-  study v3.10.00 · 5v5: brain5:warmSlack=0 took 48.2% of games against brain5 (decisive 311–293, tiebreak 164–218, draws 14)… · 19 Nov
-  +29 more in results/INDEX.md
+  +30 more in results/INDEX.md
 
 FLAGS (open, newest first)
   ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…
