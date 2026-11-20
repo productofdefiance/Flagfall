@@ -1,8 +1,8 @@
-STATUS · updated 20 Nov 2026, 1:12 pm ET
+STATUS · updated 20 Nov 2026, 1:25 pm ET
 
 VERSION
   On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
-  Building: 023 → none
+  Building: 022 → v3.13.00 · 023 → none
 
 RESULTS (last 24 hours)
   Nightly checks: pass (19 Nov, 12:17 pm ET)
@@ -33,10 +33,10 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
+    022 Safe approach · PR #41 · Draft · checks running · not reviewed
     023 Status page · PR #40 · Draft · checks running · not reviewed
   Ready to start
     017 Move preview
-    022 Safe approach
   Waiting
     012 Cavalry ← 017, 018
     018 Turn cue zoom ← 017
