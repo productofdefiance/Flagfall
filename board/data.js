@@ -172,7 +172,15 @@
     skewer: { first: 1, behind: 1, behindReach: false },
     javelin: { mult: 2, minRange: 2, maxRange: 3 }
   };
-  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35, V36, V37];
+  /* Rule set v3.8 (Brief 014, Game Laws 2.1, 2.4 and 2.5, locked by the Editor 19 Nov): v3.7 plus one field per
+     format. 5v5 plays on its own 103-hex field (flags D3 and D15) and deploys within 2 hexes of its flag; 7v7 plays on
+     the 147-hex field (flags E3 and E17), deploying within 3 as before. The fields are in fields.js. Nothing else changes. */
+  const V38 = JSON.parse(JSON.stringify(V37));
+  V38.id = "v3.8"; V38.name = "v3.8 (2026-11-20)";
+  V38.note = "v3.7 plus one field per format: 5v5 on its own small field with a 2-hex deploy area, 7v7 on the rounded 147-hex field.";
+  V38.switches.fields = true;
+  V38.game.deployRadius5 = 2;   // 5v5 deploys within 2 hexes of its flag (Game Laws 2.5); other formats use deployRadius
+  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35, V36, V37, V38];
 
   const TRAITS = { tackle: "Tackle", reach: "Reach", ignoreArmor: "Ignores Armor", none: "None" };
   const BRACES = { parry: "Parry", dodgeDouble: "Dodge doubles", spike: "Set spear", zone: "Projects Zone of Control", fullStamina: "Full Stamina next turn", noSupport: "No Support against it", none: "None" };

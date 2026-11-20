@@ -20,7 +20,7 @@ for (let g = 0; g < games; g++) {
     const c = Bot.chooseAction(st, B, rnd); const a = c.action;
     const team = st.toMove; const before = { N: aliveOf(st, "N"), S: aliveOf(st, "S") };
     if (a.type === "pull" && !rec.firstPull) rec.firstPull = { turn: st.turn, team, alive: before };
-    if (a.type === "pull") { const foe = E.foeOf(team); if (st.units.some((u) => u.team === foe && u.fk && u.hp > 0 && E.GOAL[foe].has(u.hex))) rec.keeperHomeAtPull++; }
+    if (a.type === "pull") { const foe = E.foeOf(team); if (st.units.some((u) => u.team === foe && u.fk && u.hp > 0 && E.fieldOf(st).GOAL[foe].has(u.hex))) rec.keeperHomeAtPull++; }
     const r = E.act(st, a, () => E.rollWith(st, rnd));
     if (!r.ok) { E.act(st, { type: "end" }); continue; }
     if (a.type === "pull") { rec.pulls[team]++; rec.pullTurns.push(st.turn); }
