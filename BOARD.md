@@ -1,4 +1,4 @@
-STATUS · updated 20 Nov 2026, 3:56 pm ET
+STATUS · updated 20 Nov 2026, 3:57 pm ET
 
 VERSION
   On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
@@ -35,7 +35,7 @@ BUILDS
   Building
     017 Move preview · PR #44 · Ready · checks running · reviewed: hold
     022 Safe approach · PR #41 · needs sync · no checks yet · not reviewed
-    024 Lab capacity · PR #45 · Draft · checks running · not reviewed
+    024 Lab capacity · PR #45 · Draft · checks pass · not reviewed
   Ready to start
     none
   Waiting
