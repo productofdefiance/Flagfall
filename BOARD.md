@@ -1,11 +1,11 @@
-STATUS · updated 20 Nov 2026, 1:25 pm ET
+STATUS · updated 20 Nov 2026, 1:36 pm ET
 
 VERSION
   On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
-  Building: 022 → v3.13.00 · 023 → none
+  Building: 017 → v3.13.00 · 022 → v3.13.00 · 023 → none
 
 RESULTS (last 24 hours)
-  Nightly checks: pass (19 Nov, 12:17 pm ET)
+  Nightly checks: pass (20 Nov, 11:54 am ET)
   study v3.11.00 · 5v5: mirror, 61.9% ended on the turn limit, A/B 459–477; 7v7: mirror, 44.2% ended on the turn limit, A/B… · 20 Nov
   study v3.11.00 · 5v5: mirror, 35.1% ended on the turn limit, A/B 497–492; 7v7: mirror, 42.7% ended on the turn limit, A/B… · 20 Nov
   study v3.10.00 · 52 matchups, 52000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 43.7%… · 20 Nov
@@ -13,8 +13,8 @@ RESULTS (last 24 hours)
   release v3.12.00 · 5v5: mirror, 63.0% ended on the turn limit, A/B 453–481; 7v7: mirror, 43.9% ended on the turn limit, A/B… · 20 Nov
   release v3.11.00 · 5v5: mirror, 36.7% ended on the turn limit, A/B 503–492; 7v7: mirror, 41.4% ended on the turn limit, A/B… · 20 Nov
   release v3.10.00 · 5v5: mirror, 37.0% ended on the turn limit, A/B 478–512; 7v7: mirror, 45.1% ended on the turn limit, A/B… · 20 Nov
-  study v3.08.01 · 5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B… · 19 Nov
-  +30 more in results/INDEX.md
+  nightly v3.11.00 · passed: all 4 night checks · 20 Nov
+  +31 more in results/INDEX.md
 
 FLAGS (open, newest first)
   ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…
@@ -28,15 +28,16 @@ FLAGS (open, newest first)
   ! F023-1 · ASK · 20 Nov · The Refresh key lives in the browser's local storage for productofdefiance.github.io…
     F021-3 · OPEN · 20 Nov · The header comment in board/version.js still says the design chat picks the version and…
     F021-2 · OPEN · 20 Nov · The status page shares the play-links concurrency group (brief 021 §1). GitHub keeps only…
-    F37 · OPEN · 19 Nov · Brief 015, a reading of Game Laws 3.13 (set spear punishes arriving): arrival is judged…
-  +5 older in FLAGS.md
+    F017-3 · OPEN · 20 Nov · Set spear "on the way" can only ever fire where the move stops: every hex next to a…
+  +8 older in FLAGS.md
 
 BUILDS
   Building
+    017 Move preview · PR #44 · Draft · checks running · not reviewed
     022 Safe approach · PR #41 · Draft · checks running · not reviewed
-    023 Status page · PR #40 · Draft · checks running · not reviewed
+    023 Status page · PR #40 · Ready · checks pass · not reviewed
   Ready to start
-    017 Move preview
+    none
   Waiting
     012 Cavalry ← 017, 018
     018 Turn cue zoom ← 017
