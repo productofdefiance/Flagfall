@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-20T21:11:41.192Z",
- "board": "STATUS · updated 20 Nov 2026, 4:11 pm ET\n\nVERSION\n  On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5\n  Building: 017 → v3.13.00 · 022 → v3.13.00 · 024 → none\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (20 Nov, 11:54 am ET)\n  study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov\n  study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov\n  study v3.10.00 · 52 matchups, 52,000 games · 20 Nov\n  screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov\n  release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov\n  release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov\n  release v3.10.00 · 5v5 37.0% · 7v7 45.1% on the turn limit · 20 Nov\n  nightly v3.11.00 · 5v5 30.0% · 7v7 30.0% on the turn limit · 20 Nov\n  +31 more in results/INDEX.md\n\nFLAGS (open, newest first)\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  ! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…\n  ! F024-3 · ASK · 20 Nov · The status board starts on every pull request event and every finished checks…\n  ! F024-2 · ASK · 20 Nov · Every results pull request runs the full checks twice: once started by the lab's delivery…\n  ! F024-1 · ASK · 20 Nov · A release run puts each check in README.md on its own machine: 16 jobs, most of which…\n    F022-4 · OPEN · 20 Nov · On the new 5v5 field (v3.8) the brief's premise has turned round: the second mover's…\n    F022-3 · OPEN · 20 Nov · Brief 016's stall measure already has a column first_contact_turn (first adjacency)…\n  ! F022-2 · ASK · 20 Nov · The F39 screen's \"no warm-up on either side's first turn\" arm can't be played sim-only…\n  +11 older in FLAGS.md\n\nBUILDS\n  Building\n    017 Move preview · PR #44 · Ready · checks pass · reviewed: hold\n    022 Safe approach · PR #41 · needs sync · no checks yet · not reviewed\n    024 Lab capacity · PR #45 · Ready · checks pass · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 017, 018\n    018 Turn cue zoom ← 017\n    020 Victory values ← 022\n  Merged (last 3)\n    023 Status page · 20 Nov\n    014 Fields · v3.12.00 · 20 Nov\n    021 Status board · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n    FF UI v3.12.00 - · brief 017 review; phone fit for brief 018 · opened 20 Nov\n  Closed (last 5)\n    none\n",
+ "updated": "2026-11-20T21:43:21.763Z",
+ "board": "STATUS · updated 20 Nov 2026, 4:43 pm ET\n\nVERSION\n  On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5\n  Building: 017 → v3.13.00 · 022 → v3.13.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (20 Nov, 11:54 am ET)\n  Queue: 1 job waiting, oldest 0 min\n  study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov\n  study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov\n  study v3.10.00 · 52 matchups, 52,000 games · 20 Nov\n  screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov\n  release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov\n  release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov\n  release v3.10.00 · 5v5 37.0% · 7v7 45.1% on the turn limit · 20 Nov\n  nightly v3.11.00 · 5v5 30.0% · 7v7 30.0% on the turn limit · 20 Nov\n  +32 more in results/INDEX.md\n\nFLAGS (open, newest first)\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  ! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…\n  ! F024-3 · ASK · 20 Nov · The status board starts on every pull request event and every finished checks…\n  ! F024-2 · ASK · 20 Nov · Every results pull request runs the full checks twice: once started by the lab's delivery…\n  ! F024-1 · ASK · 20 Nov · A release run puts each check in README.md on its own machine: 16 jobs, most of which…\n    F022-4 · OPEN · 20 Nov · On the new 5v5 field (v3.8) the brief's premise has turned round: the second mover's…\n    F022-3 · OPEN · 20 Nov · Brief 016's stall measure already has a column first_contact_turn (first adjacency)…\n  ! F022-2 · ASK · 20 Nov · The F39 screen's \"no warm-up on either side's first turn\" arm can't be played sim-only…\n  +11 older in FLAGS.md\n\nBUILDS\n  Building\n    017 Move preview · PR #44 · needs sync · checks pass · reviewed: hold\n    022 Safe approach · PR #41 · needs sync · no checks yet · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 017, 018\n    018 Turn cue zoom ← 017\n    020 Victory values ← 022\n  Merged (last 3)\n    024 Lab capacity · 20 Nov\n    023 Status page · 20 Nov\n    014 Fields · v3.12.00 · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n    FF UI v3.12.00 - · brief 017 review; phone fit for brief 018 · opened 20 Nov\n  Closed (last 5)\n    none\n",
  "sections": [
   {
    "title": "VERSION",
@@ -11,7 +11,7 @@
      "mark": null
     },
     {
-     "text": "Building: 017 → v3.13.00 · 022 → v3.13.00 · 024 → none",
+     "text": "Building: 017 → v3.13.00 · 022 → v3.13.00",
      "indent": 1,
      "mark": null
     }
@@ -22,6 +22,11 @@
    "lines": [
     {
      "text": "Nightly checks: pass (20 Nov, 11:54 am ET)",
+     "indent": 1,
+     "mark": null
+    },
+    {
+     "text": "Queue: 1 job waiting, oldest 0 min",
      "indent": 1,
      "mark": null
     },
@@ -66,7 +71,7 @@
      "mark": null
     },
     {
-     "text": "+31 more in results/INDEX.md",
+     "text": "+32 more in results/INDEX.md",
      "indent": 1,
      "mark": null
     }
@@ -151,17 +156,12 @@
      "mark": null
     },
     {
-     "text": "017 Move preview · PR #44 · Ready · checks pass · reviewed: hold",
+     "text": "017 Move preview · PR #44 · needs sync · checks pass · reviewed: hold",
      "indent": 2,
      "mark": null
     },
     {
      "text": "022 Safe approach · PR #41 · needs sync · no checks yet · not reviewed",
-     "indent": 2,
-     "mark": null
-    },
-    {
-     "text": "024 Lab capacity · PR #45 · Ready · checks pass · not reviewed",
      "indent": 2,
      "mark": null
     },
@@ -201,17 +201,17 @@
      "mark": null
     },
     {
+     "text": "024 Lab capacity · 20 Nov",
+     "indent": 2,
+     "mark": null
+    },
+    {
      "text": "023 Status page · 20 Nov",
      "indent": 2,
      "mark": null
     },
     {
      "text": "014 Fields · v3.12.00 · 20 Nov",
-     "indent": 2,
-     "mark": null
-    },
-    {
-     "text": "021 Status board · 20 Nov",
      "indent": 2,
      "mark": null
     }
@@ -261,12 +261,19 @@
   }
  },
  "schema": 2,
- "updatedText": "20 Nov 2026, 4:11 pm ET",
+ "updatedText": "20 Nov 2026, 4:43 pm ET",
  "main": {
   "game": "v3.12.00",
   "build": 16,
   "rules": "v3.8",
   "brain": "Brain 5"
+ },
+ "queue": {
+  "text": "Queue: 1 job waiting, oldest 0 min",
+  "mark": null,
+  "jobsWaiting": 1,
+  "oldestWaitMin": 0,
+  "labUsing": 0
  },
  "nightly": {
   "state": "pass",
@@ -282,8 +289,8 @@
     "draft": false,
     "checks": "pass",
     "review": "hold",
-    "sync": null,
-    "state": "hold",
+    "sync": "conflict",
+    "state": "sync",
     "version": "v3.13.00",
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/44/"
@@ -300,19 +307,6 @@
     "version": "v3.13.00",
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/41/"
-   },
-   {
-    "brief": "024",
-    "name": "Lab capacity",
-    "pr": 45,
-    "draft": false,
-    "checks": "pass",
-    "review": null,
-    "sync": null,
-    "state": "review",
-    "version": null,
-    "size": "none",
-    "play": "https://productofdefiance.github.io/Flagfall/pr/45/"
    }
   ],
   "waiting": [
@@ -347,6 +341,13 @@
   ],
   "merged": [
    {
+    "brief": "024",
+    "name": "Lab capacity",
+    "pr": 45,
+    "version": null,
+    "date": "20 Nov"
+   },
+   {
     "brief": "023",
     "name": "Status page",
     "pr": 40,
@@ -358,13 +359,6 @@
     "name": "Fields",
     "pr": 36,
     "version": "v3.12.00",
-    "date": "20 Nov"
-   },
-   {
-    "brief": "021",
-    "name": "Status board",
-    "pr": 34,
-    "version": null,
     "date": "20 Nov"
    }
   ],
@@ -452,7 +446,7 @@
    "line": "2 matchups, 40 games"
   }
  ],
- "resultsMore": 31,
+ "resultsMore": 32,
  "flags": [
   {
    "name": "F50",
@@ -538,7 +532,7 @@
   "closedLimit": 5
  },
  "tiles": {
-  "building": 3,
+  "building": 2,
   "flagsAsk": 11,
   "flagsNewest": "F50",
   "flagsMoreAsk": 6,
