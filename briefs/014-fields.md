@@ -9,6 +9,7 @@
 | Goal | 5v5 and 7v7 move to their own new fields, 9v9 and 13v13 fields exist in the data for brief 012, and in human-vs-human games the board scrolls to the side to move's own end (Game Laws 2.1, 2.4, 2.5) |
 | Branch | Any branch your session may push to, started from `brief/014-fields` |
 | Flags | none to close; open new ones as found |
+| Waits on | 011 |
 | Order | **After 011 merges** (rule changes go one at a time) and **before 012** (Cavalry is tested on these fields) |
 
 ## Context
