@@ -19,6 +19,24 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
+## No game version — Brief 024, tooling: the lab shares GitHub's machines (20 Nov 2026)
+Nothing in the game changes (`board/` untouched). Every game the lab plays is the same.
+
+**What the Editor will notice**
+- In the daytime, pull request checks wait less: a lab run takes 15 of GitHub's 20 machines when the repository is quiet, 10 when it is busy, 5 for a big run when busy. At night (11 pm to 7 am ET, or after the night checks) it takes all 20.
+- A lab run can be rushed: the new "rush" box when starting it by hand, or the `lab: rush` label on a pull request.
+- A new push to a pull request replaces its older lab run instead of queueing behind it.
+- The status page and `BOARD.md` show a Queue line ("Queue: 12 jobs waiting, oldest 43 min · lab using 9 of 20", or "Queue: clear").
+- When GitHub is jammed, Code may offer to run checks or a small screen in its own session, and asks you first every time.
+
+**Under the hood**
+- New `sims/lab/capacity.js` and `capacity.json`; `lab.yml` uses them for each wave and the release checks.
+- Big daytime runs play in two waves; the second chooses its share again. Same parts, same games.
+- New `sims/lab/queuelog.js`: one line per run in `queue/queue-log.csv` on the `status` branch.
+- New check `sims/lab/test_capacity.js`, run in `checks`.
+
+**Flags closed:** none. **Opened:** F024-1 to F024-4 (all ASK).
+
 ## v3.12.00 · Build 16 — Brief 014, rule set v3.8: one field per format, and the hot-seat snap (20 Nov 2026)
 Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `game.deployRadius5: 2`. Default brain: Brain 5, unchanged. Game version **v3.12.00** (YY: a new rule set; brief 019 took v3.11.00 and Build 15 first). The brief planned the rule set as v3.7; brief 011 took v3.7 first, so it is v3.8.
 
