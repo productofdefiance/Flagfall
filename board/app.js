@@ -1638,6 +1638,7 @@
     if (b.model) {   // Brain 5: one value model (Brief 006)
       h += `<p class="note">${esc(b.name)} plans its whole turn and scores every plan the same way: what it gains, what it risks next turn, and what it leaves for next turn. These weights are that score.</p>`;
       h += table("model", "Weight") + (b.plan5 ? table("plan5", "Planning") : "");
+      if (b.lead) h += `<p class="note">The lead (Brain 7): five behaviours, each switched on with 1 and off with 0, then the numbers they use. With all five off it plays exactly like Brain 5.</p>` + table("lead", "Lead");
     } else h += table("weights", "Weight");
     h += `<div class="tablewrap"><table class="data"><thead><tr><th>Setting</th><th>Value</th><th>What it means</th></tr></thead><tbody>${Object.keys(b.settings).map((k) => row("settings", k)).join("")}</tbody></table></div></div></div>`;
     el.innerHTML = h;

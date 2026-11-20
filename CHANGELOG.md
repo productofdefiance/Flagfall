@@ -6,7 +6,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
-| v3.11.00 | v3.8 | Brain 5 | v2 | 15 |
+| v3.12.00 | v3.8 | Brain 5 | v2 | 16 |
+| v3.11.00 | v3.7 | Brain 5 | v2 | 15 |
 | v3.10.00 | v3.7 | Brain 5 | v2 | 14 |
 | v3.09.01 | v3.6 | Brain 5 | v2 | 13 |
 | v3.09.00 | v3.6 | Brain 5 | v2 | 12 |
@@ -18,8 +19,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
-## v3.11.00 · Build 15 — Brief 014, rule set v3.8: one field per format, and the hot-seat snap (20 Nov 2026)
-Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `game.deployRadius5: 2`. Default brain: Brain 5, unchanged. Game version **v3.11.00** (YY: a new rule set). The brief planned this as v3.7; brief 011 took v3.7 first, so it is v3.8.
+## v3.12.00 · Build 16 — Brief 014, rule set v3.8: one field per format, and the hot-seat snap (20 Nov 2026)
+Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `game.deployRadius5: 2`. Default brain: Brain 5, unchanged. Game version **v3.12.00** (YY: a new rule set; brief 019 took v3.11.00 and Build 15 first). The brief planned the rule set as v3.7; brief 011 took v3.7 first, so it is v3.8.
 
 **What a player will notice**
 - **5v5 has its own small field** on v3.8: 103 hexes, 7 columns (A–G), flags D3 and D15. You deploy **two rings** round your flag (19 hexes, the flag hex included for one unit).
@@ -35,11 +36,30 @@ Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `g
 - Lab: a `fields` measure (field played, units deployed outside their area, units started on their flag).
 - New check `test_fields.js` (the data, deploy areas, gaps, goal zones, symmetry, the turn-1 design rule, the rules the brief lists on the 7-column field, and Brain 5 on both new fields).
 
-**Flags closed:** none. **Opened:** F43 (the hot-seat snap can't show a whole 5v5 half on a 390 × 844 phone), F44 (5v5 on v3.8: the first-mover collapse is gone, but far more turn-limit games).
+**Flags closed:** none. **Opened:** F49 (the hot-seat snap can't show a whole 5v5 half on a 390 × 844 phone), F50 (5v5 on v3.8: the first-mover collapse is gone, but far more turn-limit games).
 
 **Baseline** (Brain 5 mirror, balanced, 1,000 games per format, same seeds as v3.7; full table in brief 014's Report):
 - 5v5: ended on the turn limit **61.9%** (v3.7: 35.1%), pull KO 23.5% (44.0%), first mover's share of decisive games **58.0%** (3.2%). Likely the smaller deploy area; not isolated.
 - 7v7: ended on the turn limit 44.2% (42.7%), pull KO 39.4% (41.6%), first mover's share 31.4% (29.0%): no change beyond the noise.
+
+## v3.11.00 · Build 15 — Brief 019, Brain 7: know the lead, keep it, storm together (20 Nov 2026)
+Rule set: none changed (v3.7 stays the newest). Game version **v3.11.00** (YY: a new brain; brief 011 took v3.10.00 and Build 14 first). Brain 7 was built and measured on v3.6; it inherits Brain 5's specials play on v3.7, which these runs didn't measure. Brain 5 stays the default.
+
+**What a player will notice**
+- A new opponent, **Brain 7 (keeps its lead)**, on the Opponent and Teams screens. When it is ahead on units it stops throwing units away one at a time, gathers its spare units near your holder and attacks it with two or three at once. When you have only your holder left, its own holder may come forward too, but only if yours can't reach its flag first. When it is behind, it pulls its units together while there is time, then commits everything late.
+- On the Opponent screen, Brain 7 has a **Lead** table: five behaviours switched on with 1 and off with 0, and the numbers they use. With all five off it plays exactly like Brain 5.
+- Watch links can now carry a brain's changed settings, so games from a lab sweep open and play on the board.
+- Brain 5, Brain 6 and every older brain and rule set play exactly as before.
+
+**Under the hood**
+- `bot.js`: Brain 7 is Brain 5's planner plus a reading of the board made once per plan (start of the turn and after each roll): the lead (units other than the holder, by unit cap and HP left), ahead or behind, storm or hold, whether to wait before striking the holder, whether to regroup, and the holder race check. It adds value terms and two attack costs; no "on turn N" rules and nothing carried between turns. One setting the brief didn't name, **Press the holder**, was needed: without it Brain 7 gathered round a braced holder and then waited (F43).
+- `brain.js`: Brain 7 and its labels. `watch.js`: `n=brain7:stormLead=1` style brain settings in watch links. `app.js`: the Lead table.
+- Lab: three new measures on every run (`lead_lost`, `lead_unused`, units lost alone or together and holder strikes solo or group), positions scored per side-turn in `timing`, a `brain7` measure (how often each behaviour was active, and lone losing attacks for any brain), `seed_as` in job orders so many matchups share one deal. `sims/lab/report019.js` builds the Report's tables.
+- New checks: `test_brain7.js` (all off = Brain 5, the five positions, legal play) and `sims/lab/test_lead.js` (the new measures on five saved games, checked by hand).
+
+**Flags opened:** F43 to F48 (renumbered: brief 011 took F38 to F41 and the man-advantage flag F42). **Evidence for:** F10.
+
+**Results (34,000 games):** Brain 7 does not pass. It loses to Brain 5 at balanced 5v5 (45.6%) and all-Light 7v7 (45.6%), ties at 7v7, and leaves leads unused about as often at 5v5 (24.0% vs 26.9%), but mirror games end on the clock far less (26.6% vs 57.9% at 5v5, 17.6% vs 40.4% at 7v7), almost all from the holder joining the storm. Settings review (52,000 games): only the lead weight moves results; at 0 Brain 7 takes 52.1% of balanced 5v5 games against Brain 5.
 
 ## v3.10.00 · Build 14 — Brief 011, rule set v3.7: special attacks (20 Nov 2026)
 Rule set: **v3.7** (new, the new-game default): v3.6 plus switch `specials`. Default brain: Brain 5, now using specials on v3.7 only. Game version **v3.10.00** (YY: a new rule set).
