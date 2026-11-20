@@ -4,53 +4,108 @@
 (function (root) {
   "use strict";
 
-  // ---------- Field geometry: oval of flat-top hexes, columns A-I, rows 1-19 ----------
-  const COLS = "ABCDEFGHI";
-  const NCOL = 9, NROW = 19;
-  const FLAG = { N: "E3", S: "E17" };
-
-  const parse = (h) => [COLS.indexOf(h[0]), parseInt(h.slice(1), 10)];
-  const geo = (q, r) => [q, r + (q % 2 ? 0.5 : 0)];
-  function cube(q, r) {
-    const z = (r - 1) - ((q - (q & 1)) >> 1);
-    return [q, -q - z, z];
-  }
-  function dist(a, b) {
-    const ca = cube(...parse(a)), cb = cube(...parse(b));
-    return Math.max(Math.abs(ca[0] - cb[0]), Math.abs(ca[1] - cb[1]), Math.abs(ca[2] - cb[2]));
-  }
-  const CELLS = [];
-  for (let q = 0; q < NCOL; q++) {
-    const rows = q % 2 ? NROW - 1 : NROW;
-    for (let r = 1; r <= rows; r++) {
-      const [x, y] = geo(q, r);
-      if (((x - 4) / 4.75) ** 2 + ((y - 10) / 9.6) ** 2 <= 1.0) CELLS.push(COLS[q] + r);
+  // ---------- Field geometry (Brief 014, Game Laws 2.4) ----------
+  /* Each match plays on one field (fields.js). A rule set with switch `fields` uses the field for the match's format;
+     every older rule set uses `legacy` (today's oval, columns A-I, rows 1-19, flags E3 and E17). Everything that
+     depends on the field's shape is built here, once per field, and every rule reads it from the match: fieldOf(st).
+     A column an odd number of columns from the middle column sits half a hex lower, so positions and distances are
+     worked out from the column's offset from the middle column (for 9 columns this is the old odd-index rule). */
+  const FIELD_DATA = (typeof module !== "undefined" ? require("./fields.js") : root.GGFields).FIELDS;
+  const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  function makeField(def) {
+    const ncol = def.cols.length, mid = (ncol - 1) / 2, COLS = LETTERS.slice(0, ncol), FLAG = def.flags;
+    const parse = (h) => [COLS.indexOf(h[0]), parseInt(h.slice(1), 10)];
+    const off = (q) => q - mid;                                   // column offset from the middle column
+    const low = (q) => (off(q) & 1) === 1;                        // half a hex lower (odd offset, either side)
+    const geo = (q, r) => [q, r + (low(q) ? 0.5 : 0)];
+    function cube(q, r) { const x = off(q), z = (r - 1) - ((x - (x & 1)) >> 1); return [x, -x - z, z]; }
+    const cubeOf = (h) => cube(...parse(h));
+    function dist(a, b) {
+      const ca = cubeOf(a), cb = cubeOf(b);
+      return Math.max(Math.abs(ca[0] - cb[0]), Math.abs(ca[1] - cb[1]), Math.abs(ca[2] - cb[2]));
     }
-  }
-  const CELLSET = new Set(CELLS);
-  const NBRS = {};
-  for (const a of CELLS) NBRS[a] = CELLS.filter((b) => dist(a, b) === 1);
-  const GOAL = { N: new Set(NBRS[FLAG.N]), S: new Set(NBRS[FLAG.S]) };
-  const deployZone = (st, team) => CELLS.filter((c) => (c !== FLAG[team] || (st.rs.switches && st.rs.switches.flagHolder)) && dist(c, FLAG[team]) <= st.rs.game.deployRadius);
-  function straight2(a, b) {
-    const ca = cube(...parse(a)), cb = cube(...parse(b));
-    const d = [0, 1, 2].map((i) => Math.abs(ca[i] - cb[i])).sort();
-    return d[0] === 0 && d[1] === 2 && d[2] === 2;
-  }
-  const middle = (a, b) => CELLS.find((c) => dist(c, a) === 1 && dist(c, b) === 1);
-  /** v3.6 (Brief 015, Game Laws 4.9): is a flag hex (either flag, held or empty) strictly between `from` and `to` on one
-      of the six straight hex lines? Off a straight line nothing is ever between. Neither end counts: a unit on a flag
-      shoots out from it, and a holder on its flag can be shot. One helper for every line rule (Volley, Reach; later
-      Javelin, Vault). */
-  function flagBetween(from, to) {
-    const a = cube(...parse(from)), b = cube(...parse(to)), d = dist(from, to);
-    if (d < 2) return false;
-    for (const f of [FLAG.N, FLAG.S]) {
-      if (f === from || f === to) continue;
-      const c = cube(...parse(f));
-      for (let i = 0; i < 3; i++) if (a[i] === b[i] && c[i] === a[i] && dist(from, f) + dist(f, to) === d) return true;
+    const CELLS = [];
+    def.cols.forEach(([r0, r1], q) => { for (let r = r0; r <= r1; r++) CELLS.push(COLS[q] + r); });
+    const CELLSET = new Set(CELLS);
+    const NBRS = {};
+    for (const a of CELLS) NBRS[a] = CELLS.filter((b) => dist(a, b) === 1);
+    const GOAL = { N: new Set(NBRS[FLAG.N]), S: new Set(NBRS[FLAG.S]) };
+    function straight2(a, b) {
+      const ca = cubeOf(a), cb = cubeOf(b);
+      const d = [0, 1, 2].map((i) => Math.abs(ca[i] - cb[i])).sort();
+      return d[0] === 0 && d[1] === 2 && d[2] === 2;
     }
-    return false;
+    const middle = (a, b) => CELLS.find((c) => dist(c, a) === 1 && dist(c, b) === 1);
+    /** v3.6 (Brief 015, Game Laws 4.9): is a flag hex (either flag, held or empty) strictly between `from` and `to` on one
+        of the six straight hex lines? Off a straight line nothing is ever between. Neither end counts: a unit on a flag
+        shoots out from it, and a holder on its flag can be shot. One helper for every line rule (Volley, Reach; later
+        Javelin, Vault). */
+    function flagBetween(from, to) {
+      const a = cubeOf(from), b = cubeOf(to), d = dist(from, to);
+      if (d < 2) return false;
+      for (const f of [FLAG.N, FLAG.S]) {
+        if (f === from || f === to) continue;
+        const c = cubeOf(f);
+        for (let i = 0; i < 3; i++) if (a[i] === b[i] && c[i] === a[i] && dist(from, f) + dist(f, to) === d) return true;
+      }
+      return false;
+    }
+    const onFlag = (h) => h === FLAG.N || h === FLAG.S;
+    /** The field hex at cube coordinates, or null off the field. */
+    function fromCube(c) {
+      const x = c[0], q = x + mid; if (q < 0 || q >= ncol) return null;
+      const r = c[2] + ((x - (x & 1)) >> 1) + 1, h = COLS[q] + r;
+      return CELLSET.has(h) ? h : null;
+    }
+    /** The hexes strictly between two hexes on one straight line, nearest first; null when they are not on one. */
+    function lineBetween(a, b) {
+      const ca = cubeOf(a), cb = cubeOf(b), d = dist(a, b);
+      if (![0, 1, 2].some((i) => ca[i] === cb[i])) return null;
+      const out = [];
+      for (let k = 1; k < d; k++) out.push(fromCube([0, 1, 2].map((i) => ca[i] + (cb[i] - ca[i]) * k / d)));
+      return out;
+    }
+    /** Skewer: the hex directly behind `t` seen from `a` (same straight line, one further), or null. */
+    function hexBehind(a, t) {
+      const ca = cubeOf(a), ct = cubeOf(t);
+      return fromCube([0, 1, 2].map((i) => 2 * ct[i] - ca[i]));
+    }
+    /** Arc Hit's arc around target hex `t` from `a`: t plus the hexes next to both. A flag hex is never in it (6.17, F8). */
+    const arcOf = (a, t) => [t].concat(NBRS[t].filter((n) => dist(n, a) === 1)).filter((h) => !onFlag(h));
+    const centre = COLS[mid] + (def.rows + 1) / 2;
+    return { id: def.id, size: def.size, COLS, NCOL: ncol, NROW: def.rows, MID: mid, FLAG, CELLS, CELLSET, NBRS, GOAL,
+      deployRadius: def.deployRadius, parse, geo, cube, dist, straight2, middle, flagBetween, onFlag, fromCube, lineBetween,
+      hexBehind, arcOf, centre,
+      // Small helpers for a later zone layer (no zones in this build).
+      flagDist: (h) => ({ N: dist(h, FLAG.N), S: dist(h, FLAG.S) }),
+      offset: (h) => off(parse(h)[0]),
+      rows: def.rows };
+  }
+  const FIELDS = {};
+  for (const id in FIELD_DATA) FIELDS[id] = makeField(FIELD_DATA[id]);
+  const LEGACY = FIELDS.legacy;
+  /** The field a rule set plays a format on: the format's own with switch `fields`, else the legacy field. */
+  function fieldFor(rs, size) {
+    if (!(rs && rs.switches && rs.switches.fields)) return LEGACY;
+    for (const id in FIELDS) if (FIELDS[id].size === size) return FIELDS[id];
+    return LEGACY;
+  }
+  /** The field this match plays on (st.field is set only by rule sets with switch `fields`). */
+  const fieldOf = (st) => (st && st.field && FIELDS[st.field]) || LEGACY;
+  /** Unit cap per side of this match (North's lineup; both sides field the same size). */
+  const matchSize = (st) => st.units.filter((u) => u.team === "N").reduce((s, u) => s + (st.rs.cards[u.card].beings || 1), 0);
+  /** Deploy radius for a format. v3.8 (fields): 5v5 has its own (game.deployRadius5, Game Laws 2.5); anything else, and
+      every older rule set, uses deployRadius. */
+  function deployRadiusFor(rs, size) {
+    const g = rs.game;
+    if (rs.switches && rs.switches.fields && size === 5 && g.deployRadius5 !== undefined) return g.deployRadius5;
+    return g.deployRadius;
+  }
+  /** The hexes a side may deploy on: within the deploy radius of its own flag (the flag hex itself only with the flag
+      holder rules, where one unit may start on it). */
+  function deployZone(st, team) {
+    const G = fieldOf(st), R = sw(st, "fields") ? deployRadiusFor(st.rs, matchSize(st)) : st.rs.game.deployRadius;
+    return G.CELLS.filter((c) => (c !== G.FLAG[team] || (st.rs.switches && st.rs.switches.flagHolder)) && G.dist(c, G.FLAG[team]) <= R);
   }
 
   // ---------- Helpers ----------
@@ -78,20 +133,20 @@
   /** Hexes inside a Zone of Control projected by the enemies of `team`. */
   function zoneFor(st, team) {
     const z = new Set();
-    for (const u of alive(st)) if (u.team !== team && projects(st, u)) for (const n of NBRS[u.hex]) z.add(n);
+    for (const u of alive(st)) if (u.team !== team && projects(st, u)) for (const n of fieldOf(st).NBRS[u.hex]) z.add(n);
     return z;
   }
   function blocked(st, mover) {
     const b = new Set(alive(st).map((u) => u.hex));
-    for (const t of ["N", "S"]) if (!(sw(st, "flagHolder") && mover && mover.team === t)) b.add(FLAG[t]);
+    for (const t of ["N", "S"]) if (!(sw(st, "flagHolder") && mover && mover.team === t)) b.add(fieldOf(st).FLAG[t]);
     return b;
   }
   /** v3 flag holder: the friendly unit standing on its own flag hex, if any. */
   function holderOf(st, team) {
     if (!sw(st, "flagHolder")) return null;
-    return alive(st).find((u) => u.team === team && u.hex === FLAG[team]) || null;
+    return alive(st).find((u) => u.team === team && u.hex === fieldOf(st).FLAG[team]) || null;
   }
-  const isHolder = (st, u) => !!u && sw(st, "flagHolder") && u.hp > 0 && u.hex === FLAG[u.team];
+  const isHolder = (st, u) => !!u && sw(st, "flagHolder") && u.hp > 0 && u.hex === fieldOf(st).FLAG[u.team];
   const flagLeft = (st, team) => st.rs.game.poleHP - st.pole[team];
   /** Damage to a unit. A flag holder shares it with its flag in proportion to what each has left, so both reach 0 together. */
   function hurt(st, u, dmg) {
@@ -136,9 +191,9 @@
   function flagShown(st, team) { const sp = poolSplit(st, team); return sp ? sp.flag : flagLeft(st, team); }
   function tackleApplies(st, u, src, dst) {
     if (u.tackled) return false;
-    return alive(st).some((e) => e.team !== u.team && card(st, e).trait === "tackle" && dist(e.hex, src) === 1 && dist(e.hex, dst) !== 1);
+    return alive(st).some((e) => e.team !== u.team && card(st, e).trait === "tackle" && fieldOf(st).dist(e.hex, src) === 1 && fieldOf(st).dist(e.hex, dst) !== 1);
   }
-  const homeOf = (team) => GOAL[team];
+  const homeOf = (team, st) => fieldOf(st).GOAL[team];
   /** v3.3 Evade: the unit attacked, while the attacker may still step away from it; else null. */
   const evadeTarget = (st, u) => (sw(st, "evade") && u.evadeFrom ? unitByUid(st, u.evadeFrom) : null);
   /** Extra Stamina to break tackle: the leaving unit's own hex cost on v3.3 (tackleHexCost), else the flat tackleCost. */
@@ -213,9 +268,9 @@
     while (q.length) {
       const [h, m, d] = q.shift();
       if (d >= budget || m === "shifted") continue;
-      for (const n of NBRS[h]) {
+      for (const n of fieldOf(st).NBRS[h]) {
         if (b.has(n)) continue;
-        if (ev && dist(n, ev.hex) <= dist(h, ev.hex)) continue;   // v3.3 Evade: every step further from the unit attacked
+        if (ev && fieldOf(st).dist(n, ev.hex) <= fieldOf(st).dist(h, ev.hex)) continue;   // v3.3 Evade: every step further from the unit attacked
         const inz = z.has(n);
         let nm;
         if (m === "free") nm = inz ? "entered" : "free";
@@ -252,8 +307,8 @@
     const arrival = sw(st, "spearOnArrival");
     if (arrival && u.spearTaken) return "";
     for (const e of alive(st)) {
-      if (e.team !== u.team && e.braced && card(st, e).brace === "spike" && !e.spikeUsed && dist(e.hex, hex) === 1) {
-        if (arrival && from && dist(e.hex, from) === 1) continue;   // already next to this spear: staying, not arriving
+      if (e.team !== u.team && e.braced && card(st, e).brace === "spike" && !e.spikeUsed && fieldOf(st).dist(e.hex, hex) === 1) {
+        if (arrival && from && fieldOf(st).dist(e.hex, from) === 1) continue;   // already next to this spear: staying, not arriving
         e.spikeUsed = true;
         if (arrival) u.spearTaken = true;
         const pooled = hurt(st, u, st.rs.spikeDamage);
@@ -297,7 +352,7 @@
     if (b.hp <= 0) fail("That unit has been removed.");
     if (a === b) fail("A unit cannot swap with itself.");
     if (a.team !== b.team) fail("Only friendly units can swap.");
-    if (dist(a.hex, b.hex) !== 1) fail("Units must be adjacent to swap.");
+    if (fieldOf(st).dist(a.hex, b.hex) !== 1) fail("Units must be adjacent to swap.");
     const costs = swapCosts(st, a, b);
     if (a.stam + EPS < costs[0] || b.stam + EPS < costs[1]) fail("Not enough Stamina to swap.");
     if (st.cmd + EPS < costs[0] + costs[1]) fail("Not enough Command to swap.");
@@ -328,15 +383,15 @@
       blocks its hex; an enemy next to the target also blocks the two hexes either side of it. */
   function dodgeRoom(st, t) {
     const per = st.rs.game.dodgePerHex || 5;
-    const nb = NBRS[t.hex];
+    const nb = fieldOf(st).NBRS[t.hex];
     const blocked = new Set();
     const units = alive(st).filter((x) => x !== t);
     for (const n of nb) {
-      if (n === FLAG.N || n === FLAG.S) blocked.add(n);
+      if (n === fieldOf(st).FLAG.N || n === fieldOf(st).FLAG.S) blocked.add(n);
       const x = units.find((y) => y.hex === n);
       if (x) {
         blocked.add(n);
-        if (x.team !== t.team) for (const m of nb) if (dist(m, n) === 1) blocked.add(m);
+        if (x.team !== t.team) for (const m of nb) if (fieldOf(st).dist(m, n) === 1) blocked.add(m);
       }
     }
     const open = nb.filter((n) => !blocked.has(n)).length;   // hexes off the field are never open
@@ -345,13 +400,13 @@
     return { open, pct: Math.min(pct, 95) };
   }
   function canAttackFrom(st, u, h, t) {
-    const c = card(st, u), d = dist(h, t.hex);
+    const c = card(st, u), d = fieldOf(st).dist(h, t.hex);
     if (c.reload && u.attackedLast) return false;
-    if (isHolder(st, t) && !GOAL[t.team].has(h)) return false;   // the flag is a fort: storm it from the goal zone
+    if (isHolder(st, t) && !fieldOf(st).GOAL[t.team].has(h)) return false;   // the flag is a fort: storm it from the goal zone
     if (d === 1) return true;
-    if (sw(st, "flagBlocksLine") && flagBetween(h, t.hex)) return false;   // v3.6: a flag blocks Volley and Reach (4.9)
-    if (c.trait === "reach" && d === 2 && straight2(h, t.hex)) {
-      const m = middle(h, t.hex);
+    if (sw(st, "flagBlocksLine") && fieldOf(st).flagBetween(h, t.hex)) return false;   // v3.6: a flag blocks Volley and Reach (4.9)
+    if (c.trait === "reach" && d === 2 && fieldOf(st).straight2(h, t.hex)) {
+      const m = fieldOf(st).middle(h, t.hex);
       return !alive(st).some((e) => e.team !== u.team && e.hex === m);
     }
     return c.range > 1 && d <= c.range;
@@ -361,7 +416,7 @@
       `detail` (Brief 009, read-only, for the attack preview): the same steps as numbers and names, so the board never
       works them out itself. It changes nothing the rules do. */
   function breakdown(st, u, t, h, opt) {
-    const g = st.rs.game, c = card(st, u), tc = card(st, t), d = dist(h, t.hex);
+    const g = st.rs.game, c = card(st, u), tc = card(st, t), d = fieldOf(st).dist(h, t.hex);
     // opt (Brief 011, specials only): reach true = Reach's −1 at any distance (Javelin at 3); reach false = none (Skewer's
     // second hit). No normal attack passes opt, so normal attacks are worked out exactly as before.
     const reachHere = opt && opt.reach !== undefined ? opt.reach : c.range === 1 && d === 2;
@@ -369,13 +424,13 @@
     const detail = { str: c.str, reach: 0, halvedBy: null, strAfter: c.str, supporters: [], support: 0, noSupport: false,
       armor: tc.armor || 0, pierce: false, armorTaken: 0, dodge: null, brace: 0, defenderSupport: 0, home: null };
     if (reachHere) { v -= g.reachPenalty; parts.push(`−${g.reachPenalty} Reach`); detail.reach = g.reachPenalty; }
-    if (c.range > 1 && st.rs.switches.rangedHalfWhenAdjacent && alive(st).some((e) => e.team === t.team && dist(e.hex, h) === 1)) {
+    if (c.range > 1 && st.rs.switches.rangedHalfWhenAdjacent && alive(st).some((e) => e.team === t.team && fieldOf(st).dist(e.hex, h) === 1)) {
       v = halve(st, v); parts.push("enemy adjacent: halved");
-      detail.halvedBy = alive(st).filter((e) => e.team === t.team && dist(e.hex, h) === 1).map((e) => e.uid);
+      detail.halvedBy = alive(st).filter((e) => e.team === t.team && fieldOf(st).dist(e.hex, h) === 1).map((e) => e.uid);
     }
     detail.strAfter = v;
-    const helpers = alive(st).filter((a) => a.team === u.team && a !== u && dist(a.hex, t.hex) === 1).length;
-    detail.supporters = alive(st).filter((a) => a.team === u.team && a !== u && dist(a.hex, t.hex) === 1).map((a) => a.uid);
+    const helpers = alive(st).filter((a) => a.team === u.team && a !== u && fieldOf(st).dist(a.hex, t.hex) === 1).length;
+    detail.supporters = alive(st).filter((a) => a.team === u.team && a !== u && fieldOf(st).dist(a.hex, t.hex) === 1).map((a) => a.uid);
     if (helpers) {
       if (t.braced && tc.brace === "noSupport") { parts.push("no Support (braced)"); detail.noSupport = true; }
       else {
@@ -398,8 +453,8 @@
       detail.dodge = { flat: dg, per: div, doubled: !!(t.braced && tc.brace === "dodgeDouble") };
     }
     if (t.braced) { v -= g.braceReduction; parts.push(`−${g.braceReduction} Brace`); detail.brace = g.braceReduction; }
-    else if (st.rs.switches.defenderSupport && alive(st).some((a) => a.team === t.team && a !== t && dist(a.hex, t.hex) === 1)) { v -= 1; parts.push("−1 defender Support"); detail.defenderSupport = 1; }
-    if (homeOf(t.team).has(t.hex)) {
+    else if (st.rs.switches.defenderSupport && alive(st).some((a) => a.team === t.team && a !== t && fieldOf(st).dist(a.hex, t.hex) === 1)) { v -= 1; parts.push("−1 defender Support"); detail.defenderSupport = 1; }
+    if (homeOf(t.team, st).has(t.hex)) {
       if (t.fk) { v -= g.keeperHomeReduction; parts.push(`−${g.keeperHomeReduction} keeper at home`); detail.home = { keeper: true, amount: g.keeperHomeReduction }; }
       else { v -= g.goalZoneReduction; parts.push(`−${g.goalZoneReduction} goal zone`); detail.home = { keeper: false, amount: g.goalZoneReduction }; }
     }
@@ -446,7 +501,7 @@
 
   function doAttack(st, u, t, roll) {
     if (t.team === u.team) fail("Cannot attack a friendly unit.");
-    const d = dist(u.hex, t.hex);
+    const d = fieldOf(st).dist(u.hex, t.hex);
     if (u.sp === "warm") fail(`${u.id} warmed up its special this turn: no attack until it fires.`);   // v3.7 (6.16)
     if (!canAttackFrom(st, u, u.hex, t)) fail(card(st, u).reload && u.attackedLast ? `${u.id} is reloading this turn.` : `${u.id} at ${u.hex} cannot attack ${t.id} at ${t.hex}.`);
     spend(st, u, st.rs.game.attackCost);
@@ -489,17 +544,17 @@
 
   /** v3.6 (pullCountsForReload, 3.11): a reloading unit can't pull either. */
   const pullReloading = (st, u) => sw(st, "pullCountsForReload") && !!card(st, u).reload && !!u.attackedLast;
-  function canPullFrom(st, u, h) { return homeOf(foeOf(u.team)).has(h) && !holderOf(st, foeOf(u.team)) && !pullReloading(st, u); }
+  function canPullFrom(st, u, h) { return homeOf(foeOf(u.team), st).has(h) && !holderOf(st, foeOf(u.team)) && !pullReloading(st, u); }
   function pullValue(st, u) {
     const c = card(st, u), foe = foeOf(u.team);
     let v = c.range > 1 && !sw(st, "pullFullStrength") ? halve(st, c.str) : c.str;   // v3.6: a pull is always full Strength (4.6)
     const parts = [`Strength ${fmt(v)}`];
     if (sw(st, "pullSupport")) {
       // Pull Support: +1 (supportBonus) for every other friendly unit next to the flag, as Support on an attack.
-      const helpers = alive(st).filter((a) => a.team === u.team && a !== u && homeOf(foe).has(a.hex)).length;
+      const helpers = alive(st).filter((a) => a.team === u.team && a !== u && homeOf(foe, st).has(a.hex)).length;
       if (helpers) { const sb = st.rs.game.supportBonus * helpers; v += sb; parts.push(`+${fmt(sb)} Support`); }
     }
-    if (alive(st).some((e) => e.team === foe && e.fk && homeOf(foe).has(e.hex))) {
+    if (alive(st).some((e) => e.team === foe && e.fk && homeOf(foe, st).has(e.hex))) {
       v = Math.max(v - st.rs.game.keeperPullReduction, 0); parts.push(`−${st.rs.game.keeperPullReduction} keeper at home`);
     }
     return { value: v, parts };
@@ -538,39 +593,17 @@
   const specialOf = (st, u) => (sw(st, "specials") && card(st, u).special) || null;
   const specialName = (kind) => SPECIAL_NAMES[kind] || kind;
   const specNums = (st, kind) => (st.rs.specials && st.rs.specials[kind]) || {};
-  const onFlag = (h) => h === FLAG.N || h === FLAG.S;
-  /** Cube coordinates back to a hex name (null when off the field). */
-  function fromCube(c) {
-    const q = c[0]; if (q < 0 || q >= NCOL) return null;
-    const r = c[2] + ((q - (q & 1)) >> 1) + 1, h = COLS[q] + r;
-    return CELLSET.has(h) ? h : null;
-  }
-  /** The hexes strictly between two hexes on one straight line, nearest first; null when they are not on one. */
-  function lineBetween(a, b) {
-    const ca = cube(...parse(a)), cb = cube(...parse(b)), d = dist(a, b);
-    if (![0, 1, 2].some((i) => ca[i] === cb[i])) return null;
-    const out = [];
-    for (let k = 1; k < d; k++) out.push(fromCube([0, 1, 2].map((i) => ca[i] + (cb[i] - ca[i]) * k / d)));
-    return out;
-  }
-  /** Skewer: the hex directly behind `t` seen from `a` (same straight line, one further), or null. */
-  function hexBehind(a, t) {
-    const ca = cube(...parse(a)), ct = cube(...parse(t));
-    return fromCube([0, 1, 2].map((i) => 2 * ct[i] - ca[i]));
-  }
-  /** Arc Hit's arc around target hex `t` from `a`: t plus the hexes next to both. A flag hex is never in it (6.17, F8). */
-  const arcOf = (a, t) => [t].concat(NBRS[t].filter((n) => dist(n, a) === 1)).filter((h) => !onFlag(h));
   /** Can `u`'s special take `t` as its target from where `u` stands (state and costs aside)? */
   function specialCanTarget(st, u, t) {
     const kind = specialOf(st, u);
-    if (!kind || !t || t.hp <= 0 || t.team === u.team || onFlag(t.hex)) return false;   // no special on a flag hex (F8)
-    const d = dist(u.hex, t.hex);
+    if (!kind || !t || t.hp <= 0 || t.team === u.team || fieldOf(st).onFlag(t.hex)) return false;   // no special on a flag hex (F8)
+    const d = fieldOf(st).dist(u.hex, t.hex);
     if (kind === "arcHit" || kind === "pickOff" || kind === "skewer") return d === 1;
     if (kind === "bullseye" || kind === "arrowStorm") return canAttackFrom(st, u, u.hex, t);
     if (kind === "javelin") {
-      const n = specNums(st, kind), mid = lineBetween(u.hex, t.hex);
+      const n = specNums(st, kind), mid = fieldOf(st).lineBetween(u.hex, t.hex);
       if (d < (n.minRange || 2) || d > (n.maxRange || 3) || !mid) return false;
-      if (sw(st, "flagBlocksLine") && flagBetween(u.hex, t.hex)) return false;   // the flag block (4.9)
+      if (sw(st, "flagBlocksLine") && fieldOf(st).flagBetween(u.hex, t.hex)) return false;   // the flag block (4.9)
       return !alive(st).some((e) => e.team !== u.team && mid.includes(e.hex));    // over friends, never over enemies
     }
     return false;
@@ -589,11 +622,11 @@
   function specialHits(st, u, t) {
     const kind = specialOf(st, u), n = specNums(st, kind), out = [];
     if (kind === "arcHit") {
-      const arc = arcOf(u.hex, t.hex);
+      const arc = fieldOf(st).arcOf(u.hex, t.hex);
       out.push(specialHit(st, u, t, n.mult));
       for (const h of arc) { const x = alive(st).find((e) => e.hex === h && e !== t); if (x && x.team !== u.team) out.push(specialHit(st, u, x, n.mult)); }
     } else if (kind === "pickOff") {
-      const friends = alive(st).filter((f) => f.team === t.team && f !== t && dist(f.hex, t.hex) === 1).length;
+      const friends = alive(st).filter((f) => f.team === t.team && f !== t && fieldOf(st).dist(f.hex, t.hex) === 1).length;
       const m = Math.max(n.floor !== undefined ? n.floor : 1, n.mult - (n.lessPerFriend || 0) * friends);
       out.push(specialHit(st, u, t, m, { why: friends ? `${friends} friend${friends > 1 ? "s" : ""} next to the target: ×${fmt(m)}` : null }));
     } else if (kind === "bullseye") {
@@ -604,7 +637,7 @@
       out.push(h);
     } else if (kind === "skewer") {
       out.push(specialHit(st, u, t, n.first));
-      const b = hexBehind(u.hex, t.hex), x = b && !onFlag(b) ? alive(st).find((e) => e.hex === b) : null;   // a holder behind is never hit
+      const b = fieldOf(st).hexBehind(u.hex, t.hex), x = b && !fieldOf(st).onFlag(b) ? alive(st).find((e) => e.hex === b) : null;   // a holder behind is never hit
       if (x && x.team !== u.team) out.push(specialHit(st, u, x, n.behind, { reach: !!n.behindReach }));
     } else if (kind === "javelin") {
       out.push(specialHit(st, u, t, n.mult, { reach: true, why: `Reach −${st.rs.game.reachPenalty} Strength, then ×${fmt(n.mult)}` }));
@@ -653,7 +686,7 @@
     if (!specialCanTarget(st, u, t)) fail(`${u.id}'s ${specialName(kind)} cannot target ${t.id} at ${t.hex}.`);
     spend(st, u, st.rs.game.attackCost);
     u.done = true; u.attackedThis = true; u.sp = "used";
-    const d = dist(u.hex, t.hex), hits = specialHits(st, u, t);
+    const d = fieldOf(st).dist(u.hex, t.hex), hits = specialHits(st, u, t);
     // All hits land first (Article 1.12), then reactions.
     const pieces = [];
     for (const h of hits) {
@@ -666,7 +699,7 @@
     let parried = false;
     for (const h of hits) {
       const x = unitByUid(st, h.uid);
-      if (!(x.braced && card(st, x).brace === "parry" && dist(u.hex, x.hex) === 1)) continue;
+      if (!(x.braced && card(st, x).brace === "parry" && fieldOf(st).dist(u.hex, x.hex) === 1)) continue;
       if (!parried && u.hp > 0 && !(sw(st, "parryFirstOnly") && x.parryUsed) && !(sw(st, "parryNeedsSurvivor") && x.hp <= 0)) {
         const pd = parryAmount(st, u), pp = hurt(st, u, pd);
         parried = true;
@@ -692,11 +725,11 @@
   function specialPreview(st, u, t) {
     const kind = specialOf(st, u);
     if (!kind || !specialCanTarget(st, u, t)) return null;
-    const hits = specialHits(st, u, t), d = dist(u.hex, t.hex);
-    const parryFrom = hits.map((h) => unitByUid(st, h.uid)).find((x) => x.braced && card(st, x).brace === "parry" && dist(u.hex, x.hex) === 1 && !(sw(st, "parryFirstOnly") && x.parryUsed));
+    const hits = specialHits(st, u, t), d = fieldOf(st).dist(u.hex, t.hex);
+    const parryFrom = hits.map((h) => unitByUid(st, h.uid)).find((x) => x.braced && card(st, x).brace === "parry" && fieldOf(st).dist(u.hex, x.hex) === 1 && !(sw(st, "parryFirstOnly") && x.parryUsed));
     const n = specNums(st, kind);
-    return { kind, name: specialName(kind), target: t.uid, hits, arc: kind === "arcHit" ? arcOf(u.hex, t.hex) : null,
-      behind: kind === "skewer" ? hexBehind(u.hex, t.hex) : null,
+    return { kind, name: specialName(kind), target: t.uid, hits, arc: kind === "arcHit" ? fieldOf(st).arcOf(u.hex, t.hex) : null,
+      behind: kind === "skewer" ? fieldOf(st).hexBehind(u.hex, t.hex) : null,
       parry: parryFrom ? { by: parryFrom.uid, amount: parryAmount(st, u), ifSurvives: sw(st, "parryNeedsSurvivor") } : null,
       capture: kind === "pickOff" && d === 1 && !(sw(st, "holderHoldsHex") && isHolder(st, u)) ? capturePreview(st, u, t) : null,
       evade: kind === "pickOff" || (kind === "arrowStorm" && d === 1) ? evadePreview(st, u, t) : null, nums: Object.assign({}, n) };
@@ -823,6 +856,7 @@
         if (rs.switches && rs.switches.specials && c.special) st.units[st.units.length - 1].sp = "unused";   // v3.7
       }
     }
+    if (rs.switches && rs.switches.fields) st.field = fieldFor(rs, matchSize(st)).id;   // v3.8: the format's own field
     return st;
   }
 
@@ -874,7 +908,7 @@
     }
     if (st.phase !== "play") fail("The match is not in play.");
     if (action.type === "surrender" && action.team !== undefined && action.team !== "N" && action.team !== "S") fail("Surrender needs a side, N or S.");
-    if (action.type === "move" && !CELLSET.has(action.to)) fail("That hex is not on the field.");
+    if (action.type === "move" && !fieldOf(st).CELLSET.has(action.to)) fail("That hex is not on the field.");
     if ((action.type === "swap" && !action.with) || ((action.type === "attack" || action.type === "special") && !action.target)) fail("That action needs a second unit.");
     if (["move", "swap", "attack", "pull", "brace", "done", "warmup", "special"].includes(action.type) && !action.uid) fail("That action needs a unit.");
     const actor = st.toMove;
@@ -967,7 +1001,7 @@
     if (can(g.attackCost) && !warm && canPullFrom(st, u, u.hex)) { const p = pullValue(st, u); const cs = dieCases(st).map(([d, pr]) => [applyDie(st, p.value, d), pr]); pull = { value: p.value, parts: p.parts, low: cs[0][0], high: cs[cs.length - 1][0], cases: cs }; }
     const swaps = [];
     for (const f of alive(st)) {
-      if (f.team !== u.team || f === u || dist(f.hex, u.hex) !== 1 || evadeTarget(st, f)) continue;
+      if (f.team !== u.team || f === u || fieldOf(st).dist(f.hex, u.hex) !== 1 || evadeTarget(st, f)) continue;
       try { const c = swapCosts(st, u, f); if (u.stam + EPS >= c[0] && f.stam + EPS >= c[1] && st.cmd + EPS >= c[0] + c[1]) swaps.push(f.uid); } catch (e) { /* not allowed */ }
     }
     const out = { moves: reachMap(st, u), attacks, pull, brace: can(g.braceCost) && !warm, swaps };
@@ -985,7 +1019,7 @@
   /** What parry would do if `u` attacked `t` now, for the board: null (no parry possible), {used: true} (v3.2: already
       parried this turn), or {amount, ifSurvives} (ifSurvives: v3.2, it fires only if `t` survives the hit). */
   function parryPreview(st, u, t) {
-    if (!(t.braced && card(st, t).brace === "parry" && dist(u.hex, t.hex) === 1)) return null;
+    if (!(t.braced && card(st, t).brace === "parry" && fieldOf(st).dist(u.hex, t.hex) === 1)) return null;
     if (sw(st, "parryFirstOnly") && t.parryUsed) return { used: true };
     return { amount: parryAmount(st, u), ifSurvives: sw(st, "parryNeedsSurvivor") };
   }
@@ -993,7 +1027,7 @@
       scratch copy: Stamina and Command after the attack, the cap, tackle and the direction rule all count. Returns null
       when no Evade applies, else { hexes, reason (why 0), unsure (the parry might remove the attacker first) }. */
   function evadePreview(st, u, t) {
-    if (!sw(st, "evade") || !card(st, u).evade || dist(u.hex, t.hex) !== 1) return null;
+    if (!sw(st, "evade") || !card(st, u).evade || fieldOf(st).dist(u.hex, t.hex) !== 1) return null;
     const s = cloneLite(st), su = unitByUid(s, u.uid), g = st.rs.game;
     su.stam -= g.attackCost; s.cmd -= g.attackCost; su.done = false; su.evadeFrom = t.uid; su.evadeMoved = false; su.attackedThis = true;
     const moves = reachMap(s, su), hexes = Object.values(moves).reduce((m, x) => Math.max(m, x.steps), 0);
@@ -1004,7 +1038,7 @@
   function whyNoMove(st, u) {
     if (Object.keys(reachMap(st, u)).length) return null;
     const c = card(st, u), cap = capOf(st, u), ev = evadeTarget(st, u), b = blocked(st, u);
-    const free = NBRS[u.hex].filter((n) => !b.has(n) && (!ev || dist(n, ev.hex) > dist(u.hex, ev.hex)));
+    const free = fieldOf(st).NBRS[u.hex].filter((n) => !b.has(n) && (!ev || fieldOf(st).dist(n, ev.hex) > fieldOf(st).dist(u.hex, ev.hex)));
     if (!free.length) return ev ? `No free hex further from ${ev.id}` : "No free hex next to it";
     if (u.moved >= cap) return `Moved its full cap (${cap} hexes)`;
     if (st.cmd + EPS < c.hexCost) return `Needs ${fmt(c.hexCost)} Command for a step, ${fmt(st.cmd)} left`;
@@ -1013,7 +1047,7 @@
     if (mode === "shifted" || (mode === "entered" && sw(st, "zoneHardStop"))) return "Stopped in an enemy zone this turn";
     for (const n of free) {
       if (!tackleApplies(st, u, u.hex, n)) continue;
-      const e = alive(st).find((x) => x.team !== u.team && card(st, x).trait === "tackle" && dist(x.hex, u.hex) === 1 && dist(x.hex, n) !== 1);
+      const e = alive(st).find((x) => x.team !== u.team && card(st, x).trait === "tackle" && fieldOf(st).dist(x.hex, u.hex) === 1 && fieldOf(st).dist(x.hex, n) !== 1);
       const cost = c.hexCost + tackleCostFor(st, u), hexes = 1 + tackleHexes(st);
       return `Tackled by ${e ? e.id : "an enemy"}: breaking away needs ${fmt(cost)} Stamina` + (hexes > 1 ? ` and ${hexes} hexes of movement` : "") +
         `; has ${fmt(Math.min(u.stam, st.cmd))} Stamina${u.stam > st.cmd + EPS ? " (Command)" : ""}` + (hexes > 1 ? ` and ${cap - u.moved} hex${cap - u.moved === 1 ? "" : "es"}` : "");
@@ -1041,10 +1075,10 @@
     if (ev) { out.attack = out.reach = out.brace = `${u.id} attacked this turn and may only evade or end`; if (specialOf(st, u) && u.sp !== "used") out.special = out.attack; }
     else if (u.sp === "warm") { out.attack = out.reach = out.brace = "Warmed up this turn: fire it next turn"; }
     else {
-      const reachShot = (a) => c.trait === "reach" && c.range === 1 && dist(u.hex, unitByUid(st, a.target).hex) === 2;
+      const reachShot = (a) => c.trait === "reach" && c.range === 1 && fieldOf(st).dist(u.hex, unitByUid(st, a.target).hex) === 2;
       // v3.6: when the only thing stopping a shot is a flag in the line, say so (Game Laws 4.9).
-      const flagOnly = (reach) => sw(st, "flagBlocksLine") && alive(st).some((t) => t.team !== u.team && dist(u.hex, t.hex) >= 2 && flagBetween(u.hex, t.hex) &&
-        (reach ? straight2(u.hex, t.hex) : c.range > 1 && dist(u.hex, t.hex) <= c.range) && !(isHolder(st, t) && !GOAL[t.team].has(u.hex)) && !(reach && alive(st).some((e) => e.team !== u.team && e.hex === middle(u.hex, t.hex))));
+      const flagOnly = (reach) => sw(st, "flagBlocksLine") && alive(st).some((t) => t.team !== u.team && fieldOf(st).dist(u.hex, t.hex) >= 2 && fieldOf(st).flagBetween(u.hex, t.hex) &&
+        (reach ? fieldOf(st).straight2(u.hex, t.hex) : c.range > 1 && fieldOf(st).dist(u.hex, t.hex) <= c.range) && !(isHolder(st, t) && !fieldOf(st).GOAL[t.team].has(u.hex)) && !(reach && alive(st).some((e) => e.team !== u.team && e.hex === fieldOf(st).middle(u.hex, t.hex))));
       out.attack = need("attack", g.attackCost) || (c.reload && u.attackedLast ? `${u.id} is reloading this turn` : null) || (o.attacks.some((a) => !reachShot(a)) ? null : flagOnly(false) ? "A flag blocks the line" : "No enemy in range");
       out.reach = c.trait !== "reach" ? "Only Anti-Cavalry units can Reach" : need("attack", g.attackCost) || (o.attacks.some(reachShot) ? null : flagOnly(true) ? "A flag blocks the line" : "No enemy 2 hexes away in a straight line, with nothing in between");
       out.brace = need("brace", g.braceCost);
@@ -1056,9 +1090,9 @@
   function effHp(st, t) { return isHolder(st, t) ? t.hp + flagLeft(st, t.team) : t.hp; }
   /** If an adjacent melee attack kills, where the attacker lands and what waits there. */
   function capturePreview(st, u, t) {
-    if (!isMelee(st, u) || dist(u.hex, t.hex) !== 1) return null;
+    if (!isMelee(st, u) || fieldOf(st).dist(u.hex, t.hex) !== 1) return null;
     if (sw(st, "holderHoldsHex") && isHolder(st, u)) return null;
-    const enemies = alive(st).filter((e) => e.team === t.team && e !== t && dist(e.hex, t.hex) === 1);
+    const enemies = alive(st).filter((e) => e.team === t.team && e !== t && fieldOf(st).dist(e.hex, t.hex) === 1);
     const spike = st.rs.switches.captureTriggersSpike && enemies.some((e) => e.braced && card(st, e).brace === "spike" && !e.spikeUsed);
     return { hex: t.hex, adjacentEnemies: enemies.map((e) => e.id), spike };
   }
@@ -1075,11 +1109,14 @@
 
   function zones(st) {
     const out = { N: new Set(), S: new Set() };
-    for (const u of alive(st)) if (projects(st, u)) for (const n of NBRS[u.hex]) out[u.team].add(n);
+    for (const u of alive(st)) if (projects(st, u)) for (const n of fieldOf(st).NBRS[u.hex]) out[u.team].add(n);
     return out;
   }
 
-  const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, foeOf, clone, card, alive, unitByUid,
+  /* The legacy field's geometry stays exported under its old names (COLS, FLAG, CELLS, dist...) for old tests and old
+     saved matches. Code that works on a match reads the match's field instead: fieldOf(st). */
+  const { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, flagBetween, arcOf, hexBehind, lineBetween } = LEGACY;
+  const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, FIELDS, fieldOf, fieldFor, deployRadiusFor, matchSize, foeOf, clone, card, alive, unitByUid,
     newMatch, act, apply, specialOf, specialName, specialCanTarget, specialHits, specialPreview, specialState, warmupBlock, fireBlock, arcOf, hexBehind, lineBetween, SPECIAL_NAMES, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, canPullFrom, flagBetween, dieCases, diceMultiplier, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, STAMINA_EFFECTS, baseStamina, braceTiredness, staminaFloor, staminaMods, addStaminaMod, staminaWith, nextStamina, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
   if (typeof module !== "undefined") module.exports = api; else root.GGEngine = api;
 })(this);
