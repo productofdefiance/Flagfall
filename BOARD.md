@@ -1,4 +1,4 @@
-STATUS · updated 20 Nov 2026, 3:55 pm ET
+STATUS · updated 20 Nov 2026, 3:56 pm ET
 
 VERSION
   On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
@@ -29,11 +29,11 @@ FLAGS (open, newest first)
     F022-4 · OPEN · 20 Nov · On the new 5v5 field (v3.8) the brief's premise has turned round: the second mover's…
     F022-3 · OPEN · 20 Nov · Brief 016's stall measure already has a column first_contact_turn (first adjacency)…
   ! F022-2 · ASK · 20 Nov · The F39 screen's "no warm-up on either side's first turn" arm can't be played sim-only…
-  +10 older in FLAGS.md
+  +11 older in FLAGS.md
 
 BUILDS
   Building
-    017 Move preview · PR #44 · Ready · checks pass · reviewed: hold
+    017 Move preview · PR #44 · Ready · checks running · reviewed: hold
     022 Safe approach · PR #41 · needs sync · no checks yet · not reviewed
     024 Lab capacity · PR #45 · Draft · checks running · not reviewed
   Ready to start
