@@ -18,7 +18,7 @@ This repository holds the browser playtest board (rules engine and computer oppo
 | `briefs/` | **Chat → Code.** One brief per build, numbered. Claude Code adds a `## Report` section to the brief it built. |
 | `FLAGS.md` | **Code → Chat.** Numbered open issues, including questions Claude Code needs answered (`ASK`). |
 | `flags/` | New flags since Brief 021: one file per brief (`flags/NNN.md`, names `FNNN-1`, …) so two builds can't clash on a name. `FLAGS.md` keeps F1 to F48. |
-| `sims/status/` | The status board (Brief 021): `board.js` builds it, the `status board` workflow puts it on the `status` branch and at https://productofdefiance.github.io/Flagfall/status/. |
+| `sims/status/` | The status board (Brief 021; page redesign Brief 023): `board.js` builds it, `page.js` draws the page and runs its Refresh button, the `status board` workflow puts it on the `status` branch and at https://productofdefiance.github.io/Flagfall/status/. |
 | `CLAUDE.md` | Standing instructions for Claude Code. |
 | `CHANGELOG.md` | One entry per build, newest first, in plain language. |
 
@@ -74,6 +74,7 @@ From the repository's top folder:
 node sims/lab/self_test.js
 node sims/lab/test_stall.js
 node sims/lab/test_lead.js
+node sims/lab/test_capacity.js
 node sims/status/test_board.js
 node sims/lab/board_check.js 10
 ```
