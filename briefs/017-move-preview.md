@@ -9,6 +9,7 @@
 | Goal | Let players plan moves and attacks without moving, checking and undoing: route and dangers before a move confirms, range for planning, the special's range, the Evade preview after an attack, and the enemy's moves and range. Build the screens the Editor approved on 19 Nov as Approved UI v3. |
 | Branch | Any branch your session may push to, started from `brief/017-move-preview` |
 | Flags | none to close |
+| Waits on | 014 |
 | Order | **After briefs 011 and 014 merge** (the Editor, 19 Nov: 011, then 014, then 017; 011 changes the same preview, buttons and specials; 014 adds the fields this preview must draw) and **before brief 012** (Cavalry adds Vault, stop reasons and Trample on top). Run `sync` first and take the next preset id. |
 
 
