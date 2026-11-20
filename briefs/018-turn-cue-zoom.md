@@ -10,6 +10,7 @@
 | Branch | Any branch your session may push to, started from `brief/018-turn-cue-zoom` |
 | Flags | none to close |
 | Status | **Ready to build** (the UI chat, 20 Nov): the mobile match log is designed, approved by the Editor (UI Brainstorm, Match log page, Round 8) and added as section 10. Wait for the Order below. |
+| Waits on | 017 |
 | Order | **After brief 017 merges** (017 adds the flag pill, the token HP position, the badges and Plex Sans numbers that this brief scales; same drawing code) and **before brief 012** (012 makes 9v9 and 13v13 playable; their hexes are too small to use on a phone without zoom). 014 (fields and the hot-seat snap) is already in by then. Run `sync` first. |
 
 ## Context
