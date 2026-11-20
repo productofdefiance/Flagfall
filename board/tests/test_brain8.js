@@ -35,7 +35,9 @@ ok(B8 && B8.model && B8.name === "Brain 8 (safe approach)", "Brain 8 exists, nam
 ok(JSON.stringify(B8.model) === JSON.stringify(B5.model) && JSON.stringify(B8.plan5) === JSON.stringify(B5.plan5), "Brain 8's value model and planning start as Brain 5's");
 ok(B5.approach === undefined && DEFAULT_BRAINS.brain6.approach === undefined && B7.approach === undefined, "Brains 5, 6 and 7 have no approach settings (frozen)");
 for (const k of Object.keys(B8.approach)) ok(BRAIN_LABELS["approach." + k], `Brain 8 setting ${k} has a plain label`);
-for (const k of Object.keys(OFF)) ok(B8.approach[k] === 1, `behaviour ${k} ships on`);
+for (const k of ["holderJoins", "tempo"]) ok(B8.approach[k] === 1, `behaviour ${k} ships on`);
+for (const k of ["safe", "respect"]) ok(B8.approach[k] === 0, `behaviour ${k} ships off (brief 022 screen: it cost wins against Brain 5)`);
+const B8A = variant({ safe: 1, respect: 1 });   // the positions for A1 and A2 switch them on
 
 // ---- 6. All four off = Brain 5 (also checked over every preset by sims/brainhash.js; see the Report) ----
 { const off = variant(OFF); let same = true, acts = 0;
@@ -55,20 +57,20 @@ for (const k of Object.keys(OFF)) ok(B8.approach[k] === 1, `behaviour ${k} ships
 // North's Light Ranged at D5, South's at D13. Any step forward puts ours inside the enemy archer's reach (4 hexes of
 // movement plus range 3) without a shot of its own this turn, and no friend of ours can reach the enemy archer next turn.
 const DUEL = { "N-HM": "D3", "N-HM2": "C4", "N-HA": "E4", "N-LM": null, "N-LR": "D5", "S-HM": "D15", "S-HM2": "C14", "S-HA": "E14", "S-LM": null, "S-LR": "D13" };
-{ const st = setup(DUEL), p5 = Bot.planTurn5(st, B5), p8 = Bot.planTurn5(st, B8);
-  const s5 = play(st, p5), s8 = play(st, p8), c8 = Bot.approach8Context(st, B8), f5 = Bot.firstStrike8(s5, U(s5, "N-LR"));
+{ const st = setup(DUEL), p5 = Bot.planTurn5(st, B5), p8 = Bot.planTurn5(st, B8A);
+  const s5 = play(st, p5), s8 = play(st, p8), c8 = Bot.approach8Context(st, B8A), f5 = Bot.firstStrike8(s5, U(s5, "N-LR"));
   console.log(`  1. don't walk in: archers ${G.dist("D5", "D13")} hexes apart. Brain 5: ${fmt(p5)}`);
   console.log(`        Brain 5's archer ends at ${U(s5, "N-LR").hex}: enemy first strike ${f5.d.toFixed(1)} expected from ${f5.by && f5.by.uid}, answered by a friend: ${f5.answered}; A1 would count ${(c8.firstStrike * B8.model.hp * f5.d).toFixed(1)} value points as already lost`);
   console.log(`        Brain 8: ${fmt(p8)} (archer at ${U(s8, "N-LR").hex}, in enemy reach: ${inReach(s8, U(s8, "N-LR"))})`);
   ok(inReach(s5, U(s5, "N-LR")) && !U(s5, "N-LR").attackedThis, "1. Brain 5 walks its archer into the enemy archer's reach without striking");
   ok(!inReach(s8, U(s8, "N-LR")), "1. Brain 8 stops short");
-  const noA1 = Bot.planTurn5(st, variant({ safe: 0 }));
+  const noA1 = Bot.planTurn5(st, variant({ safe: 0, respect: 1 }));
   ok(inReach(play(st, noA1), U(play(st, noA1), "N-LR")), "1. with A1 off Brain 8 walks in like Brain 5 (A1 does it)");
 }
 
 // ---- 2. Strike first when it pays: one hex closer, the enemy archer on 3 HP ----
 { const st = setup(Object.assign({}, DUEL, { "N-LR": "D6" })); U(st, "S-LR").hp = 3;
-  const p8 = Bot.planTurn5(st, B8);
+  const p8 = Bot.planTurn5(st, B8A);
   console.log(`  2. strike first: archers ${G.dist("D6", "D13")} apart, enemy archer on 3 HP. Brain 8: ${fmt(p8)}`);
   ok(p8.steps.some((a) => a.type === "attack" && a.uid === "N-LR" && a.target === "S-LR"), "2. Brain 8 goes in and strikes the enemy archer");
 }
@@ -77,20 +79,20 @@ const DUEL = { "N-HM": "D3", "N-HM2": "C4", "N-HA": "E4", "N-LM": null, "N-LR": 
 { const base = { "N-HM": "D3", "N-HM2": "C3", "N-HA": "E3", "N-LM": "B4", "N-LR": null, "S-HM": "D15", "S-HM2": "C16", "S-HA": "E16", "S-LM": null, "S-LR": "D13" };
   // a. our Light Melee 7 hexes from it, inside the storm's reach (4 hexes of movement plus range 3): one step takes it out
   const a = setup(Object.assign({}, base, { "N-LM": "D6" })); U(a, "S-LR").sp = "warm";
-  const pa = Bot.planTurn5(a, B8), sa = play(a, pa), hitA = Bot.specHit(a, U(a, "S-LR"), U(a, "N-LM"));
+  const pa = Bot.planTurn5(a, B8A), sa = play(a, pa), hitA = Bot.specHit(a, U(a, "S-LR"), U(a, "N-LM"));
   console.log(`  3a. warmed Arrow Storm would deal ${hitA.toFixed(1)} to our Light Melee (16 HP), counted at ${B8.approach.warmedRespect}; Brain 8: ${fmt(pa)} (in reach after: ${inWarm(sa, U(sa, "N-LM"))})`);
   ok(inWarm(a, U(a, "N-LM")) && !inWarm(sa, U(sa, "N-LM")), "3a. Brain 8 steps out of the warmed storm's reach");
   // b. our Heavy Melee pinned (no movement left) inside reach on 7 HP: the storm removes it, a brace (2 less) leaves it alive
   const b = setup(Object.assign({}, base, { "N-LM": null, "N-HM2": "D7" })); U(b, "S-LR").sp = "warm"; U(b, "N-HM2").moved = 99; U(b, "N-HM2").hp = 7;
   const bb = E.cloneLite(b); E.apply(bb, { type: "brace", uid: "N-HM2" });
-  const hitB = Bot.specHit(b, U(b, "S-LR"), U(b, "N-HM2")), hitBb = Bot.specHit(bb, U(bb, "S-LR"), U(bb, "N-HM2")), pb = Bot.planTurn5(b, B8);
+  const hitB = Bot.specHit(b, U(b, "S-LR"), U(b, "N-HM2")), hitBb = Bot.specHit(bb, U(bb, "S-LR"), U(bb, "N-HM2")), pb = Bot.planTurn5(b, B8A);
   console.log(`  3b. pinned Heavy Melee on 7 HP: storm ${hitB.toFixed(1)} unbraced, ${hitBb.toFixed(1)} braced; Brain 8: ${fmt(pb)}`);
   ok(hitB >= 7 && hitBb < 7, "3b. the storm removes it unbraced and not braced");
   ok(pb.steps.some((x) => x.type === "brace" && x.uid === "N-HM2"), "3b. Brain 8 braces");
   // c. our Light Ranged pinned 3 hexes from the warmed archer on 3 HP: a brace can't save it, a shot can remove the archer
   const c = setup(Object.assign({}, base, { "N-LM": null, "N-LR": "D10" })); U(c, "S-LR").sp = "warm"; U(c, "N-LR").moved = 99; U(c, "N-LR").hp = 3; U(c, "S-LR").hp = 4;
   const cb = E.cloneLite(c); E.apply(cb, { type: "brace", uid: "N-LR" });
-  const hitC = Bot.specHit(cb, U(cb, "S-LR"), U(cb, "N-LR")), pc = Bot.planTurn5(c, B8);
+  const hitC = Bot.specHit(cb, U(cb, "S-LR"), U(cb, "N-LR")), pc = Bot.planTurn5(c, B8A);
   console.log(`  3c. pinned Light Ranged on 3 HP, 3 hexes from the warmed archer (4 HP): storm ${hitC.toFixed(1)} even braced; Brain 8: ${fmt(pc)}`);
   ok(hitC >= 3, "3c. a brace can't save it");
   ok(pc.steps.some((x) => x.type === "attack" && x.uid === "N-LR" && x.target === "S-LR"), "3c. Brain 8 strikes the archer first");

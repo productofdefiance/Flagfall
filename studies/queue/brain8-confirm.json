@@ -1,0 +1,102 @@
+{
+ "id": "brain8-confirm",
+ "kind": "study",
+ "brief": "022",
+ "seed_name": "brain8-confirm",
+ "question": "Brain 8 as shipped (B4 on, A1 and A2 off, tempo 0 and 0) at 1,000 games per matchup, v3.8: Brain 5 mirror baseline, Brain 8 against Brain 5 (balanced and all-Light) and Brain 8 mirrors, 5v5 and 7v7. Sides and move order swapped evenly; same deals across the balanced matchups of a format.",
+ "tags": [
+  "brain8",
+  "study",
+  "v3.8",
+  "head-to-head"
+ ],
+ "measures": [
+  "play",
+  "specials",
+  "specialsafety",
+  "firstloss",
+  "brain8"
+ ],
+ "matchups": [
+  {
+   "name": "b5-mirror-5v5",
+   "a": "brain5",
+   "b": "brain5",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "b8-v-b5-5v5",
+   "a": "brain8",
+   "b": "brain5",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "b8-mirror-5v5",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "b8-v-b5-light-5v5",
+   "a": "brain8",
+   "b": "brain5",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "light",
+   "games": 1000,
+   "seed_as": "light-5v5"
+  },
+  {
+   "name": "b5-mirror-7v7",
+   "a": "brain5",
+   "b": "brain5",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "b8-v-b5-7v7",
+   "a": "brain8",
+   "b": "brain5",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "b8-mirror-7v7",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "b8-v-b5-light-7v7",
+   "a": "brain8",
+   "b": "brain5",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "light",
+   "games": 1000,
+   "seed_as": "light-7v7"
+  }
+ ]
+}
