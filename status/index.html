@@ -1,70 +1,497 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flagfall status</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fbfaf7;--fg:#1d1d1b;--muted:#6b6a65;--line:#e4e1d8;--ask:#a3361b}
-body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
-main{max-width:720px;margin:0 auto;padding:16px}
-h1{font-size:18px;margin:0 0 4px}.upd{color:var(--muted);font-size:13px;margin-bottom:12px}
-section{border-top:1px solid var(--line);padding:10px 0}
-h2{font-size:12px;letter-spacing:.06em;color:var(--muted);margin:0 0 6px}
-.l{overflow-wrap:anywhere}.i1{padding-left:0}.i2{padding-left:16px}.i3{padding-left:32px}
-.ask{color:var(--ask);font-weight:600}.ask::before{content:"! "}
-</style></head>
-<body><main>
-<h1>Flagfall status</h1>
-<div class="upd">Updated 20 Nov 2026, 3:12 pm ET</div>
-<section><h2>VERSION</h2>
-<div class="l i1">On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5</div>
-<div class="l i1">Building: 017 → v3.13.00 · 022 → v3.13.00 · 023 → none</div>
-</section>
-<section><h2>RESULTS (last 24 hours)</h2>
-<div class="l i1">Nightly checks: pass (20 Nov, 11:54 am ET)</div>
-<div class="l i1">study v3.11.00 · 5v5: mirror, 61.9% ended on the turn limit, A/B 459–477; 7v7: mirror, 44.2% ended on the turn limit, A/B… · 20 Nov</div>
-<div class="l i1">study v3.11.00 · 5v5: mirror, 35.1% ended on the turn limit, A/B 497–492; 7v7: mirror, 42.7% ended on the turn limit, A/B… · 20 Nov</div>
-<div class="l i1">study v3.10.00 · 52 matchups, 52000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 43.7%… · 20 Nov</div>
-<div class="l i1">screen v3.10.00 · balanced-5v5: mirror, 34.8% ended on the turn limit, A/B 209–187; balanced-7v7: mirror, 38.8% ended on the… · 20 Nov</div>
-<div class="l i1">release v3.12.00 · 5v5: mirror, 63.0% ended on the turn limit, A/B 453–481; 7v7: mirror, 43.9% ended on the turn limit, A/B… · 20 Nov</div>
-<div class="l i1">release v3.11.00 · 5v5: mirror, 36.7% ended on the turn limit, A/B 503–492; 7v7: mirror, 41.4% ended on the turn limit, A/B… · 20 Nov</div>
-<div class="l i1">release v3.10.00 · 5v5: mirror, 37.0% ended on the turn limit, A/B 478–512; 7v7: mirror, 45.1% ended on the turn limit, A/B… · 20 Nov</div>
-<div class="l i1">nightly v3.11.00 · passed: all 4 night checks · 20 Nov</div>
-<div class="l i1">+31 more in results/INDEX.md</div>
-</section>
-<section><h2>FLAGS (open, newest first)</h2>
-<div class="l i1 ask">F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…</div>
-<div class="l i1 ask">F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…</div>
-<div class="l i1">F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…</div>
-<div class="l i1">F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…</div>
-<div class="l i1">F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…</div>
-<div class="l i1">F017-3 · OPEN · 20 Nov · Set spear "on the way" can only ever fire where the move stops: every hex next to a…</div>
-<div class="l i1 ask">F017-2 · ASK · 20 Nov · Two readings in the walk (2.11) the brief doesn't cover. (1) A move that stops short pays…</div>
-<div class="l i1 ask">F017-1 · ASK · 20 Nov · Enemy view (§9) "its special, if ready this turn": during your turn an enemy's special is…</div>
-<div class="l i1">F37 · OPEN · 19 Nov · Brief 015, a reading of Game Laws 3.13 (set spear punishes arriving): arrival is judged…</div>
-<div class="l i1">F36 · TEST · 19 Nov · Brief 016: the summary's starting cut for a stall (last damage 5 or more side-turns…</div>
-<div class="l i1">F24 · OPEN · 18 Nov · Brain 5 has no time limit per turn. Its worst turn took 4.6 s on the build machine…</div>
-<div class="l i1">F22 · TEST · 18 Nov · Evade doesn't save Light units in bot games: Light units removed per game are unchanged…</div>
-<div class="l i1">+2 older in FLAGS.md</div>
-</section>
-<section><h2>BUILDS</h2>
-<div class="l i1">Building</div>
-<div class="l i2">017 Move preview · PR #44 · Ready · checks pass · not reviewed</div>
-<div class="l i2">022 Safe approach · PR #41 · Draft · checks running · not reviewed</div>
-<div class="l i2">023 Status page · PR #40 · Ready · checks pass · reviewed: merge</div>
-<div class="l i1">Ready to start</div>
-<div class="l i2">024 Lab capacity</div>
-<div class="l i1">Waiting</div>
-<div class="l i2">012 Cavalry ← 017, 018</div>
-<div class="l i2">018 Turn cue zoom ← 017</div>
-<div class="l i2">020 Victory values ← 022</div>
-<div class="l i1">Merged (last 3)</div>
-<div class="l i2">014 Fields · v3.12.00 · 20 Nov</div>
-<div class="l i2">021 Status board · 20 Nov</div>
-<div class="l i2">019 Brain 7 · v3.11.00 · 20 Nov</div>
-</section>
-<section><h2>CHATS</h2>
-<div class="l i1">Open</div>
-<div class="l i2">FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov</div>
-<div class="l i1">Closed (last 5)</div>
-<div class="l i2">none</div>
-</section>
-</main></body></html>
+body{margin:0;background:#e9ece6}a{color:#1f2421}a:hover{color:#5f6762}
+#app{background:#e9ece6;color:#1f2421;font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px;min-height:100vh}
+.i14{width:14px;height:14px;flex:none}.i16{width:16px;height:16px;flex:none}
+.top{background:#1f2421;color:#f8f9f5;padding:16px}.hin{max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px}
+h1{margin:0;font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;font-size:30px;line-height:1.1;letter-spacing:.06em;text-transform:uppercase}
+.upd{font-size:13px;color:#d5d9d2;margin-top:2px}.btns{display:flex;flex-wrap:wrap;gap:10px}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;box-sizing:border-box;padding:0 16px;border-radius:10px;font-family:inherit;font-weight:600;font-size:14px;text-decoration:none}
+.btn.light{background:#f8f9f5;color:#1f2421}.btn.dark{background:transparent;color:#f8f9f5;border:1.5px solid #f8f9f5;cursor:pointer}.btn.dark[disabled]{opacity:.8;cursor:progress}
+.hlinks{font-size:12px;color:#d5d9d2;margin-top:6px}.hlinks a{color:#d5d9d2}.hlinks a:hover{color:#f8f9f5}
+.mn{max-width:1080px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:16px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.tile{background:#f8f9f5;border:1px solid #b8beb6;border-radius:10px;padding:12px 14px;min-width:0}
+.tl,.grp,th{font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#5f6762}
+.tb{font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;font-size:30px;line-height:1.1;margin-top:4px}.ts{font-size:12px;color:#5f6762;margin-top:2px}.tp{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 7px;border-radius:999px;color:#1f2421;font-size:12px;font-weight:600;white-space:nowrap;border:1px solid}
+.p-review{background:#1f2421;border-color:#1f2421;color:#f8f9f5}.p-pass{background:#cfe8da;border-color:#cfe8da}.p-sync{background:#e4dbf3;border-color:#e4dbf3}
+.p-heads{background:#f3dfa2;border-color:#f3dfa2}.p-broken{background:#f6cfc6;border-color:#f6cfc6}.p-running{background:#e3e6df;border-color:#e3e6df}
+.p-ask{background:#d6e3f2;border-color:#d6e3f2}.p-merged{background:#f8f9f5;border-color:#b8beb6}
+.cols{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}.side{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:16px}
+.card{background:#f8f9f5;border:1px solid #b8beb6;border-radius:10px;padding:16px 16px 8px;min-width:0}
+.shead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin-bottom:12px}
+h2{margin:0;font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;font-size:22px;letter-spacing:.04em;text-transform:uppercase}.note,.muted{font-size:12px;color:#5f6762}
+.grp{margin:0;padding:14px 0 6px;border-bottom:1px solid #b8beb6}.cnt{font-weight:600}
+.row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #dfe3dc}.rl{min-width:0;flex:1 1 auto}.rr{flex:none;text-align:right}
+.nm{font-weight:600;font-size:15px}.sub{font-size:12px;color:#5f6762;margin-top:2px}.sub.st{margin-top:4px}.sub0{font-size:12px;color:#5f6762}.none{font-size:14px;color:#5f6762}
+.b{font-weight:600}.wait{display:inline-flex;align-items:center;gap:5px;font-size:13px;white-space:nowrap}.ver{font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}.dtr{font-size:13px;white-space:nowrap}
+.nrow{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px}.nrow .muted{font-size:13px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.35}
+th{text-align:left;padding:0 10px 8px 0;border-bottom:1px solid #b8beb6}td{text-align:left;vertical-align:top;padding:11px 10px 11px 0;border-bottom:1px solid #dfe3dc}
+.num{text-align:right}.w64{width:64px}.w150{width:150px}.big{font-variant-numeric:tabular-nums;font-weight:600}.dt{color:#5f6762;font-size:13px;white-space:nowrap}.fb{font-size:13px}.nw{white-space:nowrap}
+.flag{border-bottom:1px solid #dfe3dc}.flag summary{list-style:none;cursor:pointer;padding:11px 0;display:block}.flag summary::-webkit-details-marker{display:none}
+.flag summary:focus-visible{outline:2px solid #1f2421;outline-offset:2px;border-radius:4px}
+.fhead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}.fname{min-width:64px}.fpill{display:inline-flex;align-items:center;gap:8px;flex:1 1 auto}.chev{margin-left:auto;transition:transform .15s}
+.flag[open] .chev{transform:rotate(180deg)}.flag summary .clamp{margin-top:6px}.flag[open] summary .clamp{display:none}
+.fbody{padding:0 0 12px;font-size:13px;line-height:1.45}.ftext{overflow-wrap:anywhere}.fnext{margin-top:8px;overflow-wrap:anywhere}.fnext .tl{display:block;margin-bottom:2px}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.4}
+.foot{font-size:12px;color:#5f6762;padding:10px 0}.empty{padding:4px 0 14px;font-size:14px}
+.key{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px 20px;padding-bottom:12px}.kitem{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.steps{margin:0 0 12px;padding-left:20px;line-height:1.5}.steps li{margin-bottom:6px}
+#keybox{width:100%;box-sizing:border-box;min-height:44px;padding:0 12px;border:1px solid #b8beb6;border-radius:10px;font:inherit;background:#fff}
+.srow{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}.sbtn{min-height:44px;padding:0 16px;border-radius:10px;border:1.5px solid #1f2421;background:#1f2421;color:#f8f9f5;font:inherit;font-weight:600;cursor:pointer}.sbtn.ghost{background:transparent;color:#1f2421}
+</style>
+</head>
+<body>
+<div id="app"><header class="top"><div class="hin"><div><h1>Flagfall status</h1><div class="upd">Updated 20 Nov 2026, 3:29 pm ET</div></div><div class="hr"><div class="btns"><a class="btn light" href="https://productofdefiance.github.io/Flagfall/"><svg aria-hidden="true" viewBox="0 0 24 24" class="i16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5l12 7-12 7z"/></svg>Play latest build</a><button type="button" class="btn dark" data-act="refresh"><svg aria-hidden="true" viewBox="0 0 24 24" class="i16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12a7 7 0 1 1-2.2-5.1"/><path d="M19 4.5V8h-3.5"/></svg>Refresh</button></div><div class="hlinks"><a href="#setup" data-act="setup">Set up one-tap rebuild</a></div></div></div></header><main class="mn"><div class="tiles"><div class="tile"><div class="tl">On main</div><div class="tb">v3.12.00</div><div class="ts">Build 16 · Rules v3.8 · Brain 5</div></div><div class="tile"><div class="tl">Building</div><div class="tb">2</div><div class="ts">017 Move preview · will be v3.13.00, 022 Safe approach · will be v3.13.00</div><div class="tp"><span class="pill p-sync"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11a7 7 0 0 0-12.3-4"/><path d="M6.5 3.5V7H10"/><path d="M5 13a7 7 0 0 0 12.3 4"/><path d="M17.5 20.5V17H14"/></svg>2 need sync</span></div></div><div class="tile"><div class="tl">Nightly checks</div><div class="tb">Pass</div><div class="ts">20 Nov, 11:54 am ET</div><div class="tp"><span class="pill p-pass"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>All checks pass</span></div></div><div class="tile"><div class="tl">Flags</div><div class="tb">4</div><div class="ts">Open and unanswered · newest F50</div><div class="tp"><span class="pill p-ask"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.8a2.3 2.3 0 1 1 3.4 2c-.8.5-1.2 1-1.2 1.8"/><path d="M12 16.6v.2"/></svg>4 need an answer</span></div></div></div><div class="cols"><section class="card" style="flex:1 1 480px"><div class="shead"><h2>Builds</h2><div class="note">2 need sync · 1 ready to start · 3 waiting</div></div><h3 class="grp">Building <span class="cnt">· 2</span></h3><div class="row"><div class="rl"><div class="nm">017 Move preview</div><div class="sub">PR #44 · will be v3.13.00 · conflicts with main · checks pass</div><div class="sub">Your move: type &quot;sync&quot; in its Code chat</div><div class="sub"><a href="https://productofdefiance.github.io/Flagfall/pr/44/" class="b">Play this build</a></div></div><div class="rr"><span class="pill p-sync"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11a7 7 0 0 0-12.3-4"/><path d="M6.5 3.5V7H10"/><path d="M5 13a7 7 0 0 0 12.3 4"/><path d="M17.5 20.5V17H14"/></svg>Needs sync</span></div></div><div class="row"><div class="rl"><div class="nm">022 Safe approach</div><div class="sub">PR #41 · will be v3.13.00 · conflicts with main · checks pass</div><div class="sub">Your move: type &quot;sync&quot; in its Code chat</div><div class="sub"><a href="https://productofdefiance.github.io/Flagfall/pr/41/" class="b">Play this build</a></div></div><div class="rr"><span class="pill p-sync"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11a7 7 0 0 0-12.3-4"/><path d="M6.5 3.5V7H10"/><path d="M5 13a7 7 0 0 0 12.3 4"/><path d="M17.5 20.5V17H14"/></svg>Needs sync</span></div></div><h3 class="grp">Ready to start <span class="cnt">· 1</span></h3><div class="row"><div class="rl"><div class="nm">024 Lab capacity</div></div><div class="rr"><span class="wait"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5l12 7-12 7z"/></svg>Ready to start</span></div></div><h3 class="grp">Waiting <span class="cnt">· 3</span></h3><div class="row"><div class="rl"><div class="nm">012 Cavalry</div></div><div class="rr"><span class="wait"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10"/><path d="M7 20h10"/><path d="M8 4c0 4.5 8 3.5 8 8s-8 3.5-8 8"/><path d="M16 4c0 4.5-8 3.5-8 8s8 3.5 8 8"/></svg>After 017, 018</span></div></div><div class="row"><div class="rl"><div class="nm">018 Turn cue zoom</div></div><div class="rr"><span class="wait"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10"/><path d="M7 20h10"/><path d="M8 4c0 4.5 8 3.5 8 8s-8 3.5-8 8"/><path d="M16 4c0 4.5-8 3.5-8 8s8 3.5 8 8"/></svg>After 017</span></div></div><div class="row"><div class="rl"><div class="nm">020 Victory values</div></div><div class="rr"><span class="wait"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10"/><path d="M7 20h10"/><path d="M8 4c0 4.5 8 3.5 8 8s-8 3.5-8 8"/><path d="M16 4c0 4.5-8 3.5-8 8s8 3.5 8 8"/></svg>After 022</span></div></div><h3 class="grp">Merged <span class="cnt">· last 3</span></h3><div class="row"><div class="rl"><div class="nm">023 Status page</div><div class="sub">20 Nov</div></div><div class="rr"><span class="ver">No version</span></div></div><div class="row"><div class="rl"><div class="nm">014 Fields</div><div class="sub">20 Nov</div></div><div class="rr"><span class="ver">v3.12.00</span></div></div><div class="row"><div class="rl"><div class="nm">021 Status board</div><div class="sub">20 Nov</div></div><div class="rr"><span class="ver">No version</span></div></div><div style="height:8px"></div></section><div class="side"><section class="card"><div class="shead"><h2>Results</h2><div class="note">Last 24 hours</div></div><div class="nrow"><span class="pill p-pass"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Nightly checks pass</span><span class="muted">20 Nov, 11:54 am ET</span></div><div class="tw"><table><thead><tr><th scope="col">Run</th><th scope="col" class="num w64">5v5</th><th scope="col" class="num w64">7v7</th><th scope="col" class="num w64">Date</th></tr></thead><tbody><tr><td><div class="b">v3.11.00</div><div class="sub">study</div></td><td class="num big">61.9%</td><td class="num big">44.2%</td><td class="num dt">20 Nov</td></tr><tr><td><div class="b">v3.11.00</div><div class="sub">study</div></td><td class="num big">35.1%</td><td class="num big">42.7%</td><td class="num dt">20 Nov</td></tr><tr><td><div class="b">v3.10.00</div><div class="sub">study</div></td><td colspan="2" class="fb">52 matchups, 52,000 games</td><td class="num dt">20 Nov</td></tr><tr><td><div class="b">v3.10.00</div><div class="sub">screen</div></td><td class="num big">34.8%</td><td class="num big">38.8%</td><td class="num dt">20 Nov</td></tr><tr><td><div class="b">v3.12.00</div><div class="sub">release</div></td><td class="num big">63.0%</td><td class="num big">43.9%</td><td class="num dt">20 Nov</td></tr><tr><td><div class="b">v3.11.00</div><div class="sub">release</div></td><td class="num big">36.7%</td><td class="num big">41.4%</td><td class="num dt">20 Nov</td></tr><tr><td><div class="b">v3.10.00</div><div class="sub">release</div></td><td class="num big">37.0%</td><td class="num big">45.1%</td><td class="num dt">20 Nov</td></tr><tr><td><div class="b">v3.11.00</div><div class="sub">nightly</div></td><td class="num big">30.0%</td><td class="num big">30.0%</td><td class="num dt">20 Nov</td></tr></tbody></table></div><div class="foot">5v5 and 7v7 show the share of bot games that ended on the turn limit. 31 more ran in the last 24 hours. Older runs are in results/INDEX.md.</div></section><section class="card"><div class="shead"><h2>Chats</h2><div class="note">Design chats</div></div><h3 class="grp">Open <span class="cnt">· 1</span></h3><div class="row"><div class="rl"><div class="nm">FF Flags v3.11.00 -</div><div class="sub">clearing the open flag list</div></div><div class="rr"><div class="dtr">Opened 20 Nov</div></div></div><h3 class="grp">Closed <span class="cnt">· last 5</span></h3><div class="row"><div class="rl"><div class="none">None</div></div></div><div style="height:8px"></div></section></div></div><section class="card"><div class="shead"><h2>Flags</h2><div class="note">4 need an answer · newest first</div></div><details class="flag" data-flag="F50"><summary><div class="fhead"><div class="fname"><span class="b">F50</span> <span class="sub0">20 Nov</span></div><div class="fpill"><span class="pill p-ask"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.8a2.3 2.3 0 1 1 3.4 2c-.8.5-1.2 1-1.2 1.8"/><path d="M12 16.6v.2"/></svg>Needs an answer</span><span class="sub0 st">ASK</span></div><svg aria-hidden="true" viewBox="0 0 24 24" class="i14 chev" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="clamp">Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7): 5v5 changed a lot, 7v7 didn&#39;t. At 5v5 the first mover&#39;s share of decisive games went from 3.2% to 58.0% (F39&#39;s collapse is gone), but games ending on the turn limit went from 35.1% to 61.9%, pull KOs from 44.0%…</div></summary><div class="fbody"><div class="ftext">Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7): 5v5 changed a lot, 7v7 didn&#39;t. At 5v5 the first mover&#39;s share of decisive games went from 3.2% to 58.0% (F39&#39;s collapse is gone), but games ending on the turn limit went from 35.1% to 61.9%, pull KOs from 44.0% to 23.5%, draws from 1.1% to 6.4%, and the first attack comes on turn 4.4 instead of 2.9. 7v7: every measure within 4 points. Likely the 2-ring deploy area and the 8-hex gap keep Arrow Storm out of early reach, but field and deploy radius changed together: likely, not isolated</div><div class="fnext"><span class="tl">Resolved in / next step</span><div>Recommended: merge v3.8 as the Editor locked it, then fold 5v5 v3.8 into the stall study (brief 016&#39;s follow-up) instead of tuning now. If the Editor wants the cause isolated first, one sim-only screen: v3.8 at 5v5 with deployRadius5 = 3 against v3.8, same seeds, 200 games per side. F39 can close if the Editor accepts the field as its fix</div></div></div></details><details class="flag" data-flag="F49"><summary><div class="fhead"><div class="fname"><span class="b">F49</span> <span class="sub0">20 Nov</span></div><div class="fpill"><span class="pill p-ask"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.8a2.3 2.3 0 1 1 3.4 2c-.8.5-1.2 1-1.2 1.8"/><path d="M12 16.6v.2"/></svg>Needs an answer</span><span class="sub0 st">ASK</span></div><svg aria-hidden="true" viewBox="0 0 24 24" class="i14 chev" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="clamp">Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and the action panel is 487 px, not the ~590 px the design estimated. The 5v5 field is drawn 1,014 px tall (it fills the width, so its hexes are bigger than 7v7&#39;s: 68 px against 54 px), and a side&#39;s half (own edge…</div></summary><div class="fbody"><div class="ftext">Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and the action panel is 487 px, not the ~590 px the design estimated. The 5v5 field is drawn 1,014 px tall (it fills the width, so its hexes are bigger than 7v7&#39;s: 68 px against 54 px), and a side&#39;s half (own edge to the middle of the centre row, D9) is 507 px, so after the snap the centre row sits 20 px out of view (49 px to its far edge). 7v7 (449 px), 9v9 (449) and 13v13 (416) fit. Measured in a headless phone browser on this build</div><div class="fnext"><span class="tl">Resolved in / next step</span><div>Recommended: draw the 5v5 field at 7v7&#39;s hex size (centred, a margin each side) instead of filling the width; its half becomes about 400 px and fits with room. It changes the 5v5 look, so it needs the Editor&#39;s go-ahead. Not built</div></div></div></details><details class="flag" data-flag="F41"><summary><div class="fhead"><div class="fname"><span class="b">F41</span> <span class="sub0">20 Nov</span></div><div class="fpill"><span class="pill p-heads"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 21 19H3z"/><path d="M12 10v4"/><path d="M12 17v.2"/></svg>Heads up</span><span class="sub0 st">OPEN</span></div><svg aria-hidden="true" viewBox="0 0 24 24" class="i14 chev" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="clamp">Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to an enemy&#39;s warmed-up special. Of its units inside a warmed special&#39;s reach at the start of its turn, only 19% (balanced 7v7) to 46% (5v5) step out, and those that stay are almost never braced (7v7: 102 braced vs…</div></summary><div class="fbody"><div class="ftext">Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to an enemy&#39;s warmed-up special. Of its units inside a warmed special&#39;s reach at the start of its turn, only 19% (balanced 7v7) to 46% (5v5) step out, and those that stay are almost never braced (7v7: 102 braced vs 6,053 unbraced). 29–32% of units ending a turn in reach are hit by that special next turn; only 18–68 of those hits land on a braced unit. 400 games per format, specials-playtest-2. Harder to prove than a useless setting: no single example turn was pulled out where bracing or stepping back clearly wins</div><div class="fnext"><span class="tl">Resolved in / next step</span><div>Answered: the Editor said yes (20 Nov). Built in brief 022 (Brain 8) as A2, respect a warmed special; brief 022 closes this row when it merges. Was: Suggested setting: a weight on &quot;end the turn out of a warmed special&#39;s reach, or braced inside it&quot;, for the unit that special would most likely pick. Needs the Editor&#39;s go-ahead (it changes how the bot plays v3.7), then a screen at 200 games per side against the current Brain 5</div></div></div></details><details class="flag" data-flag="F40"><summary><div class="fhead"><div class="fname"><span class="b">F40</span> <span class="sub0">20 Nov</span></div><div class="fpill"><span class="pill p-running"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10"/><path d="M7 20h10"/><path d="M8 4c0 4.5 8 3.5 8 8s-8 3.5-8 8"/><path d="M16 4c0 4.5-8 3.5-8 8s8 3.5 8 8"/></svg>Being tested</span><span class="sub0 st">TEST</span></div><svg aria-hidden="true" viewBox="0 0 24 24" class="i14 chev" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="clamp">Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before the bot fix, 0 after. Its second hit needs an enemy directly behind its target, which almost never happens; without one, Skewer is exactly a normal hit (no dice), so the bot rightly attacks normally and lets it…</div></summary><div class="fbody"><div class="ftext">Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before the bot fix, 0 after. Its second hit needs an enemy directly behind its target, which almost never happens; without one, Skewer is exactly a normal hit (no dice), so the bot rightly attacks normally and lets it lapse. A stricter line-up check still gave 0 in 60 local 7v7 games</div><div class="fnext"><span class="tl">Resolved in / next step</span><div>Has a home, no answer needed now (the Editor, 20 Nov): decide after Cavalry (brief 012), when Anti-Cavalry has its real targets. Count Skewer firings in brief 012&#39;s runs, then choose. Code&#39;s options: Not a bot problem. Recommended: in a later preset, give Skewer a reason to fire alone: for example ×1.5 on the first hit (as Bullseye), or a second hit on any enemy next to the first target, not only one directly behind. The Editor picks</div></div></div></details><details class="flag" data-flag="F39"><summary><div class="fhead"><div class="fname"><span class="b">F39</span> <span class="sub0">20 Nov</span></div><div class="fpill"><span class="pill p-running"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10"/><path d="M7 20h10"/><path d="M8 4c0 4.5 8 3.5 8 8s-8 3.5-8 8"/><path d="M16 4c0 4.5-8 3.5-8 8s8 3.5 8 8"/></svg>Being tested</span><span class="sub0 st">TEST</span></div><svg aria-hidden="true" viewBox="0 0 24 24" class="i14 chev" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="clamp">Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light Ranged a side, and at × 2 Arrow Storm (7 × 2 = 14, no Dodge) kills a full-health Light Ranged (12 HP) from about 7 hexes away (4 of movement, range 3): 1,001 fired, 946 kills in 1,000 Brain 5 mirror games. The…</div></summary><div class="fbody"><div class="ftext">Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light Ranged a side, and at × 2 Arrow Storm (7 × 2 = 14, no Dodge) kills a full-health Light Ranged (12 HP) from about 7 hexes away (4 of movement, range 3): 1,001 fired, 946 kills in 1,000 Brain 5 mirror games. The second mover, with full Command on turn 1, warms up first and wins the duel: the first mover won 35 of 657 decisive games (5.3%; 38.6% on v3.6). With the older sizes (× 1.5, no kill) it flips: the first mover won 85.3%. 7v7 is far less affected (31.6% vs 46.9%). Fixed bot, same seeds, 1,000 games per format. Likely, not isolated</div><div class="fnext"><span class="tl">Resolved in / next step</span><div>Has a home, no answer needed now (the Editor, 20 Nov): brief 022 runs a sim-only screen (Arrow Storm × 2, × 1.75, × 1.5, and no warm-up on the first turn) with Brain 8 on brief 014&#39;s fields, and the sizes are judged there. The design chat&#39;s sim check (20 Nov) reads this as mostly the bot walking into the first strike, not Arrow Storm&#39;s size (likely, not isolated). Brief 014&#39;s baseline (F50) reports the first mover at 58.0% of decisive 5v5 games on v3.8. Code&#39;s first recommendation was: Sizes are the Editor&#39;s call (brief 011: &quot;not now&quot;). Neither size set fixes it, so the size alone isn&#39;t the lever. Recommended: merge v3.7, then run a sim-only screen before choosing a v3.8: Arrow Storm × 1.75 (12.5: kills only a hurt Light Ranged), and the first mover&#39;s turn-1 Command at 10 instead of 6 under specials, each against v3.7 on the same seeds</div></div></div></details><details class="flag" data-flag="F017-3"><summary><div class="fhead"><div class="fname"><span class="b">F017-3</span> <span class="sub0">20 Nov</span></div><div class="fpill"><span class="pill p-heads"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 21 19H3z"/><path d="M12 10v4"/><path d="M12 17v.2"/></svg>Heads up</span><span class="sub0 st">OPEN</span></div><svg aria-hidden="true" viewBox="0 0 24 24" class="i14 chev" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="clamp">Set spear &quot;on the way&quot; can only ever fire where the move stops: every hex next to a braced Heavy Anti-Cavalry is also in its Mark, so the walk stops there. Rule 3&#39;s &quot;a set spear that fires&quot; therefore only separates routes that both stop short (test: Fewer dangers)</div></summary><div class="fbody"><div class="ftext">Set spear &quot;on the way&quot; can only ever fire where the move stops: every hex next to a braced Heavy Anti-Cavalry is also in its Mark, so the walk stops there. Rule 3&#39;s &quot;a set spear that fires&quot; therefore only separates routes that both stop short (test: Fewer dangers)</div><div class="fnext"><span class="tl">Resolved in / next step</span><div>No action: information for the Game Laws note on 2.11. Cavalry&#39;s Pursuit (brief 012) will be the first danger that can fire mid-route</div></div></div></details><details class="flag" data-flag="F017-2"><summary><div class="fhead"><div class="fname"><span class="b">F017-2</span> <span class="sub0">20 Nov</span></div><div class="fpill"><span class="pill p-ask"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.8a2.3 2.3 0 1 1 3.4 2c-.8.5-1.2 1-1.2 1.8"/><path d="M12 16.6v.2"/></svg>Needs an answer</span><span class="sub0 st">ASK</span></div><svg aria-hidden="true" viewBox="0 0 24 24" class="i14 chev" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="clamp">Two readings in the walk (2.11) the brief doesn&#39;t cover. (1) A move that stops short pays for the hexes it walked, and tackle by where it actually stopped (today&#39;s tackle rule, start and end). (2) A route may pass over its own empty flag hex; the walk treats that as stepping on and off it (no…</div></summary><div class="fbody"><div class="ftext">Two readings in the walk (2.11) the brief doesn&#39;t cover. (1) A move that stops short pays for the hexes it walked, and tackle by where it actually stopped (today&#39;s tackle rule, start and end). (2) A route may pass over its own empty flag hex; the walk treats that as stepping on and off it (no effect unless set spear hits it there, when the damage is pooled with the flag as for any holder)</div><div class="fnext"><span class="tl">Resolved in / next step</span><div>Recommended: accept both. Neither came up in 100 Brain 5 games</div></div></div></details><details class="flag" data-flag="F017-1"><summary><div class="fhead"><div class="fname"><span class="b">F017-1</span> <span class="sub0">20 Nov</span></div><div class="fpill"><span class="pill p-ask"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.8a2.3 2.3 0 1 1 3.4 2c-.8.5-1.2 1-1.2 1.8"/><path d="M12 16.6v.2"/></svg>Needs an answer</span><span class="sub0 st">ASK</span></div><svg aria-hidden="true" viewBox="0 0 24 24" class="i14 chev" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div><div class="clamp">Enemy view (§9) &quot;its special, if ready this turn&quot;: during your turn an enemy&#39;s special is never ready (a charged special lapses at the end of its own turn). Built as: an enemy that warmed up on its last turn (it can fire on its next) shows its special&#39;s range in plum and its dashed plum ring; a…</div></summary><div class="fbody"><div class="ftext">Enemy view (§9) &quot;its special, if ready this turn&quot;: during your turn an enemy&#39;s special is never ready (a charged special lapses at the end of its own turn). Built as: an enemy that warmed up on its last turn (it can fire on its next) shows its special&#39;s range in plum and its dashed plum ring; a solid plum ring never appears on your turn</div><div class="fnext"><span class="tl">Resolved in / next step</span><div>Recommended: accept. Alternative: show the plum range only for a solid ring, which would never show it</div></div></div></details><div class="foot">6 older ones are open in FLAGS.md.</div></section><section class="card"><div class="shead"><h2>Key</h2><div class="note">What each mark means</div></div><div class="key"><div class="kitem"><span class="pill p-review"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#f8f9f5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="12" height="15" rx="2"/><path d="M9.5 5V3.5h5V5"/><path d="M9 11h6"/><path d="M9 15h4"/></svg>Review</span><div class="sub0">A build is finished. Your move: ask a design chat for a review.</div></div><div class="kitem"><span class="pill p-pass"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Ready to merge</span><div class="sub0">A review said merge. Your move: do the hands-on check, then merge.</div></div><div class="kitem"><span class="pill p-ask"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.8a2.3 2.3 0 1 1 3.4 2c-.8.5-1.2 1-1.2 1.8"/><path d="M12 16.6v.2"/></svg>Needs an answer</span><div class="sub0">A flag is waiting on you or a design chat.</div></div><div class="kitem"><span class="pill p-running"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10"/><path d="M7 20h10"/><path d="M8 4c0 4.5 8 3.5 8 8s-8 3.5-8 8"/><path d="M16 4c0 4.5-8 3.5-8 8s8 3.5 8 8"/></svg>Running</span><div class="sub0">In progress, or waiting its turn. Nothing for you to do.</div></div><div class="kitem"><span class="pill p-sync"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11a7 7 0 0 0-12.3-4"/><path d="M6.5 3.5V7H10"/><path d="M5 13a7 7 0 0 0 12.3 4"/><path d="M17.5 20.5V17H14"/></svg>Needs sync</span><div class="sub0">A build has fallen behind main or conflicts with it. Your move: type sync in its Code chat.</div></div><div class="kitem"><span class="pill p-heads"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4 21 19H3z"/><path d="M12 10v4"/><path d="M12 17v.2"/></svg>Heads up</span><div class="sub0">A medium issue, such as a review that says hold.</div></div><div class="kitem"><span class="pill p-broken"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#a3201a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/></svg>Broken</span><div class="sub0">Something failed: checks on a build, or the nightly run.</div></div><div class="kitem"><span class="pill p-pass"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Passing</span><div class="sub0">Checks pass.</div></div><div class="kitem"><span class="pill p-merged"><svg aria-hidden="true" viewBox="0 0 24 24" class="i14" fill="none" stroke="#1f2421" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="6" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="17" cy="12" r="2.2"/><path d="M7 8.2v7.6"/><path d="M7 10c0 2 4 2 7.8 2"/></svg>Merged</span><div class="sub0">Done and on main.</div></div></div></section></main></div>
+<script id="board-data" type="application/json">{"updated":"2026-11-20T20:29:51.927Z","schema":2,"updatedText":"20 Nov 2026, 3:29 pm ET","main":{"game":"v3.12.00","build":16,"rules":"v3.8","brain":"Brain 5"},"nightly":{"state":"pass","time":"2026-11-20T16:54:38Z","timeText":"20 Nov, 11:54 am ET"},"builds":{"building":[{"brief":"017","name":"Move preview","pr":44,"draft":false,"checks":"pass","review":null,"sync":"conflict","state":"sync","version":"v3.13.00","size":"YY","play":"https://productofdefiance.github.io/Flagfall/pr/44/"},{"brief":"022","name":"Safe approach","pr":41,"draft":true,"checks":"pass","review":null,"sync":"conflict","state":"sync","version":"v3.13.00","size":"YY","play":"https://productofdefiance.github.io/Flagfall/pr/41/"}],"waiting":[{"brief":"012","name":"Cavalry","waitsOn":["017","018"],"ready":false,"stated":true},{"brief":"018","name":"Turn cue zoom","waitsOn":["017"],"ready":false,"stated":true},{"brief":"020","name":"Victory values","waitsOn":["022"],"ready":false,"stated":true},{"brief":"024","name":"Lab capacity","waitsOn":null,"ready":true,"stated":true}],"merged":[{"brief":"023","name":"Status page","pr":40,"version":null,"date":"20 Nov"},{"brief":"014","name":"Fields","pr":36,"version":"v3.12.00","date":"20 Nov"},{"brief":"021","name":"Status board","pr":34,"version":null,"date":"20 Nov"}],"mergedLimit":3},"results":[{"id":"2026-11-20_study_fields-v38","kind":"study","version":"v3.11.00","date":"2026-11-20","dateText":"20 Nov","share5":0.619,"share7":0.442,"line":"2 matchups, 2,000 games"},{"id":"2026-11-20_study_fields-v37","kind":"study","version":"v3.11.00","date":"2026-11-20","dateText":"20 Nov","share5":0.351,"share7":0.427,"line":"2 matchups, 2,000 games"},{"id":"2026-11-20_study_brain7-settings","kind":"study","version":"v3.10.00","date":"2026-11-20","dateText":"20 Nov","share5":null,"share7":null,"line":"52 matchups, 52,000 games"},{"id":"2026-11-20_screen_specials-playtest-2","kind":"screen","version":"v3.10.00","date":"2026-11-20","dateText":"20 Nov","share5":0.3475,"share7":0.3875,"line":"3 matchups, 1,200 games"},{"id":"2026-11-20_release_release-v3-12-00","kind":"release","version":"v3.12.00","date":"2026-11-20","dateText":"20 Nov","share5":0.63,"share7":0.439,"line":"2 matchups, 2,000 games"},{"id":"2026-11-20_release_release-v3-11-00","kind":"release","version":"v3.11.00","date":"2026-11-20","dateText":"20 Nov","share5":0.367,"share7":0.414,"line":"2 matchups, 2,000 games"},{"id":"2026-11-20_release_release-v3-10-00","kind":"release","version":"v3.10.00","date":"2026-11-20","dateText":"20 Nov","share5":0.37,"share7":0.451,"line":"2 matchups, 2,000 games"},{"id":"2026-11-20_nightly_health","kind":"nightly","version":"v3.11.00","date":"2026-11-20","dateText":"20 Nov","share5":0.3,"share7":0.3,"line":"2 matchups, 40 games"}],"resultsMore":31,"flags":[{"name":"F50","status":"ASK","date":"20 Nov","issue":"Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7): 5v5 changed a lot, 7v7 didn't. At 5v5 the first mover's share of decisive games went from 3.2% to 58.0% (F39's collapse is gone), but games ending on the turn limit went from 35.1% to 61.9%, pull KOs from 44.0%…","issueFull":"Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7): 5v5 changed a lot, 7v7 didn't. At 5v5 the first mover's share of decisive games went from 3.2% to 58.0% (F39's collapse is gone), but games ending on the turn limit went from 35.1% to 61.9%, pull KOs from 44.0% to 23.5%, draws from 1.1% to 6.4%, and the first attack comes on turn 4.4 instead of 2.9. 7v7: every measure within 4 points. Likely the 2-ring deploy area and the 8-hex gap keep Arrow Storm out of early reach, but field and deploy radius changed together: likely, not isolated","next":"Recommended: merge v3.8 as the Editor locked it, then fold 5v5 v3.8 into the stall study (brief 016's follow-up) instead of tuning now. If the Editor wants the cause isolated first, one sim-only screen: v3.8 at 5v5 with deployRadius5 = 3 against v3.8, same seeds, 200 games per side. F39 can close if the Editor accepts the field as its fix"},{"name":"F49","status":"ASK","date":"20 Nov","issue":"Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and the action panel is 487 px, not the ~590 px the design estimated. The 5v5 field is drawn 1,014 px tall (it fills the width, so its hexes are bigger than 7v7's: 68 px against 54 px), and a side's half (own edge…","issueFull":"Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and the action panel is 487 px, not the ~590 px the design estimated. The 5v5 field is drawn 1,014 px tall (it fills the width, so its hexes are bigger than 7v7's: 68 px against 54 px), and a side's half (own edge to the middle of the centre row, D9) is 507 px, so after the snap the centre row sits 20 px out of view (49 px to its far edge). 7v7 (449 px), 9v9 (449) and 13v13 (416) fit. Measured in a headless phone browser on this build","next":"Recommended: draw the 5v5 field at 7v7's hex size (centred, a margin each side) instead of filling the width; its half becomes about 400 px and fits with room. It changes the 5v5 look, so it needs the Editor's go-ahead. Not built"},{"name":"F41","status":"OPEN","date":"20 Nov","issue":"Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to an enemy's warmed-up special. Of its units inside a warmed special's reach at the start of its turn, only 19% (balanced 7v7) to 46% (5v5) step out, and those that stay are almost never braced (7v7: 102 braced vs…","issueFull":"Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to an enemy's warmed-up special. Of its units inside a warmed special's reach at the start of its turn, only 19% (balanced 7v7) to 46% (5v5) step out, and those that stay are almost never braced (7v7: 102 braced vs 6,053 unbraced). 29–32% of units ending a turn in reach are hit by that special next turn; only 18–68 of those hits land on a braced unit. 400 games per format, specials-playtest-2. Harder to prove than a useless setting: no single example turn was pulled out where bracing or stepping back clearly wins","next":"Answered: the Editor said yes (20 Nov). Built in brief 022 (Brain 8) as A2, respect a warmed special; brief 022 closes this row when it merges. Was: Suggested setting: a weight on \"end the turn out of a warmed special's reach, or braced inside it\", for the unit that special would most likely pick. Needs the Editor's go-ahead (it changes how the bot plays v3.7), then a screen at 200 games per side against the current Brain 5"},{"name":"F40","status":"TEST","date":"20 Nov","issue":"Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before the bot fix, 0 after. Its second hit needs an enemy directly behind its target, which almost never happens; without one, Skewer is exactly a normal hit (no dice), so the bot rightly attacks normally and lets it…","issueFull":"Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before the bot fix, 0 after. Its second hit needs an enemy directly behind its target, which almost never happens; without one, Skewer is exactly a normal hit (no dice), so the bot rightly attacks normally and lets it lapse. A stricter line-up check still gave 0 in 60 local 7v7 games","next":"Has a home, no answer needed now (the Editor, 20 Nov): decide after Cavalry (brief 012), when Anti-Cavalry has its real targets. Count Skewer firings in brief 012's runs, then choose. Code's options: Not a bot problem. Recommended: in a later preset, give Skewer a reason to fire alone: for example ×1.5 on the first hit (as Bullseye), or a second hit on any enemy next to the first target, not only one directly behind. The Editor picks"},{"name":"F39","status":"TEST","date":"20 Nov","issue":"Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light Ranged a side, and at × 2 Arrow Storm (7 × 2 = 14, no Dodge) kills a full-health Light Ranged (12 HP) from about 7 hexes away (4 of movement, range 3): 1,001 fired, 946 kills in 1,000 Brain 5 mirror games. The…","issueFull":"Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light Ranged a side, and at × 2 Arrow Storm (7 × 2 = 14, no Dodge) kills a full-health Light Ranged (12 HP) from about 7 hexes away (4 of movement, range 3): 1,001 fired, 946 kills in 1,000 Brain 5 mirror games. The second mover, with full Command on turn 1, warms up first and wins the duel: the first mover won 35 of 657 decisive games (5.3%; 38.6% on v3.6). With the older sizes (× 1.5, no kill) it flips: the first mover won 85.3%. 7v7 is far less affected (31.6% vs 46.9%). Fixed bot, same seeds, 1,000 games per format. Likely, not isolated","next":"Has a home, no answer needed now (the Editor, 20 Nov): brief 022 runs a sim-only screen (Arrow Storm × 2, × 1.75, × 1.5, and no warm-up on the first turn) with Brain 8 on brief 014's fields, and the sizes are judged there. The design chat's sim check (20 Nov) reads this as mostly the bot walking into the first strike, not Arrow Storm's size (likely, not isolated). Brief 014's baseline (F50) reports the first mover at 58.0% of decisive 5v5 games on v3.8. Code's first recommendation was: Sizes are the Editor's call (brief 011: \"not now\"). Neither size set fixes it, so the size alone isn't the lever. Recommended: merge v3.7, then run a sim-only screen before choosing a v3.8: Arrow Storm × 1.75 (12.5: kills only a hurt Light Ranged), and the first mover's turn-1 Command at 10 instead of 6 under specials, each against v3.7 on the same seeds"},{"name":"F017-3","status":"OPEN","date":"20 Nov","issue":"Set spear \"on the way\" can only ever fire where the move stops: every hex next to a braced Heavy Anti-Cavalry is also in its Mark, so the walk stops there. Rule 3's \"a set spear that fires\" therefore only separates routes that both stop short (test: Fewer dangers)","issueFull":"Set spear \"on the way\" can only ever fire where the move stops: every hex next to a braced Heavy Anti-Cavalry is also in its Mark, so the walk stops there. Rule 3's \"a set spear that fires\" therefore only separates routes that both stop short (test: Fewer dangers)","next":"No action: information for the Game Laws note on 2.11. Cavalry's Pursuit (brief 012) will be the first danger that can fire mid-route"},{"name":"F017-2","status":"ASK","date":"20 Nov","issue":"Two readings in the walk (2.11) the brief doesn't cover. (1) A move that stops short pays for the hexes it walked, and tackle by where it actually stopped (today's tackle rule, start and end). (2) A route may pass over its own empty flag hex; the walk treats that as stepping on and off it (no…","issueFull":"Two readings in the walk (2.11) the brief doesn't cover. (1) A move that stops short pays for the hexes it walked, and tackle by where it actually stopped (today's tackle rule, start and end). (2) A route may pass over its own empty flag hex; the walk treats that as stepping on and off it (no effect unless set spear hits it there, when the damage is pooled with the flag as for any holder)","next":"Recommended: accept both. Neither came up in 100 Brain 5 games"},{"name":"F017-1","status":"ASK","date":"20 Nov","issue":"Enemy view (§9) \"its special, if ready this turn\": during your turn an enemy's special is never ready (a charged special lapses at the end of its own turn). Built as: an enemy that warmed up on its last turn (it can fire on its next) shows its special's range in plum and its dashed plum ring; a…","issueFull":"Enemy view (§9) \"its special, if ready this turn\": during your turn an enemy's special is never ready (a charged special lapses at the end of its own turn). Built as: an enemy that warmed up on its last turn (it can fire on its next) shows its special's range in plum and its dashed plum ring; a solid plum ring never appears on your turn","next":"Recommended: accept. Alternative: show the plum range only for a solid ring, which would never show it"}],"chats":{"open":[{"name":"FF Flags v3.11.00 -","subject":"clearing the open flag list","opened":"20 Nov","stale":false}],"closed":[],"closedLimit":5},"tiles":{"building":2,"flagsAsk":4,"flagsNewest":"F50","flagsMoreAsk":0,"flagsMoreOpen":6}}</script>
+<script>
+/* Status page (Brief 023): draws the board for the Editor from board.json, and runs the Refresh button.
+   One file, used twice:
+   - by board.js in Node, to draw the page once when the board is built (so it reads even before any script runs);
+   - inlined into index.html, where the same code redraws the page when a newer board arrives.
+   No libraries, no build step. Every piece of text from the repository is escaped before it is drawn.
+   The Refresh key (a GitHub token the Editor makes) lives only in this browser's local storage: never in the
+   repository, this source, board.json or a log. */
+(function (root) {
+  "use strict";
+
+  var REPO = "productofdefiance/Flagfall";
+  var API = "https://api.github.com/repos/" + REPO;
+  var PLAY = "https://productofdefiance.github.io/Flagfall/";
+  var KEY_NAME = "flagfall-status-refresh-key";
+  var POLL_MS = 10000, POLL_FOR_MS = 180000, AUTO_MS = 300000;
+
+  // ---------- drawing ----------
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  var ICONS = {
+    play: '<path d="M7 5l12 7-12 7z"/>',
+    refresh: '<path d="M19 12a7 7 0 1 1-2.2-5.1"/><path d="M19 4.5V8h-3.5"/>',
+    review: '<rect x="6" y="5" width="12" height="15" rx="2"/><path d="M9.5 5V3.5h5V5"/><path d="M9 11h6"/><path d="M9 15h4"/>',
+    tick: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    ask: '<circle cx="12" cy="12" r="8.5"/><path d="M9.8 9.8a2.3 2.3 0 1 1 3.4 2c-.8.5-1.2 1-1.2 1.8"/><path d="M12 16.6v.2"/>',
+    running: '<path d="M7 4h10"/><path d="M7 20h10"/><path d="M8 4c0 4.5 8 3.5 8 8s-8 3.5-8 8"/><path d="M16 4c0 4.5-8 3.5-8 8s8 3.5 8 8"/>',
+    sync: '<path d="M19 11a7 7 0 0 0-12.3-4"/><path d="M6.5 3.5V7H10"/><path d="M5 13a7 7 0 0 0 12.3 4"/><path d="M17.5 20.5V17H14"/>',
+    heads: '<path d="M12 4 21 19H3z"/><path d="M12 10v4"/><path d="M12 17v.2"/>',
+    broken: '<circle cx="12" cy="12" r="8.5"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/>',
+    merged: '<circle cx="7" cy="6" r="2.2"/><circle cx="7" cy="18" r="2.2"/><circle cx="17" cy="12" r="2.2"/><path d="M7 8.2v7.6"/><path d="M7 10c0 2 4 2 7.8 2"/>'
+  };
+  // Each mark: its pill class and icon. Never colour alone: every pill has an icon and a word.
+  var MARKS = {
+    review: { cls: "p-review", icon: "review", stroke: "#f8f9f5" },
+    merge: { cls: "p-pass", icon: "tick" },
+    pass: { cls: "p-pass", icon: "tick" },
+    sync: { cls: "p-sync", icon: "sync" },
+    hold: { cls: "p-heads", icon: "heads" },
+    heads: { cls: "p-heads", icon: "heads" },
+    broken: { cls: "p-broken", icon: "broken", stroke: "#a3201a" },
+    running: { cls: "p-running", icon: "running" },
+    ask: { cls: "p-ask", icon: "ask" },
+    merged: { cls: "p-merged", icon: "merged" }
+  };
+  function svg(name, stroke, size) {
+    return '<svg aria-hidden="true" viewBox="0 0 24 24" class="i' + (size || 14) + '" fill="none" stroke="' + (stroke || "currentColor") +
+      '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">' + ICONS[name] + "</svg>";
+  }
+  function pill(mark, word) {
+    var m = MARKS[mark] || MARKS.running;
+    return '<span class="pill ' + m.cls + '">' + svg(m.icon, m.stroke || "#1f2421") + esc(word) + "</span>";
+  }
+  var BUILD_PILL = { broken: "Broken", sync: "Needs sync", hold: "On hold", merge: "Ready to merge", review: "Review" };
+  var BUILD_MOVE = {
+    sync: 'Your move: type "sync" in its Code chat',
+    merge: "Your move: do the hands-on check, then merge",
+    review: 'Your move: type "review" in a design chat'
+  };
+  var STATE_ORDER = ["broken", "sync", "hold", "merge", "review", "running"];
+  var COUNT_WORD = { broken: "broken", sync: "need sync", hold: "on hold", merge: "ready to merge", review: "to review", running: "running" };
+  function countWord(state, n) { return n + " " + (state === "sync" && n === 1 ? "needs sync" : COUNT_WORD[state]); }
+  function buildPillWord(b) { return b.state === "running" ? (b.draft ? "Building" : b.checks === "running" ? "Checks running" : "Waiting for checks") : BUILD_PILL[b.state]; }
+  function pct(x) { return (Math.round(x * 1000) / 10).toFixed(1) + "%"; }
+
+  function row(left, right) {
+    return '<div class="row"><div class="rl">' + left + '</div><div class="rr">' + (right || "") + "</div></div>";
+  }
+  function sub(text) { return '<div class="sub">' + text + "</div>"; }
+  function h3(title, count) { return '<h3 class="grp">' + esc(title) + ' <span class="cnt">· ' + esc(count) + "</span></h3>"; }
+  function none() { return '<div class="row"><div class="rl"><div class="none">None</div></div></div>'; }
+  function section(title, note, body, extra) {
+    return '<section class="card"' + (extra || "") + '><div class="shead"><h2>' + esc(title) + '</h2><div class="note">' + esc(note) + "</div></div>" + body + "</section>";
+  }
+  function tile(label, big, small, pills) {
+    return '<div class="tile"><div class="tl">' + esc(label) + '</div><div class="tb">' + esc(big) + '</div><div class="ts">' + esc(small) + "</div>" +
+      (pills && pills.length ? '<div class="tp">' + pills.join(" ") + "</div>" : "") + "</div>";
+  }
+
+  function stateCounts(building) {
+    var c = {};
+    building.forEach(function (b) { c[b.state] = (c[b.state] || 0) + 1; });
+    return STATE_ORDER.filter(function (s) { return c[s]; }).map(function (s) { return { state: s, n: c[s] }; });
+  }
+
+  function renderTiles(d) {
+    var m = d.main || {}, out = [];
+    out.push(tile("On main", m.game || "?", [m.build ? "Build " + m.build : null, m.rules ? "Rules " + m.rules : null, m.brain || null].filter(Boolean).join(" · ")));
+    var bl = (d.builds && d.builds.building) || [];
+    var names = bl.map(function (b) { return b.brief + " " + b.name + (b.version ? " · will be " + b.version : ""); }).join(", ");
+    out.push(tile("Building", String(bl.length), bl.length ? names : "Nothing building", stateCounts(bl).map(function (s) {
+      return pill(s.state === "merge" ? "merge" : s.state, countWord(s.state, s.n));
+    })));
+    var n = d.nightly || {};
+    var big = { pass: "Pass", fail: "Fail", running: "Running" }[n.state] || (n.state ? n.state : "None");
+    var np = n.state === "pass" ? [pill("pass", "All checks pass")] : n.state === "fail" ? [pill("broken", "Checks failed")] : n.state === "running" ? [pill("running", "Running")] : [];
+    out.push(tile("Nightly checks", big, n.timeText || "No run found", np));
+    var f = d.tiles || {};
+    var asks = f.flagsAsk || 0;
+    out.push(tile("Flags", String(asks), asks ? "Open and unanswered" + (f.flagsNewest ? " · newest " + f.flagsNewest : "") : "None waiting on an answer",
+      asks ? [pill("ask", asks + (asks === 1 ? " needs an answer" : " need an answer"))] : []));
+    return '<div class="tiles">' + out.join("") + "</div>";
+  }
+
+  function renderBuilds(d) {
+    var B = d.builds || {}, bl = B.building || [], wl = B.waiting || [], ml = B.merged || [];
+    var note = stateCounts(bl).map(function (s) { return countWord(s.state, s.n); });
+    var nReady = wl.filter(function (w) { return w.ready; }).length, nWait = wl.length - nReady;
+    if (nReady) note.push(nReady + " ready to start");
+    if (nWait) note.push(nWait + " waiting");
+    var h = h3("Building", String(bl.length));
+    if (!bl.length) h += none();
+    bl.forEach(function (b) {
+      var line = ["PR #" + b.pr, b.version ? "will be " + b.version : b.size === "none" ? "no version" : b.size ? b.size + " bump" : null,
+        b.sync === "conflict" ? "conflicts with main" : b.sync === "behind" ? "behind main" : null,
+        b.checks === "pass" ? "checks pass" : b.checks === "fail" ? "checks failed" : b.checks === "running" ? "checks running" : "no checks yet",
+        b.review === "hold" ? "review: hold" : null].filter(Boolean).join(" · ");
+      var left = '<div class="nm">' + esc(b.brief + " " + b.name) + "</div>" + sub(esc(line)) +
+        (BUILD_MOVE[b.state] ? sub(esc(BUILD_MOVE[b.state])) : "") +
+        sub('<a href="' + esc(PLAY + "pr/" + Number(b.pr) + "/") + '" class="b">Play this build</a>');
+      h += row(left, pill(b.state, buildPillWord(b)));
+    });
+    var rl = wl.filter(function (w) { return w.ready; }), ww = wl.filter(function (w) { return !w.ready; });
+    h += h3("Ready to start", String(rl.length));
+    if (!rl.length) h += none();
+    rl.forEach(function (w) {
+      h += row('<div class="nm">' + esc(w.brief + " " + w.name) + "</div>", '<span class="wait">' + svg("play", "#5f6762") + "Ready to start</span>");
+    });
+    h += h3("Waiting", String(ww.length));
+    if (!ww.length) h += none();
+    ww.forEach(function (w) {
+      h += row('<div class="nm">' + esc(w.brief + " " + w.name) + "</div>",
+        '<span class="wait">' + svg("running", "#5f6762") + esc(w.waitsOn ? "After " + w.waitsOn.join(", ") : "Waits on not stated") + "</span>");
+    });
+    h += h3("Merged", "last " + (B.mergedLimit || 3));
+    if (!ml.length) h += none();
+    ml.forEach(function (p) {
+      h += row('<div class="nm">' + esc(p.brief + " " + p.name) + "</div>" + (p.date ? sub(esc(p.date)) : ""), '<span class="ver">' + esc(p.version || "No version") + "</span>");
+    });
+    h += '<div style="height:8px"></div>';
+    return section("Builds", note.join(" · ") || "Nothing building", h, ' style="flex:1 1 480px"');
+  }
+
+  function renderResults(d) {
+    var n = d.nightly || {};
+    var np = n.state === "pass" ? pill("pass", "Nightly checks pass") : n.state === "fail" ? pill("broken", "Nightly checks failed")
+      : n.state === "running" ? pill("running", "Nightly checks running") : pill("running", "No nightly run found");
+    var h = '<div class="nrow">' + np + (n.timeText ? '<span class="muted">' + esc(n.timeText) + "</span>" : "") + "</div>";
+    var rs = d.results || [];
+    if (!rs.length) h += '<div class="empty">No runs in the last 24 hours.</div>';
+    else {
+      h += '<div class="tw"><table><thead><tr><th scope="col">Run</th><th scope="col" class="num w64">5v5</th><th scope="col" class="num w64">7v7</th><th scope="col" class="num w64">Date</th></tr></thead><tbody>';
+      rs.forEach(function (r) {
+        var has = r.share5 != null || r.share7 != null;
+        h += '<tr><td><div class="b">' + esc(r.version || "?") + "</div>" + sub(esc(r.kind || "")) + "</td>" +
+          (has ? '<td class="num big">' + (r.share5 != null ? pct(r.share5) : "–") + '</td><td class="num big">' + (r.share7 != null ? pct(r.share7) : "–") + "</td>"
+            : '<td colspan="2" class="fb">' + esc(r.line || "") + "</td>") +
+          '<td class="num dt">' + esc(r.dateText || "") + "</td></tr>";
+      });
+      h += "</tbody></table></div>";
+    }
+    var more = d.resultsMore ? d.resultsMore + " more ran in the last 24 hours. " : "";
+    h += '<div class="foot">5v5 and 7v7 show the share of bot games that ended on the turn limit. ' + esc(more) + "Older runs are in results/INDEX.md.</div>";
+    return section("Results", "Last 24 hours", h);
+  }
+
+  var FLAG_MARK = { ASK: ["ask", "Needs an answer"], DECIDE: ["ask", "Needs a decision"], OPEN: ["heads", "Heads up"], TEST: ["running", "Being tested"] };
+  function renderFlags(d, ui) {
+    ui = ui || {};
+    var fs = d.flags || [], t = d.tiles || {}, asks = t.flagsAsk || 0;
+    var h = "";
+    if (!fs.length) h += '<div class="empty">No open flags.</div>';
+    else {
+      // One row per flag, on every width: name and date, the status pill, then the issue on its own full-width line as
+      // a two-line preview. The row is a details/summary, so a tap, a click or the keyboard opens it to the whole issue
+      // and its "Resolved in / next step" text, and closes it again.
+      var open = ui.openFlags || {};
+      fs.forEach(function (f) {
+        var m = FLAG_MARK[f.status] || ["heads", "Heads up"];
+        var full = f.issueFull || f.issue || "";
+        h += '<details class="flag" data-flag="' + esc(f.name) + '"' + (open[f.name] ? " open" : "") + '><summary>' +
+          '<div class="fhead"><div class="fname"><span class="b">' + esc(f.name) + '</span> <span class="sub0">' + esc(f.date) + "</span></div>" +
+          '<div class="fpill">' + pill(m[0], m[1]) + '<span class="sub0 st">' + esc(f.status) + "</span></div>" +
+          '<svg aria-hidden="true" viewBox="0 0 24 24" class="i14 chev" fill="none" stroke="#5f6762" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>' +
+          '<div class="clamp">' + esc(f.issue) + "</div></summary>" +
+          '<div class="fbody"><div class="ftext">' + esc(full) + "</div>" +
+          (f.next ? '<div class="fnext"><span class="tl">Resolved in / next step</span><div>' + esc(f.next) + "</div></div>" : "") + "</div></details>";
+      });
+    }
+    var moreAsk = t.flagsMoreAsk || 0, moreOpen = t.flagsMoreOpen || 0, parts = [];
+    if (moreAsk) parts.push(moreAsk + " more " + (moreAsk === 1 ? "needs" : "need") + " an answer");
+    if (moreOpen) parts.push(moreOpen + " older " + (moreOpen === 1 ? "one is" : "ones are") + " open");
+    if (parts.length) h += '<div class="foot">' + esc(parts.join(" and ")) + " in FLAGS.md.</div>";
+    else h += '<div style="height:8px"></div>';
+    return section("Flags", (asks ? asks + (asks === 1 ? " needs" : " need") + " an answer · " : "") + "newest first", h);
+  }
+
+  function renderChats(d) {
+    var c = d.chats || {}, op = c.open || [], cl = c.closed || [];
+    var h = "";
+    if (!op.length && !cl.length) {
+      h = '<div class="empty">No design chats logged yet.' + sub("A new design chat adds itself here when it opens, and marks itself closed at handoff or end.") + "</div>";
+    } else {
+      h += h3("Open", String(op.length));
+      if (!op.length) h += none();
+      op.forEach(function (x) {
+        h += row('<div class="nm">' + esc(x.name) + "</div>" + (x.subject ? sub(esc(x.subject)) : ""),
+          (x.stale ? pill("heads", "stale?") + '<div class="sub">' : '<div class="dtr">') + esc(x.opened ? "Opened " + x.opened : "") + "</div>");
+      });
+      h += h3("Closed", "last " + (c.closedLimit || 5));
+      if (!cl.length) h += none();
+      cl.forEach(function (x) {
+        h += row('<div class="nm">' + esc(x.name) + "</div>" + (x.outcome ? sub(esc(x.outcome)) : ""), '<div class="dtr">' + esc(x.closed ? "Closed " + x.closed : "Closed") + "</div>");
+      });
+      h += '<div style="height:8px"></div>';
+    }
+    return section("Chats", "Design chats", h);
+  }
+
+  var KEY = [
+    ["review", "Review", "A build is finished. Your move: ask a design chat for a review."],
+    ["merge", "Ready to merge", "A review said merge. Your move: do the hands-on check, then merge."],
+    ["ask", "Needs an answer", "A flag is waiting on you or a design chat."],
+    ["running", "Running", "In progress, or waiting its turn. Nothing for you to do."],
+    ["sync", "Needs sync", "A build has fallen behind main or conflicts with it. Your move: type sync in its Code chat."],
+    ["heads", "Heads up", "A medium issue, such as a review that says hold."],
+    ["broken", "Broken", "Something failed: checks on a build, or the nightly run."],
+    ["pass", "Passing", "Checks pass."],
+    ["merged", "Merged", "Done and on main."]
+  ];
+  function renderKey() {
+    return section("Key", "What each mark means", '<div class="key">' + KEY.map(function (k) {
+      return '<div class="kitem">' + pill(k[0], k[1]) + '<div class="sub0">' + esc(k[2]) + "</div></div>";
+    }).join("") + "</div>");
+  }
+
+  function renderSetup(ui) {
+    var has = !!ui.hasKey;
+    return '<section class="card" id="setup"><div class="shead"><h2>One-tap rebuild</h2><div class="note">' + (has ? "A key is saved on this device" : "Not set up on this device") + "</div></div>" +
+      '<ol class="steps">' +
+      '<li>On GitHub, open <a class="b" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">a new fine-grained token</a> (Settings → Developer settings → Fine-grained tokens → Generate new token).</li>' +
+      "<li>Under Repository access pick <b>Only select repositories</b> and choose <b>Flagfall</b>. Under Permissions, set <b>Actions</b> to <b>Read and write</b>. Set Expiration to <b>90 days</b>. Leave everything else as it is, then tap Generate token.</li>" +
+      "<li>Copy the token, paste it in the box below and tap Save.</li></ol>" +
+      '<input id="keybox" type="password" autocomplete="off" spellcheck="false" placeholder="Paste the token here" aria-label="GitHub token">' +
+      '<div class="srow"><button type="button" class="sbtn" data-act="save">Save</button><button type="button" class="sbtn ghost" data-act="remove">Remove</button><button type="button" class="sbtn ghost" data-act="close">Close</button></div>' +
+      (ui.setupNote ? '<div class="sub0" role="status">' + esc(ui.setupNote) + "</div>" : "") +
+      '<div class="foot">The key stays on this device, in this browser only. It expires after 90 days (the expiry you set on GitHub); then make a new one the same way. It can only work the jobs that already exist in the repository (start, stop or re-run them); it can\'t change the game, the flags or any setting.</div></section>';
+  }
+
+  /** The whole page body for a board (the board.json object). ui: { button, note, setupOpen, hasKey, setupNote }. */
+  function renderApp(d, ui) {
+    ui = ui || {};
+    var head = '<header class="top"><div class="hin"><div><h1>Flagfall status</h1><div class="upd">Updated ' + esc(d.updatedText || "") + "</div></div>" +
+      '<div class="hr"><div class="btns"><a class="btn light" href="' + PLAY + '">' + svg("play", null, 16) + "Play latest build</a>" +
+      '<button type="button" class="btn dark" data-act="refresh"' + (ui.button ? " disabled" : "") + ">" + svg("refresh", null, 16) + esc(ui.button || "Refresh") + "</button></div>" +
+      '<div class="hlinks">' + (ui.note ? '<span role="status">' + esc(ui.note) + "</span> " : "") +
+      '<a href="#setup" data-act="setup">' + (ui.hasKey ? "Refresh settings" : "Set up one-tap rebuild") + "</a></div></div></div></header>";
+    return head + '<main class="mn">' + (ui.setupOpen ? renderSetup(ui) : "") + renderTiles(d) +
+      '<div class="cols">' + renderBuilds(d) + '<div class="side">' + renderResults(d) + renderChats(d) + "</div></div>" +
+      renderFlags(d, ui) + renderKey() + "</main>";
+  }
+
+  var CSS = [
+    "body{margin:0;background:#e9ece6}a{color:#1f2421}a:hover{color:#5f6762}",
+    "#app{background:#e9ece6;color:#1f2421;font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px;min-height:100vh}",
+    ".i14{width:14px;height:14px;flex:none}.i16{width:16px;height:16px;flex:none}",
+    ".top{background:#1f2421;color:#f8f9f5;padding:16px}.hin{max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px}",
+    "h1{margin:0;font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;font-size:30px;line-height:1.1;letter-spacing:.06em;text-transform:uppercase}",
+    ".upd{font-size:13px;color:#d5d9d2;margin-top:2px}.btns{display:flex;flex-wrap:wrap;gap:10px}",
+    ".btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;box-sizing:border-box;padding:0 16px;border-radius:10px;font-family:inherit;font-weight:600;font-size:14px;text-decoration:none}",
+    ".btn.light{background:#f8f9f5;color:#1f2421}.btn.dark{background:transparent;color:#f8f9f5;border:1.5px solid #f8f9f5;cursor:pointer}.btn.dark[disabled]{opacity:.8;cursor:progress}",
+    ".hlinks{font-size:12px;color:#d5d9d2;margin-top:6px}.hlinks a{color:#d5d9d2}.hlinks a:hover{color:#f8f9f5}",
+    ".mn{max-width:1080px;margin:0 auto;padding:16px;display:flex;flex-direction:column;gap:16px}",
+    ".tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}",
+    ".tile{background:#f8f9f5;border:1px solid #b8beb6;border-radius:10px;padding:12px 14px;min-width:0}",
+    ".tl,.grp,th{font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#5f6762}",
+    ".tb{font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;font-size:30px;line-height:1.1;margin-top:4px}.ts{font-size:12px;color:#5f6762;margin-top:2px}.tp{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}",
+    ".pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 7px;border-radius:999px;color:#1f2421;font-size:12px;font-weight:600;white-space:nowrap;border:1px solid}",
+    ".p-review{background:#1f2421;border-color:#1f2421;color:#f8f9f5}.p-pass{background:#cfe8da;border-color:#cfe8da}.p-sync{background:#e4dbf3;border-color:#e4dbf3}",
+    ".p-heads{background:#f3dfa2;border-color:#f3dfa2}.p-broken{background:#f6cfc6;border-color:#f6cfc6}.p-running{background:#e3e6df;border-color:#e3e6df}",
+    ".p-ask{background:#d6e3f2;border-color:#d6e3f2}.p-merged{background:#f8f9f5;border-color:#b8beb6}",
+    ".cols{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}.side{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:16px}",
+    ".card{background:#f8f9f5;border:1px solid #b8beb6;border-radius:10px;padding:16px 16px 8px;min-width:0}",
+    ".shead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin-bottom:12px}",
+    "h2{margin:0;font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:700;font-size:22px;letter-spacing:.04em;text-transform:uppercase}.note,.muted{font-size:12px;color:#5f6762}",
+    ".grp{margin:0;padding:14px 0 6px;border-bottom:1px solid #b8beb6}.cnt{font-weight:600}",
+    ".row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #dfe3dc}.rl{min-width:0;flex:1 1 auto}.rr{flex:none;text-align:right}",
+    ".nm{font-weight:600;font-size:15px}.sub{font-size:12px;color:#5f6762;margin-top:2px}.sub.st{margin-top:4px}.sub0{font-size:12px;color:#5f6762}.none{font-size:14px;color:#5f6762}",
+    ".b{font-weight:600}.wait{display:inline-flex;align-items:center;gap:5px;font-size:13px;white-space:nowrap}.ver{font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}.dtr{font-size:13px;white-space:nowrap}",
+    ".nrow{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px}.nrow .muted{font-size:13px}",
+    ".tw{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:14px;line-height:1.35}",
+    "th{text-align:left;padding:0 10px 8px 0;border-bottom:1px solid #b8beb6}td{text-align:left;vertical-align:top;padding:11px 10px 11px 0;border-bottom:1px solid #dfe3dc}",
+    ".num{text-align:right}.w64{width:64px}.w150{width:150px}.big{font-variant-numeric:tabular-nums;font-weight:600}.dt{color:#5f6762;font-size:13px;white-space:nowrap}.fb{font-size:13px}.nw{white-space:nowrap}",
+    ".flag{border-bottom:1px solid #dfe3dc}.flag summary{list-style:none;cursor:pointer;padding:11px 0;display:block}.flag summary::-webkit-details-marker{display:none}",
+    ".flag summary:focus-visible{outline:2px solid #1f2421;outline-offset:2px;border-radius:4px}",
+    ".fhead{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}.fname{min-width:64px}.fpill{display:inline-flex;align-items:center;gap:8px;flex:1 1 auto}.chev{margin-left:auto;transition:transform .15s}",
+    ".flag[open] .chev{transform:rotate(180deg)}.flag summary .clamp{margin-top:6px}.flag[open] summary .clamp{display:none}",
+    ".fbody{padding:0 0 12px;font-size:13px;line-height:1.45}.ftext{overflow-wrap:anywhere}.fnext{margin-top:8px;overflow-wrap:anywhere}.fnext .tl{display:block;margin-bottom:2px}",
+    ".clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.4}",
+    ".foot{font-size:12px;color:#5f6762;padding:10px 0}.empty{padding:4px 0 14px;font-size:14px}",
+    ".key{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px 20px;padding-bottom:12px}.kitem{display:flex;flex-direction:column;align-items:flex-start;gap:4px}",
+    ".steps{margin:0 0 12px;padding-left:20px;line-height:1.5}.steps li{margin-bottom:6px}",
+    "#keybox{width:100%;box-sizing:border-box;min-height:44px;padding:0 12px;border:1px solid #b8beb6;border-radius:10px;font:inherit;background:#fff}",
+    ".srow{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}.sbtn{min-height:44px;padding:0 16px;border-radius:10px;border:1.5px solid #1f2421;background:#1f2421;color:#f8f9f5;font:inherit;font-weight:600;cursor:pointer}.sbtn.ghost{background:transparent;color:#1f2421}"
+  ].join("\n");
+
+  // ---------- reading and rebuilding (no screen code here: the browser part passes callbacks) ----------
+
+  function getKey(storage) { try { return (storage && storage.getItem(KEY_NAME)) || ""; } catch (e) { return ""; } }
+  function setKey(storage, v) { try { if (v) storage.setItem(KEY_NAME, v); else storage.removeItem(KEY_NAME); return true; } catch (e) { return false; } }
+
+  /** The newest board: the status branch through GitHub's API first (fresh), then the published copy. null if neither. */
+  function readBoard(fetchFn, key, now) {
+    var h = { Accept: "application/vnd.github.raw+json" };
+    if (key) h.Authorization = "Bearer " + key;
+    var t = (now ? now() : Date.now());
+    function json(r) { if (!r || !r.ok) throw new Error("bad"); return r.json(); }
+    function pages() {
+      return fetchFn("board.json?t=" + t, { cache: "no-store" }).then(json).catch(function () { return null; });
+    }
+    return fetchFn(API + "/contents/board.json?ref=status&t=" + t, { headers: h, cache: "no-store" }).then(json)
+      .then(function (j) { return j && j.updated ? j : pages(); })
+      .catch(pages);
+  }
+  /** Start the status board workflow on main. Resolves { ok, status }. */
+  function dispatch(fetchFn, key) {
+    return fetchFn(API + "/actions/workflows/status-board.yml/dispatches", {
+      method: "POST",
+      headers: { Accept: "application/vnd.github+json", Authorization: "Bearer " + key, "Content-Type": "application/json" },
+      body: JSON.stringify({ ref: "main" })
+    }).then(function (r) { return { ok: r.status === 204 || r.ok, status: r.status }; }, function () { return { ok: false, status: 0 }; });
+  }
+  function newer(j, shown) { return !!(j && j.updated && (!shown || String(j.updated) > String(shown))); }
+
+  /** One tap on Refresh. env: { fetch, storage, shown() → the board's updated time on screen, onBoard(j), onButton(text|null),
+      onNote(text), wait(ms) → Promise, now() → ms }. Resolves "read" | "rebuilt" | "timeout" | "badkey". */
+  function refresh(env) {
+    var key = getKey(env.storage);
+    var wait = env.wait || function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
+    var now = env.now || Date.now;
+    function reread() {
+      return readBoard(env.fetch, key, now).then(function (j) { if (newer(j, env.shown())) env.onBoard(j); });
+    }
+    if (!key) {
+      env.onButton("Refreshing…"); env.onNote("");
+      return reread().then(function () { env.onButton(null); return "read"; });
+    }
+    env.onButton("Rebuilding…"); env.onNote("");
+    var before = env.shown();
+    return dispatch(env.fetch, key).then(function (r) {
+      if (!r.ok) {
+        var bad = r.status === 401 || r.status === 403 || r.status === 404;
+        key = "";  // fall back to re-reading without the key
+        return reread().then(function () {
+          env.onButton(null);
+          env.onNote(bad ? "That key didn't work (wrong or expired). Showing the latest published board." : "Couldn't start a rebuild. Showing the latest published board.");
+          return "badkey";
+        });
+      }
+      var start = now();
+      function poll() {
+        return wait(POLL_MS).then(function () { return readBoard(env.fetch, key, now); }).then(function (j) {
+          if (newer(j, before) && newer(j, env.shown())) { env.onBoard(j); env.onButton(null); return "rebuilt"; }
+          if (now() - start >= POLL_FOR_MS) { env.onButton(null); env.onNote("Still building. Try again in a minute."); return "timeout"; }
+          return poll();
+        });
+      }
+      return poll();
+    });
+  }
+
+  // ---------- the browser part ----------
+
+  function boot() {
+    var app = document.getElementById("app");
+    var dataEl = document.getElementById("board-data");
+    var data;
+    try { data = JSON.parse(dataEl.textContent); } catch (e) { return; }
+    var storage = null;
+    try { storage = window.localStorage; } catch (e) { storage = null; }
+    var ui = { button: null, note: "", setupOpen: false, setupNote: "", hasKey: !!getKey(storage), openFlags: {} };
+    // Remember which flag rows are open, so a redraw (a newer board, every 5 minutes) doesn't close them.
+    document.addEventListener("toggle", function (ev) {
+      var el = ev.target;
+      if (el && el.getAttribute && el.getAttribute("data-flag")) ui.openFlags[el.getAttribute("data-flag")] = el.open;
+    }, true);
+    var lastRead = Date.now(), busy = false;
+    function draw() {
+      var box = document.getElementById("keybox"), typed = box ? box.value : "";
+      app.innerHTML = renderApp(data, ui);
+      var nb = document.getElementById("keybox");
+      if (nb && typed) nb.value = typed;
+    }
+    function show(j) { data = j; draw(); }
+    function shown() { return data.updated; }
+    document.addEventListener("click", function (ev) {
+      var t = ev.target && ev.target.closest ? ev.target.closest("[data-act]") : null;
+      if (!t) return;
+      var act = t.getAttribute("data-act");
+      if (act === "refresh") {
+        if (busy) return;
+        busy = true;
+        refresh({ fetch: window.fetch.bind(window), storage: storage, shown: shown, onBoard: show,
+          onButton: function (b) { ui.button = b; draw(); }, onNote: function (n) { ui.note = n; draw(); } })
+          .then(function () { busy = false; lastRead = Date.now(); }, function () { busy = false; ui.button = null; draw(); });
+      } else if (act === "setup") {
+        ev.preventDefault(); ui.setupOpen = !ui.setupOpen; ui.setupNote = ""; draw();
+        if (ui.setupOpen) window.scrollTo(0, 0);
+      } else if (act === "close") { ui.setupOpen = false; draw(); }
+      else if (act === "save") {
+        var v = (document.getElementById("keybox").value || "").trim();
+        if (!v) { ui.setupNote = "Paste the token first."; draw(); return; }
+        ui.setupNote = setKey(storage, v) ? "Saved. Refresh now rebuilds the board." : "This browser won't keep it (private mode?).";
+        document.getElementById("keybox").value = "";
+        ui.hasKey = !!getKey(storage); draw();
+      } else if (act === "remove") {
+        setKey(storage, ""); ui.hasKey = false; ui.setupNote = "Removed from this device."; draw();
+      }
+    });
+    function auto() {
+      if (busy || document.visibilityState !== "visible") return;
+      lastRead = Date.now();
+      readBoard(window.fetch.bind(window), getKey(storage)).then(function (j) { if (newer(j, shown())) show(j); });
+    }
+    setInterval(auto, AUTO_MS);
+    document.addEventListener("visibilitychange", function () { if (Date.now() - lastRead >= AUTO_MS) auto(); });
+    draw();
+  }
+
+  var api = { renderApp: renderApp, refresh: refresh, readBoard: readBoard, dispatch: dispatch, newer: newer, getKey: getKey, setKey: setKey,
+    esc: esc, CSS: CSS, KEY_NAME: KEY_NAME, API: API, STATE_ORDER: STATE_ORDER, POLL_MS: POLL_MS, POLL_FOR_MS: POLL_FOR_MS };
+  if (typeof module !== "undefined" && module.exports) module.exports = api;
+  else {
+    root.FlagfallStatus = api;
+    if (typeof document !== "undefined" && document.getElementById) boot();
+  }
+})(this);
+
+</script>
+</body>
+</html>
