@@ -44,8 +44,8 @@ jobs:
       - name: Copy the board
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
-            # main lives at the root; keep the pull request previews under pr/
-            rsync -a --delete --exclude 'tests/' --exclude 'pr/' --exclude '.nojekyll' --exclude '.git' board/ site/
+            # main lives at the root; keep the pull request previews under pr/ and the status page under status/ (Brief 021)
+            rsync -a --delete --exclude 'tests/' --exclude 'pr/' --exclude 'status/' --exclude '.nojekyll' --exclude '.git' board/ site/
           elif [ "${{ github.event.action }}" = "closed" ]; then
             rm -rf "site/pr/$PR"
           else

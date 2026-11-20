@@ -18,6 +18,20 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
+## No game version — Brief 021, tooling: status board, chat log, flag and version numbering (20 Nov 2026)
+Nothing in the game changes (`board/` untouched: no game version, no build number).
+
+**What the Editor will notice**
+- A **status board**: type "status" in any chat, or open https://productofdefiance.github.io/Flagfall/status/ on a phone. It shows what's on `main`, results from the last day, open flags (`!` = waiting on you or the chat), every brief (building, ready to start, waiting on what, merged) and the open design chats. GitHub keeps it current, hourly and on every pull request change.
+- Briefs now say only the **size** of the version bump (X, YY or ZZ). Code takes the actual number just before marking its pull request Ready, so two builds can't expect the same number.
+- New flags go in a file per brief, named **F021-1, F021-2, …**, so two builds can't take the same flag name.
+- Two pull request labels: `review: merge` and `review: hold`, shown on the board.
+
+**Under the hood**
+- `sims/status/board.js` (builds the board), `sims/status/test_board.js` (run in `checks`), workflow `status-board.yml`, branch `status` (the board and `chats/`). `play-links` now leaves `status/` alone on gh-pages.
+- `CLAUDE.md`: `status`, `sync`, `handoff`, flags and version rules rewritten. `briefs/TEMPLATE.md`: size-only Game version, new `Waits on` row.
+- Flags opened: F021-1 (ASK), F021-2, F021-3. None closed.
+
 ## v3.11.00 · Build 15 — Brief 019, Brain 7: know the lead, keep it, storm together (20 Nov 2026)
 Rule set: none changed (v3.7 stays the newest). Game version **v3.11.00** (YY: a new brain; brief 011 took v3.10.00 and Build 14 first). Brain 7 was built and measured on v3.6; it inherits Brain 5's specials play on v3.7, which these runs didn't measure. Brain 5 stays the default.
 
