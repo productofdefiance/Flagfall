@@ -8,7 +8,7 @@ This repository holds the browser playtest board (rules engine and computer oppo
 
 | Folder / file | What it is |
 | --- | --- |
-| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1 to v3.7). `bot.js` and `brain.js` are the computer opponent (Brain 5 is the default; Brain 6 knows the clock; Brain 7 keeps its lead). `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
+| `board/` | The playtest board. `engine.js` is the rules (no screen code). `fields.js` holds the fields, one per format (Brief 014). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1 to v3.8). `bot.js` and `brain.js` are the computer opponent (Brain 5 is the default; Brain 6 knows the clock; Brain 7 keeps its lead). `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
 | `board/tests/` | Automatic pass/fail checks (see below). |
 | `sims/` | Scripts that play games and make results. `sims/lab/` is the lab: it plays job orders on GitHub and files the results (Brief 008). The older scripts (`baseline.js`, `h2h_*.js`, ...) still deal their old seeds, so old studies can be re-run. |
 | `results/` | Every simulation result, one folder per run (`results/README.md` says how). Start at `results/INDEX.md`. The studies from before the lab are in `results/pre-v3.05.00/`. |
@@ -17,6 +17,8 @@ This repository holds the browser playtest board (rules engine and computer oppo
 | `data/` | Records that aren't simulation results: Match 3's move log (used by the replay test) and a summary of recorded human-vs-bot matches. |
 | `briefs/` | **Chat → Code.** One brief per build, numbered. Claude Code adds a `## Report` section to the brief it built. |
 | `FLAGS.md` | **Code → Chat.** Numbered open issues, including questions Claude Code needs answered (`ASK`). |
+| `flags/` | New flags since Brief 021: one file per brief (`flags/NNN.md`, names `FNNN-1`, …) so two builds can't clash on a name. `FLAGS.md` keeps F1 to F48. |
+| `sims/status/` | The status board (Brief 021): `board.js` builds it, the `status board` workflow puts it on the `status` branch and at https://productofdefiance.github.io/Flagfall/status/. |
 | `CLAUDE.md` | Standing instructions for Claude Code. |
 | `CHANGELOG.md` | One entry per build, newest first, in plain language. |
 
@@ -50,6 +52,7 @@ node tests/test_v34.js
 node tests/test_v35.js
 node tests/test_v36.js
 node tests/test_v37.js
+node tests/test_fields.js
 node tests/test_stamina.js
 node tests/test_reasons.js
 node tests/test_kitd.js
@@ -71,6 +74,7 @@ From the repository's top folder:
 node sims/lab/self_test.js
 node sims/lab/test_stall.js
 node sims/lab/test_lead.js
+node sims/status/test_board.js
 node sims/lab/board_check.js 10
 ```
 

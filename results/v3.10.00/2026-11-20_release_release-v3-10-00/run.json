@@ -1,0 +1,59 @@
+{
+ "id": "2026-11-20_release_release-v3-10-00",
+ "kind": "release",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "e2c6397d806219c7e254275fbd61db43a5a7face",
+ "brief": null,
+ "question": "v3.10.00's final exam: how do games end with the default brain (Brain 5 (plans its turn)) against itself, newest rule set v3.7, 1,000 games per format?",
+ "tags": [
+  "release",
+  "brain5",
+  "v3.7"
+ ],
+ "trigger": "day",
+ "started": "2026-11-20T14:32:00.000Z",
+ "finished": "2026-11-20T14:54:12.526Z",
+ "games": 2000,
+ "seed_from": "tests/rng.js lab:release-v3-10-00:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000
+   },
+   {
+    "name": "7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000
+   }
+  ],
+  "measures": [
+   "play",
+   "evade",
+   "light",
+   "clock"
+  ]
+ },
+ "failed": null,
+ "extra": {
+  "extra": {
+   "previous_version": "v3.09.01"
+  },
+  "previous_version": "v3.09.01"
+ },
+ "answer": "5v5: mirror, 37.0% ended on the turn limit, A/B 478–512; 7v7: mirror, 45.1% ended on the turn limit, A/B 497–483."
+}

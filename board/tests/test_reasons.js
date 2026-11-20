@@ -9,6 +9,7 @@ const L = (a) => a.map(([id, card]) => ({ id, card }));
 const U = (st, id) => E.unitByUid(st, id);
 function setup(lineN, lineS, place, first) {
   const st = E.newMatch(RS, { first: first || "N", lineups: { N: L(lineN), S: L(lineS) } });
+  delete st.field;   // hand-made positions on the legacy field, whatever the lineup size (Brief 014)
   for (const team of ["N", "S"]) {
     const z = E.deployZone(st, team).filter((h) => h !== E.FLAG[team]), p = {}; let i = 0;
     for (const u of st.units.filter((x) => x.team === team)) p[u.uid] = z[i++];

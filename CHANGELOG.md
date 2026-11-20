@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.12.00 | v3.8 | Brain 5 | v2 | 16 |
 | v3.11.00 | v3.7 | Brain 5 | v2 | 15 |
 | v3.10.00 | v3.7 | Brain 5 | v2 | 14 |
 | v3.09.01 | v3.6 | Brain 5 | v2 | 13 |
@@ -17,6 +18,42 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.12.00 · Build 16 — Brief 014, rule set v3.8: one field per format, and the hot-seat snap (20 Nov 2026)
+Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `game.deployRadius5: 2`. Default brain: Brain 5, unchanged. Game version **v3.12.00** (YY: a new rule set; brief 019 took v3.11.00 and Build 15 first). The brief planned the rule set as v3.7; brief 011 took v3.7 first, so it is v3.8.
+
+**What a player will notice**
+- **5v5 has its own small field** on v3.8: 103 hexes, 7 columns (A–G), flags D3 and D15. You deploy **two rings** round your flag (19 hexes, the flag hex included for one unit).
+- **7v7 plays on the rounded 147-hex field** on v3.8: the old field plus 8 corner hexes (B2, H2, B17, H17, A4, I4, A16, I16). Flags and the 3-ring deploy area as before.
+- **Human vs human on a phone:** each time the turn passes, the field scrolls to the side to move's own end (North: the very top, South: the very bottom). Also on the first turn after the start cover. Not against the bot, not during deployment, not when the whole field fits on screen.
+- Older rule sets, and old saved matches, play and replay on the old 139-hex field exactly as before.
+- 9v9 and 13v13 still say "come later"; their fields are in the data for brief 012.
+
+**Under the hood**
+- New `board/fields.js`: the five fields as data (legacy, 5v5, 7v7, 9v9, 13v13), checked hex for hex against `briefs/014-fields.json`.
+- `engine.js`: the field is no longer built once at the top. Each field's geometry (hexes, neighbours, distances, straight lines, goal zones, flags, centre hex) is built from the data, with positions worked out from the middle column (Game Laws 2.4; on 7 and 11 columns this is the opposite of the old column-index rule). Every rule reads the match's field (`fieldOf(st)`); a v3.8 match records which field it plays on. The old exports (`E.dist`, `E.FLAG`, …) stay as the legacy field for old tests.
+- `bot.js`, `app.js`, `ui.js` and the lab read the match's field; the fixed centre "E10" became the field's centre hex (D9, E10, F12, G13). The drawing's size comes from the field.
+- Lab: a `fields` measure (field played, units deployed outside their area, units started on their flag).
+- New check `test_fields.js` (the data, deploy areas, gaps, goal zones, symmetry, the turn-1 design rule, the rules the brief lists on the 7-column field, and Brain 5 on both new fields).
+
+**Flags closed:** none. **Opened:** F49 (the hot-seat snap can't show a whole 5v5 half on a 390 × 844 phone), F50 (5v5 on v3.8: the first-mover collapse is gone, but far more turn-limit games).
+
+**Baseline** (Brain 5 mirror, balanced, 1,000 games per format, same seeds as v3.7; full table in brief 014's Report):
+- 5v5: ended on the turn limit **61.9%** (v3.7: 35.1%), pull KO 23.5% (44.0%), first mover's share of decisive games **58.0%** (3.2%). Likely the smaller deploy area; not isolated.
+- 7v7: ended on the turn limit 44.2% (42.7%), pull KO 39.4% (41.6%), first mover's share 31.4% (29.0%): no change beyond the noise.
+## No game version — Brief 021, tooling: status board, chat log, flag and version numbering (20 Nov 2026)
+Nothing in the game changes (`board/` untouched: no game version, no build number).
+
+**What the Editor will notice**
+- A **status board**: type "status" in any chat, or open https://productofdefiance.github.io/Flagfall/status/ on a phone. It shows what's on `main`, results from the last day, open flags (`!` = waiting on you or the chat), every brief (building, ready to start, waiting on what, merged) and the open design chats. GitHub keeps it current, hourly and on every pull request change.
+- Briefs now say only the **size** of the version bump (X, YY or ZZ). Code takes the actual number just before marking its pull request Ready, so two builds can't expect the same number.
+- New flags go in a file per brief, named **F021-1, F021-2, …**, so two builds can't take the same flag name.
+- Two pull request labels: `review: merge` and `review: hold`, shown on the board.
+
+**Under the hood**
+- `sims/status/board.js` (builds the board), `sims/status/test_board.js` (run in `checks`), workflow `status-board.yml`, branch `status` (the board and `chats/`). `play-links` now leaves `status/` alone on gh-pages.
+- `CLAUDE.md`: `status`, `sync`, `handoff`, flags and version rules rewritten. `briefs/TEMPLATE.md`: size-only Game version, new `Waits on` row.
+- Flags opened: F021-1 (ASK), F021-2, F021-3. None closed.
 
 ## v3.11.00 · Build 15 — Brief 019, Brain 7: know the lead, keep it, storm together (20 Nov 2026)
 Rule set: none changed (v3.7 stays the newest). Game version **v3.11.00** (YY: a new brain; brief 011 took v3.10.00 and Build 14 first). Brain 7 was built and measured on v3.6; it inherits Brain 5's specials play on v3.7, which these runs didn't measure. Brain 5 stays the default.

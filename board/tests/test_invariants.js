@@ -36,8 +36,8 @@ for (let g = 0; g < games; g++) {
       const lastHalf = E.isHolder(st, u) && Math.abs(E.poolSplit(st, u.team).pool - 0.5) < EPS;
       if (!isHalf(E.hpShown(st, u)) || (E.hpShown(st, u) < 0.5 - EPS && !lastHalf)) bad(g, `${u.uid} shows HP ${E.hpShown(st, u)}`);
       if (!E.isHolder(st, u) && (!isHalf(u.hp) || u.hp < 0.5 - EPS)) bad(g, `${u.uid} HP ${u.hp} is not a whole half point`);
-      if (!E.CELLSET.has(u.hex)) bad(g, `${u.uid} off the field`);
-      if (u.hex === E.FLAG[E.foeOf(u.team)]) bad(g, `${u.uid} on the enemy flag`);
+      if (!E.fieldOf(st).CELLSET.has(u.hex)) bad(g, `${u.uid} off the field`);
+      if (u.hex === E.fieldOf(st).FLAG[E.foeOf(u.team)]) bad(g, `${u.uid} on the enemy flag`);
       if (u.stam < -EPS) bad(g, `${u.uid} negative Stamina`);
       // Specials (Brief 011): a known state, only on cards that have one, and a warmed-up unit never attacked that turn
       if (u.sp !== undefined && !["unused", "warm", "charged", "used"].includes(u.sp)) bad(g, `${u.uid} special state ${u.sp}`);
@@ -52,7 +52,7 @@ for (let g = 0; g < games; g++) {
 }
 // A refused action must leave the match exactly as it was.
 { const st = E.newMatch(rs, { first: "N", lineups: { N: mk(["HM", "LM"]), S: mk(["HM", "LM"]) } });
-  for (const t of ["N", "S"]) { const z = E.deployZone(st, t).filter((h) => h !== E.FLAG[t]), p = {}; let i = 0; for (const u of st.units.filter((x) => x.team === t)) p[u.uid] = z[i++]; E.act(st, { type: "deploy", team: t, placements: p }); }
+  for (const t of ["N", "S"]) { const z = E.deployZone(st, t).filter((h) => h !== E.fieldOf(st).FLAG[t]), p = {}; let i = 0; for (const u of st.units.filter((x) => x.team === t)) p[u.uid] = z[i++]; E.act(st, { type: "deploy", team: t, placements: p }); }
   const before = JSON.stringify(st);
   for (const a of [{ type: "swap", uid: "N-HM", with: "nope" }, { type: "move", uid: "N-HM", to: "Z9" }, { type: "attack", uid: "N-HM", target: "S-HM" }, { type: "pull", uid: "N-HM" }]) {
     const r = E.act(st, a); if (r.ok || JSON.stringify(st) !== before) bad("restore", "a refused action changed the match: " + JSON.stringify(a));

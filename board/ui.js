@@ -72,7 +72,7 @@
     const byUid = (uid) => E.unitByUid(st, uid);
     const kills = (a.killChance || 0) > 1e-9;
     const pv = E.parryPreview(st, u, t);
-    const reach = uc.trait === "reach" && uc.range === 1 && E.dist(u.hex, t.hex) === 2;
+    const reach = uc.trait === "reach" && uc.range === 1 && E.fieldOf(st).dist(u.hex, t.hex) === 2;
 
     // Face-off stats: only numbers that change this attack (Strength always shows).
     const aStats = [], tStats = [];
