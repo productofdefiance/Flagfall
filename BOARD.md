@@ -1,19 +1,19 @@
-STATUS · updated 20 Nov 2026, 3:12 pm ET
+STATUS · updated 20 Nov 2026, 3:29 pm ET
 
 VERSION
   On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
-  Building: 017 → v3.13.00 · 022 → v3.13.00 · 023 → none
+  Building: 017 → v3.13.00 · 022 → v3.13.00
 
 RESULTS (last 24 hours)
   Nightly checks: pass (20 Nov, 11:54 am ET)
-  study v3.11.00 · 5v5: mirror, 61.9% ended on the turn limit, A/B 459–477; 7v7: mirror, 44.2% ended on the turn limit, A/B… · 20 Nov
-  study v3.11.00 · 5v5: mirror, 35.1% ended on the turn limit, A/B 497–492; 7v7: mirror, 42.7% ended on the turn limit, A/B… · 20 Nov
-  study v3.10.00 · 52 matchups, 52000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 43.7%… · 20 Nov
-  screen v3.10.00 · balanced-5v5: mirror, 34.8% ended on the turn limit, A/B 209–187; balanced-7v7: mirror, 38.8% ended on the… · 20 Nov
-  release v3.12.00 · 5v5: mirror, 63.0% ended on the turn limit, A/B 453–481; 7v7: mirror, 43.9% ended on the turn limit, A/B… · 20 Nov
-  release v3.11.00 · 5v5: mirror, 36.7% ended on the turn limit, A/B 503–492; 7v7: mirror, 41.4% ended on the turn limit, A/B… · 20 Nov
-  release v3.10.00 · 5v5: mirror, 37.0% ended on the turn limit, A/B 478–512; 7v7: mirror, 45.1% ended on the turn limit, A/B… · 20 Nov
-  nightly v3.11.00 · passed: all 4 night checks · 20 Nov
+  study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov
+  study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov
+  study v3.10.00 · 52 matchups, 52,000 games · 20 Nov
+  screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov
+  release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov
+  release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov
+  release v3.10.00 · 5v5 37.0% · 7v7 45.1% on the turn limit · 20 Nov
+  nightly v3.11.00 · 5v5 30.0% · 7v7 30.0% on the turn limit · 20 Nov
   +31 more in results/INDEX.md
 
 FLAGS (open, newest first)
@@ -33,9 +33,8 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    017 Move preview · PR #44 · Ready · checks pass · not reviewed
-    022 Safe approach · PR #41 · Draft · checks running · not reviewed
-    023 Status page · PR #40 · Ready · checks pass · reviewed: merge
+    017 Move preview · PR #44 · needs sync · checks pass · not reviewed
+    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed
   Ready to start
     024 Lab capacity
   Waiting
@@ -43,9 +42,9 @@ BUILDS
     018 Turn cue zoom ← 017
     020 Victory values ← 022
   Merged (last 3)
+    023 Status page · 20 Nov
     014 Fields · v3.12.00 · 20 Nov
     021 Status board · 20 Nov
-    019 Brain 7 · v3.11.00 · 20 Nov
 
 CHATS
   Open
