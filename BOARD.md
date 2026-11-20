@@ -1,4 +1,4 @@
-STATUS · updated 20 Nov 2026, 11:43 am ET
+STATUS · updated 20 Nov 2026, 11:46 am ET
 
 VERSION
   On main: v3.11.00 · Build 15 · Rules v3.7 · Brain 5
@@ -8,13 +8,13 @@ RESULTS (last 24 hours)
   Nightly checks: pass (19 Nov, 12:17 pm ET)
   study v3.10.00 · 52 matchups, 52000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 43.7%… · 20 Nov
   screen v3.10.00 · balanced-5v5: mirror, 34.8% ended on the turn limit, A/B 209–187; balanced-7v7: mirror, 38.8% ended on the… · 20 Nov
+  release v3.11.00 · 5v5: mirror, 36.7% ended on the turn limit, A/B 503–492; 7v7: mirror, 41.4% ended on the turn limit, A/B… · 20 Nov
   release v3.10.00 · 5v5: mirror, 37.0% ended on the turn limit, A/B 478–512; 7v7: mirror, 45.1% ended on the turn limit, A/B… · 20 Nov
   study v3.08.01 · 5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B… · 19 Nov
   study v3.10.00 · 5v5: brain5:warmSlack=0 took 48.2% of games against brain5 (decisive 311–293, tiebreak 164–218, draws 14)… · 19 Nov
   study v3.10.00 · 5v5: mirror, 34.3% ended on the turn limit, A/B 491–504; 7v7: mirror, 41.7% ended on the turn limit, A/B… · 19 Nov
   study v3.10.00 · 5v5: mirror, 17.8% ended on the turn limit, A/B 497–494; 7v7: mirror, 45.6% ended on the turn limit, A/B… · 19 Nov
-  study v3.10.00 · 5v5: mirror, 55.2% ended on the turn limit, A/B 506–489; 7v7: mirror, 45.0% ended on the turn limit, A/B… · 19 Nov
-  +26 more in results/INDEX.md
+  +27 more in results/INDEX.md
 
 FLAGS (open, newest first)
   ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…
