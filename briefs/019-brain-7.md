@@ -249,7 +249,44 @@ Replay links (Brain 7 ahead on both at some point; a mix of wins and losses):
   4. Regroup: behind by 1.01; 15 turns left (need 6 + 2 spare): Brain 7 pulls its Light Melee back next to its Heavy Melee instead of the lone attack Brain 5 makes; 2 turns left: it commits and attacks.
   5. Hold or storm: ahead by 1.5 and on flag damage. stormLead 1.0: storms (two units in reach of the holder after its turn); 2.0: holds (one unit in reach; Brain 5's plan).
   Legal play: 30 seeded games per format and lineup (balanced and all-Light, 5v5 and 7v7, Brain 7 against Brain 5 and itself): 0 refused actions, 0 errors, 0 unfinished.
-- **Settings review (brain builds only):** the switches are covered above (one at a time). `stormLead`: **no effect found** (1.0, 1.5 and 2.0 within 0.2 points in both formats, 1,000 games each, same deals). The numeric settings (each up, down and off against Brain 5) are in `brain7-settings`, which plays as its own run after this one; its table goes here when it lands. Missing settings found: `press` (F38, built); a holder-joins behaviour that doesn't need B1 (F42: B4 does the good work, B1 costs points).
+- **Settings review (brain builds only):** `brain7-settings`, 52,000 games (each setting up, down and off where it has one, against Brain 5, 1,000 per format, the same deals as the shipped Brain 7; 0 errors). Changes are against the shipped Brain 7 (45.6% at 5v5, 50.0% at 7v7). A gap under 4 points is not evidence (F23).
+  - **Moves results: `leadWeight` (B1's lead ratio) only.** At 0 Brain 7 takes 52.1% at 5v5 (+6.5 points, back above Brain 5 but only +1.3 SE) and 50.3% at 7v7; at 10, 49.8% and 50.4%; at 40, 47.5% and 44.9% (−5.1 at 7v7). The lower the weight, the better: the lead ratio is what costs Brain 7 against Brain 5. Agrees with the one-at-a-time runs (B1 alone 46.1%). Isolated (one setting changed, same deals).
+  - **No effect found (every change under 2 points, both formats):** `aheadAt` (0.5, 2), `killChance` (0.3, 0.7: exactly the same games, so it never decided a choice), `aheadCaution` (1, 2.5), `stormMin` (1, 3), `gather` (0, 1.5, 6), `press` (0, 1, 4), `regroupSpare` (0, 4: exactly the same games), `together` (0, 1, 4), and switching off B2, B3, B4 or B5 one at a time (shares within 2 points). `stormLead` too (above). Not retired: they may matter in mirrors, other lineups or rules; the Editor decides.
+  - **But turn limits move:** switching off B4 (holder joins) raises games on the turn limit against Brain 5 from 42.2% to 58.9% (5v5) and 32.2% to 46.8% (7v7); switching off B3 raises them to 50.5% and 39.9%. Neither changes who wins.
+  - **F41 answered:** `aheadCaution` doesn't explain B2's effect (1 and 2.5 both within 1 point and the same turn-limit share against Brain 5). B2's big rise in stalls showed up in mirrors (B1+B2), which the settings review doesn't play; likely the lone-losing cost itself makes both sides hold back once either is ahead, not isolated.
+  - **F38 revisited:** `press` was needed in the hand-built position, but in games 0, 1 and 4 all give the same results (within 0.5 points). It isn't doing measurable work in games.
+  - **Missing settings:** a holder-joins behaviour usable without B1's lead ratio (F42). Harder to prove than the list above: the evidence is B1+B4 doing the stall work while `leadWeight` 0 is the best value against Brain 5.
+
+| Setting | 5v5 share (change) | 7v7 share (change) | Turn limit 5v5 / 7v7 | Verdict |
+|---|---|---|---|---|
+| leadweight-10 | 49.8% (+4.1) | 50.4% (+0.4) | 42.0% / 32.2% | moves results |
+| leadweight-40 | 47.5% (+1.9) | 44.9% (-5.1) | 42.3% / 31.7% | moves results |
+| leadweight-0 | 52.1% (+6.5) | 50.3% (+0.3) | 41.8% / 29.2% | moves results |
+| aheadat-05 | 46.1% (+0.5) | 49.4% (-0.7) | 39.4% / 31.0% | no effect found |
+| aheadat-2 | 44.9% (-0.8) | 48.3% (-1.7) | 43.7% / 29.8% | no effect found |
+| killchance-03 | 45.6% (+0.0) | 50.0% (+0.0) | 42.2% / 32.2% | no effect found |
+| killchance-07 | 45.6% (+0.0) | 50.0% (+0.0) | 42.2% / 32.2% | no effect found |
+| aheadcaution-1 | 45.6% (+0.1) | 49.1% (-0.9) | 42.1% / 32.1% | no effect found |
+| aheadcaution-25 | 45.5% (-0.2) | 49.9% (-0.1) | 42.7% / 32.1% | no effect found |
+| stormmin-1 | 45.5% (-0.1) | 50.1% (+0.1) | 42.6% / 32.2% | no effect found |
+| stormmin-3 | 45.6% (+0.0) | 50.1% (+0.1) | 42.2% / 32.3% | no effect found |
+| gather-15 | 45.6% (+0.0) | 50.3% (+0.3) | 41.8% / 32.2% | no effect found |
+| gather-6 | 45.3% (-0.3) | 50.2% (+0.2) | 42.2% / 32.7% | no effect found |
+| gather-0 | 45.1% (-0.5) | 50.1% (+0.1) | 42.6% / 32.5% | no effect found |
+| press-1 | 45.6% (+0.0) | 50.5% (+0.5) | 42.0% / 31.6% | no effect found |
+| press-4 | 45.6% (+0.0) | 50.1% (+0.1) | 42.6% / 32.6% | no effect found |
+| press-0 | 45.3% (-0.3) | 50.3% (+0.3) | 42.0% / 31.5% | no effect found |
+| regroupspare-0 | 45.6% (+0.0) | 50.0% (+0.0) | 42.2% / 32.2% | no effect found |
+| regroupspare-4 | 45.6% (+0.0) | 50.0% (+0.0) | 42.2% / 32.2% | no effect found |
+| together-1 | 45.5% (-0.1) | 50.1% (+0.1) | 42.7% / 31.8% | no effect found |
+| together-4 | 45.4% (-0.2) | 49.0% (-1.0) | 42.4% / 31.6% | no effect found |
+| together-0 | 46.0% (+0.4) | 48.9% (-1.2) | 42.7% / 30.1% | no effect found |
+| no-care | 45.6% (+0.1) | 49.1% (-0.9) | 42.3% / 32.3% | no effect found |
+| no-storm | 43.7% (-1.9) | 50.0% (-0.1) | 50.5% / 39.9% | no effect found |
+| no-holderjoins | 47.3% (+1.7) | 50.5% (+0.5) | 58.9% / 46.8% | no effect found |
+| no-regroup | 45.6% (-0.1) | 48.6% (-1.4) | 43.3% / 30.7% | no effect found |
+
+
 - **Known gaps:**
   - Lead logic doesn't lean on the "fewer beings lost" tiebreak step: it reads units on the field only, as the brief asked. Brain 7 has no clock (Brain 6's), so near the limit it doesn't play for the tiebreak.
   - B3 is built inside the one-turn planner as value for "spare units that could strike next turn" plus a cost on lone strikes and the `press` value. It works in the test position (gather, then strike with three). Whether it plays out that way in games is what the one-at-a-time runs measure.
