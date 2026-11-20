@@ -144,7 +144,14 @@
   V35.id = "v3.5"; V35.name = "v3.5 (2026-11-19)";
   V35.note = "v3.4 plus dice variety: a roll of 4–5 deals 10% less, 9–10 deals 10% more (average unchanged).";
   V35.switches.diceVariety = true;
-  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35];
+  /* Rule set v3.6 (Brief 015, the flag rulings of 19 Nov, F8): v3.5 plus four engine rules from the Game Laws.
+     A flag hex blocks Volley and Reach along a straight line (4.9); a pull is always full Strength (4.6); a pull counts
+     as an attack for Reload (3.11); set spear hits a unit arriving next to it, at most once per unit per turn (3.13). */
+  const V36 = JSON.parse(JSON.stringify(V35));
+  V36.id = "v3.6"; V36.name = "v3.6 (2026-11-19)";
+  V36.note = "v3.5 plus the flag rulings: a flag blocks Volley and Reach in a straight line; pulls at full Strength; a pull counts for Reload; set spear hits arrivals only, once per unit per turn.";
+  Object.assign(V36.switches, { flagBlocksLine: true, pullFullStrength: true, pullCountsForReload: true, spearOnArrival: true });
+  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35, V36];
 
   const TRAITS = { tackle: "Tackle", reach: "Reach", ignoreArmor: "Ignores Armor", none: "None" };
   const BRACES = { parry: "Parry", dodgeDouble: "Dodge doubles", spike: "Set spear", zone: "Projects Zone of Control", fullStamina: "Full Stamina next turn", noSupport: "No Support against it", none: "None" };
