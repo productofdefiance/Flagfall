@@ -19,6 +19,24 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
+## No game version — Brief 024, tooling: the lab shares GitHub's machines (20 Nov 2026)
+Nothing in the game changes (`board/` untouched). Every game the lab plays is the same.
+
+**What the Editor will notice**
+- In the daytime, pull request checks wait less: a lab run takes 15 of GitHub's 20 machines when the repository is quiet, 10 when it is busy, 5 for a big run when busy. At night (11 pm to 7 am ET, or after the night checks) it takes all 20.
+- A lab run can be rushed: the new "rush" box when starting it by hand, or the `lab: rush` label on a pull request.
+- A new push to a pull request replaces its older lab run instead of queueing behind it.
+- The status page and `BOARD.md` show a Queue line ("Queue: 12 jobs waiting, oldest 43 min · lab using 9 of 20", or "Queue: clear").
+- When GitHub is jammed, Code may offer to run checks or a small screen in its own session, and asks you first every time.
+
+**Under the hood**
+- New `sims/lab/capacity.js` and `capacity.json`; `lab.yml` uses them for each wave and the release checks.
+- Big daytime runs play in two waves; the second chooses its share again. Same parts, same games.
+- New `sims/lab/queuelog.js`: one line per run in `queue/queue-log.csv` on the `status` branch.
+- New check `sims/lab/test_capacity.js`, run in `checks`.
+
+**Flags closed:** none. **Opened:** F024-1 to F024-4 (all ASK).
+
 ## v3.12.00 · Build 16 — Brief 014, rule set v3.8: one field per format, and the hot-seat snap (20 Nov 2026)
 Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `game.deployRadius5: 2`. Default brain: Brain 5, unchanged. Game version **v3.12.00** (YY: a new rule set; brief 019 took v3.11.00 and Build 15 first). The brief planned the rule set as v3.7; brief 011 took v3.7 first, so it is v3.8.
 
@@ -41,6 +59,30 @@ Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `g
 **Baseline** (Brain 5 mirror, balanced, 1,000 games per format, same seeds as v3.7; full table in brief 014's Report):
 - 5v5: ended on the turn limit **61.9%** (v3.7: 35.1%), pull KO 23.5% (44.0%), first mover's share of decisive games **58.0%** (3.2%). Likely the smaller deploy area; not isolated.
 - 7v7: ended on the turn limit 44.2% (42.7%), pull KO 39.4% (41.6%), first mover's share 31.4% (29.0%): no change beyond the noise.
+## No game version — Brief 023, tooling: status page redesign, Needs sync, a Refresh that rebuilds (20 Nov 2026)
+Nothing in the game changes (`board/` untouched).
+
+**What the Editor will notice**
+- The status page (https://productofdefiance.github.io/Flagfall/status/) has the approved design: a dark header, four tiles (On main, Building, Nightly checks, Flags), then Builds, Results, Chats, Flags and a Key. One layout for phone and computer.
+- Every mark has an icon and a word, never colour alone: Review, Ready to merge, Needs sync, Heads up / On hold, Broken, Running, Needs an answer, Passing, Merged.
+- A build that conflicts with `main`, or has fallen behind it (lab results aside), shows **Needs sync** instead of Review or Ready to merge, with "Your move: type "sync" in its Code chat". `BOARD.md` says "needs sync" in place of "Ready".
+- Results show the share of games that ended on the turn limit, 5v5 and 7v7, read from each run's own table. `BOARD.md` uses the same short line.
+- **Refresh**: with a key saved on that device, it rebuilds the board (about 1 to 3 minutes) and redraws when the new one lands. Without a key it re-reads the latest board. "Set up one-tap rebuild" explains making the key. The page also re-reads by itself every 5 minutes while open.
+
+**Under the hood**
+- New `sims/status/page.js`: draws the page, in Node when the board is built and in the browser when a newer board arrives; holds the Refresh logic.
+- `board.json` gains the structured facts the page draws (builds, results with their two shares, flags with ~300 characters of issue, chats, tiles). The `board` text and every old field stay.
+- The status page publishes in its own concurrency group with a retrying push (F021-2), and waits for a running play-link publish before pushing.
+- A run started by hand (or by Refresh) always publishes, so the "Updated" time moves.
+- New checks in `test_board.js` and `test_page.js` (no network).
+
+- **Flags** (the Editor's design): each row is name and date, the status pill, then the issue on its own full-width line as a two-line preview. Tap a row to open the whole issue and its "Resolved in / next step" text; tap again to close.
+- **Builds** has a Ready to start group between Building and Waiting.
+- The set-up panel asks for a 90-day key.
+- `play-links.yml` retries its push, so a status publish can't make a play link miss an update.
+
+**Flags closed:** F021-2, F023-1, F023-2, F023-3.
+
 ## No game version — Brief 021, tooling: status board, chat log, flag and version numbering (20 Nov 2026)
 Nothing in the game changes (`board/` untouched: no game version, no build number).
 

@@ -20,6 +20,11 @@ on:
         description: "Job orders to play (paths, space-separated). Leave empty to play everything in studies/queue/."
         required: false
         default: ""
+      rush:
+        description: "Take every machine now, even in the daytime (Brief 024)."
+        type: boolean
+        required: false
+        default: false
   pull_request:
     paths: ["studies/queue/**", "board/version.js", "sims/lab/**"]
   push:
@@ -32,9 +37,11 @@ permissions:
   issues: write
   actions: write
 
+# Brief 024: a new push to a pull request cancels its lab run for the older commit (queued or playing) and plays the
+# new one. Runs on main (the nightly chain, releases after a merge, hand starts) are never cancelled this way.
 concurrency:
   group: lab-${{ github.event.pull_request.number || 'main' }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   SITE: https://productofdefiance.github.io/Flagfall/
@@ -56,6 +63,15 @@ jobs:
       trigger: ${{ steps.where.outputs.trigger }}
       started: ${{ steps.where.outputs.started }}
       sha: ${{ steps.sha.outputs.sha }}
+      max_parallel: ${{ steps.share.outputs.max_parallel || 2 }}
+      release_parallel: ${{ steps.share.outputs.release_parallel || 1 }}
+      matrix_w1: ${{ steps.share.outputs.matrix_w1 }}
+      matrix_w2: ${{ steps.share.outputs.matrix_w2 }}
+      has_w2: ${{ steps.share.outputs.has_w2 }}
+      share_line: ${{ steps.share.outputs.line }}
+      share: ${{ steps.share.outputs.share }}
+      checks_waiting: ${{ steps.share.outputs.checks_waiting }}
+      games: ${{ steps.plan.outputs.games }}
     steps:
       # A pull request's branch as it is when this run starts, not the commit that queued it: a run that waited behind
       # another sees the job orders that one already played (moved to studies/done) and doesn't play them again.
@@ -103,6 +119,21 @@ jobs:
             ORDERS=$(git diff --name-only --diff-filter=AM "$BASE" HEAD -- 'studies/queue/*.json' | tr '\n' ' ')
           fi
           node sims/lab/plan.js --orders "$ORDERS" $rel $( [ "$EV" = "pull_request" ] || [ "$EV" = "push" ] && [ -z "$ORDERS" ] && echo "--release-only 1" )
+      # Brief 024: how many machines this run takes, from what started it, how big it is and how busy the repository
+      # is (numbers in sims/lab/capacity.json). Big daytime runs play in two waves; the second wave chooses again.
+      - name: Share of machines
+        id: share
+        if: steps.plan.outputs.has_work == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EV: ${{ github.event_name }}
+          RUSH: ${{ github.event.inputs.rush }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          PR: ${{ github.event.pull_request.number }}
+          ORDERS: ${{ steps.plan.outputs.orders }}
+          PARTS: ${{ steps.plan.outputs.parts }}
+          RELEASE: ${{ steps.plan.outputs.release }}
+        run: node sims/lab/capacity.js --event "$EV" --orders "$ORDERS" --parts "$PARTS" --release "$RELEASE" --rush "${RUSH:-false}" --labels "$LABELS" --pr "$PR"
       - uses: actions/upload-artifact@v4
         if: steps.plan.outputs.has_work == 'true'
         with:
@@ -118,8 +149,67 @@ jobs:
     timeout-minutes: 350
     strategy:
       fail-fast: false
-      max-parallel: 20
-      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+      max-parallel: ${{ fromJSON(needs.plan.outputs.max_parallel) }}
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix_w1) }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - uses: actions/download-artifact@v4
+        with:
+          name: orders
+          path: studies/queue/
+      - name: Play this part
+        run: node sims/lab/play.js --part ${{ matrix.part }} --parts ${{ needs.plan.outputs.parts }} --site "${{ needs.plan.outputs.site }}" --out parts/part-${{ matrix.part }}.jsonl ${{ needs.plan.outputs.orders }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: part-${{ matrix.part }}
+          path: parts/
+          retention-days: 90
+
+  # Brief 024: the second wave of a big daytime run. Its share is chosen afresh when the first wave ends, so it gives
+  # way if builds arrived meanwhile and speeds up if night fell. The parts are the same as in one pass: same games.
+  wave2:
+    name: second wave share
+    needs: [plan, play]
+    if: ${{ !cancelled() && needs.plan.result == 'success' && needs.plan.outputs.has_w2 == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      max_parallel: ${{ steps.share.outputs.max_parallel || 2 }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: orders
+          path: studies/queue/
+      - name: Share of machines (second wave)
+        id: share
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EV: ${{ github.event_name }}
+          RUSH: ${{ github.event.inputs.rush }}
+          LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          PR: ${{ github.event.pull_request.number }}
+          ORDERS: ${{ needs.plan.outputs.orders }}
+          PARTS: ${{ needs.plan.outputs.parts }}
+        run: node sims/lab/capacity.js --wave 2 --event "$EV" --orders "$ORDERS" --parts "$PARTS" --release false --rush "${RUSH:-false}" --labels "$LABELS" --pr "$PR"
+
+  play2:
+    name: play part ${{ matrix.part }}
+    needs: [plan, wave2]
+    if: ${{ !cancelled() && needs.wave2.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      max-parallel: ${{ fromJSON(needs.wave2.outputs.max_parallel) }}
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix_w2) }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -149,6 +239,7 @@ jobs:
     timeout-minutes: 120
     strategy:
       fail-fast: false
+      max-parallel: ${{ fromJSON(needs.plan.outputs.release_parallel) }}
       matrix:
         check:
           - { name: "test_rules.js", cmd: "node tests/test_rules.js" }
@@ -197,7 +288,7 @@ jobs:
 
   merge:
     name: merge and file the results
-    needs: [plan, play, release-checks]
+    needs: [plan, play, wave2, play2, release-checks]
     if: always() && needs.plan.outputs.has_work == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -237,7 +328,8 @@ jobs:
         id: merge
         env:
           EV: ${{ github.event_name }}
-          PLAY: ${{ needs.play.result }}
+          # both waves: a skipped second wave (one-go runs) counts as done
+          PLAY: ${{ (needs.play.result == 'success' && (needs.play2.result == 'success' || needs.play2.result == 'skipped')) && 'success' || format('{0}/{1}', needs.play.result, needs.play2.result) }}
           COMMIT: ${{ needs.plan.outputs.sha }}
           TRIGGER: ${{ needs.plan.outputs.trigger }}
           ORDERS: ${{ needs.plan.outputs.orders }}
@@ -288,6 +380,34 @@ jobs:
           GH_TOKEN: ${{ secrets.LAB_TOKEN || github.token }}
         run: |
           bash sims/lab/deliver.sh main "Lab results, $(date -u +%Y-%m-%d) (${{ needs.plan.outputs.trigger }})"
+      # Brief 024: one line per run in the queue log, on the status branch (not the results pull request, where two
+      # runs appending to one file would conflict): the data for tuning the share rules.
+      - name: Queue log
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EV: ${{ github.event_name }}
+          GAMES: ${{ needs.plan.outputs.games }}
+          SHARE: ${{ needs.plan.outputs.share }}
+          LINE: ${{ needs.plan.outputs.share_line }}
+          CHECKS: ${{ needs.plan.outputs.checks_waiting }}
+          REPO_URL: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+        run: |
+          row=$(node sims/lab/queuelog.js --run "$GITHUB_RUN_ID" --event "$EV" --games "$GAMES" --share "$SHARE" --why "$LINE" --checks "$CHECKS")
+          echo "$row"; echo "Queue log: $row" >> "$GITHUB_STEP_SUMMARY"
+          for i in 1 2 3 4 5; do
+            rm -rf ql && git init -q ql && cd ql
+            git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git remote add origin "$REPO_URL"
+            git fetch -q --depth 1 origin status || { echo "No status branch yet: queue log skipped."; exit 0; }
+            git checkout -q -B status FETCH_HEAD
+            mkdir -p queue; [ -f queue/queue-log.csv ] || node ../sims/lab/queuelog.js --header > queue/queue-log.csv
+            echo "$row" >> queue/queue-log.csv
+            git add queue/queue-log.csv && git commit -q -m "Queue log: lab run $GITHUB_RUN_ID"
+            if git push -q origin status; then exit 0; fi
+            cd ..; sleep $((i * 4))
+          done
       - name: Open an issue if the run failed
         if: (failure() || steps.merge.outputs.failed == 'true') && github.event_name != 'pull_request'
         env:

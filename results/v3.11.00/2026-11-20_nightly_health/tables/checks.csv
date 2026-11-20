@@ -1,0 +1,5 @@
+check,outcome
+test_v32.js (400 + 400),success
+test_invariants.js (100),success
+test_kitd.js (30),success
+test_brain5.js (30),success
