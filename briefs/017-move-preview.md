@@ -199,7 +199,19 @@ Play one match on a phone: tap a Light Ranged and preview three moves (one clean
     | v3.8 | 46 | 17 | 36 | 1 | 37 |
     | v3.9 | 49 | 15 | 34 | 2 | 36 |
 
-  Every gap is under 4 points: no change found (F23). Holder KO vs pull KO and pulls come from the lab screen in this pull request (`routes-v39`) and the automatic `release` run (1,000 per format).
+  Every gap is under 4 points: no change found (F23).
+
+  Lab screen `routes-v39` (`results/v3.13.00/2026-11-20_screen_routes-v39/`), 200 games per matchup, v3.8 and v3.9 on the same seeds:
+
+    | Matchup | KO/TKO wins | Tiebreak wins | Draws | Holder KO | Pull KO | TKO | Ended on turn limit | Games with a pull |
+    |---|---|---|---|---|---|---|---|---|
+    | v3.8 5v5 | 70 | 113 | 17 | 7.5% | 21.0% | 6.5% | 65.0% | 21.5% |
+    | v3.9 5v5 | 68 | 115 | 17 | 7.5% | 20.0% | 6.5% | 66.0% | 20.5% |
+    | v3.8 7v7 | 109 | 89 | 2 | 3.5% | 40.0% | 11.0% | 45.5% | 40.0% |
+    | v3.9 7v7 | 105 | 91 | 4 | 2.5% | 40.0% | 10.0% | 47.5% | 40.0% |
+
+  Every gap is under 4 points: no change from routes found. Bots' moves: 7,826 (5v5) and 11,354 (7v7) on v3.9, every one ended where `route()` said; stopped short 0 and 1; set spear on 23 and 0 moves (v3.8: 23 and 2).
+  Release run (1,000 per format, v3.9): 5v5 63.2% ended on the turn limit, 7v7 44.4%. The high 5v5 share is already there on v3.8 on the same seeds (65.0%), so it is the 5v5 field (F50), not routes.
 - **Bot minimum (met):** 100 seeded Brain 5 games on v3.9: 5,743 moves; predicted end = actual end on **5,743 of 5,743**; **0** stopped short; set spear taken on 5 moves (10 damage); Mark entered before the chosen hex 0; moves ending in a Mark 800. Same seeds on v3.8: 5,759 moves, spear on 4 moves (8 damage), Mark before the chosen hex 0 (the jump can't), ending in a Mark 795. The bot never chose a move that stops short: because it scores each move by playing it, a stopped-short move scores as where it really ends and loses to a better one.
 - **Settings review (brain builds only):** n/a (no brain added or tuned).
 - **Known gaps:**
