@@ -38,6 +38,20 @@
     return d[0] === 0 && d[1] === 2 && d[2] === 2;
   }
   const middle = (a, b) => CELLS.find((c) => dist(c, a) === 1 && dist(c, b) === 1);
+  /** v3.6 (Brief 015, Game Laws 4.9): is a flag hex (either flag, held or empty) strictly between `from` and `to` on one
+      of the six straight hex lines? Off a straight line nothing is ever between. Neither end counts: a unit on a flag
+      shoots out from it, and a holder on its flag can be shot. One helper for every line rule (Volley, Reach; later
+      Javelin, Vault). */
+  function flagBetween(from, to) {
+    const a = cube(...parse(from)), b = cube(...parse(to)), d = dist(from, to);
+    if (d < 2) return false;
+    for (const f of [FLAG.N, FLAG.S]) {
+      if (f === from || f === to) continue;
+      const c = cube(...parse(f));
+      for (let i = 0; i < 3; i++) if (a[i] === b[i] && c[i] === a[i] && dist(from, f) + dist(f, to) === d) return true;
+    }
+    return false;
+  }
 
   // ---------- Helpers ----------
   const EPS = 1e-9;
@@ -231,11 +245,17 @@
     u.stam -= cost; st.cmd -= cost;
   }
 
-  /** A braced Heavy Anti-Cavalry next to `hex` hits a unit entering it, once per turn. */
-  function spikeCheck(st, u, hex) {
+  /** A braced Heavy Anti-Cavalry next to `hex` hits a unit entering it, once per turn.
+      v3.6 (spearOnArrival, Game Laws 3.13): only a unit arriving next to that spear, i.e. not next to it on `from` (the
+      hex before the action), and a unit takes set spear damage at most once per turn; a spear it doesn't take stays loaded. */
+  function spikeCheck(st, u, hex, from) {
+    const arrival = sw(st, "spearOnArrival");
+    if (arrival && u.spearTaken) return "";
     for (const e of alive(st)) {
       if (e.team !== u.team && e.braced && card(st, e).brace === "spike" && !e.spikeUsed && dist(e.hex, hex) === 1) {
+        if (arrival && from && dist(e.hex, from) === 1) continue;   // already next to this spear: staying, not arriving
         e.spikeUsed = true;
+        if (arrival) u.spearTaken = true;
         const pooled = hurt(st, u, st.rs.spikeDamage);
         return `; braced ${e.id} at ${e.hex} deals ${st.rs.spikeDamage}${pooled} (${u.id} HP ${fmt(Math.max(u.hp, 0))})` + (u.hp <= 0 ? ` — ${u.id} REMOVED` : "");
       }
@@ -255,7 +275,7 @@
     if (tackle) u.tackled = true;
     if (evading) u.evadeMoved = true;
     let msg = `${u.id} ${src} → ${dst} (${steps} hex${steps > 1 ? "es" : ""}, cost ${fmt(cost)}${tackle ? ", including " + fmt(tackleCostFor(st, u)) + " for tackle" + (tackleHexes(st) ? " and 1 hex of movement" : "") : ""})` + (evading ? "; evading" : "") + (mode !== "free" ? "; stopped by Zone of Control" : "") + left;
-    if (u.hp > 0) msg += spikeCheck(st, u, dst);
+    if (u.hp > 0) msg += spikeCheck(st, u, dst, src);
     log(st, msg, "move");
   }
 
@@ -293,8 +313,8 @@
     const left = leaveFlag(st, a) + leaveFlag(st, b);
     a.hex = bh; b.hex = ah;
     let msg = `${a.id} and ${b.id} swap: ${a.id} to ${a.hex} (cost ${fmt(costs[0])}), ${b.id} to ${b.hex} (cost ${fmt(costs[1])})` + left;
-    if (a.hp > 0) msg += spikeCheck(st, a, a.hex);
-    if (b.hp > 0) msg += spikeCheck(st, b, b.hex);
+    if (a.hp > 0) msg += spikeCheck(st, a, a.hex, ah);
+    if (b.hp > 0) msg += spikeCheck(st, b, b.hex, bh);
     log(st, msg, "move");
   }
 
@@ -329,6 +349,7 @@
     if (c.reload && u.attackedLast) return false;
     if (isHolder(st, t) && !GOAL[t.team].has(h)) return false;   // the flag is a fort: storm it from the goal zone
     if (d === 1) return true;
+    if (sw(st, "flagBlocksLine") && flagBetween(h, t.hex)) return false;   // v3.6: a flag blocks Volley and Reach (4.9)
     if (c.trait === "reach" && d === 2 && straight2(h, t.hex)) {
       const m = middle(h, t.hex);
       return !alive(st).some((e) => e.team !== u.team && e.hex === m);
@@ -448,8 +469,9 @@
       msg += ` — ${t.id} REMOVED`;
       const holdsOwnFlag = sw(st, "holderHoldsHex") && isHolder(st, u);   // v3.1 (E1 fix): a holder never leaves its flag to take a hex
       if (isMelee(st, u) && d === 1 && u.hp > 0 && !wasHolder && !holdsOwnFlag) {
+        const was = u.hex;
         u.hex = t.hex; msg += `; ${u.id} takes ${t.hex}`;
-        if (st.rs.switches.captureTriggersSpike) msg += spikeCheck(st, u, u.hex);
+        if (st.rs.switches.captureTriggersSpike) msg += spikeCheck(st, u, u.hex, was);
       }
     }
     // v3.3 Evade: a Light unit whose adjacent attack left the target standing may step away instead of ending its turn.
@@ -461,10 +483,12 @@
     return { die, dmg };
   }
 
-  function canPullFrom(st, u, h) { return homeOf(foeOf(u.team)).has(h) && !holderOf(st, foeOf(u.team)); }
+  /** v3.6 (pullCountsForReload, 3.11): a reloading unit can't pull either. */
+  const pullReloading = (st, u) => sw(st, "pullCountsForReload") && !!card(st, u).reload && !!u.attackedLast;
+  function canPullFrom(st, u, h) { return homeOf(foeOf(u.team)).has(h) && !holderOf(st, foeOf(u.team)) && !pullReloading(st, u); }
   function pullValue(st, u) {
     const c = card(st, u), foe = foeOf(u.team);
-    let v = c.range > 1 ? halve(st, c.str) : c.str;
+    let v = c.range > 1 && !sw(st, "pullFullStrength") ? halve(st, c.str) : c.str;   // v3.6: a pull is always full Strength (4.6)
     const parts = [`Strength ${fmt(v)}`];
     if (sw(st, "pullSupport")) {
       // Pull Support: +1 (supportBonus) for every other friendly unit next to the flag, as Support on an attack.
@@ -477,9 +501,11 @@
     return { value: v, parts };
   }
   function doPull(st, u, roll) {
+    if (pullReloading(st, u)) fail(`${u.id} is reloading this turn.`);
     if (!canPullFrom(st, u, u.hex)) fail(`${u.id} is not next to the enemy flag.`);
     spend(st, u, st.rs.game.attackCost);
     u.done = true;
+    if (sw(st, "pullCountsForReload")) u.attackedThis = true;   // v3.6: a pull counts as an attack for Reload (no Evade, no parry)
     const foe = foeOf(u.team);
     const { value, parts } = pullValue(st, u);
     const die = roll();
@@ -499,6 +525,7 @@
   // ---------- Turns and results ----------
   function startTurn(st, team) {
     st.toMove = team;
+    if (sw(st, "spearOnArrival")) for (const u of alive(st)) u.spearTaken = false;   // v3.6: at most one set spear per unit per turn
     st.cmd = st.turn === 1 && team === st.first ? st.rs.game.firstTurnCommand : st.rs.game.command;
     for (const u of alive(st)) {
       if (u.team !== team) continue;
@@ -802,8 +829,11 @@
     if (ev) { out.attack = out.reach = out.brace = `${u.id} attacked this turn and may only evade or end`; }
     else {
       const reachShot = (a) => c.trait === "reach" && c.range === 1 && dist(u.hex, unitByUid(st, a.target).hex) === 2;
-      out.attack = need("attack", g.attackCost) || (c.reload && u.attackedLast ? `${u.id} is reloading this turn` : null) || (o.attacks.some((a) => !reachShot(a)) ? null : "No enemy in range");
-      out.reach = c.trait !== "reach" ? "Only Anti-Cavalry units can Reach" : need("attack", g.attackCost) || (o.attacks.some(reachShot) ? null : "No enemy 2 hexes away in a straight line, with nothing in between");
+      // v3.6: when the only thing stopping a shot is a flag in the line, say so (Game Laws 4.9).
+      const flagOnly = (reach) => sw(st, "flagBlocksLine") && alive(st).some((t) => t.team !== u.team && dist(u.hex, t.hex) >= 2 && flagBetween(u.hex, t.hex) &&
+        (reach ? straight2(u.hex, t.hex) : c.range > 1 && dist(u.hex, t.hex) <= c.range) && !(isHolder(st, t) && !GOAL[t.team].has(u.hex)) && !(reach && alive(st).some((e) => e.team !== u.team && e.hex === middle(u.hex, t.hex))));
+      out.attack = need("attack", g.attackCost) || (c.reload && u.attackedLast ? `${u.id} is reloading this turn` : null) || (o.attacks.some((a) => !reachShot(a)) ? null : flagOnly(false) ? "A flag blocks the line" : "No enemy in range");
+      out.reach = c.trait !== "reach" ? "Only Anti-Cavalry units can Reach" : need("attack", g.attackCost) || (o.attacks.some(reachShot) ? null : flagOnly(true) ? "A flag blocks the line" : "No enemy 2 hexes away in a straight line, with nothing in between");
       out.brace = need("brace", g.braceCost);
     }
     out.move = whyNoMove(st, u);
@@ -837,6 +867,6 @@
   }
 
   const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, foeOf, clone, card, alive, unitByUid,
-    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, diceMultiplier, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, STAMINA_EFFECTS, baseStamina, braceTiredness, staminaFloor, staminaMods, addStaminaMod, staminaWith, nextStamina, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
+    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, canPullFrom, flagBetween, dieCases, diceMultiplier, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, STAMINA_EFFECTS, baseStamina, braceTiredness, staminaFloor, staminaMods, addStaminaMod, staminaWith, nextStamina, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
   if (typeof module !== "undefined") module.exports = api; else root.GGEngine = api;
 })(this);

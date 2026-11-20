@@ -6,7 +6,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
-| v3.08.01 | v3.5 | Brain 5 | v2 | 12 |
+| v3.09.01 | v3.6 | Brain 5 | v2 | 13 |
+| v3.09.00 | v3.6 | Brain 5 | v2 | 12 |
 | v3.08.00 | v3.5 | Brain 5 | v2 | 11 |
 | v3.07.00 | v3.4 | Brain 5 | v2 | 10 |
 | v3.06.00 | v3.4 | Brain 5 | v2 | 9 |
@@ -15,8 +16,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
-## v3.08.01 · Build 12 — Brief 016, stall logging (lab only) (19 Nov 2026)
-Rule set: none changed (v3.5 stays the newest). Game version **v3.08.01** (ZZ: lab tooling, nothing about how the game plays changes).
+## v3.09.01 · Build 13 — Brief 016, stall logging (lab only) (19 Nov 2026)
+Rule set: none changed (v3.6 stays the newest). Game version **v3.09.01** (ZZ: lab tooling, nothing about how the game plays changes; brief 015 took v3.09.00 and Build 12 first).
 
 **What a player will notice**
 - Nothing on the board changes.
@@ -32,6 +33,40 @@ Rule set: none changed (v3.5 stays the newest). Game version **v3.08.01** (ZZ: l
 **Flags closed:** F35. **Opened:** F36 (the summary's 5-side-turn stall cut catches every turn-limit game).
 
 **The stall "before" (balanced Brain 5 mirrors, v3.5, 1,000 games per format):** in turn-limit games the last damage comes on turn 11.1 (5v5) and 12.7 (7v7), followed by 28 and 46 side-turns with no attack or pull; at turn limit − 3 each side has its holder and under one other unit. Full table in the brief's Report.
+## v3.09.00 · Build 12 — Brief 015, rule set v3.6: the flag rulings (19 Nov 2026)
+Rule set: **v3.6** (new, the new-game default) = v3.5 plus switches `flagBlocksLine`, `pullFullStrength`, `pullCountsForReload`, `spearOnArrival`. Game version **v3.09.00** (YY: a new rule set).
+
+**What a player will notice**
+- A flag hex (either side's, held or empty) blocks Volley and Reach when it sits straight between attacker and target. The button says "A flag blocks the line". A unit standing on a flag still shoots out from it, and a holder can still be shot from its goal zone.
+- Ranged units pull at full Strength.
+- A Heavy Ranged that pulls must reload next turn (it shows Reloading), and it can't pull while reloading.
+- Set spear only hits a unit arriving next to it. Shifting along a spear you already touch is safe, and a unit takes set spear damage at most once a turn.
+- v3.5 and every older rule set play exactly as before.
+
+**Under the hood**
+- `engine.js`: one line helper, `flagBetween`, for every line rule (later Javelin and Vault); spear arrival judged spear by spear, with a per-unit marker cleared each turn; pull Strength and pull Reload behind their switches.
+- `bot.js`: under the v3.6 switches only, the brains' own estimates follow the new rules (a shot across a flag from where a unit stands is no threat, a reloading Heavy Ranged can't pull, Ranged pulls count at full Strength).
+- `data.js`: preset v3.6. `app.js`: the four switches on the rule-set editor.
+- New check `test_v36.js` (every rule above, each also as unchanged on v3.5, plus a double-knockout count on v3.6); runs in `checks`.
+- Lab: a matchup can switch rules off for a sim-only copy (`switches_off`), and a new `flagrules` measure counts set spear hits, Ranged pulls and shots a flag blocks.
+
+**Flags closed:** F8. **Opened:** F37 (a reading of 3.13: leaving a spear and coming back in one move is not arriving).
+
+**Baseline (balanced, Brain 5 mirror, 1,000 games per format, same seeds on both rule sets)**
+
+| | 5v5 v3.5 | 5v5 v3.6 | 7v7 v3.5 | 7v7 v3.6 |
+|---|---|---|---|---|
+| Holder KO | 3.6% | 3.7% | 4.3% | 4.4% |
+| Pull KO | 26.7% | 26.3% | 38.3% | 38.3% |
+| TKO | 13.3% | 13.3% | 12.6% | 12.5% |
+| Tiebreak win | 54.1% | 54.4% | 41.1% | 41.1% |
+| Draw | 2.3% | 2.3% | 3.7% | 3.7% |
+| Ended on the turn limit | 56.4% | 56.7% | 44.8% | 44.8% |
+| Games with a pull | 26.8% | 26.4% | 38.5% | 38.5% |
+| Average turn | 19.20 | 19.23 | 22.84 | 22.84 |
+| First mover's share of decisive | 38.5% | 38.6% | 46.7% | 46.9% |
+
+Every gap is under 1 point: the four rules rarely come up in bot play (about 0.03 set spear hits, 0.01–0.02 Ranged pulls and 0.02–0.04 flag-blocked shots per game).
 
 ## v3.08.00 · Build 11 — Brief 010, rule set v3.5: a little variety in normal rolls (19 Nov 2026)
 Rule set: **v3.5** (new, the new-game default) = v3.4 plus switch `diceVariety`. Game version **v3.08.00** (YY: a new rule set; brief 007 took v3.07.00 first).

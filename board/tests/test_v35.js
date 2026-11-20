@@ -13,12 +13,14 @@ const st = (rs) => ({ rs });   // the dice read only the rule set
 
 // ---- The preset ----
 ok(V35 && V35.switches.diceVariety === true, "v3.5 exists with diceVariety on");
-ok(PRESETS[PRESETS.length - 1] === V35, "v3.5 is the last preset, so new games default to it");
+// Was "v3.5 is the last preset". Brief 015 adds v3.6 after it; the newest-preset check now lives in test_v36.js.
+ok(PRESETS.indexOf(V35) >= 0 && PRESETS.indexOf(V35) < PRESETS.length - 1, "v3.5 is still offered, behind the newest preset");
+const BEFORE = [DEFAULT_RULESET, ...PRESETS.slice(0, PRESETS.indexOf(V35))];   // the presets before v3.5
 { const a = JSON.parse(JSON.stringify(V34)), b = JSON.parse(JSON.stringify(V35));
   for (const k of ["id", "name", "note"]) { delete a[k]; delete b[k]; }
   delete b.switches.diceVariety;
   ok(JSON.stringify(a) === JSON.stringify(b), "v3.5 is v3.4 apart from diceVariety"); }
-for (const rs of [DEFAULT_RULESET, ...PRESETS.slice(0, -1)]) ok(!rs.switches.diceVariety, `${rs.id}: no dice variety`);
+for (const rs of BEFORE) ok(!rs.switches.diceVariety, `${rs.id}: no dice variety`);
 
 // ---- The bands (3.3 and 6.13) ----
 const OLD = (t) => (t <= 2 ? 0.5 : t === 3 ? 0.75 : t === 11 ? 1.25 : t >= 12 ? 1.5 : 1);   // v3.4 and older
@@ -26,7 +28,7 @@ const NEW = { 2: 0.5, 3: 0.75, 4: 0.9, 5: 0.9, 6: 1, 7: 1, 8: 1, 9: 1.1, 10: 1.1
 const ways = (t) => 6 - Math.abs(t - 7);   // ways to make a total with two d6
 for (let t = 2; t <= 12; t++) {
   ok(near(E.diceMultiplier(st(V35), t), NEW[t]), `v3.5: a total of ${t} multiplies by ${NEW[t]}`);
-  for (const rs of [DEFAULT_RULESET, ...PRESETS.slice(0, -1)]) if (rs.switches.dice2d6) ok(near(E.diceMultiplier(st(rs), t), OLD(t)), `${rs.id}: a total of ${t} still multiplies by ${OLD(t)}`);
+  for (const rs of BEFORE) if (rs.switches.dice2d6) ok(near(E.diceMultiplier(st(rs), t), OLD(t)), `${rs.id}: a total of ${t} still multiplies by ${OLD(t)}`);
 }
 { const cs = E.dieCases(st(V35)), old = E.dieCases(st(V34));
   ok(cs.length === 7, "v3.5 has 7 dice cases (2, 3, 4–5, 6–8, 9–10, 11, 12)");

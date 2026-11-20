@@ -1,0 +1,37 @@
+{
+  "id": "flag-rulings-v36",
+  "kind": "study",
+  "brief": "015",
+  "question": "Do the flag rulings (v3.6) change how balanced games end, with Brain 5 against itself, on the same seeds as the v3.5 run?",
+  "tags": [
+    "flag-rulings",
+    "brain5",
+    "v3.6"
+  ],
+  "measures": [
+    "play",
+    "light",
+    "flagrules"
+  ],
+  "matchups": [
+    {
+      "name": "5v5",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.6",
+      "format": "blitz5",
+      "mix": "mixed",
+      "games": 1000
+    },
+    {
+      "name": "7v7",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.6",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 1000
+    }
+  ],
+  "seed_name": "flag-rulings"
+}
