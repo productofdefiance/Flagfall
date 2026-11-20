@@ -479,6 +479,68 @@ MEASURES.fields = {
   }
 };
 
+// Brief 022: who loses the first unit and the first archer, and who gets the first strike. Sides are "first" or "second"
+// (mover). Brief 016's stall measure already has a `first_contact_turn` (first adjacency), so the first turn on which a
+// unit could attack is `reach_contact_turn` here (a column is never renamed). Read only.
+MEASURES.firstloss = {
+  about: "First losses (Brief 022): the first unit removed (its side as first or second mover, turn, card, and what removed it: the attacker's card and attack, special, or parry/spear when the attacker itself fell), the first Light Ranged removed (side, turn), the first side-turn on which a unit of the side to move could walk and attack an enemy (reach_contact_turn and _side; blockers left out), and the side that made the first attack or special.",
+  columns: ["first_lost_side", "first_lost_turn", "first_lost_card", "first_lost_by", "first_lr_lost_side", "first_lr_lost_turn", "reach_contact_turn", "reach_contact_side", "first_strike_side"],
+  make(ctx) {
+    const { E } = ctx, o = Object.fromEntries(MEASURES.firstloss.columns.map((k) => [k, ""]));
+    let key = "", hpBefore = null;
+    const sideOf = (st, t) => (t === st.first ? "first" : "second");
+    const canAttackNow = (st, u, e) => {
+      const c = E.card(st, u), g = st.rs.game, reach = c.range > 1 ? c.range : (c.trait === "reach" ? 2 : 1);
+      const steps = Math.max(0, Math.min(E.capOf(st, u), Math.floor((Math.min(u.stam, st.cmd) - g.attackCost) / c.hexCost + 1e-9)));
+      return Math.min(u.stam, st.cmd) >= g.attackCost - 1e-9 && E.fieldOf(st).dist(u.hex, e.hex) <= steps + reach;
+    };
+    return {
+      before(st, c) {
+        const k = st.turn + st.toMove;
+        if (k !== key && st.phase === "play") {
+          key = k;
+          if (o.reach_contact_turn === "" && E.alive(st).some((u) => u.team === st.toMove && E.alive(st).some((e) => e.team !== u.team && canAttackNow(st, u, e)))) { o.reach_contact_turn = st.turn; o.reach_contact_side = sideOf(st, st.toMove); }
+        }
+        hpBefore = new Map(st.units.map((u) => [u.uid, u.hp]));
+      },
+      after(st, c, r) {
+        if (!hpBefore || !r.ok || c.refusedEnd) { hpBefore = null; return; }
+        const a = c.action, me = a.uid && E.unitByUid(st, a.uid);
+        if ((a.type === "attack" || a.type === "special") && o.first_strike_side === "") o.first_strike_side = sideOf(st, me ? me.team : st.toMove);
+        for (const u of st.units) {
+          if (!(hpBefore.get(u.uid) > 0 && u.hp <= 0)) continue;
+          const by = !me ? a.type : me.uid === u.uid ? `${(E.unitByUid(st, a.target) || {}).card || "?"} parry/spear` : `${me.card} ${a.type}`;
+          if (o.first_lost_side === "") Object.assign(o, { first_lost_side: sideOf(st, u.team), first_lost_turn: st.turn, first_lost_card: u.card, first_lost_by: by });
+          if (o.first_lr_lost_side === "" && u.card === "LR") Object.assign(o, { first_lr_lost_side: sideOf(st, u.team), first_lr_lost_turn: st.turn });
+        }
+        hpBefore = null;
+      },
+      end() { return o; }
+    };
+  }
+};
+// Brief 022: Brain 8's own reading at the start of each side-turn it plays (n/s): side-turns read, in the opening with a
+// tempo slider in use (A3), and holder joining (B4).
+MEASURES.brain8 = {
+  about: "Brain 8's reading of the board (Brief 022), at the start of each side-turn a Brain 8 side plays (n/s): side-turns read, side-turns in the opening with its tempo slider in use (A3), and side-turns its holder may join the storm (B4).",
+  columns: ["b8_turns_n", "b8_turns_s", "b8_open_n", "b8_open_s", "b8_join_n", "b8_join_s"],
+  make(ctx) {
+    const { Bot } = ctx, o = Object.fromEntries(MEASURES.brain8.columns.map((k) => [k, 0]));
+    let key = "";
+    return {
+      before(st) {
+        const k = st.turn + st.toMove, t = st.toMove, x = t.toLowerCase(), b = ctx.brains[t];
+        if (k === key || st.phase !== "play" || !b || !b.approach || !Bot.approach8Context) return;
+        key = k;
+        const c = Bot.approach8Context(st, b);
+        if (!c) return;
+        o["b8_turns_" + x]++; if (c.open) o["b8_open_" + x]++; if (c.join) o["b8_join_" + x]++;
+      },
+      end() { return o; }
+    };
+  }
+};
+
 // Always collected: the outcome (it feeds the summary's key table), timing, (Brief 016) stall and (Brief 019) lead and alone.
 const ALWAYS = ["outcome", "timing", "stall", "lead", "alone"];
 module.exports = { MEASURES, ALWAYS };

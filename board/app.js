@@ -1633,12 +1633,14 @@
       <button class="btn danger" data-act="br-delete" ${Object.keys(App.brains).length > 1 ? "" : "disabled"}>Delete brain</button>
       <span id="br-status" class="${App.brainDirty ? "dirty" : "saved"}">${App.brainDirty ? "Unsaved changes" : ""}</span></div>
       <p class="note">A match uses its own copy of the brain it started with. Changes apply to the next match.</p>`;
-    const row = (group, k) => { const [label, desc] = BR.BRAIN_LABELS[group + "." + k] || BR.BRAIN_LABELS[k] || [k, ""]; return `<tr><td>${esc(label)}</td><td><input type="number" step="0.05" min="0" data-brain="${group}" data-field="${k}" value="${b[group][k]}"></td><td class="desc">${esc(desc)}</td></tr>`; };
+    const signed = (group, k) => group === "approach" && /^tempo(First|Second)$/.test(k);   // Brain 8's opening sliders run from -1 to +1
+    const row = (group, k) => { const [label, desc] = BR.BRAIN_LABELS[group + "." + k] || BR.BRAIN_LABELS[k] || [k, ""]; return `<tr><td>${esc(label)}</td><td><input type="number" step="0.05" min="${signed(group, k) ? -1 : 0}"${signed(group, k) ? ' max="1"' : ""} data-brain="${group}" data-field="${k}" value="${b[group][k]}"></td><td class="desc">${esc(desc)}</td></tr>`; };
     const table = (group, head) => `<div class="tablewrap"><table class="data"><thead><tr><th>${head}</th><th>Value</th><th>What it means</th></tr></thead><tbody>${Object.keys(b[group]).map((k) => row(group, k)).join("")}</tbody></table></div>`;
     if (b.model) {   // Brain 5: one value model (Brief 006)
       h += `<p class="note">${esc(b.name)} plans its whole turn and scores every plan the same way: what it gains, what it risks next turn, and what it leaves for next turn. These weights are that score.</p>`;
       h += table("model", "Weight") + (b.plan5 ? table("plan5", "Planning") : "");
       if (b.lead) h += `<p class="note">The lead (Brain 7): five behaviours, each switched on with 1 and off with 0, then the numbers they use. With all five off it plays exactly like Brain 5.</p>` + table("lead", "Lead");
+      if (b.approach) h += `<p class="note">The approach (Brain 8): four behaviours, each switched on with 1 and off with 0, then the numbers they use. The two opening sliders run from -1 (sit back) to +1 (attack). With all four off it plays exactly like Brain 5.</p>` + table("approach", "Approach");
     } else h += table("weights", "Weight");
     h += `<div class="tablewrap"><table class="data"><thead><tr><th>Setting</th><th>Value</th><th>What it means</th></tr></thead><tbody>${Object.keys(b.settings).map((k) => row("settings", k)).join("")}</tbody></table></div></div></div>`;
     el.innerHTML = h;
@@ -1646,7 +1648,8 @@
   function onBrainInput(e) {
     const t = e.target;
     if (!t.dataset.brain) return;
-    const v = parseFloat(t.value); if (isNaN(v) || v < 0) return;
+    const v = parseFloat(t.value), lo = t.dataset.brain === "approach" && /^tempo(First|Second)$/.test(t.dataset.field) ? -1 : 0;   // Brain 8's opening sliders: -1 to +1
+    if (isNaN(v) || v < lo || (lo < 0 && v > 1)) return;
     App.brainEdit[t.dataset.brain][t.dataset.field] = v; App.brainDirty = true;
     const s = $("br-status"); s.textContent = "Unsaved changes"; s.className = "dirty";
     document.querySelectorAll('[data-act="br-save"],[data-act="br-revert"]').forEach((x) => (x.disabled = false));

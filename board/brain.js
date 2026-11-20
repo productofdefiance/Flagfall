@@ -146,6 +146,25 @@
     together: 2       // B5: cost of each unit with no friend within 2 hexes, while regrouping
   };
 
+  /* Brain 8 (Brief 022, 2026-11-20): Brain 5 plus four behaviours, each behind its own switch in `approach` (1 = on,
+     0 = off): Brain 7's B4 (the holder joins the storm, with its race check) on its own, a safe approach (A1), respect for a
+     warmed special (A2) and an opening tempo per move order (A3). With all four off it plays exactly like Brain 5. Every
+     behaviour reads the board as it stands when the plan is made; nothing is remembered between turns. Brains 5, 6 and 7
+     stay frozen. */
+  const BRAIN_8 = JSON.parse(JSON.stringify(BRAIN_5));
+  BRAIN_8.id = "brain8"; BRAIN_8.name = "Brain 8 (safe approach)";
+  BRAIN_8.note = "Brain 5 that doesn't walk into the enemy's first strike unless the trade favours it, steps out of (or braces against) a warmed-up special, sends its holder in when the enemy has only its holder and can't win the race, and has an opening tempo for going first and for going second.";
+  BRAIN_8.approach = {
+    holderJoins: 1,   // B4 The holder joins the storm when the enemy has only its holder and the race check passes (Brain 7's B4)
+    safe: 1,          // A1 Safe approach: a unit left where an enemy strikes first counts that strike as already taken
+    respect: 1,       // A2 Respect a warmed special: units in its reach next turn count its full damage
+    tempo: 1,         // A3 Opening tempo: the two sliders below apply during the opening
+    firstStrike: 1,   // A1: weight on the expected first-strike damage (and the unit, if it would be removed)
+    warmedRespect: 1, // A2: weight on a warmed special's full damage (and the unit, if it would be removed)
+    tempoFirst: 0,    // A3: opening tempo when it moves first, from -1 (sit back) through 0 (Brain 5) to +1 (shock attack)
+    tempoSecond: 0    // A3: the same when it moves second
+  };
+
   const LABELS = {
     unitBase: ["Unit on the field", "Value of having a unit at all, so a kill is worth this plus the unit's HP."],
     keeperBase: ["Flagkeeper bonus", "Extra value of the Flagkeeper, on either side."],
@@ -195,6 +214,15 @@
     "lead.press": ["Press the holder", "While storming: extra value of each point of damage on the enemy holder and its flag together. Without it, one hit on a braced holder scores about even (the parry back against the share that reaches the flag), so the storm gathers and then waits."],
     "lead.regroupSpare": ["Regroup spare turns", "It regroups only while the turns left are at least the turns needed to gather and strike plus this many."],
     "lead.together": ["Stay together when behind", "While regrouping: cost of each unit with no friend (other than the holder) within 2 hexes."],
+    // Brain 8 (Brief 022): the approach. The four behaviours are switches: 1 on, 0 off.
+    "approach.holderJoins": ["B4 Holder joins the storm (1 on, 0 off)", "When the enemy has only its holder, our holder may leave our flag to storm, but only if the enemy holder can't reach our flag and pull it down first. The same as Brain 7's B4, on its own."],
+    "approach.safe": ["A1 Safe approach (1 on, 0 off)", "A unit that ends its turn where an enemy can strike it first next turn, without having struck this turn and with no friend able to hit that enemy back next turn, counts that first strike as already taken. Striking first, or with a friend covering, is still fine."],
+    "approach.respect": ["A2 Respect a warmed special (1 on, 0 off)", "Units in reach of an enemy's warmed-up special next turn count its full damage (the multiplier, Arrow Storm ignoring Dodge, Arc Hit's extra targets), so stepping out, bracing where the brace saves the unit, or striking the warmed unit first wins when it beats staying."],
+    "approach.tempo": ["A3 Opening tempo (1 on, 0 off)", "Uses the two opening sliders below until the first damage of the match (any unit hurt or any flag pulled)."],
+    "approach.firstStrike": ["First-strike weight", "A1: how much of the enemy's expected first strike (and the unit, if that strike would remove it) it counts as already taken. Higher keeps out of reach more."],
+    "approach.warmedRespect": ["Warmed special weight", "A2: how much of a warmed special's full damage (and the unit, if it would be removed) it counts for each unit in its reach. Higher steps out or braces more."],
+    "approach.tempoFirst": ["Opening tempo, moving first", "From -1 (sit back near its deploy area and let the enemy come) through 0 (as Brain 5) to +1 (close fast and strike first). Scales its advance and its first-strike caution during the opening."],
+    "approach.tempoSecond": ["Opening tempo, moving second", "The same slider for when it moves second, like White and Black in chess."],
     "model.useSpecials": ["Use specials", "1: warms up and fires specials (rule sets with specials only), and fears the enemy's warmed-up ones. 0: ignores specials."],
     "model.special": ["Warmed special's worth", "Weight on what a warmed-up special is likely to add next turn over a normal hit, at its best reachable target. Higher warms up more often."],
     "model.warmSlack": ["Warm-up reach slack", "Hexes to spare when it judges whether a target will be in reach of the special next turn. Higher warms up only when the target is already close."],
@@ -205,6 +233,6 @@
     "plan5.perUnit": ["Choices per unit", "How many of each unit's best activations (move, attack, brace, Evade) it combines into plans."]
   };
 
-  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5, brain6: BRAIN_6, brain7: BRAIN_7 }, BRAIN_LABELS: LABELS };
+  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5, brain6: BRAIN_6, brain7: BRAIN_7, brain8: BRAIN_8 }, BRAIN_LABELS: LABELS };
   if (typeof module !== "undefined") module.exports = api; else root.GGBrain = api;
 })(this);

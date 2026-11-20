@@ -53,6 +53,14 @@ ok(/not playable/.test(W.problem(Object.assign({}, spec, { format: "s9" }))), "a
   ok(W.actionsHash(A.st.actions) === W.actionsHash(B.st.actions), "the link plays the same game as the lab's copy of the changed brain");
 }
 
+// 3c. Brief 022: Brain 8's settings travel the same way, including a negative opening tempo
+{ const sp = Object.assign({}, spec, { n: "brain8:tempoFirst=-1,tempoSecond=1,safe=0", s: "brain5", mixS: "mixed" });
+  const back = W.fromQuery(W.toQuery(sp));
+  ok(back.n === "brain8:tempoFirst=-1,tempoSecond=1,safe=0" && W.problem(back) === null, "a Brain 8 link with a negative tempo reads back and is playable: " + W.toQuery(sp));
+  const m = W.setupMatch(back), a = m.brains.N.approach;
+  ok(a.tempoFirst === -1 && a.tempoSecond === 1 && a.safe === 0 && a.respect === 1 && BR.DEFAULT_BRAINS.brain8.approach.tempoFirst === 0, "the link's Brain 8 settings are applied to the match's copy only");
+}
+
 // 4. Board seeds dealt by tests/rng.js look like the board's own
 const rnd = require("./rng.js")("watch-test", 0), s1 = W.seedFrom(rnd);
 ok(/^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/.test(s1), "a dealt seed has the board's form: " + s1);
