@@ -20,7 +20,7 @@ const sameSet = (a, b) => a.length === b.length && new Set(a).size === a.length 
 
 // ---- The preset ----
 ok(V38 && V38.switches.fields === true && V38.game.deployRadius5 === 2 && V38.game.deployRadius === 3, "v3.8: switch fields, 5v5 deploy radius 2, others 3");
-ok(NEWEST === V38, "v3.8 is the newest preset (the new-game default)");
+ok(PRESETS.indexOf(V38) === PRESETS.indexOf(V37) + 1 && PRESETS.indexOf(V38) >= PRESETS.length - 2, "v3.8 follows v3.7 (v3.9, brief 017, is the newest)");
 { const a = JSON.parse(JSON.stringify(V37)), b = JSON.parse(JSON.stringify(V38));
   for (const k of ["id", "name", "note"]) { delete a[k]; delete b[k]; }
   delete b.switches.fields; delete b.game.deployRadius5;

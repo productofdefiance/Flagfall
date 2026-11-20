@@ -8,7 +8,7 @@ This repository holds the browser playtest board (rules engine and computer oppo
 
 | Folder / file | What it is |
 | --- | --- |
-| `board/` | The playtest board. `engine.js` is the rules (no screen code). `fields.js` holds the fields, one per format (Brief 014). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1 to v3.8). `bot.js` and `brain.js` are the computer opponent (Brain 5 is the default; Brain 6 knows the clock; Brain 7 keeps its lead). `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
+| `board/` | The playtest board. `engine.js` is the rules (no screen code). `fields.js` holds the fields, one per format (Brief 014). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1 to v3.9). `bot.js` and `brain.js` are the computer opponent (Brain 5 is the default; Brain 6 knows the clock; Brain 7 keeps its lead). `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
 | `board/tests/` | Automatic pass/fail checks (see below). |
 | `sims/` | Scripts that play games and make results. `sims/lab/` is the lab: it plays job orders on GitHub and files the results (Brief 008). The older scripts (`baseline.js`, `h2h_*.js`, ...) still deal their old seeds, so old studies can be re-run. |
 | `results/` | Every simulation result, one folder per run (`results/README.md` says how). Start at `results/INDEX.md`. The studies from before the lab are in `results/pre-v3.05.00/`. |
@@ -53,6 +53,7 @@ node tests/test_v35.js
 node tests/test_v36.js
 node tests/test_v37.js
 node tests/test_fields.js
+node tests/test_route.js
 node tests/test_stamina.js
 node tests/test_reasons.js
 node tests/test_kitd.js
@@ -93,6 +94,8 @@ Simulations run on GitHub, not in a Claude session (Brief 008). Put a job order 
 `test_brain7.js` checks Brain 7 (Brief 019): with all five lead behaviours off it plays exactly as Brain 5, the five test positions (each printing the model's reasoning), and legal play. `sims/brainhash.js <board> brain7:lead=0@brain5` hashes a brain with changed settings on another brain's seeds. `sims/lab/test_lead.js` checks the lead and alone measures on five saved games.
 
 For a build that must not change play at all, `node tests/regress_engine.js <board folder> 2 all` also hashes the newest preset and prints one hash per rule set and brain (every brain, Brain 5 included). Run it on the board before and after: every line must match.
+
+`test_route.js` checks routes (Brief 017, Game Laws 2.11, rule set v3.9): each set-up in the brief and its mirror, that older rule sets still jump, that the move hexes offered don't change, the board's preview functions, and that `route()` names exactly where a move ends and what it meets on 1,000 random legal moves.
 
 `test_ui.js` checks UI v2 (Brief 009): the outcome bar merges equal neighbours, changed numbers are red only when they hurt the side to move, the preview's Evade equals the engine's, every unit card's text, and that nothing the board shows says "being" (units are counted in unit cap, UC).
 
