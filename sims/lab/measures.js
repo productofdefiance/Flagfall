@@ -211,6 +211,49 @@ const MEASURES = {
     }
   },
 
+  specialsafety: {
+    about: "Brief 011 follow-up: how the other side reacts to a warmed-up special. At the start of each side-turn that faces at least one enemy special warmed up the turn before, counts that side's units inside its reach for next turn (the warmed unit's movement next turn plus the special's reach; flag holders are immune and left out), then at the end of that side-turn counts how many left, stayed, came in, and how many inside reach braced.",
+    columns: ["sw_threat_turns", "sw_units_start", "sw_exposed_start", "sw_left", "sw_stayed", "sw_entered", "sw_exposed_end", "sw_braced_in_reach", "sw_removed_in_reach"],
+    make(ctx) {
+      const { E, Bot } = ctx, o = Object.fromEntries(MEASURES.specialsafety.columns.map((k) => [k, 0]));
+      let key = "", start = null;
+      const reachOf = (st, w) => {
+        const k = E.specialOf(st, w), n = (st.rs.specials && st.rs.specials[k]) || {}, c = E.card(st, w);
+        if (k === "javelin") return n.maxRange || 3;
+        if (k === "arcHit" || k === "pickOff" || k === "skewer") return 1;
+        return c.range > 1 ? c.range : 1;
+      };
+      /** uids of `team`'s units (not holders) inside the reach of any warmed-up enemy special. */
+      const exposed = (st, team) => {
+        const warm = E.alive(st).filter((w) => w.team !== team && w.sp === "warm");
+        if (!warm.length) return null;
+        const out = new Set();
+        for (const u of E.alive(st)) if (u.team === team && !E.isHolder(st, u) && warm.some((w) => Bot.canThreaten(st, w, u.hex, reachOf(st, w)))) out.add(u.uid);
+        return out;
+      };
+      const close = (st) => {
+        if (!start) return;
+        const now = exposed(st, start.team) || new Set();
+        for (const uid of start.set) { const u = E.unitByUid(st, uid); if (!u || u.hp <= 0) { o.sw_removed_in_reach++; continue; } if (now.has(uid)) o.sw_stayed++; else o.sw_left++; }
+        for (const uid of now) { if (!start.set.has(uid)) o.sw_entered++; if (E.unitByUid(st, uid).braced) o.sw_braced_in_reach++; }
+        o.sw_exposed_end += now.size;
+        start = null;
+      };
+      return {
+        before(st, c) {
+          const k = st.turn + st.toMove;
+          if (k !== key) {
+            key = k;
+            const set = exposed(st, st.toMove);
+            if (set) { o.sw_threat_turns++; o.sw_units_start += E.alive(st).filter((u) => u.team === st.toMove && !E.isHolder(st, u)).length; o.sw_exposed_start += set.size; start = { team: st.toMove, set }; }
+          }
+          if (c.action.type === "end") close(st);
+        },
+        end(st) { close(st); return o; }
+      };
+    }
+  },
+
   play: {
     about: "How each side played: braces, braces where no enemy could reach that unit next turn, attacks, attacks on a holder, moves, safety stops, actions the engine refused, and turns a brain ended because it hit an error.",
     columns: ["braces", "braces_no_threat", "attacks", "holder_attacks", "moves", "safety_stops", "refused", "bot_errors"],
