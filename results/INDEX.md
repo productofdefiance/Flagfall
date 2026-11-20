@@ -2,6 +2,7 @@
 
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
+- 2026-11-20 · screen · v3.13.00 · brief 022 · [2026-11-20_screen_brain8-screen](v3.13.00/2026-11-20_screen_brain8-screen/SUMMARY.md): 42 matchups, 8400 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 7.8% (respect-double-v-b5-5v5) to 56.5% (b4-v-b5-5v5). Mirrors ended on the turn limit in 37.9% of games.
 - 2026-11-20 · study · v3.11.00 · brief 014 · [2026-11-20_study_fields-v38](v3.11.00/2026-11-20_study_fields-v38/SUMMARY.md): 5v5: mirror, 61.9% ended on the turn limit, A/B 459–477; 7v7: mirror, 44.2% ended on the turn limit, A/B 527–466.
 - 2026-11-20 · study · v3.11.00 · brief 014 · [2026-11-20_study_fields-v37](v3.11.00/2026-11-20_study_fields-v37/SUMMARY.md): 5v5: mirror, 35.1% ended on the turn limit, A/B 497–492; 7v7: mirror, 42.7% ended on the turn limit, A/B 465–521.
 - 2026-11-20 · release · v3.10.00 · [2026-11-20_release_release-v3-10-00](v3.10.00/2026-11-20_release_release-v3-10-00/SUMMARY.md): 5v5: mirror, 37.0% ended on the turn limit, A/B 478–512; 7v7: mirror, 45.1% ended on the turn limit, A/B 497–483.
