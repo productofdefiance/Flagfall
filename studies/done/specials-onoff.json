@@ -1,0 +1,45 @@
+{
+  "id": "specials-onoff",
+  "kind": "screen",
+  "brief": "011",
+  "question": "Specials on vs off: Brain 5 using specials (A) against Brain 5 ignoring them (useSpecials=0), v3.7, 400 games per format, sides and move order swapped evenly. If off wins by more than the noise, specials are a trap as written (ASK).",
+  "tags": [
+    "specials",
+    "on-off",
+    "brain5",
+    "v3.7"
+  ],
+  "measures": [
+    "play",
+    "specials"
+  ],
+  "matchups": [
+    {
+      "name": "balanced-5v5",
+      "a": "brain5",
+      "b": "brain5:useSpecials=0",
+      "rules": "v3.7",
+      "format": "blitz5",
+      "mix": "mixed",
+      "games": 400
+    },
+    {
+      "name": "balanced-7v7",
+      "a": "brain5",
+      "b": "brain5:useSpecials=0",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 400
+    },
+    {
+      "name": "light-7v7",
+      "a": "brain5",
+      "b": "brain5:useSpecials=0",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "light",
+      "games": 400
+    }
+  ]
+}

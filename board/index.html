@@ -15,7 +15,7 @@
   --paper: #e9ece6; --card: #f8f9f5; --ink: #1f2421; --muted: #5f6762; --line: #b8beb6; --hex: #fbfcf8; --stands: #d5dbd2;
   --north: #2f6b55; --northDark: #143a2c; --northLight: #8fd0b4; --northArc: #d3e3da; --northGoal: #a9cbbb;
   --south: #a8452f; --southDark: #5c2014; --southLight: #f0a48f; --southArc: #efd8cf; --southGoal: #dfb3a3;
-  --flag: #b07a33; --keeper: #e2b53c; --brace: #1f4fd8; --move: #3f7fd6; --attack: #c62828; --select: #f2c94c;
+  --flag: #b07a33; --keeper: #e2b53c; --gold: #e2b53c; --goldTint: #f9eeda; --brace: #1f4fd8; --move: #3f7fd6; --attack: #c62828; --select: #f2c94c;
   --display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   --body: 'IBM Plex Sans', system-ui, sans-serif;
   --mono: 'IBM Plex Mono', ui-monospace, monospace;
@@ -153,6 +153,29 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
 .act .dot { position: absolute; top: 5px; right: 5px; width: 10px; height: 10px; border-radius: 50%; }
 .act .dot.red { background: var(--attack); } .act .dot.blue { background: var(--brace); } .act .dot.ring { border: 2px solid var(--brace); }
 .act.braced { border: 2px solid var(--brace); }
+/* Specials (Brief 011): gold #e2b53c, tint #f9eeda, Bolt icon */
+.act { position: relative; }
+.act .spbar { position: absolute; left: 6px; right: 6px; bottom: 3px; height: 5px; border-radius: 3px; background: rgba(226,181,60,.3); overflow: hidden; }
+.act .spbar.half { background: linear-gradient(90deg, #e2b53c 50%, rgba(226,181,60,.3) 50%); }
+.act .spbar.full { background: var(--ink); }
+.act.sp-warm { border: 2px solid var(--gold); background: var(--goldTint); }
+.act.sp-warm[aria-disabled="true"], .act.sp-warm:disabled { opacity: 1; }
+.act.sp-charged { background: var(--gold); border: 2px solid var(--ink); color: var(--ink); }
+.act.sp-charged.on { box-shadow: 0 0 0 3px var(--goldTint); }
+.act.sp-used[aria-disabled="true"], .act.sp-used:disabled { opacity: .35; }
+.act.go.gold { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+.sq.k { width: 9px; height: 9px; border-color: var(--ink); background: transparent; } .sq.k.on { background: var(--ink); } .sq.k.cost { background: transparent; border-color: rgba(31,36,33,.45); }
+.warmline { display: flex; align-items: center; gap: 8px; padding: 6px 4px 8px; font: 500 13px/1.3 var(--body); color: var(--ink); }
+.sp-extras { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 2px; }
+.sp-extra { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.sp-extra .fo-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sp-extra .fo-bar { width: 60px; flex: 0 0 60px; }
+.sp-extra b { font: 600 14px/1 var(--mono); } .sp-extra b.kill { color: var(--attack); }
+.uc-an.sp { font: 600 15px/1.2 var(--body); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.spchip { display: inline-flex; align-items: center; gap: 5px; font: 600 11px/1 var(--body); padding: 3px 7px; border-radius: 10px; border: 1.5px solid var(--ink); color: var(--ink); }
+.spchip.warm { border-color: var(--gold); color: #8a6a12; } .spchip.warm i { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+.spchip.used { border-color: var(--muted); color: var(--muted); }
+.uc-note { font: 400 12px/1.35 var(--body); color: var(--muted); margin-top: 6px; }
 .act.go { flex-direction: row; gap: 10px; background: var(--attack); border-color: var(--attack); color: #fff; }
 .act.go .go-text { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
 .act.go .go-1 { font: 600 15px/1 var(--body); }
@@ -338,6 +361,7 @@ table.data td.desc { white-space: normal; color: var(--muted); font-size: 13px; 
 <script src="version.js"></script>
 <script src="skin.js"></script>
 <script src="data.js"></script>
+<script src="fields.js"></script>
 <script src="engine.js"></script>
 <script src="brain.js"></script>
 <script src="bot.js"></script>

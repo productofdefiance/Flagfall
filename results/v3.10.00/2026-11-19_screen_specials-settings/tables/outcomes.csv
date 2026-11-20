@@ -1,0 +1,10 @@
+matchup,a,b,rules,format,lineups,games,a_wins,b_wins,a_tiebreak,b_tiebreak,draws,unfinished,errors,holder_ko,pull_ko,tko,tiebreak_win,draw,turn_limit,games_with_pull,avg_turn,decisive,first_mover_share,a_share,a_share_se
+special-0,brain5:special=0,brain5,v3.7,std7,mixed,200,21,102,29,45,3,0,0,10,90,23,74,3,77,91,20.83,123,0.4878,0.2575,0.0354
+special-1,brain5:special=1,brain5,v3.7,std7,mixed,200,31,92,34,41,2,0,0,3,94,26,75,2,77,94,20.73,123,0.3333,0.33,0.0354
+warm-slack-0,brain5:warmSlack=0,brain5,v3.7,std7,mixed,200,78,41,36,42,3,0,0,4,89,26,78,3,81,89,21.41,119,0.3109,0.5775,0.0354
+warm-slack-2,brain5:warmSlack=2,brain5,v3.7,std7,mixed,200,49,80,29,39,3,0,0,2,105,22,68,3,71,105,20.09,129,0.2636,0.3975,0.0354
+warm-cost-0,brain5:warmCost=0,brain5,v3.7,std7,mixed,200,56,72,28,38,6,0,0,8,94,26,66,6,72,94,20.41,128,0.2266,0.435,0.0354
+warm-cost-3,brain5:warmCost=3,brain5,v3.7,std7,mixed,200,41,69,41,48,1,0,0,8,74,28,89,1,90,74,22.58,110,0.3818,0.4125,0.0354
+special-margin-3,brain5:specialMargin=3,brain5,v3.7,std7,mixed,200,62,59,36,36,7,0,0,9,87,25,72,7,79,87,21.11,121,0.3388,0.5075,0.0354
+warm-moves-1,brain5:warmMoves=1,brain5,v3.7,std7,mixed,200,62,51,44,37,6,0,0,4,92,17,81,6,87,92,21.91,113,0.292,0.545,0.0354
+warm-moves-8,brain5:warmMoves=8,brain5,v3.7,std7,mixed,200,47,57,47,43,6,0,0,5,80,19,90,6,96,80,22.89,104,0.3077,0.485,0.0354

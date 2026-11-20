@@ -1,0 +1,539 @@
+{
+ "id": "brain7-settings",
+ "kind": "study",
+ "brief": "019",
+ "seed_name": "release-v3-08-00",
+ "question": "Settings review for Brain 7 (CLAUDE.md): each setting up, down, and off where it has an off, against Brain 5, balanced 5v5 and 7v7, on the same deals as brain7-vs-brain5. Which settings move results by more than the noise?",
+ "tags": [
+  "brain7",
+  "settings-review",
+  "v3.6"
+ ],
+ "measures": [
+  "play",
+  "clock",
+  "brain7"
+ ],
+ "matchups": [
+  {
+   "name": "leadweight-10-5v5",
+   "a": "brain7:leadWeight=10",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "leadweight-10-7v7",
+   "a": "brain7:leadWeight=10",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "leadweight-40-5v5",
+   "a": "brain7:leadWeight=40",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "leadweight-40-7v7",
+   "a": "brain7:leadWeight=40",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "leadweight-0-5v5",
+   "a": "brain7:leadWeight=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "leadweight-0-7v7",
+   "a": "brain7:leadWeight=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "aheadat-05-5v5",
+   "a": "brain7:aheadAt=0.5",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "aheadat-05-7v7",
+   "a": "brain7:aheadAt=0.5",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "aheadat-2-5v5",
+   "a": "brain7:aheadAt=2",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "aheadat-2-7v7",
+   "a": "brain7:aheadAt=2",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "killchance-03-5v5",
+   "a": "brain7:killChance=0.3",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "killchance-03-7v7",
+   "a": "brain7:killChance=0.3",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "killchance-07-5v5",
+   "a": "brain7:killChance=0.7",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "killchance-07-7v7",
+   "a": "brain7:killChance=0.7",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "aheadcaution-1-5v5",
+   "a": "brain7:aheadCaution=1",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "aheadcaution-1-7v7",
+   "a": "brain7:aheadCaution=1",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "aheadcaution-25-5v5",
+   "a": "brain7:aheadCaution=2.5",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "aheadcaution-25-7v7",
+   "a": "brain7:aheadCaution=2.5",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "stormmin-1-5v5",
+   "a": "brain7:stormMin=1",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "stormmin-1-7v7",
+   "a": "brain7:stormMin=1",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "stormmin-3-5v5",
+   "a": "brain7:stormMin=3",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "stormmin-3-7v7",
+   "a": "brain7:stormMin=3",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "gather-15-5v5",
+   "a": "brain7:gather=1.5",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "gather-15-7v7",
+   "a": "brain7:gather=1.5",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "gather-6-5v5",
+   "a": "brain7:gather=6",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "gather-6-7v7",
+   "a": "brain7:gather=6",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "gather-0-5v5",
+   "a": "brain7:gather=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "gather-0-7v7",
+   "a": "brain7:gather=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "press-1-5v5",
+   "a": "brain7:press=1",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "press-1-7v7",
+   "a": "brain7:press=1",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "press-4-5v5",
+   "a": "brain7:press=4",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "press-4-7v7",
+   "a": "brain7:press=4",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "press-0-5v5",
+   "a": "brain7:press=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "press-0-7v7",
+   "a": "brain7:press=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "regroupspare-0-5v5",
+   "a": "brain7:regroupSpare=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "regroupspare-0-7v7",
+   "a": "brain7:regroupSpare=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "regroupspare-4-5v5",
+   "a": "brain7:regroupSpare=4",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "regroupspare-4-7v7",
+   "a": "brain7:regroupSpare=4",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "together-1-5v5",
+   "a": "brain7:together=1",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "together-1-7v7",
+   "a": "brain7:together=1",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "together-4-5v5",
+   "a": "brain7:together=4",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "together-4-7v7",
+   "a": "brain7:together=4",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "together-0-5v5",
+   "a": "brain7:together=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "together-0-7v7",
+   "a": "brain7:together=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "no-care-5v5",
+   "a": "brain7:care=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "no-care-7v7",
+   "a": "brain7:care=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "no-storm-5v5",
+   "a": "brain7:storm=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "no-storm-7v7",
+   "a": "brain7:storm=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "no-holderjoins-5v5",
+   "a": "brain7:holderJoins=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "no-holderjoins-7v7",
+   "a": "brain7:holderJoins=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "no-regroup-5v5",
+   "a": "brain7:regroup=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "no-regroup-7v7",
+   "a": "brain7:regroup=0",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  }
+ ]
+}

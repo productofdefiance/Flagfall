@@ -1,0 +1,62 @@
+{
+ "id": "2026-11-19_screen_specials-onoff",
+ "kind": "screen",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "488d934dd21045e0eb5006da8de069f57aa25b72",
+ "brief": "011",
+ "question": "Specials on vs off: Brain 5 using specials (A) against Brain 5 ignoring them (useSpecials=0), v3.7, 400 games per format, sides and move order swapped evenly. If off wins by more than the noise, specials are a trap as written (ASK).",
+ "tags": [
+  "specials",
+  "on-off",
+  "brain5",
+  "v3.7"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T03:23:28.000Z",
+ "finished": "2026-11-20T04:29:12.620Z",
+ "games": 1200,
+ "seed_from": "tests/rng.js lab:specials-onoff:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "balanced-5v5",
+    "a": "brain5",
+    "b": "brain5:useSpecials=0",
+    "rules": "v3.7",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 400
+   },
+   {
+    "name": "balanced-7v7",
+    "a": "brain5",
+    "b": "brain5:useSpecials=0",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 400
+   },
+   {
+    "name": "light-7v7",
+    "a": "brain5",
+    "b": "brain5:useSpecials=0",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "light",
+    "games": 400
+   }
+  ],
+  "measures": [
+   "play",
+   "specials"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "balanced-5v5: brain5 took 80.3% of games against brain5:useSpecials=0 (decisive 236–23, tiebreak 83–54, draws 4); balanced-7v7: brain5 took 70.8% of games against brain5:useSpecials=0 (decisive 191–50, tiebreak 89–64, draws 6); light-7v7: brain5 took 88.4% of games against brain5:useSpecials=0 (decisive 284–11, tiebreak 68–34, draws 3)."
+}

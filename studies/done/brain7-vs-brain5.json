@@ -1,0 +1,80 @@
+{
+ "id": "brain7-vs-brain5",
+ "kind": "study",
+ "brief": "019",
+ "seed_name": "release-v3-08-00",
+ "question": "Does Brain 7 beat Brain 5 by 2+ standard errors at balanced 5v5 and 7v7 without losing clearly all-Light, and do Brain 7 mirrors use their leads (lead lost and lead unused down 4+ points) without stalling more than the Brain 5 baseline?",
+ "tags": [
+  "brain7",
+  "brain5",
+  "v3.6"
+ ],
+ "measures": [
+  "play",
+  "clock",
+  "light",
+  "brain7"
+ ],
+ "matchups": [
+  {
+   "name": "b7-v-b5-5v5",
+   "a": "brain7",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "b7-v-b5-7v7",
+   "a": "brain7",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "b7-v-b5-light-5v5",
+   "a": "brain7",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "light",
+   "games": 1000,
+   "seed_as": "light-5v5"
+  },
+  {
+   "name": "b7-v-b5-light-7v7",
+   "a": "brain7",
+   "b": "brain5",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "light",
+   "games": 1000,
+   "seed_as": "light-7v7"
+  },
+  {
+   "name": "b7-mirror-5v5",
+   "a": "brain7",
+   "b": "brain7",
+   "rules": "v3.6",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "b7-mirror-7v7",
+   "a": "brain7",
+   "b": "brain7",
+   "rules": "v3.6",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  }
+ ]
+}

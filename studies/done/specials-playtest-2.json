@@ -1,0 +1,46 @@
+{
+  "id": "specials-playtest-2",
+  "kind": "screen",
+  "brief": "011",
+  "question": "Playtest round 2 for the Editor (fixed bot, new seeds): how often do bots warm up specials, how often do they fire after warming up, do opponents step out of a warmed special's reach or stay in it, how often is a unit removed while warming up, specials per game, and special damage as a multiple of the normal hit?",
+  "tags": [
+    "specials",
+    "playtest",
+    "brain5",
+    "v3.7"
+  ],
+  "measures": [
+    "play",
+    "specials",
+    "specialsafety"
+  ],
+  "matchups": [
+    {
+      "name": "balanced-5v5",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "blitz5",
+      "mix": "mixed",
+      "games": 400
+    },
+    {
+      "name": "balanced-7v7",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 400
+    },
+    {
+      "name": "light-7v7",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "light",
+      "games": 400
+    }
+  ]
+}
