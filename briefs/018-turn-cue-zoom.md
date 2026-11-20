@@ -38,7 +38,7 @@ Shown each time play passes to the other side: during play (including the first 
 
 - **Where:** hangs from the bottom edge of the scoreboard (the dark top bar), flush against the **outer screen edge on the side to move's half**: North's at the left edge, South's at the right edge. It sits over the field's empty corner beside the oval, so it covers no hex at far zoom. The 3px side-to-move underline stays as it is.
 - **Look:** background = the side's light colour (North `#8fd0b4`, South `#f0a48f`, read from the skin by side); text `#1f2421`; Barlow Condensed 700, 12px, letter-spacing 0.12em, uppercase; padding 6px top, 7px bottom, 16px on the screen-edge side, 12px on the inner side; one rounded corner, 9px, on the inner bottom corner only (North: bottom right; South: bottom left); shadow `0 3px 8px rgba(0,0,0,0.18)`; max width 50% of the screen, ellipsis if a name is long.
-- **Words:** in play `<side's name> TO PLAY`; in deployment `<side's name> DEPLOYS` (the Editor, 19 Nov), from the match's names (`st.names`), so a renamed side shows its name: "NORTH TO PLAY", "SOUTH TO PLAY", "NORTH DEPLOYS", "SOUTH DEPLOYS".
+- **Words:** in play `<side's name> PLAYS`; in deployment `<side's name> DEPLOYS` (the Editor, 19 Nov), from the match's names (`st.names`), so a renamed side shows its name: "NORTH PLAYS", "SOUTH PLAYS", "NORTH DEPLOYS", "SOUTH DEPLOYS".
 - **Jersey-safe:** text colour is picked by contrast against the tag colour: ink `#1f2421` unless white gives a higher ratio; it must reach 4.5:1. Put the pick in the skin, so jersey colours can change later.
 - **Shows and goes:** appears when the turn changes (after view 2's spin and the snap, section 4). It stays until the side to move first touches or clicks anything (field, panel, top bar); then it slides up into the underline (150 ms) and stays hidden until the next turn change. That first touch still does what it would have done; the tag never swallows it. **No timer:** in hot seat the phone is being handed over, so a cue that fades by itself plays to nobody.
 - **Access:** `role="status"`, `aria-live="polite"`; pointer-events none.
@@ -52,6 +52,7 @@ A new field on the Settings step (step 1 of 3), shown only when both players are
   - `handoff`: **Handoff**. Hint: "Pass the phone. North stays at the top."
   - `flip`: **Flip**. Hint: "Pass the phone. The field turns so your flag is always at the bottom."
   - `table`: **Face to Face**. Hint: "Phone flat between you. The screen turns to face whoever is playing." Offered only on screens narrower than 900px; on wider screens the option is hidden and a saved `table` falls back to `handoff`.
+- **Changeable mid-match** (the Editor, 19 Nov): in human-vs-human games the in-match Options menu gets a row **Hot-seat view** with the same three options (a segmented control; Face to Face hidden at 900px and wider). A change takes effect at once, with the same turn animation as a turn change (no snap).
 - Saved with the match options (like `first`) so a reloaded match keeps it. It changes only the display: the engine never sees it, and a replay of the match plays identically under any view.
 
 ### 4. The three views
