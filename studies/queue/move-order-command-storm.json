@@ -1,0 +1,19 @@
+{
+  "id": "move-order-command-storm",
+  "kind": "study",
+  "question": "Does equal Command on turn 1 bring the first mover's share of decisive games to 45-55% at 5v5 and 7v7, alone and with Arrow Storm at x1.5?",
+  "tags": ["F12", "F39", "brain5", "v3.8", "move-order"],
+  "measures": ["play", "clock", "specials", "specialsafety"],
+  "matchups": [
+    { "name": "7v7-ftc6", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "std7", "mix": "mixed", "games": 1000 },
+    { "name": "7v7-ftc8", "seed_as": "7v7-ftc6", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "std7", "mix": "mixed", "games": 1000, "set": { "game.firstTurnCommand": 8 } },
+    { "name": "7v7-ftc10", "seed_as": "7v7-ftc6", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "std7", "mix": "mixed", "games": 1000, "set": { "game.firstTurnCommand": 10 } },
+    { "name": "7v7-ftc6-storm15", "seed_as": "7v7-ftc6", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "std7", "mix": "mixed", "games": 1000, "set": { "specials.arrowStorm.mult": 1.5 } },
+    { "name": "7v7-ftc10-storm15", "seed_as": "7v7-ftc6", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "std7", "mix": "mixed", "games": 1000, "set": { "game.firstTurnCommand": 10, "specials.arrowStorm.mult": 1.5 } },
+    { "name": "5v5-c10-ftc6", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "blitz5", "mix": "mixed", "games": 1000 },
+    { "name": "5v5-c8-ftc5", "seed_as": "5v5-c10-ftc6", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "blitz5", "mix": "mixed", "games": 1000, "set": { "game.command": 8, "game.firstTurnCommand": 5 } },
+    { "name": "5v5-c8-ftc8", "seed_as": "5v5-c10-ftc6", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "blitz5", "mix": "mixed", "games": 1000, "set": { "game.command": 8, "game.firstTurnCommand": 8 } },
+    { "name": "5v5-c8-ftc5-storm15", "seed_as": "5v5-c10-ftc6", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "blitz5", "mix": "mixed", "games": 1000, "set": { "game.command": 8, "game.firstTurnCommand": 5, "specials.arrowStorm.mult": 1.5 } },
+    { "name": "5v5-c8-ftc8-storm15", "seed_as": "5v5-c10-ftc6", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "blitz5", "mix": "mixed", "games": 1000, "set": { "game.command": 8, "game.firstTurnCommand": 8, "specials.arrowStorm.mult": 1.5 } }
+  ]
+}
