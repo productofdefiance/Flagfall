@@ -2,6 +2,7 @@
 
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
+- 2026-11-19 · release · v3.09.00 · [2026-11-19_release_release-v3-09-00](v3.09.00/2026-11-19_release_release-v3-09-00/SUMMARY.md): 5v5: mirror, 56.3% ended on the turn limit, A/B 507–468; 7v7: mirror, 43.8% ended on the turn limit, A/B 495–460.
 - 2026-11-19 · study · v3.09.00 · brief 015 · [2026-11-19_study_flag-rulings-v36](v3.09.00/2026-11-19_study_flag-rulings-v36/SUMMARY.md): 5v5: mirror, 56.7% ended on the turn limit, A/B 474–503; 7v7: mirror, 44.8% ended on the turn limit, A/B 453–510.
 - 2026-11-19 · study · v3.09.00 · brief 015 · [2026-11-19_study_flag-rulings-v35](v3.09.00/2026-11-19_study_flag-rulings-v35/SUMMARY.md): 5v5: mirror, 56.4% ended on the turn limit, A/B 472–505; 7v7: mirror, 44.8% ended on the turn limit, A/B 452–511.
 - 2026-11-19 · study · v3.09.00 · brief 015 · [2026-11-19_study_flag-rulings-no-spear](v3.09.00/2026-11-19_study_flag-rulings-no-spear/SUMMARY.md): 5v5: mirror, 56.6% ended on the turn limit, A/B 474–503; 7v7: mirror, 44.9% ended on the turn limit, A/B 453–510.
