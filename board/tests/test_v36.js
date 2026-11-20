@@ -28,12 +28,13 @@ const endTurn = (st) => E.act(st, { type: "end" });
 
 // ---- The preset ----
 ok(V36 && SW.every((k) => V36.switches[k] === true), "v3.6 exists with its four switches on");
-ok(PRESETS[PRESETS.length - 1] === V36, "v3.6 is the last preset, so new games default to it");
+// Was "v3.6 is the last preset". Brief 011 adds v3.7 after it; the newest-preset check now lives in test_v37.js.
+ok(PRESETS.indexOf(V36) === PRESETS.indexOf(V35) + 1, "v3.6 comes straight after v3.5");
 { const a = JSON.parse(JSON.stringify(V35)), b = JSON.parse(JSON.stringify(V36));
   for (const k of ["id", "name", "note"]) { delete a[k]; delete b[k]; }
   for (const k of SW) delete b.switches[k];
   ok(JSON.stringify(a) === JSON.stringify(b), "v3.6 is v3.5 apart from the four switches"); }
-for (const rs of [DEFAULT_RULESET, ...PRESETS.slice(0, -1)]) ok(SW.every((k) => !rs.switches[k]), `${rs.id}: none of the v3.6 switches`);
+for (const rs of [DEFAULT_RULESET, ...PRESETS.slice(0, PRESETS.indexOf(V36))]) ok(SW.every((k) => !rs.switches[k]), `${rs.id}: none of the v3.6 switches`);
 
 // ---- The line helper ----
 ok(E.flagBetween("E14", "E18") && E.flagBetween("E18", "E14"), "E17 is between E14 and E18 (straight line)");

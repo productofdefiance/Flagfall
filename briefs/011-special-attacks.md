@@ -161,24 +161,21 @@ Under F23, call any gap under about 8 points noise.
 ## The Editor's hands-on check
 One 7v7 against the bot with one of each foot unit. Warm up and fire at least three different specials (Arc Hit into two enemies if you can). Check: the gold ring and its halo are easy to spot on the field, for your units and the bot's; the preview shows one exact number; the Special button walks Unused → Warming up → Charged → Used; a warm-up you don't fire goes back to Unused.
 
-## Report back
-- The baseline table, v3.7 next to v3.6, and the older-sizes run next to both.
-- The bot-minimum numbers and the specials on/off result.
-- Per-special uptake and average damage.
-- The double-knockout count.
-- Any screen where the extra-target rows or the arc outline don't fit on a 390-wide phone.
-
----
-
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code. Branch `claude/vibrant-albattani-aqmw26`, started from `brief/011-special-attacks` with `main` merged in (brief 015 had merged: rule set v3.6 exists, so v3.7 as the brief assumes). Game version v3.10.00, Build 14.*
 
-- **What's in:**
-- **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
-- **Baseline table (rule changes only):**
-- **Bot minimum (met / not met, with numbers):**
-- **Settings review (brain builds only): settings with no effect found; settings that seem to be missing (with evidence):**
-- **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+- **What's in:** preset v3.7 (v3.6 + `specials`, `game.warmupCost`, a `special` on each foot card, a `specials` block with every size); the `warmup` and `special` actions with the Unused / Warming up / Charged / Used life, lapse and re-warm; the six specials exactly as 6.17 (no dice, multiplier on the finished hit, half-point rounding, minimum 1); no special on a flag hex; the flag block for Bullseye, Arrow Storm and Javelin; parry once per action; Pick Off takes the hex (set spear on entry), Arc Hit / Skewer / ranged / Javelin never do; Evade after an adjacent Pick Off or Arrow Storm. Screens: Special button in its four states with the engine's reasons, the warm-up line, the firing preview (one exact number, the special's key row, extra-target rows, Arc Hit's arc outline on tap and on hover), the gold ring with a halo, the unit card's Special section, log lines, desktop side panel (a gold bolt beside a warming unit). Brain 5 (and Brain 6, which shares its planner) uses specials under the switch only.
+- **Anything beyond the brief, and why:** (1) the lab's job orders can change rule numbers for a sim-only copy (`"set"`), needed for the older-sizes run; (2) a `specials` lab measure; (3) on its firing turn, a charged unit with no target can be warmed up again from the same button (the brief allows the re-warm but gives no button for it; judgement call).
+- **Judgement calls on screens:** the charged button stays tappable when there is no target but a re-warm is possible (opens "Warm up Skewer again"); the warm-up reason when Command (not Stamina) is short still reads "Not enough Stamina", as the brief words it; the arc is drawn as a gold outline (no fill) so the tokens under it stay readable. The extra-target rows and the arc fit on a 390-wide phone (checked in a headless browser: Arc Hit into two enemies).
+- **Laws vs brief:** none found. One reading needs the Editor: F38 (Skewer's second hit built as a full hit, no Reach −1).
+- **Checks run and results:** every check in `README.md` passes locally: test_rules, v1, v3, v3.1, v3.2 (20-game count), v3.3, v3.4, v3.5, v3.6 (updated: v3.6 is no longer the newest), **v3.7 (180/180)**, stamina, reasons (updated for the Special reason), kitd, brain5, brain6, version, watch, ui (87/87, includes the special text and preview), invariants (v3.7, 30 games incl. 10 Brain 5 mirrors: 75 warm-ups, 46 specials fired, 0 problems), rng, replay, lab self_test, test_stall, board_check (10 games, 0 different).
+- **Regression hashes** (`regress_engine.js`, 6 games per set; main's board vs this board, identical):
+  `match3 ba9f9ad987385750` · `v1 4827f4ae8059d541` · `v2 0d208c5415782fde` · `v3 ec98a437a0e051d4` · `v3.1 a67f8605195788e1` · `v3.2 fb523ce9a70244bf` · `v3.3 059a117284e53942` · `v3.4 f4fab7c5888b11da` · `v3.5 ce0811710786bb5d` · `v3.6 4706bad95c877a09`
+- **Brain hashes, every older preset (v1–v3.6), main vs this board, identical:** `brain5 24f5ff8dbb19e3ea` · `brain6 a9c7422db34c8c9c` · `kitD dde416d0f0c6ee91` · `standard 0e2eb26d5b08ff59`.
+- **Double knockout (F20):** pending the lab (`specials-bots` and `specials-v37` count every action, column `both_win_actions`). Local: 0 in 8 Brain 5 games and 30 invariant games.
+- **Baseline table (rule changes only):** pending the lab (`specials-v37` on the same seeds as `flag-rulings-v36`; `specials-old-sizes`).
+- **Bot minimum:** pending the lab (`specials-bots`, `specials-onoff`). Local look (36 Brain 5 mirror games): fired 56–68% of warm-ups depending on format (5v5 lowest: a warming Light Ranged often dies before it fires); Arc Hit and Skewer are the least used. Thinking time per turn: pending (timing is collected on every lab run).
+- **Settings review:** pending the lab (`specials-settings`).
+- **Known gaps:** the bot's special play is a first version (the brief: tune later). Skewer gets few chances (enemies rarely line up).
+- **Flags closed / opened:** opened F38. F20 stays closed, with its new check.
+- **Pull request:** see below.

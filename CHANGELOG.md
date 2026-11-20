@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.10.00 | v3.7 | Brain 5 | v2 | 14 |
 | v3.09.01 | v3.6 | Brain 5 | v2 | 13 |
 | v3.09.00 | v3.6 | Brain 5 | v2 | 12 |
 | v3.08.00 | v3.5 | Brain 5 | v2 | 11 |
@@ -15,6 +16,27 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.10.00 · Build 14 — Brief 011, rule set v3.7: special attacks (20 Nov 2026)
+Rule set: **v3.7** (new, the new-game default): v3.6 plus switch `specials`. Default brain: Brain 5, now using specials on v3.7 only. Game version **v3.10.00** (YY: a new rule set).
+
+**What a player will notice**
+- Every foot unit has one special attack a match, on its own button after Attack: **Arc Hit** (Heavy Melee), **Pick Off** (Light Melee), **Bullseye** (Heavy Ranged), **Arrow Storm** (Light Ranged), **Skewer** (Heavy Anti-Cavalry), **Javelin** (Light Anti-Cavalry).
+- Tap it to **warm up** (1 Stamina, then no attack, pull or brace that turn; moving and swapping are fine). Next turn the button turns gold: tap it, pick a red ring and **Fire**. If you don't fire that turn it goes back to unused.
+- A warming unit has a **gold ring with a soft glow** on the field, yours and the bot's.
+- The special's preview shows **one exact number** (no dice), the extra targets underneath (Arc Hit, Skewer), and Arc Hit outlines its 3-hex arc.
+- The unit card has a **Special** section with its status (Unused, Warming up, Used). The log reads "HM warms up Arc Hit at E9." and "HM fires Arc Hit: …".
+- No special can hit a flag hex or its holder. Older rule sets play exactly as before.
+
+**Under the hood**
+- `engine.js`: `warmup` and `special` actions, the special's state on each unit (only under the switch), exact previews in `options().special`, reasons in `blockReasons().special`. All sizes in `data.js` (`specials` block, `game.warmupCost`).
+- `bot.js` / `brain.js`: Brain 5 (and Brain 6) warm up when a target will likely be in reach next turn, fire when it beats the other choices, and fear the enemy's warmed-up specials. New settings: Use specials, Warmed special's worth, Warm-up reach slack, Warm-up cost, Special margin, Warm-up moves tried. Read on v3.7 only: brain hashes on every older rule set match `main`.
+- Lab: a `specials` measure (uptake, lapses, kills, damage vs the normal hit, hits on braced units, actions where both sides could win), and job orders may now change rule numbers for a sim-only copy (`"set"`).
+- New check `test_v37.js` (180 checks); `test_invariants.js` now plays Brain 5 games too, so specials are in play.
+
+**Flags closed:** none (F20 gets its new double-knockout check, stays closed). **Opened:** F38 (Skewer's second hit: full hit or Reach −1?).
+
+**Baseline:** see brief 011's Report (lab runs `specials-v37`, `specials-old-sizes`, `specials-bots`, `specials-onoff`, `specials-settings`).
 
 ## v3.09.01 · Build 13 — Brief 016, stall logging (lab only) (19 Nov 2026)
 Rule set: none changed (v3.6 stays the newest). Game version **v3.09.01** (ZZ: lab tooling, nothing about how the game plays changes; brief 015 took v3.09.00 and Build 12 first).

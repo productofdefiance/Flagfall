@@ -176,5 +176,41 @@ const stat = (side, key) => side.stats.find((s) => s.key === key);
   ok(!bad.length, `no player-visible text says the old word (${bad.length} found):\n  ${bad.slice(0, 10).join("\n  ")}`);
 }
 
+// ---- Specials (Brief 011): card text from the rule set, the preview's one exact number, extra-target rows ----
+{
+  const V37 = PRESETS.find((p) => p.id === "v3.7"), bad = [];
+  const check = (where, text) => { if (UI.BANNED.test(UI.say(text))) bad.push(`${where}: ${text}`); };
+  const want = {
+    HM: ["Arc Hit", "A normal hit on every enemy in a 3-hex arc around its target."],
+    LM: ["Pick Off", "Twice a normal hit, 25% less for each friend next to the target (never below a normal hit)."],
+    HR: ["Bullseye", "1.5 times a normal shot, ignoring Armor."],
+    LR: ["Arrow Storm", "Twice a normal shot. Dodge doesn't count."],
+    HA: ["Skewer", "A full hit on the enemy next to it and on the enemy behind that one."],
+    LA: ["Javelin", "Strikes 2 or 3 hexes away in a straight line, twice a normal hit. Over friends, never over enemies."]
+  };
+  for (const code in want) {
+    const sec = UI.cardSections(V37, code).find((x) => x.head === "Special");
+    ok(sec && sec.sub === "Once a match" && sec.items[0].name === want[code][0] && sec.items[0].text === want[code][1], `${code} card: SPECIAL · Once a match · ${want[code][0]}: the brief's text`);
+    ok(sec && sec.note === "Warm up one turn (1 Stamina, no attack or brace), fire the next. No dice.", `${code} card: the warm-up line under the list`);
+  }
+  ok(!UI.cardSections(PRESETS.find((p) => p.id === "v3.6"), "HM").some((x) => x.head === "Special"), "v3.6 cards have no Special section");
+  // Arc Hit into two enemies: one exact number, the key's special row first, one extra-target row
+  const st = setup(V37, [["HM", "HM"]], [["HA", "HA"], ["LM", "LM"]], { "N-HM": "E9", "S-HA": "E10", "S-LM": "D9" });
+  E.act(st, { type: "warmup", uid: "N-HM" }); E.act(st, { type: "end" }); E.act(st, { type: "end" });
+  const p = E.options(st, "N-HM").special.targets.find((x) => x.target === "S-HA"), pv = UI.specialPreview(st, U(st, "N-HM"), U(st, "S-HA"), p);
+  ok(pv.segments.length === 1 && pv.segments[0].p === 1 && pv.segments[0].dmg === p.hits[0].dmg, "the outcome bar is one segment, 100%, the exact damage");
+  ok(pv.rows[0].special && pv.rows[0].name === "Arc Hit ×1" && /2 enemies in the arc/.test(pv.rows[0].why), `the key's first row: ${pv.rows[0].name} — ${pv.rows[0].why}`);
+  ok(pv.special.extra.length === 1 && pv.special.extra[0].uid === "S-LM" && pv.special.extra[0].dmg === p.hits[1].dmg, "one extra-target row, with its exact damage");
+  ok(pv.special.arc && pv.special.arc.length === 3, "the arc to outline on the field");
+  for (const r of pv.rows) check("special key", `${r.name} ${r.means} ${r.why}`);
+  // Arrow Storm on a Light unit: Dodge leaves the face-off and the key; the special row says why
+  const s2 = setup(V37, [["LR", "LR"]], [["LM", "LM"]], { "N-LR": "E8", "S-LM": "E11" });
+  E.act(s2, { type: "warmup", uid: "N-LR" }); E.act(s2, { type: "end" }); E.act(s2, { type: "end" });
+  const p2 = E.options(s2, "N-LR").special.targets[0], pv2 = UI.specialPreview(s2, U(s2, "N-LR"), U(s2, "S-LM"), p2);
+  ok(!pv2.target.stats.some((x) => x.key === "dodge") && !pv2.rows.some((r) => r.icon === "dodge") && /Dodge \d+% doesn't count/.test(pv2.rows[0].why), `Arrow Storm: no Dodge stat or row; "${pv2.rows[0].why}"`);
+  ok(pv2.rows[0].name === "Arrow Storm ×2", "the multiplier used here: Arrow Storm ×2");
+  ok(!bad.length, `no player-visible special text says the old word (${bad.length})`);
+}
+
 console.log(`${n - fails}/${n} UI checks passed`);
 if (fails) process.exit(1);

@@ -1,0 +1,51 @@
+{
+  "id": "specials-old-sizes",
+  "kind": "study",
+  "brief": "011",
+  "question": "Sim-only v3.7 with the sizes first drafted on 18 Nov (Arrow Storm and Javelin x1.5, Skewer's second hit x0.75, Arc Hit x0.5): same games, same table, uptake and damage.",
+  "tags": [
+    "specials",
+    "brain5",
+    "v3.7",
+    "old-sizes"
+  ],
+  "measures": [
+    "play",
+    "light",
+    "flagrules",
+    "specials"
+  ],
+  "matchups": [
+    {
+      "name": "5v5",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "blitz5",
+      "mix": "mixed",
+      "games": 1000,
+      "set": {
+        "specials.arrowStorm.mult": 1.5,
+        "specials.javelin.mult": 1.5,
+        "specials.skewer.behind": 0.75,
+        "specials.arcHit.mult": 0.5
+      }
+    },
+    {
+      "name": "7v7",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 1000,
+      "set": {
+        "specials.arrowStorm.mult": 1.5,
+        "specials.javelin.mult": 1.5,
+        "specials.skewer.behind": 0.75,
+        "specials.arcHit.mult": 0.5
+      }
+    }
+  ],
+  "seed_name": "flag-rulings"
+}

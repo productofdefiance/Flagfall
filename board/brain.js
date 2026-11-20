@@ -97,6 +97,16 @@
     flagDanger: 20    // cost of leaving our empty flag where the enemy could finish it
   };
   BRAIN_5.plan5 = { beam: 3, perUnit: 5 };   // plans kept at each step; activations kept per unit
+  /* Specials (Brief 011, rule set v3.7 on): read only when the rule set has specials, so every older rule set plays as
+     before. Starting values, not tuned (the brief: tune later). */
+  Object.assign(BRAIN_5.model, {
+    useSpecials: 1,     // 1 = warms up and fires specials, and counts the enemy's warmed-up ones; 0 = ignores specials
+    special: 0.5,       // weight on a warmed-up special's likely extra damage next turn (over a normal hit)
+    warmSlack: 1,       // hexes to spare when judging whether a target will be in reach next turn (the target moves too)
+    warmCost: 1,        // value points a warm-up costs the plan (its Stamina and Command this turn)
+    specialMargin: 0    // how much (in value points) firing must beat the unit's best other action by
+  });
+  BRAIN_5.plan5.warmMoves = 4;   // warm up then move: tried after this many of the unit's best moves
 
   /* Brain 6 (Brief 007, 2026-11-18): Brain 5 with tuned weights, the clock (the tiebreak standing, weighted more as the
      turn limit nears) and the cost of an attack that leaves no Evade step. Brain 5 stays as it was, so Brief 006's
@@ -145,6 +155,12 @@
     "model.clock": ["Clock weight", "Value of being ahead on the tiebreak (more flag damage, then fewer units lost), and the cost of being behind, on the last turn. Earlier it counts for less, and nothing before the clock starts."],
     "model.clockTurns": ["Turns of clock pressure", "How many turns before the turn limit the clock starts to count. It grows evenly to the full Clock weight on the last turn. 0 turns the clock off."],
     "model.evade": ["Keep an Evade step", "Cost of an attack by a Light unit, next to its target, that leaves it no legal step to Evade: this many times the damage the target is expected to hit back with next turn. Higher keeps movement, Stamina and Command for the step."],
+    "model.useSpecials": ["Use specials", "1: warms up and fires specials (rule sets with specials only), and fears the enemy's warmed-up ones. 0: ignores specials."],
+    "model.special": ["Warmed special's worth", "Weight on what a warmed-up special is likely to add next turn over a normal hit, at its best reachable target. Higher warms up more often."],
+    "model.warmSlack": ["Warm-up reach slack", "Hexes to spare when it judges whether a target will be in reach of the special next turn. Higher warms up only when the target is already close."],
+    "model.warmCost": ["Warm-up cost", "Value points a warm-up costs in a plan, for the Stamina and Command it spends this turn. Higher warms up only when the special is clearly coming."],
+    "model.specialMargin": ["Special margin", "How many value points firing a special must beat the unit's other choices by. Higher saves specials for bigger moments (an unfired special lapses)."],
+    "plan5.warmMoves": ["Warm-up moves tried", "Warm up, then move: tried after this many of the unit's best moves. More is slower."],
     "plan5.beam": ["Plans kept per step", "How many whole-turn plans it keeps while it builds them up, unit by unit. More is slower and looks wider."],
     "plan5.perUnit": ["Choices per unit", "How many of each unit's best activations (move, attack, brace, Evade) it combines into plans."]
   };
