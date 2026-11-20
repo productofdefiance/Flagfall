@@ -1,4 +1,4 @@
-STATUS · updated 20 Nov 2026, 2:55 pm ET
+STATUS · updated 20 Nov 2026, 2:56 pm ET
 
 VERSION
   On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
@@ -33,7 +33,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    017 Move preview · PR #44 · Draft · checks pass · not reviewed
+    017 Move preview · PR #44 · Ready · checks pass · not reviewed
     022 Safe approach · PR #41 · Draft · checks pass · not reviewed
     023 Status page · PR #40 · Ready · checks pass · reviewed: merge
   Ready to start
