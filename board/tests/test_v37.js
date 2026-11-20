@@ -34,7 +34,7 @@ function charge(st, uid) { const r = A(st, { type: "warmup", uid }); if (!r.ok) 
 const hpOf = (st, uid) => U(st, uid).hp;
 
 // ---- The preset ----
-ok(V37 && V37.switches.specials === true && PRESETS[PRESETS.length - 1] === V37, "v3.7 exists with specials on, and is the newest preset");
+ok(V37 && V37.switches.specials === true && PRESETS.indexOf(V37) >= 0 && PRESETS.indexOf(V37) < PRESETS.length - 1, "v3.7 exists with specials on, and is still offered behind the newest preset");
 { const a = JSON.parse(JSON.stringify(V36)), b = JSON.parse(JSON.stringify(V37));
   for (const k of ["id", "name", "note"]) { delete a[k]; delete b[k]; }
   delete b.switches.specials; delete b.game.warmupCost; delete b.specials;
@@ -42,7 +42,7 @@ ok(V37 && V37.switches.specials === true && PRESETS[PRESETS.length - 1] === V37,
   ok(JSON.stringify(a) === JSON.stringify(b), "v3.7 is v3.6 plus the specials switch, warmupCost, each card's special and the specials block"); }
 ok(V37.game.warmupCost === 1, "warm-up costs 1");
 ok(["HM:arcHit", "LM:pickOff", "HR:bullseye", "LR:arrowStorm", "HA:skewer", "LA:javelin"].every((x) => { const [c, k] = x.split(":"); return V37.cards[c].special === k; }), "each foot card has its special");
-for (const rs of [DEFAULT_RULESET, ...PRESETS.slice(0, -1)]) {
+for (const rs of [DEFAULT_RULESET, ...PRESETS.filter((p) => !p.switches.specials)]) {
   ok(!rs.switches.specials && !Object.values(rs.cards).some((c) => c.special), `${rs.id}: no specials`);
   const st = setup(rs, [["HM", "HM"]], [["HM", "HM"]], { "N-HM": "E9", "S-HM": "E10" });
   ok(U(st, "N-HM").sp === undefined, `${rs.id}: units carry no special state`);
