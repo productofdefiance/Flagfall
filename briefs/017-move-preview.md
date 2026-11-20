@@ -163,28 +163,49 @@ Every existing preset plays and replays identically (`regress_engine.js` hashes)
 ## The Editor's hands-on check
 Play one match on a phone: tap a Light Ranged and preview three moves (one clean, one that stops in a Mark, one next to a braced Heavy Anti-Cavalry); attack with a Light unit and check the Evade hexes; warm up and fire a Javelin. On desktop, hover-move a unit and undo it.
 
-## Report back
-The standard items, plus: the route test table (set-up, expected route, actual route); the bot counts above; any spot where the preview and the action disagreed and how it was fixed; the preset id taken.
-
-## Icons
-(24-unit grid, stroke 1.9, round caps and joins.)
-- **Mark ("Pulled in", approved 18 Nov):** `M12 2.5 20.5 7.3v9.4L12 21.5 3.5 16.7V7.3z` · circle cx 12 cy 12 r 1.3 filled · `M12 6.5v2.8` · `M10.8 8.2 12 9.4l1.2-1.2` · `M12 17.5v-2.8` · `M10.8 15.8 12 14.6l1.2 1.2` · `M6.8 12h2.6` · `M8.3 10.8 9.5 12l-1.2 1.2` · `M17.2 12h-2.6` · `M15.7 10.8 14.5 12l1.2 1.2`
-- **Set Spear (Icon library Round 1):** `M4.5 20.5 16 9` · `M14.2 6.2 19.8 4.2l-2 5.6-2.4.2-1.4-1.4z` · `M3 20.5h8` · `M8.5 16.5l2 2`
-- **Move / arrow:** `M5 12h12` · `M13 7l5 5-5 5`
-- **Flag:** `M6 21V4` · `M6 4h11l-2.5 4L17 12H6`
-- Sword, Special, Brace, Reach, Strength (Maul), Dodge, Evade: as in `app.js` today.
-
----
-
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code. Branch `claude/amazing-gates-5dpuxa`, started from `brief/017-move-preview` with `main` merged. Pull request #44. Game version v3.13.00 · Build 17. Preset taken: **v3.9**.*
 
 - **What's in:**
+  - **Engine (rule set v3.9, switch `routeRule211`).** `route(st, uid, dst)` picks the route by 2.11 rules 1–4 and the unit walks it hex by hex: stop on entering a Mark, set spear on arrival at each hex (once per unit per turn, as 3.13), removal where spear removes it; pays for the hexes walked, tackle by where it ended. On v3.9 the move itself walks the exact path `route()` returns (the preview and the move share one walker, so they cannot disagree). Move hexes offered are unchanged (`reachMap`; a test checks v3.9 offers the same set as v3.8). On older rule sets `route()` returns a legal shortest path and the jump's events, and the move still jumps.
+  - Read-only preview functions: `canAttackAfter`, `rangeHexes` (normal / special, flag block 4.9), `evadeHexes`, `killConsequences`, `enemyPreview`.
+  - **Board (Approved UI v3):** sections 3–13: move preview (route, arrowhead, ghost, stop-short dashed line and outline, range from the end or the "no attack after" badge), the four badges, range outlines (Ranged outer edge, Reach six spokes), special double gold line, warm-up rings gold/plum, braced and braced-last-turn charcoal rings, set spear hatching, Evade hexes and kill-consequence pills in the attack preview, Javelin preview (8 struck → 14, ×2, one segment "100% · no dice"), action order Attack, Reach, Special, Brace, the blue Move / gold special confirms with Cancel in Brace's slot, the route row and "No movement available this turn" line under the HP bar, the enemy-tapped view with sight marks and the "Pick one of your own units" note, the key listing only what is on the field, neutral zones and pitch lines read from the field data, the flag pill, HP number at 0.76 × radius, Plex Sans tabular numbers (Plex Mono removed from the font load), every new colour in `skin.js`. Desktop: hover previews a move, one click moves, Escape cancels.
+  - Bot: it already scores every move by playing it through the engine, so it uses the route and its events. One look-ahead read the planned hex instead of where the unit really ended; it now reads the real end (identical on older rule sets).
+  - Lab: new measure `routes`; a screen order `studies/queue/routes-v39.json` (v3.8 vs v3.9 on the same seeds, 200 games per format each) runs in this pull request.
 - **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
-- **Baseline table (rule changes only):**
-- **Bot minimum (met / not met, with numbers):**
-- **Settings review (brain builds only):** n/a
+  - The special's double line is also redrawn from the end hex during a move preview (only when the unit could still attack there), so it never shows a range the unit won't have.
+  - The phone key opens from a small pull-up tab at the bottom of the field ("Pull up for the key" the first two times, then "Key"); the brief gave no place for the handle outside the attack preview.
+  - `GGShots` hook, only on a `?shots=1` link, so the screenshot script can set up positions. Nothing in play reads it.
+  - Closed F021-3: rewrote the stale header comment in `board/version.js` (that flag asked the next `board/` build to do it).
+- **Checks run and results:** every check in `README.md` with the GitHub checks' game counts: all pass (test_version needed its pinned number moved to v3.13.00). `test_route.js` 59/59; preview agrees with the move on 1,000 random legal moves, 0 disagreements (also run at 20,000: 0 disagreements; 235 stopped short, 32 removed on the way, Mark 3,129, set spear 206, tackle 1,585 events).
+  - `regress_engine.js` (3 games per set), board before this change vs after, identical on every untouched preset:
+    `match3 37397ef2bd3ed86b · v1 7b25bca651c0cb31 · v2 ddbe5fc437ff4e9d · v3 26371927b53d4413 · v3.1 c71e4cd12fc984b0 · v3.2 f62a061d2c147d83 · v3.3 e6151bf463d6c9f8 · v3.4 ee6ce003ac760250 · v3.5 fca989aecfaf21c9 · v3.6 a6bf327b54f7d5a1 · v3.7 dd3c27d9dc9aafbb · v3.8 022a298c49a02540`
+  - Route test table (each set-up also mirrored top to bottom; all match):
+
+    | Set-up | Move | Expected route | Actual route |
+    |---|---|---|---|
+    | Tie to the centre | C9 → B10 | C9-C10-B10 | C9-C10-B10 |
+    | Tie to own flag | C9 → E9 | C9-D8-E9 | C9-D8-E9 |
+    | Arriving first (HM D13) | D10 → C13 | via C12, arrives: D10-D11-C12-C13 | D10-D11-C12-C13 |
+    | Stop short (HM E11) | C9 → F10 | C9-D9-E10-F10, stops E10 | C9-D9-E10-F10, stops E10 |
+    | Set spear on arrival (braced HA F12) | G11 → F11 | G11-F11, Mark stop + spear 2 | G11-F11, Mark stop + spear 2 |
+    | Fewer dangers (HM C7, braced HA D7; added) | C9 → B6 | C9-B8-B7-B6, stops B7 (1 danger, not 2) | same |
+    | Same, HA not braced (added) | C9 → B6 | C9-C8-B7-B6, stops C8 (rule 4) | same |
+    | v3.8 (old preset), stop-short set-up | C9 → F10 | jumps to F10, 4 hexes round the Mark | same |
+- **Baseline table (rule changes only):** 100 Brain 5 mirror games, 50 per format, same seeds (`sims/route_bot.js`). Tiebreak wins apart from KOs.
+
+    | Rule set | KO | TKO | Tiebreak win | Draw | Ended on turn limit |
+    |---|---|---|---|---|---|
+    | v3.8 | 46 | 17 | 36 | 1 | 37 |
+    | v3.9 | 49 | 15 | 34 | 2 | 36 |
+
+  Every gap is under 4 points: no change found (F23). Holder KO vs pull KO and pulls come from the lab screen in this pull request (`routes-v39`) and the automatic `release` run (1,000 per format).
+- **Bot minimum (met):** 100 seeded Brain 5 games on v3.9: 5,743 moves; predicted end = actual end on **5,743 of 5,743**; **0** stopped short; set spear taken on 5 moves (10 damage); Mark entered before the chosen hex 0; moves ending in a Mark 800. Same seeds on v3.8: 5,759 moves, spear on 4 moves (8 damage), Mark before the chosen hex 0 (the jump can't), ending in a Mark 795. The bot never chose a move that stops short: because it scores each move by playing it, a stopped-short move scores as where it really ends and loses to a better one.
+- **Settings review (brain builds only):** n/a (no brain added or tuned).
 - **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+  - Desktop enemy view: the enemy's card shows in the unit bar above the actions (as the phone) and the side column shows the key; the brief puts the card in the side column.
+  - Screenshots (390 × 844 and 1280 × 800, all nine views the brief lists plus the enemy view) are in `briefs/img/017/`. The Editor's hands-on check is still to do.
+  - Bot slows by about 10–25% on v3.9 (route search inside its look-ahead): about 5.7 s vs 4.6 s per 5v5 game on this machine.
+  - Plain readings needing a ruling: F017-1, F017-2.
+- **Flags closed / opened:** closed F021-3. Opened F017-1 (ASK), F017-2 (ASK), F017-3 (OPEN, information).
+- **Pull request:** #44
