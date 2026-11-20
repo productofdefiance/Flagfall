@@ -125,7 +125,7 @@ This build is the bot work. It is met when every measurement has a number and th
 3. Watch one Brain 7 vs Brain 7 game at 5v5 (both sides Computer). Does it still stall?
 
 ## Report
-*Filled in by Claude Code, 20 Nov 2026 (overnight; the Editor away). Results sections fill in when the lab's overnight runs land on this pull request: `node sims/lab/report019.js` prints every table below.*
+*Filled in by Claude Code, 20 Nov 2026 (overnight; the Editor away). All 86,000 games are in; `node sims/lab/report019.js` reprints every table below from the run folders.*
 
 - **What's in:**
   - **Brain 7 (keeps its lead)**, `brain7`, a copy of Brain 5 plus five behaviours, each a switch in `BRAIN_7.lead` (1 on, 0 off), with plain labels in a new "Lead" table on the Opponent screen. Brain 5 and Brain 6 are untouched. Stateless: one reading of the board per plan (`bot.js` `lead7Context`, at the start of each turn and after each roll), so replays stay exact.
