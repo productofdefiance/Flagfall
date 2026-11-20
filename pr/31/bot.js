@@ -401,15 +401,26 @@
   /* Only units with u.sp (the specials switch) ever reach these, so every older rule set plays exactly as before. */
   const specOn = (B) => !(B.model && B.model.useSpecials === 0);
   /** Rough multiplier a warmed-up special `e` would put on its usual hit on `u` next turn (rule-set numbers): Arc Hit counts
-      half a hit for each friend of `u` that could share the arc, Pick Off its friends, Skewer a third of a hit behind. */
+      half a hit for each friend of `u` that could share the arc, Pick Off its friends, Skewer half a hit behind when `u`
+      has a friend next to it. */
   function specMult(st, e, u) {
     const kind = E.specialOf(st, e); if (!kind || e.sp !== "warm") return 1;
     const n = (st.rs.specials && st.rs.specials[kind]) || {};
     const near = E.alive(st).filter((f) => f.team === u.team && f !== u && E.dist(f.hex, u.hex) === 1).length;
     if (kind === "arcHit") return n.mult * (1 + 0.5 * Math.min(2, near));
     if (kind === "pickOff") return Math.max(n.floor !== undefined ? n.floor : 1, n.mult - (n.lessPerFriend || 0) * near);
-    if (kind === "skewer") return n.first + n.behind / 3;
+    if (kind === "skewer") return n.first + (near ? n.behind / 2 : 0);   // a second hit only if a friend of `u` could stand behind it
     return n.mult || 1;
+  }
+  /** v3.7: what a warmed-up special by `e` would deal to `u` next turn, as the engine works it out: no dice, the
+      multiplier on the finished hit, and Arrow Storm with no Dodge (a Light unit's Dodge doesn't save it). Normal
+      positions as expectedHit (no Support counted). */
+  function specHit(st, e, u) {
+    const c = E.card(st, e);
+    if (c.reload && e.attackedThis) return 0;
+    const from = c.range > 1 ? e.hex : E.NBRS[u.hex][0];
+    const b = E.breakdown(st, e, u, from), dodge = E.specialOf(st, e) === "arrowStorm" ? 0 : b.dodge;
+    return Math.max(st.rs.game.minDamage, b.value * (1 - dodge / 100) * specMult(st, e, u));
   }
   /** Reach of a warmed-up special next turn: Javelin up to its maxRange; Arc Hit, Pick Off and Skewer only next to the target. */
   function reachNext(st, e) {
@@ -428,9 +439,9 @@
       const d0 = E.dist(u.hex, e.hex), kind = E.specialOf(st, u);
       if (d0 > steps + reachNext(st, u) - (W.warmSlack || 0)) continue;
       if (kind === "javelin" && steps === 0 && d0 < 2) continue;
-      const d = expectedHit(st, u, e), m = specMult(st, u, e), hp = E.effHp(st, e);
+      const d = expectedHit(st, u, e), ds = specHit(st, u, e), hp = E.effHp(st, e);
       // extra HP taken over a normal hit, plus a unit's worth (in HP terms) when only the special removes it
-      best = Math.max(best, Math.min(d * m, hp) - Math.min(d, hp) + (d * m >= hp && d < hp ? W.unit / (W.hp || 1) : 0));
+      best = Math.max(best, Math.min(ds, hp) - Math.min(d, hp) + (ds >= hp && d < hp ? W.unit / (W.hp || 1) : 0));
     }
     return best;
   }
@@ -447,9 +458,8 @@
       for (const u of own) {
         if (!canThreaten(st, e, u.hex, sp ? reach : undefined)) continue;
         const steps = Math.max(0, E.dist(e.hex, u.hex) - reach);
-        // v3.7: a warmed-up enemy special fires next turn with its multiplier (not on a holder: no special on a flag hex)
-        const m = sp && !E.isHolder(st, u) ? specMult(st, e, u) : 1;
-        opts.push({ e, u, d: expectedHit(st, e, u) * m, cost: g.attackCost + steps * ce.hexCost });
+        // v3.7: a warmed-up enemy special fires next turn as the engine deals it (not on a holder: no special on a flag hex)
+        opts.push({ e, u, d: sp && !E.isHolder(st, u) ? specHit(st, e, u) : expectedHit(st, e, u), cost: g.attackCost + steps * ce.hexCost });
       }
     }
     // greedy: the enemy's most valuable hit first, as long as its Command lasts
