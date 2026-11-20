@@ -103,6 +103,14 @@
     return '<div class="tiles">' + out.join("") + "</div>";
   }
 
+  /** Brief 024: one small row under the tiles: GitHub's queue, with Running over 15 minutes and Heads up over 45. */
+  function renderQueue(d) {
+    var q = d.queue;
+    if (!q) return "";
+    var mark = q.mark === "heads" ? pill("heads", "Heads up") : q.mark === "running" ? pill("running", "Waiting") : "";
+    return '<div class="qrow">' + mark + '<span>' + esc(q.text) + "</span></div>";
+  }
+
   function renderBuilds(d) {
     var B = d.builds || {}, bl = B.building || [], wl = B.waiting || [], ml = B.merged || [];
     var note = stateCounts(bl).map(function (s) { return countWord(s.state, s.n); });
@@ -256,7 +264,7 @@
       '<button type="button" class="btn dark" data-act="refresh"' + (ui.button ? " disabled" : "") + ">" + svg("refresh", null, 16) + esc(ui.button || "Refresh") + "</button></div>" +
       '<div class="hlinks">' + (ui.note ? '<span role="status">' + esc(ui.note) + "</span> " : "") +
       '<a href="#setup" data-act="setup">' + (ui.hasKey ? "Refresh settings" : "Set up one-tap rebuild") + "</a></div></div></div></header>";
-    return head + '<main class="mn">' + (ui.setupOpen ? renderSetup(ui) : "") + renderTiles(d) +
+    return head + '<main class="mn">' + (ui.setupOpen ? renderSetup(ui) : "") + renderTiles(d) + renderQueue(d) +
       '<div class="cols">' + renderBuilds(d) + '<div class="side">' + renderResults(d) + renderChats(d) + "</div></div>" +
       renderFlags(d, ui) + renderKey() + "</main>";
   }
@@ -280,6 +288,7 @@
     ".p-review{background:#1f2421;border-color:#1f2421;color:#f8f9f5}.p-pass{background:#cfe8da;border-color:#cfe8da}.p-sync{background:#e4dbf3;border-color:#e4dbf3}",
     ".p-heads{background:#f3dfa2;border-color:#f3dfa2}.p-broken{background:#f6cfc6;border-color:#f6cfc6}.p-running{background:#e3e6df;border-color:#e3e6df}",
     ".p-ask{background:#d6e3f2;border-color:#d6e3f2}.p-merged{background:#f8f9f5;border-color:#b8beb6}",
+    ".qrow{background:#f8f9f5;border:1px solid #b8beb6;border-radius:10px;padding:10px 14px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px}",
     ".cols{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}.side{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:16px}",
     ".card{background:#f8f9f5;border:1px solid #b8beb6;border-radius:10px;padding:16px 16px 8px;min-width:0}",
     ".shead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin-bottom:12px}",

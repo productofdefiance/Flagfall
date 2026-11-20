@@ -74,6 +74,7 @@ From the repository's top folder:
 node sims/lab/self_test.js
 node sims/lab/test_stall.js
 node sims/lab/test_lead.js
+node sims/lab/test_capacity.js
 node sims/status/test_board.js
 node sims/lab/board_check.js 10
 ```
