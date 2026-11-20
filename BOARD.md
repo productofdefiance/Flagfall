@@ -1,4 +1,4 @@
-STATUS · updated 20 Nov 2026, 5:16 pm ET
+STATUS · updated 20 Nov 2026, 5:31 pm ET
 
 VERSION
   On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (20 Nov, 11:54 am ET)
-  Queue: 5 jobs waiting, oldest 0 min · lab using 5 of 20
+  Queue: 5 jobs waiting, oldest 15 min · lab using 5 of 20
   study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov
   study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov
   study v3.10.00 · 52 matchups, 52,000 games · 20 Nov
@@ -35,7 +35,7 @@ FLAGS (open, newest first)
 BUILDS
   Building
     017 Move preview · PR #44 · Ready · checks pass · reviewed: hold
-    022 Safe approach · PR #41 · Draft · checks running · not reviewed
+    022 Safe approach · PR #41 · Draft · checks fail · not reviewed
   Ready to start
     none
   Waiting
