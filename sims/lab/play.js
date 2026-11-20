@@ -17,19 +17,9 @@ const rng = require(path.join(boardDir, "tests", "rng.js"));
 const { MEASURES, ALWAYS } = require("./measures.js");
 const { gamesOf } = require("./order.js");
 
-// A brain is an id, or id:key=value,... with Brain 5-style model / plan5 settings changed (a sweep). Changed brains
-// can't be replayed on the board, which only has the built-in ones; their rows say so.
-function brainOf(spec) {
-  const [id, mods] = String(spec).split(":");
-  if (!DEFAULT_BRAINS[id]) throw new Error(`Brain ${id} is not on this board`);
-  const b = JSON.parse(JSON.stringify(DEFAULT_BRAINS[id]));
-  for (const kv of (mods || "").split(",").filter(Boolean)) {
-    const [k, v] = kv.split("=");
-    if (b.model && k in b.model) b.model[k] = +v; else if (b.plan5 && k in b.plan5) b.plan5[k] = +v; else if (b.planner && k in b.planner) b.planner[k] = +v;
-    else if (b.weights && k in b.weights) b.weights[k] = +v; else throw new Error(`Brain ${id} has no setting ${k}`);
-  }
-  return { id, changed: !!mods, brain: b };
-}
+// A brain is an id, or id:key=value,... with settings changed (a sweep). Since Brief 019 the watch link carries the
+// change (n=brain7:stormLead=1), so those games replay on the board too (watch.js brainFromSpec).
+function brainOf(spec) { const r = W.brainFromSpec(spec); return { id: String(spec), changed: !!r.mods, brain: r.brain }; }
 const lineupText = (l) => l.map((x) => x.card).join(" ");
 
 if (opt.out) fs.mkdirSync(path.dirname(path.resolve(opt.out)), { recursive: true });   // the parts folder may not exist yet
@@ -40,7 +30,8 @@ for (const file of orders) {
   for (const g of gamesOf(order)) {
     if (g.global % parts !== part) continue;
     const mu = g.matchup, A = brainOf(mu.a), B = brainOf(mu.b);
-    const seed = W.seedFrom(rng(`lab:${order.seed_name || order.id}:${mu.name}`, g.index + (mu.seed_from || 0)));
+    // seed_as (Brief 019): deal this matchup the seeds of another matchup name, so many matchups share one seed set
+    const seed = W.seedFrom(rng(`lab:${order.seed_name || order.id}:${mu.seed_as || mu.name}`, g.index + (mu.seed_from || 0)));
     // Brain A plays each side and each move order equally (as tests/baseline.js did), unless the matchup fixes them.
     const aTeam = mu.a_side || (Math.floor(g.index / 2) % 2 ? "S" : "N"), first = mu.first || (g.index % 2 ? "S" : "N");
     const sideOf = (t) => (t === aTeam ? A : B);
@@ -70,12 +61,11 @@ for (const file of orders) {
       });
       const res = st.result;
       row = { order: order.id, matchup: mu.name, game: g.index, seed, version: V.game || "build " + V.build, rules: mu.rules, format: mu.format,
-        lineup_n: lineupText(m.opts.lineups.N), lineup_s: lineupText(m.opts.lineups.S), brain_n: sideOf("N").id + (sideOf("N").changed ? ":" + String(aTeam === "N" ? mu.a : mu.b).split(":")[1] : ""),
-        brain_s: sideOf("S").id + (sideOf("S").changed ? ":" + String(aTeam === "S" ? mu.a : mu.b).split(":")[1] : ""), first: st.first,
+        lineup_n: lineupText(m.opts.lineups.N), lineup_s: lineupText(m.opts.lineups.S), brain_n: sideOf("N").id, brain_s: sideOf("S").id, first: st.first,
         winner: res ? res.winner || "draw" : "unfinished", how: res ? res.how : "unfinished", turns: st.turn,
         flag_damage_n: +st.pole.S.toFixed(2), flag_damage_s: +st.pole.N.toFixed(2), units_lost_n: E.beingsLost(st, "N"), units_lost_s: E.beingsLost(st, "S"),
         a_side: aTeam,
-        replay: A.changed || B.changed ? "not replayable: brain settings changed for this run" : rsChanged ? "not replayable: rule switches changed for this run" : site + W.toQuery(spec) };
+        replay: rsChanged ? "not replayable: rule switches changed for this run" : site + W.toQuery(spec) };
       if (off.length) row.switches_off = off.join(" ");
       for (const x of ms) Object.assign(row, x.end(st));
       if (unknown.length) row.unknown_measures = unknown.join(" ");

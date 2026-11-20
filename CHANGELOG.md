@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.10.00 | v3.6 | Brain 5 | v2 | 14 |
 | v3.09.01 | v3.6 | Brain 5 | v2 | 13 |
 | v3.09.00 | v3.6 | Brain 5 | v2 | 12 |
 | v3.08.00 | v3.5 | Brain 5 | v2 | 11 |
@@ -16,6 +17,24 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
+## v3.10.00 · Build 14 — Brief 019, Brain 7: know the lead, keep it, storm together (20 Nov 2026)
+Rule set: none changed (v3.6 stays the newest). Game version **v3.10.00** (YY: a new brain). Brain 5 stays the default.
+
+**What a player will notice**
+- A new opponent, **Brain 7 (keeps its lead)**, on the Opponent and Teams screens. When it is ahead on units it stops throwing units away one at a time, gathers its spare units near your holder and attacks it with two or three at once. When you have only your holder left, its own holder may come forward too, but only if yours can't reach its flag first. When it is behind, it pulls its units together while there is time, then commits everything late.
+- On the Opponent screen, Brain 7 has a **Lead** table: five behaviours switched on with 1 and off with 0, and the numbers they use. With all five off it plays exactly like Brain 5.
+- Watch links can now carry a brain's changed settings, so games from a lab sweep open and play on the board.
+- Brain 5, Brain 6 and every older brain and rule set play exactly as before.
+
+**Under the hood**
+- `bot.js`: Brain 7 is Brain 5's planner plus a reading of the board made once per plan (start of the turn and after each roll): the lead (units other than the holder, by unit cap and HP left), ahead or behind, storm or hold, whether to wait before striking the holder, whether to regroup, and the holder race check. It adds value terms and two attack costs; no "on turn N" rules and nothing carried between turns. One setting the brief didn't name, **Press the holder**, was needed: without it Brain 7 gathered round a braced holder and then waited (F38).
+- `brain.js`: Brain 7 and its labels. `watch.js`: `n=brain7:stormLead=1` style brain settings in watch links. `app.js`: the Lead table.
+- Lab: three new measures on every run (`lead_lost`, `lead_unused`, units lost alone or together and holder strikes solo or group), positions scored per side-turn in `timing`, a `brain7` measure (how often each behaviour was active, and lone losing attacks for any brain), `seed_as` in job orders so many matchups share one deal. `sims/lab/report019.js` builds the Report's tables.
+- New checks: `test_brain7.js` (all off = Brain 5, the five positions, legal play) and `sims/lab/test_lead.js` (the new measures on five saved games, checked by hand).
+
+**Flags opened:** F38 to F41. **Evidence for:** F10.
+
+**Measurements:** queued overnight at 1,000 games per format (job orders `brain7-baselines`, `brain7-vs-brain5`, `brain7-storm-lead`, `brain7-one-at-a-time`, `brain7-settings`); results in the brief's Report.
 ## v3.09.01 · Build 13 — Brief 016, stall logging (lab only) (19 Nov 2026)
 Rule set: none changed (v3.6 stays the newest). Game version **v3.09.01** (ZZ: lab tooling, nothing about how the game plays changes; brief 015 took v3.09.00 and Build 12 first).
 

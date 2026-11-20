@@ -397,7 +397,9 @@
   /** What the enemy can realistically do to `team` next turn: each enemy that can reach a unit attacks once, within the
       enemy's Command for the turn (movement plus the attack), damage piling up so focus fire can remove a unit, and each
       extra attacker on the same unit adding Support. Our Armor, Brace, Dodge room and holder pool all count (engine). */
-  function risk5(st, team, B) {
+  function risk5(st, team, B) { return risk5Detail(st, team, B).total; }
+  /** risk5 with the damage it piles on each unit (Brain 7 reads who it expects to be removed). Same sums as before. */
+  function risk5Detail(st, team, B) {
     const W = B.model, foe = E.foeOf(team), g = st.rs.game;
     const own = E.alive(st).filter((u) => u.team === team), enemies = E.alive(st).filter((e) => e.team === foe);
     const opts = [];
@@ -427,13 +429,13 @@
       total += best.v; cmd -= best.o.cost; used.add(best.o.e);
       acc.set(best.o.u, (acc.get(best.o.u) || 0) + best.d); hits.set(best.o.u, (hits.get(best.o.u) || 0) + 1);
     }
-    return total;
+    return { total, acc };
   }
   /** One score for a position, from `team`'s side: gained (units, HP, flag), risked (risk5 both ways), next turn
       (Stamina each unit starts with, placement for the goal and for defence). Weights live in the brain (B.model). */
   function value5(st, team, B) {
     stats5.values++;
-    const W = B.model, foe = E.foeOf(team);
+    const W = B.model, foe = E.foeOf(team), c7 = B._c7;   // c7: Brain 7's reading of the lead at the plan's start (null otherwise)
     if (st.result) return st.result.winner === team ? 1e5 : st.result.winner ? -1e5 : 0;
     let v = 0;
     for (const u of E.alive(st)) {
@@ -442,15 +444,168 @@
       if (u.team === team) {
         v += W.stamina * E.status(st, u).stamNext;                        // next turn: Stamina it starts with (2 after a brace)
         if (!isKeeper(st, u)) v -= W.advance * E.dist(u.hex, E.FLAG[foe]); // placement for the goal
+        else if (c7 && c7.join) v -= W.advance * E.dist(u.hex, E.FLAG[foe]);   // Brain 7 B4: the holder joins the storm
         else if (flagHolderRules(st)) v -= W.home * E.dist(u.hex, E.FLAG[team]);   // placement for defence
       }
     }
     v += W.pull * (st.pole[foe] - st.pole[team]);
-    v -= W.risk * risk5(st, team, B);
+    const r = risk5(st, team, B);
+    v -= W.risk * r;
     v += W.pressure * risk5(st, foe, B);
-    v -= W.flagDanger * Math.min(1, flagRisk(st, team, Object.assign({}, B, { weights: Object.assign({}, B.weights, { flagRisk: 1 }) })));
+    if (!(c7 && c7.join)) v -= W.flagDanger * Math.min(1, flagRisk(st, team, Object.assign({}, B, { weights: Object.assign({}, B.weights, { flagRisk: 1 }) })));
     if (W.clock) { const near = clockNear(st, W); if (near > 0) v += W.clock * near * tiebreakOutlook(st, team); }   // Brain 6 (Brief 007): the clock
+    if (c7) v += lead7Value(st, team, B, c7, r);   // Brain 7 (Brief 019)
     return v;
+  }
+
+  // ---------- Brain 7: know the lead, keep it, storm together (Brief 019) ----------
+  // A copy of Brain 5 plus five behaviours, each behind a switch in B.lead. All of them read the board as it stands when
+  // the plan is made (lead7Context, at the start of the turn and after each roll), so nothing is carried between turns.
+  // With all five off, lead7Context returns null and every Brain 5 sum runs exactly as before.
+  const beingsOf = (st, u) => E.card(st, u).beings || 1;
+  /** B1: material, the sum over a side's units other than its holder (the designated keeper, stable while the bot looks
+      ahead) of unit cap × share of HP left. */
+  function material7(st, team) {
+    const k = keeperOf(st, team); let m = 0;
+    for (const u of E.alive(st)) if (u.team === team && !(k && k.uid === u.uid)) m += beingsOf(st, u) * Math.max(0, u.hp) / (u.maxHp || 1);
+    return m;
+  }
+  const reachOf = (c) => (c.range > 1 ? c.range : (c.trait === "reach" ? 2 : 1));
+  /** Hexes a unit can walk this turn (now) or on a full later turn and still pay for an attack: movement cap, Stamina,
+      Command. Blockers and zones are left out. */
+  function steps7(st, u, now) {
+    const c = E.card(st, u), g = st.rs.game;
+    if (now) return Math.max(0, Math.min(E.capOf(st, u) - (u.moved || 0), Math.floor((Math.min(u.stam, st.cmd) - g.attackCost) / c.hexCost + 1e-9)));
+    return Math.max(0, Math.min(E.capOf(st, u), Math.floor((Math.min(E.baseStamina(st, u), g.command) - g.attackCost) / c.hexCost + 1e-9)));
+  }
+  /** Turns (1 = the first turn counted) until `u` can stand on one of `hexes` and still act there. `nowFirst`: the first
+      turn is this one (u's side is moving and u hasn't finished); otherwise its next turn, from the Stamina it starts with. */
+  function turnsTo7(st, u, hexes, nowFirst) {
+    const d = Math.min(...[...hexes].map((h) => E.dist(u.hex, h)));
+    if (d === 0) return 1;
+    const c = E.card(st, u), g = st.rs.game;
+    const first = nowFirst ? steps7(st, u, true) : Math.max(0, Math.min(E.capOf(st, u), Math.floor((Math.min(E.status(st, u).stamNext, g.command) - g.attackCost) / c.hexCost + 1e-9)));
+    if (d <= first) return 1;
+    const full = steps7(st, u, false);
+    return full > 0 ? 1 + Math.ceil((d - first) / full) : Infinity;
+  }
+  /** B4's race check: can our storm, with our holder joining, bring the enemy flag down before the enemy holder walks to
+      our goal zone and pulls our flag down (from its base minus damage already on it)? Counts Command, Stamina and
+      movement cap. Mark and other blockers are left out: they would only slow the enemy holder, and the check never
+      assumes it can't come. Our turn k comes before the enemy's turn k. */
+  function race7(st, team, B) {
+    const foe = E.foeOf(team), them = E.holderOf(st, foe) || keeperOf(st, foe);
+    if (!them) return { ok: true, us: 0, them: Infinity };
+    const pool = E.effHp(st, them), goalFoe = E.GOAL[foe], now = st.toMove === team;
+    const ours = E.alive(st).filter((u) => u.team === team).map((u) => ({ k: turnsTo7(st, u, goalFoe, now && !u.done), d: expectedHit(st, u, them) }));
+    let us = Infinity;
+    for (let k = 1; k <= 40; k++) { let dmg = 0; for (const o of ours) if (o.k <= k) dmg += o.d * (k - o.k + 1); if (dmg >= pool - 1e-9) { us = k; break; } }
+    const pv = avgDamage(st, E.pullValue(st, them).value);   // it pulls once a turn from our goal zone
+    const left = E.flagLeft(st, team);
+    const arrive = turnsTo7(st, them, E.GOAL[team], false);
+    const theirs = pv > 0 && isFinite(arrive) ? arrive + Math.ceil(left / pv - 1e-9) - 1 : Infinity;
+    return { ok: us <= theirs, us, them: theirs };
+  }
+  /** Units of `team` (other than its keeper) that could attack the enemy holder this turn: they stand in, or can walk
+      into, the enemy goal zone with an attack still paid for. */
+  function strikersNow7(st, team) {
+    const foe = E.foeOf(team), k = keeperOf(st, team);
+    return E.alive(st).filter((u) => u.team === team && !u.done && !(k && k.uid === u.uid) && turnsTo7(st, u, E.GOAL[foe], true) === 1).length;
+  }
+  /** ...and those that could by next turn: walking this turn (if it still can) and attacking next turn. */
+  function strikersNext7(st, team) {
+    const foe = E.foeOf(team), k = keeperOf(st, team), now = st.toMove === team;
+    return E.alive(st).filter((u) => u.team === team && !(k && k.uid === u.uid) && (now && !u.done ? turnsTo7(st, u, E.GOAL[foe], true) <= 2 : turnsTo7(st, u, E.GOAL[foe], false) === 1)).length;
+  }
+  /** Brain 7's reading of the board when a plan is made: the lead, ahead or behind, storm or hold (B6), whether a strike
+      on the holder should wait (B3), whether to regroup (B5) and whether the holder may join (B4). Null when Brain 7's
+      behaviours are all off (or B1 is off), so it plays as Brain 5. */
+  function lead7Context(st, B) {
+    const L = B.lead;
+    if (!L || !L.lead) return null;
+    const team = st.toMove, foe = E.foeOf(team), lim = E.turnLimit(st);
+    const ours = material7(st, team), theirs = material7(st, foe), lead = ours - theirs;
+    const ahead = lead >= L.aheadAt - 1e-9, behind = lead <= -L.aheadAt + 1e-9;
+    const flagAhead = st.pole[foe] > st.pole[team] + 1e-9;   // more damage on their flag than on ours
+    const turnsLeft = lim - st.turn + 1;                     // this turn included
+    const c = { team, ours, theirs, lead, ahead, behind, flagAhead, both: ahead && flagAhead, turnsLeft, care: false, storm: false, hold: false, strikeOK: true, regroup: false, join: false, need: null, race: null };
+    if (ahead && L.care) c.care = true;
+    if (ahead && L.storm) {
+      if (flagAhead && lead < L.stormLead - 1e-9) c.hold = true;
+      else {
+        c.storm = true;
+        const nowN = strikersNow7(st, team), nextN = strikersNext7(st, team);
+        c.strikeOK = nowN >= L.stormMin || nextN <= nowN || turnsLeft <= 1;
+        c.strikers = { now: nowN, next: nextN };
+      }
+    } else if (ahead && flagAhead && lead < L.stormLead - 1e-9) c.hold = true;
+    if (behind && L.regroup) {
+      const k = keeperOf(st, team);
+      const units = E.alive(st).filter((u) => u.team === team && !(k && k.uid === u.uid));
+      const need = units.length ? Math.max(...units.map((u) => turnsTo7(st, u, E.GOAL[foe], !u.done))) : Infinity;
+      c.need = need;
+      c.regroup = isFinite(need) && turnsLeft >= need + L.regroupSpare;
+    }
+    if (L.holderJoins && flagHolderRules(st)) {
+      const k = keeperOf(st, foe);
+      const others = E.alive(st).filter((u) => u.team === foe && !(k && k.uid === u.uid));
+      if (k && !others.length) { c.race = race7(st, team, B); c.join = c.race.ok; }
+    }
+    return c;
+  }
+  /** Brain 7's extra value for a position (added to Brain 5's): B1 the lead ratio, B2 extra fear of damage when ahead,
+      B3 gathering for the storm, B5 staying together while regrouping. `r` is Brain 5's risk5 for this position. */
+  function lead7Value(st, team, B, c7, r) {
+    const L = B.lead, W = B.model, foe = E.foeOf(team);
+    let v = 0;
+    const ours = material7(st, team), theirs = material7(st, foe);
+    if (ours + theirs > 0) v += L.leadWeight * (ours - theirs) / (ours + theirs);
+    if (c7.care && L.aheadCaution !== 1) v -= (L.aheadCaution - 1) * W.risk * r;
+    if (c7.storm && L.gather) v += L.gather * flagPotential(st, team);
+    if (c7.storm && L.press) { const k = keeperOf(st, foe); v -= L.press * (E.flagLeft(st, foe) + (k ? Math.max(0, k.hp) : 0)); }   // B3: what's left of the holder's pool
+    if (c7.regroup && L.together) {
+      const k = keeperOf(st, team), units = E.alive(st).filter((u) => u.team === team && !(k && k.uid === u.uid));
+      for (const u of units) if (!units.some((f) => f !== u && E.dist(f.hex, u.hex) <= 2)) v -= L.together;
+    }
+    return v;
+  }
+  /** B2 / B5: could a friend (not the attacker, not the keeper) join an attack on `t` this turn, or attack it next turn? */
+  function friendJoins7(st, team, uid, t) {
+    const k = keeperOf(st, team);
+    return E.alive(st).some((f) => {
+      if (f.team !== team || f.uid === uid || (k && k.uid === f.uid)) return false;
+      if (!f.done && st.toMove === team && E.dist(f.hex, t.hex) <= steps7(st, f, true) + reachOf(E.card(st, f))) return true;
+      return canThreaten(st, f, t.hex);
+    });
+  }
+  /** B2 / B5: is this attack (by uid on target, from the position before it, `st`) a lone losing one? Not a likely kill
+      (expected damage short of the target's effective HP and kill chance under killChance), no friend can join, and
+      after it (`after`, the usual roll) Brain 5's risk reckoning expects the enemy to remove the attacker next turn. */
+  function loneLosing7(st, after, team, B, uid, target, killChance) {
+    const u = E.unitByUid(st, uid), t = E.unitByUid(st, target);
+    if (!u || !t || t.hp <= 0) return false;
+    const b = E.breakdown(st, u, t, u.hex), hp = E.effHp(st, t);
+    let exp = 0, kill = 0;
+    for (const [d, p] of E.dieCases(st)) { const dm = E.applyDie(st, b.value, d, b.dodge); exp += p * dm; if (dm >= hp - 1e-9) kill += p; }
+    if (exp >= hp - 1e-9 || kill >= killChance - 1e-9) return false;
+    if (friendJoins7(st, team, uid, t)) return false;
+    const u1 = after && E.unitByUid(after, uid);
+    if (!u1 || u1.hp <= 0) return true;   // the parry already removed it
+    if (after.result) return false;
+    const det = risk5Detail(after, team, B), a = [...det.acc].find(([x]) => x.uid === uid);
+    return !!a && a[1] >= E.effHp(after, u1) - 1e-9;
+  }
+  /** Brain 7's cost on one attack in a plan (B2, B3, B5), from the position before it (`st`) and after it (`after`). */
+  function attack7Cost(st, after, team, B, uid, target) {
+    const c7 = B._c7, L = B.lead, W = B.model;
+    if (!c7) return 0;
+    const u = E.unitByUid(st, uid), t = E.unitByUid(st, target);
+    if (!u || !t) return 0;
+    let cost = 0;
+    const worth = W.unit + W.hp * Math.max(0, u.hp);
+    if ((c7.care || c7.regroup) && loneLosing7(st, after, team, B, uid, target, L.killChance)) cost += (c7.care ? L.care : L.regroup) * worth;
+    if (c7.storm && !c7.strikeOK && E.isHolder(st, t)) cost += L.storm * worth;   // B3: don't strike the holder alone yet
+    return cost;
   }
   /** Brain 6 (Brief 007): how close the turn limit is, from 0 (clockTurns or more turns to go) to 1 (the last turn).
       Turns to go counts this one: on the last turn it is 0, so the weight is full. */
@@ -519,7 +674,10 @@
       // that target's expected hit on it next turn, so the plan prefers approaches that keep a step.
       else if (B.model.evade && !Object.keys(steps).length) { const t = E.unitByUid(s, target); if (t && t.hp > 0) v -= B.model.evade * expectedHit(s, t, u); }
     }
-    return s ? { s, acts, v } : null;
+    // Brain 7 (Brief 019): lone losing attacks (B2, B5) and lone strikes on the holder (B3), judged after any Evade step
+    const pen = B._c7 && s ? -attack7Cost(st, s, team, B, uid, target) : 0;
+    if (pen) v += pen;
+    return s ? { s, acts, v, pen } : null;
   }
   /** Every whole activation of one unit from position st: [{ acts, s, v }]. */
   function activations5(st, team, B, uid) {
@@ -546,6 +704,7 @@
   function replay5(st, acts) { let s = st; for (const a of acts) { s = tryAct(s, a); if (!s) return null; } return s; }
   function planTurn5(st, B) {
     stats5.plans++;
+    if (B.lead) { const c7 = lead7Context(st, B); if (c7) B = Object.assign({}, B, { _c7: c7 }); }   // Brain 7: read the lead once per plan
     const team = st.toMove, P = B.plan5 || {}, K = P.beam || 3, M = P.perUnit || 5;
     let units = E.alive(st).filter((u) => u.team === team && !u.done).map((u) => u.uid);
     const evader = units.find((uid) => E.options(st, uid).evading);   // an Evade is now or never (another unit acting ends it)
@@ -566,15 +725,18 @@
         const cand = depth === 0 && evader ? [evader] : b.left;
         for (const uid of cand) {
           for (const a of menu.get(uid)) {
-            let s2, v2, acts = a.acts;
+            // pen: Brain 7's attack costs taken so far in this plan, carried so a later unit's step doesn't wash them out (0 for Brain 5)
+            let s2, v2, acts = a.acts, pen = b.pen || 0;
             if (!acts.length) { s2 = b.s; v2 = b.v; }
-            else if (b.s === st) { s2 = a.s; v2 = a.v; }
+            else if (b.s === st) { s2 = a.s; v2 = a.v; pen = a.pen || 0; }
             else {
               const atk = acts.findIndex((x) => x.type === "attack");
-              if (atk >= 0) { const s0 = replay5(b.s, acts.slice(0, atk)); if (!s0) continue; const r = attackLine(s0, team, B, acts.slice(0, atk), uid, acts[atk].target); if (!r) continue; s2 = r.s; v2 = r.v; acts = r.acts; }
-              else { s2 = replay5(b.s, acts); if (!s2) continue; v2 = value5(s2, team, B); }
+              if (atk >= 0) { const s0 = replay5(b.s, acts.slice(0, atk)); if (!s0) continue; const r = attackLine(s0, team, B, acts.slice(0, atk), uid, acts[atk].target); if (!r) continue; s2 = r.s; v2 = r.v; acts = r.acts; if (b.pen) v2 += b.pen; if (r.pen) pen += r.pen; }
+              else { s2 = replay5(b.s, acts); if (!s2) continue; v2 = value5(s2, team, B); if (b.pen) v2 += b.pen; }
             }
-            next.push({ s: s2, v: v2, steps: b.steps.concat(acts), left: b.left.filter((x) => x !== uid) });
+            const nb = { s: s2, v: v2, steps: b.steps.concat(acts), left: b.left.filter((x) => x !== uid) };
+            if (pen) nb.pen = pen;
+            next.push(nb);
           }
         }
       }
@@ -727,6 +889,7 @@
     return beings === size ? Object.assign({}, want) : null;
   }
 
-  const api = { chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5, tiebreakStanding, tiebreakOutlook, flagPotential, clockNear, attackLine5: attackLine };
+  const api = { chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5, tiebreakStanding, tiebreakOutlook, flagPotential, clockNear, attackLine5: attackLine,
+    risk5, risk5Detail, lead7Context, lead7Value, material7, race7, loneLosing7, attack7Cost, turnsTo7, keeperOf };
   if (typeof module !== "undefined") module.exports = api; else root.GGBot = api;
 })(this);

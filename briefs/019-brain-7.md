@@ -124,27 +124,45 @@ This build is the bot work. It is met when every measurement has a number and th
 2. Play one balanced 7v7 against Brain 7. When you fall behind, does it press its lead, and does it come at your holder together?
 3. Watch one Brain 7 vs Brain 7 game at 5v5 (both sides Computer). Does it still stall?
 
-## Report back
-The standard Report, the seven measurements and the success bar, line by line. In plain words:
-- Did Brain 7 turn leads into wins? Which behaviours did it, and which did nothing?
-- Did it win more by sitting (tiebreak) or by finishing (KO, TKO)?
-- Could gathering (B3) be built inside a one-turn planner? If not, what would it take?
-- Storm or hold when ahead on both: what each `stormLead` value did, with links.
-- With Brain 7 on both sides, do mirror games still end on the clock?
-
-Say whether each cause is isolated or only likely.
-
----
-
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code, 20 Nov 2026 (overnight; the Editor away). Results sections fill in when the lab's overnight runs land on this pull request: `node sims/lab/report019.js` prints every table below.*
 
 - **What's in:**
+  - **Brain 7 (keeps its lead)**, `brain7`, a copy of Brain 5 plus five behaviours, each a switch in `BRAIN_7.lead` (1 on, 0 off), with plain labels in a new "Lead" table on the Opponent screen. Brain 5 and Brain 6 are untouched. Stateless: one reading of the board per plan (`bot.js` `lead7Context`, at the start of each turn and after each roll), so replays stay exact.
+  - **B1 Know the lead:** material = Σ (unit cap × HP now ÷ full HP) over units other than the holder (the designated keeper, so the count doesn't jump while the bot looks ahead). Built the suggested way: a value term `leadWeight` (20) × (ours − theirs) ÷ (ours + theirs). "Ahead" / "behind" = lead of at least `aheadAt` (1) at the plan's start. Flag damage is read separately and never folded in.
+  - **B2 No bad trades when ahead:** when ahead, an attack scores lower by the attacker's own worth (unit + HP) if it is lone and losing: expected damage short of the target's effective HP **and** kill chance under `killChance` (0.5), no friend able to join this turn or attack the target next turn, and Brain 5's own threat reckoning (`risk5`) expects the enemy to remove the attacker next turn, judged after any Evade step. Fear of damage taken × `aheadCaution` (1.5) while ahead.
+  - **B3 Storm together:** while storming, `gather` (3) × Brain 6's `flagPotential` (the flag damage our spare units could do next turn from the enemy goal zone), and a strike on the enemy holder costs the attacker's worth while fewer than `stormMin` (2) units can strike this turn and more could by next turn (and more than one turn is left). Plus **Press the holder** (`press`, 2), which the brief didn't name (F38): without it Brain 7 gathered and then waited forever round a braced holder.
+  - **B4 Holder joins:** when the enemy has only its holder, a race check (`race7`): our turns to bring their flag down (each unit's arrival in their goal zone by movement cap, Stamina and Command, then its expected hits on the holder's pool, our holder included) against the enemy holder's turns to walk to our goal zone and pull our flag down from what's left of it. Our turn k comes first. If we win the race, our holder drops Brain 5's "stay home" and "empty flag danger" costs and counts its advance like any other unit. The enemy holder is always assumed able to leave its flag. Mark isn't counted (F40, cautious).
+  - **B5 Regroup when behind:** when behind and the turns left (this one included) are at least the turns our slowest spare unit needs to reach the enemy goal zone plus `regroupSpare` (2), each spare unit with no friend (other than the holder) within 2 hexes costs `together` (2), and lone losing attacks cost as in B2. Later than that it plays as Brain 5 (commits everything).
+  - **B6 Storm or hold:** ahead on material and on flag damage → storm only if the lead ≥ `stormLead` (ships at **1.5**, the middle value; 1.0 and 2.0 are measured on the same deals), else hold (B2 still applies, B3 is off). Ahead on material but level or behind on flag damage → always storm.
+  - **Lab:** new measures on every run (`lead`: `lead_lost`, `lead_lost_side`, `lead_lost_peak`, `lead_lost_first_turn`, `lead_unused`, `lead_unused_side`; `alone`: `lost_alone_n/s`, `lost_together_n/s`, `holder_strikes_solo_n/s`, `holder_strikes_group_n/s`), positions scored per side-turn added to `timing` (`bot_positions`, `bot_positions_max_turn`: the plans-examined count F24 asks for), and a `brain7` measure (side-turns each behaviour was active, the first turn ahead on both, and `lone_losing_n/s`, B2's test applied to every attack by any Brain 5-family side while ahead). `seed_as` lets many matchups in one job order play the same deals. `sims/lab/report019.js` prints this Report's tables.
 - **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
-- **Baseline table (rule changes only):** n/a (no rule change); the measurements above instead
-- **Bot minimum (met / not met, with numbers):**
-- **Settings review (brain builds only): settings with no effect found; settings that seem to be missing (with evidence):**
+  - **`press`** (F38): B3 could not storm without it. Found by tracing a game where Brain 7 led for 21 turns and still went to the clock: three units in the enemy goal zone, braced holder, 15 turns of nothing. With `press` the same game ends in a KO on turn 11.
+  - **Watch links carry brain settings** (`n=brain7:stormLead=1`, `watch.js` `brainFromSpec`). The B6 sweep needs replay links for stormLead 1.0 and 2.0, which before this were "not replayable", and the standing replay rule asks for brain settings in the link. Old links still read the same; `board_check.js` and `test_watch.js` cover it.
+  - **The settings review is queued at full size too** (`brain7-settings`: 26 variants × 2 formats × 1,000 against Brain 5, same deals), in a second push so the lab plays it as its own run.
+  - `sims/brainhash.js` takes `brain7:lead=0@brain5` (a changed brain on another brain's seeds) to prove "all off = Brain 5" on every preset.
+- **Measurements queued (all 1,000 games per format, balanced unless named, v3.6, the stall "before" run's deals `release-v3-08-00` for every balanced matchup; screen stage skipped as the Editor asked):**
+  1. Baseline: `brain7-baselines`, Brain 5 mirrors on v3.5 (replaying the stall "before" games exactly, so its outcome table must equal 2026-11-19_study_stall-before; that is the "from its saved games" re-measure) and on v3.6 (no earlier v3.6 run had the stall columns, and brief 015's v3.6 run used other seeds).
+  2. B6 sweep: `brain7-storm-lead` (stormLead 1.0 and 2.0 against Brain 5) plus 1.5 in `brain7-vs-brain5`.
+  3. and 4. Head-to-head and how it wins: `brain7-vs-brain5`, balanced and all-Light, 5v5 and 7v7.
+  5. Mirrors: Brain 7 v Brain 7 in `brain7-vs-brain5`.
+  6. One behaviour at a time: `brain7-one-at-a-time` (B1; B1+B2; B1+B3; B1+B4; B1+B5; each against Brain 5 and in mirrors, both formats) at full size, not screen size.
+  7. Speed: every run's `timing` columns.
+- **Results:** pending the overnight runs (see the top of this Report).
+- **Checks run and results (paste regression hashes):** pending the last local runs; filled in below before this pull request leaves Draft.
+- **Baseline table (rule changes only):** n/a (no rule change); the measurements above instead.
+- **Bot minimum (met / not met, with numbers):** the five test positions pass (`test_brain7.js`, each prints its reasoning):
+  1. Care: ahead by 2.00, a lone attack from E12 on a full-HP Heavy Melee that kills 0% of the time, lone and losing by B2's test (cost 18.0). Brain 5 takes it; Brain 7 declines and moves its Light Melee out of reach. Target on 2 HP (likely kill): Brain 7 takes it.
+  2. Gather: one unit can strike the holder this turn, three by next turn, so the strike waits. Brain 5 sends its Light Melee in alone; Brain 7 moves its Heavy Melee and Anti-Cavalry into reach (flag potential 6.02) and next turn strikes the holder with all three.
+  3. Holder joins: race 5 turns (us) against 5 (them): our holder leaves its flag (Brain 5's stays). With our flag on 5, their Light Melee holder would win the race (5 against 4): our holder stays.
+  4. Regroup: behind by 1.01; 15 turns left (need 6 + 2 spare): Brain 7 pulls its Light Melee back next to its Heavy Melee instead of the lone attack Brain 5 makes; 2 turns left: it commits and attacks.
+  5. Hold or storm: ahead by 1.5 and on flag damage. stormLead 1.0: storms (two units in reach of the holder after its turn); 2.0: holds (one unit in reach; Brain 5's plan).
+  Legal play: 30 seeded games per format and lineup (balanced and all-Light, 5v5 and 7v7, Brain 7 against Brain 5 and itself): 0 refused actions, 0 errors, 0 unfinished.
+- **Settings review (brain builds only):** pending `brain7-settings` (each setting up, down and off where it has one, against Brain 5 on the same deals as the shipped Brain 7). Missing settings found so far: `press` (F38; built, since B3 failed without it). F41 asks whether B2's "a friend could support it" is too generous; `lone_losing` will show it.
 - **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+  - Lead logic doesn't lean on the "fewer beings lost" tiebreak step: it reads units on the field only, as the brief asked. Brain 7 has no clock (Brain 6's), so near the limit it doesn't play for the tiebreak.
+  - B3 is built inside the one-turn planner as value for "spare units that could strike next turn" plus a cost on lone strikes and the `press` value. It works in the test position (gather, then strike with three). Whether it plays out that way in games is what the one-at-a-time runs measure.
+  - B4's race check uses distances, not paths (F40).
+  - The holder for B1's material is the designated keeper (Brain 5's `keeperOf`), not "whoever stands on the flag".
+- **Flags closed / opened:** opened F38 (press), F39 (two readings in the new measures), F40 (race check without Mark), F41 (B2's support test). Evidence for F10 pending the runs.
+- **Pull request:** this one; build branch `claude/funny-babbage-cm70ld`, started from `brief/019-brain-7`.

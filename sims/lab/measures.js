@@ -30,13 +30,19 @@ const MEASURES = {
   },
 
   timing: {
-    about: "How long the computer thought: total and worst time per side-turn, in milliseconds on the machine that ran it.",
-    columns: ["bot_turns", "bot_ms", "bot_ms_max_turn"],
-    make() {
-      let key = "", cur = 0, turns = 0, total = 0, max = 0;
+    about: "How long the computer thought: total and worst time per side-turn, in milliseconds on the machine that ran it. Brief 019: and its work, as positions scored (Brain 5 family: every whole-turn plan step it examines is a scored position), total and worst side-turn; machine-independent (F24).",
+    columns: ["bot_turns", "bot_ms", "bot_ms_max_turn", "bot_positions", "bot_positions_max_turn"],
+    make(ctx) {
+      const S = ctx && ctx.Bot && ctx.Bot.stats5;
+      let key = "", cur = 0, turns = 0, total = 0, max = 0, last = S ? S.values : 0, pos = 0, curPos = 0, maxPos = 0;
       return {
-        before(st, c, ms) { const k = st.turn + st.toMove; if (k !== key) { if (key) { turns++; max = Math.max(max, cur); } key = k; cur = 0; } cur += ms; total += ms; },
-        end() { if (key) { turns++; max = Math.max(max, cur); } return { bot_turns: turns, bot_ms: total, bot_ms_max_turn: max }; }
+        before(st, c, ms) {
+          const k = st.turn + st.toMove;
+          if (k !== key) { if (key) { turns++; max = Math.max(max, cur); maxPos = Math.max(maxPos, curPos); } key = k; cur = 0; curPos = 0; }
+          cur += ms; total += ms;
+          if (S) { const d = S.values - last; last = S.values; curPos += d; pos += d; }
+        },
+        end() { if (key) { turns++; max = Math.max(max, cur); maxPos = Math.max(maxPos, curPos); } return { bot_turns: turns, bot_ms: total, bot_ms_max_turn: max, bot_positions: pos, bot_positions_max_turn: maxPos }; }
       };
     }
   },
@@ -225,6 +231,111 @@ MEASURES.stall = {
   }
 };
 
-// Always collected: the outcome (it feeds the summary's key table), timing, and (Brief 016) stall.
-const ALWAYS = ["outcome", "timing", "stall"];
+// Brief 019: leads. Lead here counts non-holder unit cap (UC, whole units), as brief 016's uc_* columns do; Brain 7's
+// own lead (HP-weighted) is separate. Read only.
+const sideUc = (E, st, t) => E.alive(st).filter((u) => u.team === t && !E.isHolder(st, u)).reduce((a, u) => a + (E.card(st, u).beings || 1), 0);
+MEASURES.lead = {
+  about: "Leads (Brief 019). lead_lost: 1 if a side led by 1+ non-holder UC at every side-turn start for at least two full rounds (five side-turn starts in a row, the game's end counting as the last) and the game ended with that side not ahead on non-holder UC and not the winner; lead_lost_side (N, S or both), its largest lead in the game (lead_lost_peak) and the turn that lead began (lead_lost_first_turn). lead_unused: 1 if the game ended on the turn limit with a side 1+ non-holder UC ahead at the first side-turn start of turn limit − 3; lead_unused_side.",
+  columns: ["lead_lost", "lead_lost_side", "lead_lost_peak", "lead_lost_first_turn", "lead_unused", "lead_unused_side"],
+  make(ctx) {
+    const { E } = ctx; const obs = []; let key = "", l3;
+    return {
+      before(st) {
+        const k = st.turn + st.toMove;
+        if (k === key || st.phase !== "play") return;
+        key = k;
+        const d = sideUc(E, st, "N") - sideUc(E, st, "S");
+        obs.push({ turn: st.turn, d });
+        if (l3 === undefined && st.turn >= E.turnLimit(st) - 3) l3 = d;
+      },
+      end(st) {
+        const fin = sideUc(E, st, "N") - sideUc(E, st, "S"), all = obs.concat([{ turn: st.turn, d: fin }]);
+        const w = st.result && st.result.winner, lost = [];
+        let peak = 0, first = "";
+        for (const t of ["N", "S"]) {
+          const sg = t === "N" ? 1 : -1;
+          let run = 0, start = null, qual = null, pk = 0;
+          for (const o of all) {
+            pk = Math.max(pk, sg * o.d);
+            if (sg * o.d >= 1) { if (!run) start = o.turn; run++; if (run >= 5 && qual === null) qual = start; } else run = 0;
+          }
+          if (qual !== null && sg * fin <= 0 && w !== t) { lost.push(t); if (pk > peak || first === "") { peak = Math.max(peak, pk); first = first === "" ? qual : Math.min(first, qual); } }
+        }
+        const tl = st.result && /turn limit/.test(st.result.how);
+        const un = tl && l3 !== undefined && Math.abs(l3) >= 1;
+        return { lead_lost: lost.length ? 1 : 0, lead_lost_side: lost.length === 2 ? "both" : lost[0] || "", lead_lost_peak: lost.length ? peak : "", lead_lost_first_turn: lost.length ? first : "",
+          lead_unused: un ? 1 : 0, lead_unused_side: un ? (l3 > 0 ? "N" : "S") : "" };
+      }
+    };
+  }
+};
+MEASURES.alone = {
+  about: "Units lost alone or together (Brief 019), per side of the unit removed: alone if, at the start of the side-turn in which it was removed, no friendly unit other than its own holder (and itself) stood within 2 hexes of it; otherwise together. holder_strikes_solo/group: side-turns in which exactly one unit (or two or more) of that side attacked the enemy holder.",
+  columns: ["lost_alone_n", "lost_alone_s", "lost_together_n", "lost_together_s", "holder_strikes_solo_n", "holder_strikes_solo_s", "holder_strikes_group_n", "holder_strikes_group_s"],
+  make(ctx) {
+    const { E } = ctx, o = Object.fromEntries(MEASURES.alone.columns.map((k) => [k, 0]));
+    let key = "", alone = new Map(), side = null, strikers = new Set(), hpBefore = null;
+    const close = () => { if (side && strikers.size) o[(strikers.size === 1 ? "holder_strikes_solo_" : "holder_strikes_group_") + side.toLowerCase()]++; strikers = new Set(); };
+    return {
+      before(st, c) {
+        const k = st.turn + st.toMove;
+        if (k !== key && st.phase === "play") {
+          close(); key = k; side = st.toMove; alone = new Map();
+          for (const u of E.alive(st)) alone.set(u.uid, !E.alive(st).some((f) => f.team === u.team && f.uid !== u.uid && !E.isHolder(st, f) && E.dist(f.hex, u.hex) <= 2));
+        }
+        hpBefore = new Map(st.units.map((u) => [u.uid, u.hp]));
+        if (c.action.type === "attack") { const t = E.unitByUid(st, c.action.target); if (t && E.isHolder(st, t)) strikers.add(c.action.uid); }
+      },
+      after(st, c, r) {
+        if (!hpBefore || c.refusedEnd) return;
+        for (const u of st.units) if (hpBefore.get(u.uid) > 0 && u.hp <= 0) o[(alone.get(u.uid) ? "lost_alone_" : "lost_together_") + u.team.toLowerCase()]++;
+        if (!r.ok && c.action.type === "attack") strikers.delete(c.action.uid);
+        hpBefore = null;
+      },
+      end() { close(); return o; }
+    };
+  }
+};
+MEASURES.brain7 = {
+  about: "Brain 7's own reading of the board (Brief 019), counted at the start of each side-turn it plays (per side, n/s): side-turns ahead and behind on its material (B1), ahead on both material and flag damage, storming (B3/B6), holding (B6), storming but waiting to strike the holder (B3), regrouping (B5), holder joining (B4), and the first turn it was ahead on both. lone_losing: attacks made, by any Brain 5-family side while ahead on Brain 7's material reading, that B2 calls lone and losing (no likely kill, no friend can join, the attacker expected to be removed next turn).",
+  columns: ["b7_turns_n", "b7_turns_s", "b7_ahead_n", "b7_ahead_s", "b7_behind_n", "b7_behind_s", "b7_both_n", "b7_both_s", "b7_storm_n", "b7_storm_s", "b7_hold_n", "b7_hold_s", "b7_wait_n", "b7_wait_s", "b7_regroup_n", "b7_regroup_s", "b7_join_n", "b7_join_s", "b7_both_first_n", "b7_both_first_s", "lone_losing_n", "lone_losing_s"],
+  make(ctx) {
+    const { E, Bot } = ctx, o = Object.fromEntries(MEASURES.brain7.columns.map((k) => [k, k.startsWith("b7_both_first") ? "" : 0]));
+    const ref = require("path").join(__dirname, "..", "..", "board", "brain.js");
+    let key = "", pending = null;
+    const B7 = (t) => { const b = ctx.brains[t]; return b && b.lead ? b : null; };
+    const refLead = (() => { try { return require(ref).DEFAULT_BRAINS.brain7.lead; } catch (e) { return { lead: 1, care: 1, aheadAt: 1, killChance: 0.5 }; } })();
+    return {
+      before(st, c) {
+        const k = st.turn + st.toMove, t = st.toMove, x = t.toLowerCase();
+        if (k !== key && st.phase === "play") {
+          key = k;
+          const b = B7(t), cx = b && Bot.lead7Context(st, b);
+          if (cx) {
+            o["b7_turns_" + x]++;
+            for (const [f, col] of [["ahead", "ahead"], ["behind", "behind"], ["both", "both"], ["storm", "storm"], ["hold", "hold"], ["regroup", "regroup"], ["join", "join"]]) if (cx[f]) o[`b7_${col}_${x}`]++;
+            if (cx.storm && !cx.strikeOK) o["b7_wait_" + x]++;
+            if (cx.both && o["b7_both_first_" + x] === "") o["b7_both_first_" + x] = st.turn;
+          }
+        }
+        pending = null;
+        const b = ctx.brains[t];
+        if (c.action.type === "attack" && b && b.model) {
+          const lead = Bot.material7(st, t) - Bot.material7(st, E.foeOf(t));
+          if (lead >= (b.lead ? b.lead.aheadAt : refLead.aheadAt) - 1e-9) pending = { st: E.cloneLite(st), b, kc: b.lead ? b.lead.killChance : refLead.killChance };
+        }
+      },
+      after(st, c, r) {
+        if (!pending || !r.ok || c.refusedEnd) { pending = null; return; }
+        const a = c.action, t = pending.st.toMove;
+        if (Bot.loneLosing7(pending.st, st, t, pending.b, a.uid, a.target, pending.kc)) o["lone_losing_" + t.toLowerCase()]++;
+        pending = null;
+      },
+      end() { return o; }
+    };
+  }
+};
+
+// Always collected: the outcome (it feeds the summary's key table), timing, (Brief 016) stall and (Brief 019) lead and alone.
+const ALWAYS = ["outcome", "timing", "stall", "lead", "alone"];
 module.exports = { MEASURES, ALWAYS };
