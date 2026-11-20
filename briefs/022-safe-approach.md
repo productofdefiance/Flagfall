@@ -8,7 +8,7 @@
 | Date | 2026-11-20 |
 | Goal | A brain that stops walking into the enemy's first strike, steps out of (or braces against) a warmed special, finishes games with its holder like Brain 7, and has one opening slider per move order; and the numbers that tell the Editor whether 5v5's move-order problem (F39) is the bot or the rules |
 | Branch | Any branch your session may push to, started from `brief/022-safe-approach` |
-| Flags | F41 (the bot ignores a warmed special), F47 (next brain = Brain 5 + B4 only), F39 (5v5 move order) as evidence; F48 (Brain 5 stays the default) stays as it is |
+| Flags | F41 (the bot ignores a warmed special) and F47 (next brain = Brain 5 + B4 only; the Editor said yes, 20 Nov): close both. F48: the Editor decided 20 Nov to keep Brain 5 as the default opponent with Brain 7 in the list; close it with that answer. F39 (5v5 move order) as evidence |
 | Waits on | 014 |
 | Order | **After brief 014 is merged**, so it is measured on the new 5v5 field. No rule change, so it runs beside the rules chain (017, 018, 012). Brief 020 (victory values) is built on top of this brain and waits for it |
 
