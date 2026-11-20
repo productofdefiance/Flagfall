@@ -9,6 +9,7 @@
 | Goal | Make a turn change in human-vs-human games impossible to miss (a text cue, plus three ways to hold the phone), and let players zoom the field on every format so 9v9 and 13v13 are usable on a phone. Build the screens the Editor approved on 19 Nov as Approved UI v4. |
 | Branch | Any branch your session may push to, started from `brief/018-turn-cue-zoom` |
 | Flags | none to close |
+| Status | **On hold** (the Editor, 19 Nov): the mobile match log is still to be designed and added to this brief. Don't start until the UI chat marks it complete. |
 | Order | **After brief 017 merges** (017 adds the flag pill, the token HP position, the badges and Plex Sans numbers that this brief scales; same drawing code) and **before brief 012** (012 makes 9v9 and 13v13 playable; their hexes are too small to use on a phone without zoom). 014 (fields and the hot-seat snap) is already in by then. Run `sync` first. |
 
 ## Context
@@ -20,7 +21,7 @@ Why: in a hot-seat game nothing says the turn has changed; today's 3px underline
 
 ## Scope
 In: the turn cue (edge tag); a hot-seat view setting with three views; view 2's field spin; view 3's turning chrome; field zoom (pinch, a two-step zoom button, limits); icons-only tokens when zoomed out; the flag pill scaling with the hex; hex names centred; the hex-name button moved and restyled; desktop equivalents.
-Out: tablet layouts (later, for every screen); a "South to deploy" cue (deployment keeps its covers); the redesigned game set-up screens (later; this brief adds one field to today's Settings step); any rule change.
+Out: tablet layouts (later, for every screen); the redesigned game set-up screens (later; this brief adds one field to today's Settings step); any rule change.
 
 ## What to build
 
@@ -33,11 +34,11 @@ Out: tablet layouts (later, for every screen); a "South to deploy" cue (deployme
 | Field zoom (section 6) | Yes | Yes |
 
 ### 2. The turn cue: edge tag
-Shown each time play passes to the other side during play, including the first turn after the start cover. Not during deployment.
+Shown each time play passes to the other side: during play (including the first turn after the start cover) and during hot-seat deployment (each time the other side starts deploying, once its cover is dismissed).
 
 - **Where:** hangs from the bottom edge of the scoreboard (the dark top bar), flush against the **outer screen edge on the side to move's half**: North's at the left edge, South's at the right edge. It sits over the field's empty corner beside the oval, so it covers no hex at far zoom. The 3px side-to-move underline stays as it is.
 - **Look:** background = the side's light colour (North `#8fd0b4`, South `#f0a48f`, read from the skin by side); text `#1f2421`; Barlow Condensed 700, 12px, letter-spacing 0.12em, uppercase; padding 6px top, 7px bottom, 16px on the screen-edge side, 12px on the inner side; one rounded corner, 9px, on the inner bottom corner only (North: bottom right; South: bottom left); shadow `0 3px 8px rgba(0,0,0,0.18)`; max width 50% of the screen, ellipsis if a name is long.
-- **Words:** `<side's name> TO PLAY` from the match's names (`st.names`), so a renamed side shows its name: "NORTH TO PLAY", "SOUTH TO PLAY".
+- **Words:** in play `<side's name> TO PLAY`; in deployment `<side's name> DEPLOYS` (the Editor, 19 Nov), from the match's names (`st.names`), so a renamed side shows its name: "NORTH TO PLAY", "SOUTH TO PLAY", "NORTH DEPLOYS", "SOUTH DEPLOYS".
 - **Jersey-safe:** text colour is picked by contrast against the tag colour: ink `#1f2421` unless white gives a higher ratio; it must reach 4.5:1. Put the pick in the skin, so jersey colours can change later.
 - **Shows and goes:** appears when the turn changes (after view 2's spin and the snap, section 4). It stays until the side to move first touches or clicks anything (field, panel, top bar); then it slides up into the underline (150 ms) and stays hidden until the next turn change. That first touch still does what it would have done; the tag never swallows it. **No timer:** in hot seat the phone is being handed over, so a cue that fades by itself plays to nobody.
 - **Access:** `role="status"`, `aria-live="polite"`; pointer-events none.
@@ -47,19 +48,19 @@ Shown each time play passes to the other side during play, including the first t
 A new field on the Settings step (step 1 of 3), shown only when both players are Human, after "Moves first":
 
 - Label: **Hot-seat view**
-- A segmented control (the existing `seg`), three options, default **Handoff**:
+- A segmented control (the existing `seg`), three options, default **Handoff** (names from the Editor, 19 Nov):
   - `handoff`: **Handoff**. Hint: "Pass the phone. North stays at the top."
-  - `turn`: **Field turns**. Hint: "Pass the phone. The field turns so your flag is always at the bottom."
-  - `table`: **Face to face**. Hint: "Phone flat between you. The screen turns to face whoever is playing." Offered only on screens narrower than 900px; on wider screens the option is hidden and a saved `table` falls back to `handoff`.
+  - `flip`: **Flip**. Hint: "Pass the phone. The field turns so your flag is always at the bottom."
+  - `table`: **Face to Face**. Hint: "Phone flat between you. The screen turns to face whoever is playing." Offered only on screens narrower than 900px; on wider screens the option is hidden and a saved `table` falls back to `handoff`.
 - Saved with the match options (like `first`) so a reloaded match keeps it. It changes only the display: the engine never sees it, and a replay of the match plays identically under any view.
 
 ### 4. The three views
 - **View 1, Handoff:** today's layout. North's flag at the top of the field. Snap as 014.
-- **View 2, Field turns:** the field is drawn so the **side to move's flag is at the bottom**. Only the field turns; the top bar, scoreboard (North always on the left), panel and every control stay where they are.
+- **View 2, Flip:** the field is drawn so the **side to move's flag is at the bottom**. Only the field turns; the top bar, scoreboard (North always on the left), panel and every control stay where they are.
   - **The spin:** on each turn change in play, the field layer rotates 180° about the centre of what is on screen, 400 ms, ease-in-out. The tag is hidden during it. Then the field is redrawn for its new orientation with everything readable upright: unit tokens, HP numbers, the flag pill, hex names, badges. Badges keep their screen corners (top right stops you, top left hurts you, bottom right you can't, bottom left costs you), so they are placed by screen position after the turn, never rotated with the field. Then the snap (to the mover's own flag end, which is now always the bottom). Then the tag appears.
   - Hex names never change (G4 is G4 whichever way up). Routes, ranges and every engine answer are unchanged; this is drawing only.
   - `prefers-reduced-motion`: no spin; the field swaps orientation at once.
-- **View 3, Face to face:** the phone lies flat between the players, North at the bottom edge, South at the top edge.
+- **View 3, Face to Face:** the phone lies flat between the players, North at the bottom edge, South at the top edge.
   - **The field never moves:** North's flag stays at the bottom of the screen, South's at the top, all match long.
   - **Everything else turns to face the side to move:** on South's turn the whole interface except the field is rotated 180°: top bar, scoreboard, tag, field buttons, action panel, sheets, the key drawer, the Options menu, dialogs, toasts and covers. On North's turn it is upright. Turn: 400 ms, ease-in-out, or at once with reduced motion. So on South's turn the top bar sits at the physical bottom of the phone (upside down for North) and the panel at the top, nearest South.
   - **Field labels face the mover:** the field's geometry stays fixed, but tokens, HP numbers, the flag pill, hex names and badges are redrawn upright for the side to move (badge corners as seen by the mover).
