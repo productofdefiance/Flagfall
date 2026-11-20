@@ -145,12 +145,90 @@ The standard items, plus: the board as generated; its size in bytes; how long on
 ## Report
 *Filled in by Claude Code.*
 
-- **What's in:**
+- **What's in:** everything in §1–9. `sims/status/board.js` (builds the board: files through git, pull requests, checks and night checks through `gh api`), `sims/status/test_board.js` (run in `checks`), workflow `.github/workflows/status-board.yml`, the `status` branch (`BOARD.md`, `board.json`, `chats/README.md`, created by the workflow's first run), the page at `https://productofdefiance.github.io/Flagfall/status/`, the labels `review: merge` and `review: hold` (created), `flags/021.md`, `Waits on` and size-only Game version in `briefs/TEMPLATE.md`, `FLAGS.md` header, and `CLAUDE.md` (`status`, `sync`, `handoff`, the two channels, Keep the flags current, Decisions needed, Game version, Version at merge, PR titles, missing-settings line). Branch: `claude/funny-edison-sfjsee`, started from `main` with `brief/021-status-board` merged in (the brief branch was behind `main`).
 - **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
+  - `play-links.yml`: one `--exclude 'status/'` in its rsync. Without it every push to `main` deleted the status page from gh-pages. No other change to play-links.
+  - Flag clashes: when an open pull request *adds* an old-style number that `main` has since given to a different flag, both rows show, the pull request's marked `(PR #33)`. "The pull request's copy wins" would otherwise hide `main`'s F38–F40 behind PR #33's different F38–F40 (live today). Rows a pull request only carries from an older `main` are ignored, so a branch behind `main` can't bring back a flag `main` closed.
+  - The workflow always runs `main`'s script (a pull request can't publish its own version), except before this merges: then it takes the script from this pull request, so it could be tried live. That path is dead once merged.
+  - A closed pull request's brief is read from its title; for titles without one, from the brief file it added, cached in `board.json` so the API isn't asked twice.
+  - If the board grows past 4 KB, the cut lines get shorter (tested).
+- **Checks run and results (paste regression hashes):** `test_board.js` 37/37 pass. Lab `self_test.js` 34/0, `test_stall.js` 39/0, `test_version.js` 22/0. Workflow YAML parses. Skipped: the rule tests, simulations and `regress_engine.js`. `board/` is untouched, and the `checks` workflow's compare job reports the hashes on this pull request anyway.
+  - **Live run on this pull request:** `status board` passed (rebuild 23 s, publish 5 s). It created `status` with `BOARD.md`, `board.json` and `chats/README.md`, wrote `status/index.html` and `status/board.json` to gh-pages and created both labels. Its own commit to `status` started no further run (two runs in the history: the failed first try and the passing one). The first try failed because `main` doesn't have the script yet, which is why the pre-merge path exists.
+  - **One local run:** 6.2 s, mostly git fetch. On GitHub about 23 s with checkout.
+- **The board as generated (3,430 bytes, 20 Nov 9:46 am ET):**
+```
+STATUS · updated 20 Nov 2026, 9:46 am ET
+
+VERSION
+  On main: v3.10.00 · Build 14 · Rules v3.7 · Brain 5
+  Building: 019 → YY · 021 → none
+
+RESULTS (last 24 hours)
+  Nightly checks: pass (19 Nov, 12:17 pm ET)
+  screen v3.10.00 · balanced-5v5: mirror, 34.8% ended on the turn limit, A/B 209–187; balanced-7v7: mirror, 38.8% ended on the… · 20 Nov
+  study v3.08.01 · 5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B… · 19 Nov
+  study v3.10.00 · 5v5: brain5:warmSlack=0 took 48.2% of games against brain5 (decisive 311–293, tiebreak 164–218, draws 14)… · 19 Nov
+  study v3.10.00 · 5v5: mirror, 34.3% ended on the turn limit, A/B 491–504; 7v7: mirror, 41.7% ended on the turn limit, A/B… · 19 Nov
+  study v3.10.00 · 5v5: mirror, 17.8% ended on the turn limit, A/B 497–494; 7v7: mirror, 45.6% ended on the turn limit, A/B… · 19 Nov
+  study v3.10.00 · 5v5: mirror, 55.2% ended on the turn limit, A/B 506–489; 7v7: mirror, 45.0% ended on the turn limit, A/B… · 19 Nov
+  study v3.10.00 · 5v5: mirror, 60.2% ended on the turn limit, A/B 464–510; 7v7: mirror, 41.4% ended on the turn limit, A/B… · 19 Nov
+  study v3.09.00 · 5v5: mirror, 56.7% ended on the turn limit, A/B 474–503; 7v7: mirror, 44.8% ended on the turn limit, A/B… · 19 Nov
+  +20 more in results/INDEX.md
+
+FLAGS (open, newest first)
+  ! F43 · DECIDE · 20 Nov · Brief 019: Brain 7 fails the success bar (beats Brain 5: no; uses its leads: no; doesn't…
+  ! F42 · ASK · 20 Nov · Missing brain behaviour (the Editor's reading of the stall data, confirmed): stalled…
+  ! F41 · ASK · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…
+  ! F40 (PR #33) · ASK · 20 Nov · Brief 019, B4's race check counts Command, Stamina and movement cap but not Mark or other…
+  ! F40 · ASK · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…
+  ! F39 (PR #33) · ASK · 20 Nov · Brief 019, two readings in the new lab measures. (1) lead_lost counts a side that led by…
+  ! F39 · ASK · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…
+  ! F38 (PR #33) · ASK · 20 Nov · Brief 019, B3 (storm together): the brief's gather and strike rules alone weren't enough…
+  ! F38 · ASK · 20 Nov · Skewer's second hit (Game Laws 6.17, brief 011): the brief says a special's hit is worked…
+    F021-3 · OPEN · 20 Nov · The header comment in board/version.js still says the design chat picks the version and…
+    F021-2 · OPEN · 20 Nov · The status page shares the play-links concurrency group (brief 021 §1). GitHub keeps only…
+  ! F021-1 · ASK · 20 Nov · A chat writing its log file on the status branch can't start the board workflow (brief…
+  +6 older in FLAGS.md
+
+BUILDS
+  Building
+    019 Brain 7 · PR #33 · Ready · no checks yet · not reviewed
+    021 Status board · PR #34 · Draft · checks running · not reviewed
+  Ready to start
+    014 Fields
+  Waiting
+    012 Cavalry ← 014, 017, 018
+    017 Move preview ← 014
+    018 Turn cue zoom ← 017
+    020 Victory values ← 019
+  Merged (last 3)
+    011 Special attacks · v3.10.00 · 20 Nov
+    016 Stall logging · v3.09.01 · 19 Nov
+    015 Flag rulings · v3.09.00 · 19 Nov
+
+CHATS
+  Open
+    none
+  Closed (last 5)
+    none
+```
 - **Baseline table (rule changes only):** n/a
 - **Bot minimum (met / not met, with numbers):** n/a
 - **Settings review (brain builds only):** n/a
+- **Guessed or left out:**
+  - "Last 24 hours" for results uses the index's date, which has no time. In practice it means "dated today or yesterday (UTC)".
+  - Default brain comes from the `CHANGELOG.md` version table row for `main`'s version. The board has no other machine-readable home for it.
+  - A brief's name comes from its branch slug ("Turn cue zoom"), not its title, to keep lines short.
+  - "Building" for an open pull request still under the old rule: its version counts as taken only if it is above `main`'s. PR #33 still says v3.10.00, which `main` already has, so the board shows its size (YY).
+  - Night checks: the last scheduled run on `main` started at 12:17 pm ET on 19 Nov, not 3:07 am. GitHub delays scheduled runs, and the board shows the real time.
+- **`main`'s protection:** no effect. The workflow writes only to `status` and `gh-pages`.
+- **Stale comment in `board/version.js`:** its header still says the design chat picks the version and states it in each brief. F021-3 asks the next build that touches `board/` to fix it.
 - **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+  - §2's "on push to `status`" can't work: GitHub reads a push's workflows from the pushed branch, and `status` holds none. Chat files appear on the hourly run, or at once if the chat starts the workflow (F021-1, ASK).
+  - Sharing `play-links`' concurrency group can drop one waiting play-link update (F021-2).
+  - Pushes to old `brief/*` branches (cut before this merge) don't start a run. The hourly run covers them.
+  - A pull request that conflicts with `main` gets no `pull_request` runs (GitHub can't build its merge commit). The hourly run covers it.
+  - Not seen live from this session: the page loading in a browser (this session can't reach github.io). Pages already serves the play links from the same branch.
+  - Already happening under the old rule: PR #32 and PR #33 both use F42, and PR #33's F38–F43 clash with `main`'s F38–F41. Those pull requests keep old-style rows (§8) but must renumber at their next `sync`.
+- **Flags closed / opened:** none closed. Opened `flags/021.md`: F021-1 (ASK: accept hourly plus run-on-demand for chat files), F021-2 (OPEN), F021-3 (OPEN).
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/34
