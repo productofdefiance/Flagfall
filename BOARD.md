@@ -1,4 +1,4 @@
-STATUS · updated 20 Nov 2026, 2:27 pm ET
+STATUS · updated 20 Nov 2026, 2:40 pm ET
 
 VERSION
   On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
@@ -37,7 +37,7 @@ BUILDS
     022 Safe approach · PR #41 · Draft · checks running · not reviewed
     023 Status page · PR #40 · Ready · checks running · reviewed: merge
   Ready to start
-    none
+    024 Lab capacity
   Waiting
     012 Cavalry ← 017, 018
     018 Turn cue zoom ← 017
