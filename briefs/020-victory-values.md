@@ -9,6 +9,7 @@
 | Goal | A brain that scores each way a game can end by the Editor's values (finish 3, win on the clock 1, draw 0, loss −1), so it presses to finish when the odds favour it, and a test of whether "any loss −1" makes a beaten side give up its flag |
 | Branch | Any branch your session may push to, started from `brief/020-victory-values` |
 | Flags | Evidence for F10 (stalls). Builds on brief 019 (Brain 7) and brief 016's stall columns |
+| Waits on | 011, 019 |
 | Order | **After briefs 011 and 019 are both merged** (it builds on Brain 7 and is measured with specials). No rule change, so it does not wait for the rules chain (014, 017, 018, 012) |
 
 ## Context
