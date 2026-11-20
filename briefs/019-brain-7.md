@@ -149,7 +149,9 @@ This build is the bot work. It is met when every measurement has a number and th
   6. One behaviour at a time: `brain7-one-at-a-time` (B1; B1+B2; B1+B3; B1+B4; B1+B5; each against Brain 5 and in mirrors, both formats) at full size, not screen size.
   7. Speed: every run's `timing` columns.
 - **Results:** pending the overnight runs (see the top of this Report).
-- **Checks run and results (paste regression hashes):** pending the last local runs; filled in below before this pull request leaves Draft.
+- **Checks run and results (paste regression hashes):** every check in `README.md` passes locally (test_version.js updated to pin v3.10.00). `test_brain7.js 30`: 48 checks, 0 failures. `sims/lab/test_lead.js`: 6/6. `board_check.js 6`: 0 different. `regress_engine.js` (3 games per set), old board → new board, every line identical:
+  `match3 37397ef2bd3ed86b · v1 7b25bca651c0cb31 · v2 ddbe5fc437ff4e9d · v3 26371927b53d4413 · v3.1 c71e4cd12fc984b0 · v3.2 f62a061d2c147d83 · v3.3 e6151bf463d6c9f8 · v3.4 ee6ce003ac760250 · v3.5 fca989aecfaf21c9`.
+  `sims/brainhash.js` (every preset): brain5 `24f5ff8dbb19e3ea` (new board); **Brain 7 all off (`brain7:lead=0,care=0,storm=0,holderJoins=0,regroup=0@brain5`) `24f5ff8dbb19e3ea`, the same**; brain6 `a9c7422db34c8c9c` before and after. Standard and Easy: same hashes before and after; Kit A–D share no code with the change (`regress_engine` covers them). The full all-brains brainhash run was stopped for time.
 - **Baseline table (rule changes only):** n/a (no rule change); the measurements above instead.
 - **Bot minimum (met / not met, with numbers):** the five test positions pass (`test_brain7.js`, each prints its reasoning):
   1. Care: ahead by 2.00, a lone attack from E12 on a full-HP Heavy Melee that kills 0% of the time, lone and losing by B2's test (cost 18.0). Brain 5 takes it; Brain 7 declines and moves its Light Melee out of reach. Target on 2 HP (likely kill): Brain 7 takes it.
