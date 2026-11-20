@@ -2,6 +2,8 @@
 
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
+- 2026-11-20 · study · v3.11.00 · brief 014 · [2026-11-20_study_fields-v38](v3.11.00/2026-11-20_study_fields-v38/SUMMARY.md): 5v5: mirror, 61.9% ended on the turn limit, A/B 459–477; 7v7: mirror, 44.2% ended on the turn limit, A/B 527–466.
+- 2026-11-20 · study · v3.11.00 · brief 014 · [2026-11-20_study_fields-v37](v3.11.00/2026-11-20_study_fields-v37/SUMMARY.md): 5v5: mirror, 35.1% ended on the turn limit, A/B 497–492; 7v7: mirror, 42.7% ended on the turn limit, A/B 465–521.
 - 2026-11-20 · screen · v3.10.00 · brief 011 · [2026-11-20_screen_specials-playtest-2](v3.10.00/2026-11-20_screen_specials-playtest-2/SUMMARY.md): balanced-5v5: mirror, 34.8% ended on the turn limit, A/B 209–187; balanced-7v7: mirror, 38.8% ended on the turn limit, A/B 194–201; light-7v7: mirror, 40.8% ended on the turn limit, A/B 190–208.
 - 2026-11-19 · study · v3.10.00 · brief 011 · [2026-11-19_study_specials-warmslack-confirm](v3.10.00/2026-11-19_study_specials-warmslack-confirm/SUMMARY.md): 5v5: brain5:warmSlack=0 took 48.2% of games against brain5 (decisive 311–293, tiebreak 164–218, draws 14); 7v7: brain5:warmSlack=0 took 53.8% of games against brain5 (decisive 337–285, tiebreak 194–170, draws 14).
 - 2026-11-19 · study · v3.10.00 · brief 011 · [2026-11-19_study_specials-v37-b](v3.10.00/2026-11-19_study_specials-v37-b/SUMMARY.md): 5v5: mirror, 34.3% ended on the turn limit, A/B 491–504; 7v7: mirror, 41.7% ended on the turn limit, A/B 478–503.
