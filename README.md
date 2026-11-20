@@ -8,7 +8,7 @@ This repository holds the browser playtest board (rules engine and computer oppo
 
 | Folder / file | What it is |
 | --- | --- |
-| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1, v3.2, v3.3, v3.4). `bot.js` and `brain.js` are the computer opponent. `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
+| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1 to v3.7). `bot.js` and `brain.js` are the computer opponent. `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
 | `board/tests/` | Automatic pass/fail checks (see below). |
 | `sims/` | Scripts that play games and make results. `sims/lab/` is the lab: it plays job orders on GitHub and files the results (Brief 008). The older scripts (`baseline.js`, `h2h_*.js`, ...) still deal their old seeds, so old studies can be re-run. |
 | `results/` | Every simulation result, one folder per run (`results/README.md` says how). Start at `results/INDEX.md`. The studies from before the lab are in `results/pre-v3.05.00/`. |
@@ -47,10 +47,15 @@ node tests/test_v31.js
 node tests/test_v32.js
 node tests/test_v33.js
 node tests/test_v34.js
+node tests/test_v35.js
+node tests/test_v36.js
+node tests/test_v37.js
 node tests/test_stamina.js
 node tests/test_reasons.js
 node tests/test_kitd.js
 node tests/test_brain5.js
+node tests/test_brain6.js
+node tests/test_version.js
 node tests/test_watch.js
 node tests/test_ui.js
 node tests/test_invariants.js
@@ -63,6 +68,7 @@ From the repository's top folder:
 
 ```
 node sims/lab/self_test.js
+node sims/lab/test_stall.js
 node sims/lab/board_check.js 10
 ```
 
@@ -84,6 +90,6 @@ For a build that must not change play at all, `node tests/regress_engine.js <boa
 
 `test_invariants.js` plays 30 bot games on the newest preset and fails on any impossible state.
 
-On GitHub, `checks` runs the quick set on every pull request, in parallel jobs, in a few minutes. `test_v32.js` runs there with a short count (`node tests/test_v32.js 40`). The `night-checks` workflow runs the full 400 + 400 count and 100 impossible-state games every night at 08:07 UTC. It can also be started from the Actions tab (night-checks → Run workflow), or by giving a pull request the label `full checks`. A failing night run opens a "Night checks failed" issue. A pull request that changes `board/` must raise the build number in `board/version.js`.
+On GitHub, `checks` runs the quick set on every pull request, in parallel jobs, in a few minutes. `test_v32.js` runs there with a short count (`node tests/test_v32.js 40`). The `night-checks` workflow runs the full 400 + 400 count and 100 impossible-state games every night at 08:07 UTC. It can also be started from the Actions tab (night-checks → Run workflow), or by giving a pull request the label `full checks`. A failing night run opens a "Night checks failed" issue. A pull request that changes `board/` must raise the build number in `board/version.js` and change its game version (the brief states the new one).
 
 Last full pass: 17 Nov 2026 (replay: 386 checks, 0 mismatches; match3, v1, v2 and v3 hashes identical to the previous board).

@@ -1,0 +1,44 @@
+# Results refresh (Brief 016, F35): a lab results pull request that has fallen behind main and conflicts gets main
+# merged in, with results/INDEX.md and results/index.csv rebuilt from the run folders (sims/lab/index.js --rebuild),
+# so a conflict can't stay and the pull request can still merge itself.
+# - every hour (a results pull request merged by auto-merge doesn't start workflows on main, so a push trigger alone
+#   would miss it);
+# - on every push to main that touches results/;
+# - on demand: Actions tab → "results refresh" → "Run workflow".
+# Only branches named lab/* (the lab's own results pull requests) are touched, and only results/ and studies/ may
+# differ from main afterwards; anything else is left alone with a warning.
+name: results refresh
+
+on:
+  schedule:
+    - cron: "23 * * * *"
+  push:
+    branches: [main]
+    paths: ["results/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: results-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.LAB_TOKEN || github.token }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - name: Refresh results pull requests that conflict with main
+        env:
+          GH_TOKEN: ${{ secrets.LAB_TOKEN || github.token }}
+        run: bash sims/lab/refresh.sh

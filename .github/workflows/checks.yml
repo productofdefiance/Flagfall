@@ -60,6 +60,21 @@ jobs:
         continue-on-error: true
         working-directory: board
         run: node tests/test_v34.js
+      - name: test_v35.js (dice variety - the bands, rounding, Dodge after, pulls and the pooled flag)
+        id: v35
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_v35.js 6
+      - name: test_v36.js (flag rulings - flag blocks the line, full-Strength pulls, pull Reload, set spear on arrival)
+        id: v36
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_v36.js 4
+      - name: test_v37.js (specials - warm-up, the six foot specials, flag rulings, parry, Evade, the bot)
+        id: v37
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_v37.js 2
       - name: test_stamina.js (Stamina model; the floor check on every card of every preset)
         id: stamina
         continue-on-error: true
@@ -80,6 +95,16 @@ jobs:
         continue-on-error: true
         working-directory: board
         run: node tests/test_brain5.js 2
+      - name: test_brain6.js (clock and Evade positions; legal play, 2 games per format and lineup)
+        id: brain6
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_brain6.js 2
+      - name: test_version.js (game version on the board, saved matches, version check)
+        id: version
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_version.js
       - name: test_watch.js (watch links, the board's lineups and seeded matches)
         id: watch
         continue-on-error: true
@@ -94,6 +119,10 @@ jobs:
         id: lab
         continue-on-error: true
         run: node sims/lab/self_test.js
+      - name: test_stall.js (stall measure, merge totals, record replay, results index rebuild)
+        id: stall
+        continue-on-error: true
+        run: node sims/lab/test_stall.js
       - name: test_rng.js
         id: rng
         continue-on-error: true
@@ -107,7 +136,7 @@ jobs:
       - name: Summary
         if: always()
         env:
-          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_watch.js=${{ steps.watch.outcome }} test_ui.js=${{ steps.ui.outcome }} lab-self-test=${{ steps.lab.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
+          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_v35.js(6-games)=${{ steps.v35.outcome }} test_v36.js=${{ steps.v36.outcome }} test_v37.js=${{ steps.v37.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_version.js=${{ steps.version.outcome }} test_brain6.js(2-games)=${{ steps.brain6.outcome }} test_watch.js=${{ steps.watch.outcome }} test_ui.js=${{ steps.ui.outcome }} lab-self-test=${{ steps.lab.outcome }} test_stall.js=${{ steps.stall.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
         run: |
           { echo "## Rule tests"; echo; echo "| Check | Result |"; echo "| --- | --- |"
             for kv in $R; do o="${kv#*=}"; echo "| ${kv%%=*} | $( [ "$o" = success ] && echo pass || echo "**FAIL** ($o)" ) |"; done
@@ -181,8 +210,8 @@ jobs:
         with:
           ref: ${{ steps.base.outputs.sha }}
           path: base-commit
-      # Brief 003: a change to board/ must raise the build number in board/version.js.
-      - name: Build number went up
+      # Brief 003: a change to board/ must raise the build number in board/version.js (Brief 007: and change the game version).
+      - name: Build number went up and game version changed
         id: build
         shell: bash   # bash with pipefail, so a failing check is not hidden by tee
         run: bash .github/check-build-number.sh base-commit . | tee build-number.txt
@@ -226,7 +255,7 @@ jobs:
             echo "| Impossible states, newest preset | $(mark "$INV") |"
             echo "| Impossible states, v3 red team | $(mark "$RED") |"
             echo "| Simulated games replay on the board (10 games) | $(mark "$BOARD") |"
-            echo "| Build number went up (and replay hashes, report only) | $(mark "$CMP") |"
+            echo "| Build number went up, game version changed (and replay hashes, report only) | $(mark "$CMP") |"
             echo; echo "The full 400 + 400 double-knockout count runs every night (night-checks)."
           } >> "$GITHUB_STEP_SUMMARY"
           for r in "$RULES" "$INV" "$RED" "$BOARD" "$CMP"; do [ "$r" = success ] || { echo "A quick check failed: see the jobs above."; exit 1; }; done

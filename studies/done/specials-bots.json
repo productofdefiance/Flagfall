@@ -1,0 +1,45 @@
+{
+  "id": "specials-bots",
+  "kind": "screen",
+  "brief": "011",
+  "question": "Bot minimum: does Brain 5 use all six specials on v3.7 (each fired 50+ times, 60%+ of warm-ups fired next turn, no refused action, every game finished), 400 games per format?",
+  "tags": [
+    "specials",
+    "bot-minimum",
+    "brain5",
+    "v3.7"
+  ],
+  "measures": [
+    "play",
+    "specials"
+  ],
+  "matchups": [
+    {
+      "name": "balanced-5v5",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "blitz5",
+      "mix": "mixed",
+      "games": 400
+    },
+    {
+      "name": "balanced-7v7",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 400
+    },
+    {
+      "name": "light-7v7",
+      "a": "brain5",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "light",
+      "games": 400
+    }
+  ]
+}

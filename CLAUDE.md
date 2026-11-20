@@ -48,6 +48,7 @@ One word, the same behaviour every time. The design chat keeps the full list in 
 - `board/engine.js` is the rules and must stay free of screen code. Every rule lives behind a rule-set switch or a number in `data.js`.
 - **Never change how an existing preset plays.** New rules go in a new preset (copy the latest, add switches). The newest preset is the last entry in `PRESETS`, which makes it the new-game default.
 - **Old matches must replay identically.** Before proposing any engine change, run every check in `README.md`, including `regress_engine.js` against a copy of the board from before your change. Rule sets you didn't mean to change must print the same hash. Paste the hashes in the Report.
+- **Replay: record every set-up difference.** Anything that can differ between two matches (team size, turn limit, overtime, squad type, field, brain settings, and options not thought of yet) is recorded in the watch link and the lab's game record in the same build that adds it. The test: two games with the same link always play identically. If two different set-ups can share a link, the link is missing something. (Standing rule, the Editor, 19 Nov.)
 - Simulators take randomness from `board/tests/rng.js` (seeded mulberry32). Never write a home-made random generator.
 - Report simulation results with tiebreak wins counted separately from KOs and draws. Say when a cause is likely but not isolated.
 - Add a test for every rule you add or fix. A fix's test must fail on the old preset and pass on the new one.
@@ -63,7 +64,7 @@ One word, the same behaviour every time. The design chat keeps the full list in 
 - Don't invent rules the Editor hasn't agreed. List them as `ASK` rows instead.
 - Keep `FLAGS.md` current: close the rows your build fixes, open rows for anything you found.
 - **Game version (vX.YY.ZZ).** One game version is the reference for everything: rules, brains, UI and board. Each part keeps its own number (rule set v3.4, Brain 5, UI v1, Build N), and any change to any part bumps the game version:
-  - **X:** a big new system (Cavalry, specials, a UI overhaul).
+  - **X:** a big new system (Cavalry, a UI overhaul).
   - **YY:** a real change to any part (a new rule or mechanic, a new brain, a new screen). Reset ZZ to 00.
   - **ZZ:** tuning and fixes (numbers, brain settings, text, bug fixes).
   - Each brief states its game version in its header. The build sets it in `board/version.js` beside the build number. The board shows it on Home and in the menu, with the build number in small type ("v3.05.00 · Build 6"). It goes in the `CHANGELOG.md` heading. Keep a version table at the top of `CHANGELOG.md`, one row per game version: rule set, default brain, UI version, build. Always two digits after each dot.
@@ -75,6 +76,7 @@ One word, the same behaviour every time. The design chat keeps the full list in 
 ## The lab and results (Brief 008)
 - **Where runs happen.** Simulations run on GitHub through the lab (`.github/workflows/lab.yml`), not in a Claude session. Write a job order in `studies/queue/` (format in `results/README.md`). Daytime `screen` runs (up to about 200 games per side) are for quick looks; anything at 1,000+ games per side goes overnight. A short check during a build is fine in the session.
 - **Sweeps in two stages.** Screen every value at about 200 games per side. Confirm only the promising ones at 1,000+ overnight (F23).
+- **Reading results.** A gap under about 4 points is never evidence at the sizes we run. Compare rule sets on the same seeds first; a second seed set is the backup. (Standing rule, the Editor, 19 Nov; F23.)
 - **Results.** Every run writes a folder in `results/` as `results/README.md` describes. Never put results anywhere else. Extend the structure by adding (a kind, a column, a field, a measure in `sims/lab/measures.js`), never by renaming.
 - **Every simulated game can be watched.** The lab plays each game exactly as the board would (`board/watch.js`), from a board seed dealt by `tests/rng.js`. Keep it that way: `sims/lab/board_check.js` must pass.
 - **Version at merge.** A brief states the version it expects. If another pull request merged first, take the next free number and fix `version.js` and the changelog heading.

@@ -5,7 +5,7 @@
 (function () {
   "use strict";
   const E = window.GGEngine, D = window.GGData, SK = window.GGSkin, Bot = window.GGBot, BR = window.GGBrain;
-  const V = window.GGVersion || { build: null, preview: null };   // build number: board/version.js is the only source
+  const V = window.GGVersion || { game: null, build: null, preview: null };   // game version and build number: board/version.js is the only source
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const UI = window.GGUi;   // UI v2 wording and preview logic (Brief 009); its say() turns engine text into what the player reads
@@ -151,7 +151,7 @@
       return this.write("live/current", { match }).catch(() => {});
     },
     summary(match, st, how, winner) {
-      return { id: match.id, started: match.started, finished: new Date().toISOString(), ruleset: match.rs.name, build: match.build || null, format: match.opts.format || null,
+      return { id: match.id, started: match.started, finished: new Date().toISOString(), ruleset: match.rs.name, game: match.game || null, build: match.build || null, format: match.opts.format || null,
         names: match.opts.names, winner, how, turn: st.turn, seed: match.opts.seed || null,
         pull: { N: st.pole.S, S: st.pole.N }, lost: { N: E.beingsLost(st, "N"), S: E.beingsLost(st, "S") } };
     },
@@ -272,7 +272,7 @@
         lineups[t] = toLineup(rs, App.picks[t]);
       }
     }
-    App.match = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), build: V.build, rs: E.clone(rs),
+    App.match = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), game: V.game || null, build: V.build, rs: E.clone(rs),
       opts: { first: "N", players, names, lineups, seed: s.seed, format: fm.id, coin: s.first === "coin" }, brains, actions: [], draws: 0 };
     App.match.opts.first = s.first === "coin" ? (rand() < 0.5 ? "N" : "S") : s.first;
     rebuild();
@@ -432,16 +432,14 @@
     const where = st.phase === "deploy" ? "Deploying" : `Turn ${st.turn} · ${sideName(st.toMove)} to move`;
     return `${where} · ${opp}`;
   }
-  /** "Playtest board · v3.05.01 · Build 7 · Rules v3.4"; a preview copy also says which pull request it is. */
+  /** "Playtest board · v3.06.00 · Rules v3.4"; a preview copy also says which pull request it is (version.js). */
   function homeLine() {
     const newest = D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id;
-    return ["Playtest board", V.game || null, V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null, `Rules ${newest}`].filter(Boolean).join(" · ");
+    return V.line ? V.line(newest) : `Playtest board · Rules ${newest}`;
   }
-  /** " · Build 3", plus the build a match was started on when that differs (never guessed for older matches). */
-  function buildNote(m) {
-    if (!V.build) return "";
-    return (V.game ? ` · ${V.game}` : "") + ` · Build ${V.build}` + (m && m.build && m.build !== V.build ? ` (started on Build ${m.build})` : "");
-  }
+  /** " · v3.06.00", plus what a match was started on when that differs: its game version, or "Build 6" for matches
+      saved before Build 7 (never a guessed version). */
+  function buildNote(m) { return V.note ? V.note(m) : ""; }
   function renderHome() {
     const cont = liveSummary();
     const item = (act, icon, t, s, primary) => `<button type="button" class="menuitem${primary ? " primary" : ""}" data-act="${act}">${ic(icon, 24)}<span><span class="mt">${t}</span>${s ? `<span class="ms">${s}</span>` : ""}</span></button>`;
@@ -704,6 +702,8 @@
       const isSel = ui.sel === u.uid || ui.deploySel === u.uid;
       out += `<g class="cell unit" data-hex="${u.hex}" data-uid="${u.uid}" opacity="${s.done ? 0.5 : 1}">`;
       if (isSel) out += `<circle cx="${x}" cy="${y}" r="${tr + 6}" fill="none" stroke="var(--move)" stroke-width="2.5"/>`;
+      // Specials (Brief 011, 5d): Warming up = a gold ring with a soft halo, outside any braced ring, for both sides.
+      if (s.warming) out += `<circle cx="${x}" cy="${y}" r="${tr + 8}" fill="none" stroke="#e2b53c" stroke-opacity="0.5" stroke-width="6" filter="url(#sphalo)"/><circle cx="${x}" cy="${y}" r="${tr + 7}" fill="none" stroke="#e2b53c" stroke-width="3"/>`;
       if (s.braced) out += `<circle cx="${x}" cy="${y}" r="${tr + 3.5}" fill="none" stroke="var(--brace)" stroke-width="3"/>`;
       out += `<circle cx="${x}" cy="${y}" r="${tr}" fill="var(--${team})" stroke="${u.fk ? "var(--keeper)" : `var(--${team}Dark)`}" stroke-width="${u.fk ? 3 : 1.2}"/>`;
       out += iconShape(iconKey(st.rs, u.card), x, y - 3.5, tr * 0.33, "#fff", 1.6);
@@ -719,14 +719,24 @@
       out += `</g>`;
     }
     if (opts && ui.drag && ui.drag.active) for (const uid of opts.swaps) { const f = E.unitByUid(st, uid); const [x, y] = pos(f.hex); out += `<circle cx="${x}" cy="${y}" r="${tr + 6}" fill="none" stroke="var(--move)" stroke-width="2.5" stroke-dasharray="5 3" pointer-events="none"/>`; }
-    if (opts && !(ui.drag && ui.drag.active)) {
+    // Firing a special (5c): legal targets ringed as Attack's are; Arc Hit outlines its arc around the chosen target.
+    if (opts && ui.armed === "special" && opts.special) {
+      const chosen = ui.sheet && ui.sheet.kind === "special" ? opts.special.targets.find((x) => x.target === ui.sheet.target) : null;
+      const arcFor = chosen || (ui.spHover && opts.special.targets.find((x) => x.target === ui.spHover));
+      if (arcFor && arcFor.arc) for (const h of arcFor.arc) { const [x, y] = pos(h); out += `<polygon points="${hexPts(x, y, R - 1.5)}" fill="none" stroke="#e2b53c" stroke-width="3" pointer-events="none"/>`; }
+      for (const p of opts.special.targets) {
+        const t = E.unitByUid(st, p.target); const [x, y] = pos(t.hex);
+        out += `<circle cx="${x}" cy="${y}" r="${tr + 6}" fill="none" stroke="var(--attack)" stroke-width="${chosen && chosen.target === p.target ? 4.5 : 3}" pointer-events="none"/>`;
+      }
+    }
+    if (opts && ui.armed !== "special" && !(ui.drag && ui.drag.active)) {
       for (const a of targetsFor(opts, ui.armed)) {
         const t = E.unitByUid(st, a.target); const [x, y] = pos(t.hex);
         const on = ui.sheet && ui.sheet.kind === "attack" && ui.sheet.target === a.target;
         out += `<circle cx="${x}" cy="${y}" r="${tr + 6}" fill="none" stroke="var(--attack)" stroke-width="${on ? 4.5 : 3}" pointer-events="none"/>`;
       }
     }
-    svg.innerHTML = out;
+    svg.innerHTML = `<defs><filter id="sphalo" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.5"/></filter></defs>` + out;
   }
   function dupLabel(st, u) {
     if (u.fk) return false;
@@ -854,12 +864,12 @@
     for (let i = 0; i < Math.ceil(max - EPS); i++) {
       const full = i + 1 <= now + EPS, half = !full && i < now - EPS;
       const afterFull = i + 1 <= now - cost + EPS, afterHalf = !afterFull && i < now - cost - EPS;
-      let cls = kind === "white" ? "sq w" : "sq";
+      let cls = kind === "white" ? "sq w" : kind === "ink" ? "sq k" : "sq";   // "ink": on the gold Special buttons
       if (cost > 0 && (full || half)) cls += afterFull ? " on" : afterHalf ? (full ? " halfcost" : " half") : " cost";
       else if (full) cls += " on"; else if (half) cls += " half";
       out.push(`<span class="${cls}"></span>`);
     }
-    return `<span class="sqs" role="img" aria-label="Stamina ${fmt(now)} of ${fmt(max)}${cost ? `, this ${kind === "white" ? "attack" : "move"} costs ${fmt(cost)}` : ""}">${out.join("")}</span>`;
+    return `<span class="sqs" role="img" aria-label="Stamina ${fmt(now)} of ${fmt(max)}${cost ? `, this ${kind === "white" ? "attack" : kind === "ink" ? "special" : "move"} costs ${fmt(cost)}` : ""}">${out.join("")}</span>`;
   }
   /** Hexes of movement the unit has left now: the furthest hex the engine lets it reach (its cap on the other side's turn). */
   function movesLeft(st, u) {
@@ -914,7 +924,7 @@
   function renderActions() {
     const st = App.st, ui = App.ui, el = $("actions");
     // A greyed-out button stays tappable when it has a reason: the tap shows why (Brief 005). Reasons come from the engine.
-    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span></button>`;
+    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span>${opt.bar ? `<i class="spbar ${opt.bar}"></i>` : ""}</button>`;
     if (st.phase === "deploy") {
       const t = deployTeam(), mine = st.units.filter((u) => u.team === t);
       const placed = mine.filter((u) => ui.placements[u.uid]).length;
@@ -938,6 +948,25 @@
           <button type="button" class="act" data-act="sheet-close" style="flex:1 1 0">${ic("close", 22)}<span>Cancel</span></button></div>${turnRow}`;
       return;
     }
+    // Specials (Brief 011, 5b): warming up opens a line and Warm up (3 parts) / Cancel (1) in the UNIT row.
+    if (sh && sh.kind === "warm" && o && o.special && o.special.warmup) {
+      const u = E.unitByUid(st, ui.sel), cost = o.special.warmupCost;
+      el.innerHTML = `<div class="warmline">${ic("special", 16, "var(--gold)")}<span>Warm up ${esc(o.special.name)}${o.special.state === "Charged" ? " again" : ""}: fire it next turn. No attack or brace this turn.</span></div>
+        <div class="arow"><span class="alabel">UNIT</span>
+          <button type="button" class="act go gold" data-act="warm-confirm" style="flex:3 1 0">${ic("special", 22)}
+            <span class="go-text"><span class="go-1">Warm up</span><span class="go-2">−${fmt(cost)} Stamina ${stamSquares(u, u.stam, cost, "ink")}</span></span></button>
+          <button type="button" class="act" data-act="sheet-close" style="flex:1 1 0">${ic("close", 22)}<span>Cancel</span></button></div>${turnRow}`;
+      return;
+    }
+    // Firing (5c): the preview is open on a target; the button reads "Fire <name>".
+    if (sh && sh.kind === "special" && o && o.special && o.special.targets.some((x) => x.target === sh.target)) {
+      const u = E.unitByUid(st, ui.sel), cost = st.rs.game.attackCost;
+      el.innerHTML = `<div class="arow"><span class="alabel">UNIT</span>
+          <button type="button" class="act go gold" data-act="special-confirm" style="flex:3 1 0">${ic("special", 22)}
+            <span class="go-text"><span class="go-1">Fire ${esc(o.special.name)}</span><span class="go-2">−${fmt(cost)} Stamina ${stamSquares(u, u.stam, cost, "ink")}</span></span></button>
+          <button type="button" class="act" data-act="sheet-close" style="flex:1 1 0">${ic("close", 22)}<span>Cancel</span></button></div>${turnRow}`;
+      return;
+    }
     const nAtt = o ? targetsFor(o, "attack").length : 0, nReach = o ? targetsFor(o, "reach").length : 0;
     const why = ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel) : null;
     const pick = human ? "Select one of your units first" : null;
@@ -948,14 +977,31 @@
         ${b("arm-attack", "attack", "Attack", { dis: !nAtt, why: why ? why.attack : pick, cls: (ui.armed === "attack" ? "on" : "") + (reloading ? " reloading" : ""), pressed: ui.armed === "attack", dot: reloading ? "red" : "", aria: reloading ? "Attack, reloading" : "" })}
         ${hasReach ? b("arm-reach", "reach", "Reach", { dis: !nReach, why: why ? why.reach : pick, cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" }) : ""}
         ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: why ? why.brace : pick, cls: ss && ss.braced ? "braced" : "", dot: ss && ss.braced ? "blue" : ss && ss.bracedLast ? "ring" : "", aria: ss && ss.braced ? "Brace, braced" : ss && ss.bracedLast ? "Brace, braced last turn" : "" })}
-        ${b("special", "special", "Special", { dis: true, why: why ? why.special : "No special actions in this rule set yet" })}</div>${turnRow}`;
+        ${specialButton(st, su, o, why, pick, b)}</div>${turnRow}`;
+  }
+  /** The Special button (Brief 011, 5a): the unit's special by name, in its state. Older rule sets keep the greyed-out
+      "Special" button. Every reason comes from the engine (blockReasons). */
+  function specialButton(st, su, o, why, pick, b) {
+    const ss = su && su.hp > 0 ? E.status(st, su) : null;
+    if (!ss || !ss.special) return b("special", "special", "Special", { dis: true, why: why ? why.special : pick || "No special actions in this rule set yet" });
+    const name = E.specialName(E.specialOf(st, su)), mine = st.phase === "play" && su.team === st.toMove;
+    const sp = o && o.special, armed = App.ui.armed === "special";
+    if (ss.special === "Used") return b("special", "special", name, { dis: true, why: "Used", cls: "sp-used", aria: `${name}, used` });
+    if (ss.special === "Warming up") return b("special", "special", name, { dis: true, why: mine ? (why && why.special) || "Fire it next turn" : "Warming up: it can fire on its next turn", cls: "sp-warm", bar: "half", aria: `${name}, warming up` });
+    if (ss.special === "Charged") {
+      const can = sp && (sp.fire || sp.warmup);   // no target but it may warm up again
+      return b("special", "special", name, { dis: !can, why: why ? why.special : pick, cls: "sp-charged" + (armed ? " on" : ""), bar: "full", pressed: armed, aria: `${name}, charged` });
+    }
+    return b("special", "special", name, { dis: !(sp && sp.warmup), why: why ? why.special : pick, aria: `${name}, unused` });
   }
 
+  /** A special's preview on `target` (the key behaves as the attack preview's). */
+  function specialSheet(target) { const sh = attackSheet(target); sh.kind = "special"; return sh; }
   /** A new attack preview on `target`. The key starts closed; the first two previews a player opens show
       "Pull up for the key" (counted in this board's local settings). Switching target keeps the key as it was. */
   function attackSheet(target) {
     const prev = App.ui.sheet;
-    if (prev && prev.kind === "attack") return { kind: "attack", target, hint: prev.hint };
+    if (prev && (prev.kind === "attack" || prev.kind === "special")) return { kind: "attack", target, hint: prev.hint };
     App.ui.keyOpen = false;
     let seen = 0;
     try { seen = +Store.local("keyHintSeen") || 0; Store.local("keyHintSeen", seen + 1); } catch (e) { seen = 2; }
@@ -1004,6 +1050,30 @@
         ${faceSide(st, right, true)}</div>
       ${outcome}`;
   }
+  /** The special's preview (Brief 011, 5c): the attack preview's face-off and key, one exact outcome, and a row per
+      extra target (Arc Hit's others, Skewer's second). Every number from the engine (E.options().special). */
+  function renderSpecialPreview(st, u, t, p) {
+    const ui = App.ui, pv = UI.specialPreview(st, u, t, p);
+    const left = pv.attacker.team === "N" ? pv.attacker : pv.target, right = left === pv.attacker ? pv.target : pv.attacker;
+    const pointsLeft = pv.attacker.team === "S", sg = pv.segments[0];
+    const outcome = `<div class="ob" role="img" aria-label="Exactly −${fmt(sg.dmg)}${sg.kills ? " kills" : ""}, no dice">
+      <div class="ob-row ob-p" style="grid-template-columns:1fr"><div>100% · no dice</div></div>
+      <div class="ob-row ob-bar" style="grid-template-columns:1fr"><div class="first last" style="background:${sg.kills ? "var(--attack)" : "var(--ink)"}"></div></div>
+      <div class="ob-row ob-d" style="grid-template-columns:1fr"><div class="${sg.kills ? "kill" : ""}">−${fmt(sg.dmg)}</div></div></div>`;
+    const extra = pv.special.extra.map((x) => { const pct = x.maxHp ? Math.max(0, Math.min(100, (100 * x.hp) / x.maxHp)) : 0, xu = E.unitByUid(st, x.uid);
+      return `<div class="sp-extra">${tokenInline(iconKey(st.rs, xu.card), x.team, 24, xu.fk)}<span class="fo-name">${esc(x.name)}</span>
+        <div class="fo-bar" role="img" aria-label="HP ${fmt(x.hp)} of ${fmt(x.maxHp)}"><i style="width:${pct.toFixed(0)}%;background:${teamColor(x.team)}"></i></div><span class="fo-hp">${fmt(x.hp)}/${fmt(x.maxHp)}</span>
+        <b class="${x.kills ? "kill" : ""}">−${fmt(x.dmg)}</b></div>`; }).join("");
+    const keyOpen = !!ui.keyOpen;
+    const key = keyOpen ? `<div class="key" id="attackkey"><div class="key-h">IN THIS SPECIAL</div>${pv.rows.map((r) => `<div class="key-row">${ic(r.icon, 18, r.special ? "var(--gold)" : r.red || r.icon === "parry" ? "var(--attack)" : "var(--ink)")}<div>
+        <div class="key-1${r.red ? " hurt" : ""}">${esc(r.name)}</div><div class="key-2">${esc(r.means)}</div><div class="key-3">${esc(r.why)}</div></div></div>`).join("")}</div>` : "";
+    const hint = !keyOpen && ui.sheet.hint ? `<div class="key-hint">Pull up for the key</div>` : "";
+    return `<button type="button" class="handle" data-act="key-toggle" aria-expanded="${keyOpen}" aria-controls="attackkey" aria-label="${keyOpen ? "Hide" : "Show"} the key"><span></span></button>${hint}${key}
+      <div class="fo">${faceSide(st, left, false)}
+        <div class="fo-mid"><span>${esc(left === pv.attacker ? pv.from : pv.to)}</span>${ic("arrow", 16, "var(--gold)", pointsLeft ? ' style="transform:scaleX(-1)"' : "", 2.2)}<span>${esc(left === pv.attacker ? pv.to : pv.from)}</span></div>
+        ${faceSide(st, right, true)}</div>${extra ? `<div class="sp-extras">${extra}</div>` : ""}
+      ${outcome}`;
+  }
   function chip(label, color, dot) { return `<span class="chip" style="color:${color};border-color:${color}"><i style="${dot === "hollow" ? `border:2px solid ${color}` : `background:${color}`}"></i>${esc(label)}</span>`; }
   /** The full unit card (in a match, or on the Lineup screen when `lineup` is given). Text from ui.js, numbers from the engine or the card. */
   function unitCardHtml(rs, code, opt) {
@@ -1012,8 +1082,10 @@
         ${opt.side ? `<div class="uc-side" style="color:${col}">${esc(opt.side)}</div>` : ""}<div class="uc-name">${esc(opt.name || c.name)}</div><div class="uc-type">${esc(UI.cardTypeLine(c))}</div></div>
         <button type="button" class="iconbtn" data-act="${opt.closeAct || "sheet-close"}" aria-label="Close unit card">${ic("close", 22)}</button></div>`;
     const stats = opt.stats.map(([label, v]) => `<div><b class="num">${esc(String(v))}</b><span>${esc(label)}</span></div>`).join("");
+    // Special (Brief 011, 5e): in a match the name carries a status chip; the Lineup card shows none.
+    const spChip = (st) => (st === "Warming up" ? `<span class="spchip warm"><i></i>Warming up</span>` : st === "Used" ? `<span class="spchip used">Used</span>` : st ? `<span class="spchip">${st === "Charged" ? "Charged" : "Unused"}</span>` : "");
     const secs = UI.cardSections(rs, code).map((s) => `<div class="uc-sec"><div class="uc-sh">${esc(s.head.toUpperCase())}<span>${esc(s.sub)}</span></div>
-      ${s.items.map((i) => `<div class="uc-ab"><div class="uc-an">${esc(i.name)}${i.cost ? `<span class="cost">Cost</span>` : ""}</div><div class="uc-at">${esc(i.text)}</div></div>`).join("")}</div>`).join("");
+      ${s.items.map((i) => `<div class="uc-ab"><div class="uc-an${i.special ? " sp" : ""}">${esc(i.name)}${i.cost ? `<span class="cost">Cost</span>` : ""}${i.special ? spChip(opt.special) : ""}</div><div class="uc-at">${esc(i.text)}</div></div>`).join("")}${s.note ? `<div class="uc-note">${esc(s.note)}</div>` : ""}</div>`).join("");
     return `<div class="grab" aria-hidden="true"></div>${head}${opt.status || ""}<div class="uc-stats">${stats}</div>${secs}`;
   }
   function renderSheet() {
@@ -1032,6 +1104,12 @@
       const t = E.unitByUid(st, a.target);
       el.className = "preview"; sc.hidden = true;   // the field stays live under the preview: tap another red ring to switch target
       el.innerHTML = renderPreview(st, u, t, a);
+    } else if (sh.kind === "special" && o && o.special) {
+      const p = o.special.targets.find((x) => x.target === sh.target);
+      if (!p) { ui.sheet = null; el.hidden = true; sc.hidden = true; return; }
+      el.className = "preview"; sc.hidden = true;
+      el.innerHTML = renderSpecialPreview(st, u, E.unitByUid(st, p.target), p);
+    } else if (sh.kind === "warm") { el.hidden = true; sc.hidden = true;
     } else if (sh.kind === "pull" && o && o.pull) {
       const left = g.poleHP - st.pole[E.foeOf(u.team)];
       el.innerHTML = `${grab}<div style="font:700 20px/1.1 var(--display);letter-spacing:.02em">${esc(u.id)} pulls the ${sideName(E.foeOf(u.team))} flag <span class="muted" style="font:500 13px/1 var(--body)">flag HP ${left}</span></div>
@@ -1050,7 +1128,7 @@
       }
       const status = `<div class="uc-status">${hpLine(s.hp, s.maxHp, x.team, 90)}${x.hp > 0 ? stamSquares(x, mine ? s.stamNow : s.stamNext, 0) : ""}${chips.join("")}</div>`;
       el.className = "card-sheet";
-      el.innerHTML = unitCardHtml(st.rs, x.card, { team: x.team, fk: x.fk, side: `${st.names[x.team]}${x.fk ? " · Flagkeeper" : ""}`, name: UI.unitName(st, x), status,
+      el.innerHTML = unitCardHtml(st.rs, x.card, { team: x.team, fk: x.fk, side: `${st.names[x.team]}${x.fk ? " · Flagkeeper" : ""}`, name: UI.unitName(st, x), status, special: x.hp > 0 ? s.special : null,
         stats: [["Str", fmt(c.str)], [r.label, fmt(r.val)], ["Move", fmt(E.capOf(st, x))]] });
     } else if (sh.kind === "over") {
       const r = st.result;
@@ -1069,7 +1147,7 @@
       for (const u of st.units.filter((x) => x.team === t)) {
         if (u.hp <= 0) { h += `<tr class="gone"><td>${esc(u.id)}</td><td></td><td>0</td><td></td></tr>`; continue; }
         const s = E.status(st, u);
-        h += `<tr data-uid="${u.uid}" style="cursor:pointer"><td style="display:flex;align-items:center;gap:6px">${iconInline(iconKey(st.rs, u.card), teamColor(t), 16)}<b>${esc(u.id)}</b></td><td class="num">${u.hex}</td><td class="num">${fmt(s.hp)}/${s.maxHp}${s.dodge !== null && s.dodge !== undefined ? ` · ${s.dodge}%` : ""}</td><td>${[s.braced ? ic("brace", 14, "var(--brace)") : "", s.reloading ? ic("reload", 14, "var(--attack)") : "", s.done ? ic("endunit", 14, "var(--muted)") : ""].join("")}</td></tr>`;
+        h += `<tr data-uid="${u.uid}" style="cursor:pointer"><td style="display:flex;align-items:center;gap:6px">${iconInline(iconKey(st.rs, u.card), teamColor(t), 16)}<b>${esc(u.id)}</b></td><td class="num">${u.hex}</td><td class="num">${fmt(s.hp)}/${s.maxHp}${s.dodge !== null && s.dodge !== undefined ? ` · ${s.dodge}%` : ""}</td><td>${[s.braced ? ic("brace", 14, "var(--brace)") : "", s.reloading ? ic("reload", 14, "var(--attack)") : "", s.warming ? ic("special", 14, "var(--gold)") : "", s.done ? ic("endunit", 14, "var(--muted)") : ""].join("")}</td></tr>`;
       }
     }
     el.innerHTML = h + `</tbody></table>`;
@@ -1132,7 +1210,10 @@
     const sel = ui.sel && E.unitByUid(st, ui.sel);
     const o = selOptions();
     if (o) {
-      if (here && here.team !== sel.team) {
+      if (here && here.team !== sel.team && ui.armed === "special" && o.special) {   // Brief 011: fire at a ringed target
+        if (o.special.targets.some((x) => x.target === here.uid)) { ui.sheet = specialSheet(here.uid); ui.ghost = null; render(); revealAbove(sel.hex); return; }
+      }
+      if (here && here.team !== sel.team && ui.armed !== "special") {
         const a = targetsFor(o, ui.armed).find((x) => x.target === here.uid);
         if (a) { ui.sheet = attackSheet(here.uid); ui.ghost = null; render(); revealAbove(sel.hex); return; }
       }
@@ -1163,7 +1244,13 @@
   }
   function hexAt(x, y) { const el = document.elementFromPoint(x, y), g = el && el.closest("#board [data-hex]"); return g ? g.dataset.hex : null; }
   function onPointerMove(e) {
-    const d = App.ui.drag; if (!d) return;
+    const d = App.ui.drag;
+    if (!d) {   // Brief 011: while a special is armed, hovering a target outlines Arc Hit's arc
+      if (App.ui.armed !== "special" || !App.st) return;
+      const h = hexAt(e.clientX, e.clientY), x = h && E.alive(App.st).find((u) => u.hex === h), id = x ? x.uid : null;
+      if (id !== App.ui.spHover) { App.ui.spHover = id; renderBoard(); }
+      return;
+    }
     if (!d.active && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 12) {
       const o0 = selOptions(); if (o0 && o0.evading && App.ui.sel !== d.uid) endEvade(App.ui.sel);   // v3.3
       d.active = true; App.ui.sel = d.uid; App.ui.ghost = null; App.ui.armed = null; App.ui.sheet = null; render();
@@ -1277,6 +1364,18 @@
         if (ui.armed && list.length === 1) ui.sheet = attackSheet(list[0].target);
         render(); if (ui.sheet) revealAbove(E.unitByUid(st, ui.sel).hex); break;
       }
+      case "special": {   // Brief 011: Unused → the warm-up line; Charged → targets (or warm up again when none)
+        const o = selOptions(); if (!o || !o.special) break;
+        if (o.special.state === "Charged" && o.special.fire) {
+          ui.armed = ui.armed === "special" ? null : "special"; ui.ghost = null; ui.sheet = null;
+          if (ui.armed && o.special.targets.length === 1) ui.sheet = specialSheet(o.special.targets[0].target);
+          render(); if (ui.sheet) revealAbove(E.unitByUid(st, ui.sel).hex); break;
+        }
+        if (o.special.warmup) { ui.armed = null; ui.ghost = null; ui.sheet = { kind: "warm" }; render(); }
+        break;
+      }
+      case "warm-confirm": act({ type: "warmup", uid: ui.sel }); break;
+      case "special-confirm": if (ui.sheet && ui.sheet.kind === "special") act({ type: "special", uid: ui.sel, target: ui.sheet.target }); break;
       case "attack-confirm": if (ui.sheet && ui.sheet.kind === "attack") act({ type: "attack", uid: ui.sel, target: ui.sheet.target }); break;
       case "pull-confirm": act({ type: "pull", uid: ui.sel }); break;
       case "brace": act({ type: "brace", uid: ui.sel }); break;
@@ -1372,8 +1471,13 @@
     ["tkoNeedsKeeper", "TKO needs the Flagkeeper to fall", "Off: removing every other unit is enough for a TKO."],
     ["defenderSupport", "Defender Support", "A defender with a friend adjacent takes 1 less (does not stack with Brace). Dropped after match 2."],
     ["captureTriggersSpike", "A capture counts as entering", "A unit stepping in after a kill takes a braced Anti-Cavalry's spike damage."],
+    ["flagBlocksLine", "A flag blocks the line", "v3.6: a flag hex (held or empty, either side) straight between attacker and target blocks Volley and Reach."],
+    ["pullFullStrength", "Pulls at full Strength", "v3.6: a Ranged unit pulls at its full Strength, enemy next to it or not."],
+    ["pullCountsForReload", "A pull counts for Reload", "v3.6: a Heavy Ranged that pulls must reload next turn, and can't pull while reloading."],
+    ["spearOnArrival", "Set spear hits arrivals only", "v3.6: set spear fires only on a unit arriving next to it (not one already there), and hits a unit at most once a turn."],
     ["rangedHalfWhenAdjacent", "Ranged halved when an enemy is adjacent", "A Ranged unit with an enemy next to it shoots at half Strength."],
     ["dice2d6", "Two dice, graded", "Two d6 added: 2 = −50%, 3 = −25%, 4–10 normal, 11 = +25%, 12 = +50%. Off: one d6 (1 halves, 6 adds half)."],
+    ["diceVariety", "Dice variety", "v3.5: with two dice, 4–5 deals 10% less and 9–10 deals 10% more; 6–8 normal. Average unchanged."],
     ["halfPoints", "Half points", "Damage rounds to the nearest half point; 0.5 HP is still in."],
     ["dodgeRoom", "Room Dodge", "Dodge is a percentage from open hexes round the unit, taken off after the roll. Off: 1 per full 4 points of Strength."],
     ["supportPerUnit", "Support per helper", "Support counts every friend next to the target. Off: a flat bonus however many."],
@@ -1539,7 +1643,7 @@
   // ---------- Matches ----------
   /** The record Claude reads: the same fields for the current match and any finished one. */
   function recordText(m, result) {
-    return JSON.stringify({ ruleset: m.rs, opts: m.opts, brains: m.brains, started: m.started, build: m.build || null, actions: m.actions, botMoves: m.botMoves || [], result: result || null }, null, 1);
+    return JSON.stringify({ ruleset: m.rs, opts: m.opts, brains: m.brains, started: m.started, game: m.game || null, build: m.build || null, actions: m.actions, botMoves: m.botMoves || [], result: result || null }, null, 1);
   }
   /** A saved match's result, worked out by replaying its moves (summaries don't keep the engine's result). */
   function replayResult(m) {
@@ -1566,7 +1670,7 @@
     if (!App.matches.length) h += `<p class="note">None saved yet.</p>`;
     else {
       h += `<div class="tablewrap"><table class="data"><thead><tr><th></th><th>Finished</th><th>Rule set</th><th>Result</th><th>Turn</th><th>Pull damage N–S</th><th>Unit cap lost N–S</th></tr></thead><tbody>`;
-      for (const x of App.matches) h += `<tr><td><button type="button" class="iconbtn" data-act="copy-finished" data-id="${esc(x.id)}" aria-label="Copy this match's record for Claude" title="Copy match record">${ic("copy", 18)}</button></td><td>${x.finished ? new Date(x.finished).toLocaleDateString() : ""}</td><td>${esc(x.ruleset)}${x.build ? `<br><span class="muted">Build ${esc(String(x.build))}</span>` : ""}</td><td>${x.how === "abandoned" ? "Abandoned" : x.winner ? esc(x.names ? x.names[x.winner] : sideName(x.winner)) + " (" + sideName(x.winner) + "), " + esc(say(x.how)) : "Draw, " + esc(say(x.how))}</td><td class="num">${x.turn}</td><td class="num">${x.pull ? x.pull.N + "–" + x.pull.S : ""}</td><td class="num">${x.lost ? x.lost.N + "–" + x.lost.S : ""}</td></tr>`;
+      for (const x of App.matches) h += `<tr><td><button type="button" class="iconbtn" data-act="copy-finished" data-id="${esc(x.id)}" aria-label="Copy this match's record for Claude" title="Copy match record">${ic("copy", 18)}</button></td><td>${x.finished ? new Date(x.finished).toLocaleDateString() : ""}</td><td>${esc(x.ruleset)}${V.startedOn && V.startedOn(x) ? `<br><span class="muted">${esc(V.startedOn(x))}</span>` : ""}</td><td>${x.how === "abandoned" ? "Abandoned" : x.winner ? esc(x.names ? x.names[x.winner] : sideName(x.winner)) + " (" + sideName(x.winner) + "), " + esc(say(x.how)) : "Draw, " + esc(say(x.how))}</td><td class="num">${x.turn}</td><td class="num">${x.pull ? x.pull.N + "–" + x.pull.S : ""}</td><td class="num">${x.lost ? x.lost.N + "–" + x.lost.S : ""}</td></tr>`;
       h += `</tbody></table></div><textarea id="record-finished" class="copyarea" readonly hidden></textarea>`;
     }
     h += `</div></div></div>`;

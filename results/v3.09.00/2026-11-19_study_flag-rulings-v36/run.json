@@ -1,0 +1,52 @@
+{
+ "id": "2026-11-19_study_flag-rulings-v36",
+ "kind": "study",
+ "version": "v3.09.00",
+ "build": 12,
+ "commit": "8bd76ba51b756a4f192ab8747b38dc368a036956",
+ "brief": "015",
+ "question": "Do the flag rulings (v3.6) change how balanced games end, with Brain 5 against itself, on the same seeds as the v3.5 run?",
+ "tags": [
+  "flag-rulings",
+  "brain5",
+  "v3.6"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-19T21:57:20.000Z",
+ "finished": "2026-11-19T23:44:04.214Z",
+ "games": 2000,
+ "seed_from": "tests/rng.js lab:flag-rulings:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000
+   },
+   {
+    "name": "7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000
+   }
+  ],
+  "measures": [
+   "play",
+   "light",
+   "flagrules"
+  ]
+ },
+ "failed": null,
+ "extra": {}
+}

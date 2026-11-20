@@ -15,7 +15,7 @@ const nyDate = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", 
 const version = V.game || `build-${V.build}`;
 const last = idx.read(results).filter((r) => r.kind === "nightly")[0];   // newest first
 if (passed && last && last.commit === opt.commit && /passed/.test(last.answer)) {
-  idx.add(results, { id: `${nyDate}_nightly`, date: nyDate, version, kind: "nightly", brief: "", tags: "nightly", question: "Do main's full checks still pass?", answer: "no change, passed", path: "", commit: opt.commit });
+  idx.addNightly(results, { id: `${nyDate}_nightly`, date: nyDate, version, kind: "nightly", brief: "", tags: "nightly", question: "Do main's full checks still pass?", answer: "no change, passed", path: "", commit: opt.commit });   // Brief 016: kept in results/nightly.csv, so a rebuild keeps it
   console.log("no change, passed: index line only");
   process.exit(0);
 }
@@ -25,6 +25,5 @@ const order = JSON.parse(fs.readFileSync(opt.order, "utf8"));
 order.answer = answer + (order.answer ? "; " + order.answer : "");
 const tmp = path.join(require("os").tmpdir(), "nightly-order.json"); fs.writeFileSync(tmp, JSON.stringify(order));
 const dir = cp.execFileSync("node", [path.join(__dirname, "merge.js"), "--results", results, "--parts", opt.parts || "/nonexistent", "--trigger", "night", "--commit", opt.commit, "--checks", opt.checks, tmp], { encoding: "utf8" }).trim();
-// mark the index line with the commit, so tomorrow can tell whether main changed
-const list = idx.read(results); const row = list.find((r) => r.path && dir.endsWith(r.path)); if (row) { row.commit = opt.commit; idx.write(results, list); }
+// The index line carries the commit (from run.json, Brief 016's rebuild), so tomorrow can tell whether main changed.
 console.log(dir);

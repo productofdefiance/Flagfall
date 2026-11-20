@@ -38,6 +38,20 @@
     return d[0] === 0 && d[1] === 2 && d[2] === 2;
   }
   const middle = (a, b) => CELLS.find((c) => dist(c, a) === 1 && dist(c, b) === 1);
+  /** v3.6 (Brief 015, Game Laws 4.9): is a flag hex (either flag, held or empty) strictly between `from` and `to` on one
+      of the six straight hex lines? Off a straight line nothing is ever between. Neither end counts: a unit on a flag
+      shoots out from it, and a holder on its flag can be shot. One helper for every line rule (Volley, Reach; later
+      Javelin, Vault). */
+  function flagBetween(from, to) {
+    const a = cube(...parse(from)), b = cube(...parse(to)), d = dist(from, to);
+    if (d < 2) return false;
+    for (const f of [FLAG.N, FLAG.S]) {
+      if (f === from || f === to) continue;
+      const c = cube(...parse(f));
+      for (let i = 0; i < 3; i++) if (a[i] === b[i] && c[i] === a[i] && dist(from, f) + dist(f, to) === d) return true;
+    }
+    return false;
+  }
 
   // ---------- Helpers ----------
   const EPS = 1e-9;
@@ -231,11 +245,17 @@
     u.stam -= cost; st.cmd -= cost;
   }
 
-  /** A braced Heavy Anti-Cavalry next to `hex` hits a unit entering it, once per turn. */
-  function spikeCheck(st, u, hex) {
+  /** A braced Heavy Anti-Cavalry next to `hex` hits a unit entering it, once per turn.
+      v3.6 (spearOnArrival, Game Laws 3.13): only a unit arriving next to that spear, i.e. not next to it on `from` (the
+      hex before the action), and a unit takes set spear damage at most once per turn; a spear it doesn't take stays loaded. */
+  function spikeCheck(st, u, hex, from) {
+    const arrival = sw(st, "spearOnArrival");
+    if (arrival && u.spearTaken) return "";
     for (const e of alive(st)) {
       if (e.team !== u.team && e.braced && card(st, e).brace === "spike" && !e.spikeUsed && dist(e.hex, hex) === 1) {
+        if (arrival && from && dist(e.hex, from) === 1) continue;   // already next to this spear: staying, not arriving
         e.spikeUsed = true;
+        if (arrival) u.spearTaken = true;
         const pooled = hurt(st, u, st.rs.spikeDamage);
         return `; braced ${e.id} at ${e.hex} deals ${st.rs.spikeDamage}${pooled} (${u.id} HP ${fmt(Math.max(u.hp, 0))})` + (u.hp <= 0 ? ` — ${u.id} REMOVED` : "");
       }
@@ -255,7 +275,7 @@
     if (tackle) u.tackled = true;
     if (evading) u.evadeMoved = true;
     let msg = `${u.id} ${src} → ${dst} (${steps} hex${steps > 1 ? "es" : ""}, cost ${fmt(cost)}${tackle ? ", including " + fmt(tackleCostFor(st, u)) + " for tackle" + (tackleHexes(st) ? " and 1 hex of movement" : "") : ""})` + (evading ? "; evading" : "") + (mode !== "free" ? "; stopped by Zone of Control" : "") + left;
-    if (u.hp > 0) msg += spikeCheck(st, u, dst);
+    if (u.hp > 0) msg += spikeCheck(st, u, dst, src);
     log(st, msg, "move");
   }
 
@@ -293,8 +313,8 @@
     const left = leaveFlag(st, a) + leaveFlag(st, b);
     a.hex = bh; b.hex = ah;
     let msg = `${a.id} and ${b.id} swap: ${a.id} to ${a.hex} (cost ${fmt(costs[0])}), ${b.id} to ${b.hex} (cost ${fmt(costs[1])})` + left;
-    if (a.hp > 0) msg += spikeCheck(st, a, a.hex);
-    if (b.hp > 0) msg += spikeCheck(st, b, b.hex);
+    if (a.hp > 0) msg += spikeCheck(st, a, a.hex, ah);
+    if (b.hp > 0) msg += spikeCheck(st, b, b.hex, bh);
     log(st, msg, "move");
   }
 
@@ -329,6 +349,7 @@
     if (c.reload && u.attackedLast) return false;
     if (isHolder(st, t) && !GOAL[t.team].has(h)) return false;   // the flag is a fort: storm it from the goal zone
     if (d === 1) return true;
+    if (sw(st, "flagBlocksLine") && flagBetween(h, t.hex)) return false;   // v3.6: a flag blocks Volley and Reach (4.9)
     if (c.trait === "reach" && d === 2 && straight2(h, t.hex)) {
       const m = middle(h, t.hex);
       return !alive(st).some((e) => e.team !== u.team && e.hex === m);
@@ -339,12 +360,15 @@
   /** The attack value before the die, with every step named. `h` = the hex attacked from.
       `detail` (Brief 009, read-only, for the attack preview): the same steps as numbers and names, so the board never
       works them out itself. It changes nothing the rules do. */
-  function breakdown(st, u, t, h) {
+  function breakdown(st, u, t, h, opt) {
     const g = st.rs.game, c = card(st, u), tc = card(st, t), d = dist(h, t.hex);
+    // opt (Brief 011, specials only): reach true = Reach's −1 at any distance (Javelin at 3); reach false = none (Skewer's
+    // second hit). No normal attack passes opt, so normal attacks are worked out exactly as before.
+    const reachHere = opt && opt.reach !== undefined ? opt.reach : c.range === 1 && d === 2;
     let v = c.str; const parts = [`Strength ${c.str}`];
     const detail = { str: c.str, reach: 0, halvedBy: null, strAfter: c.str, supporters: [], support: 0, noSupport: false,
       armor: tc.armor || 0, pierce: false, armorTaken: 0, dodge: null, brace: 0, defenderSupport: 0, home: null };
-    if (c.range === 1 && d === 2) { v -= g.reachPenalty; parts.push(`−${g.reachPenalty} Reach`); detail.reach = g.reachPenalty; }
+    if (reachHere) { v -= g.reachPenalty; parts.push(`−${g.reachPenalty} Reach`); detail.reach = g.reachPenalty; }
     if (c.range > 1 && st.rs.switches.rangedHalfWhenAdjacent && alive(st).some((e) => e.team === t.team && dist(e.hex, h) === 1)) {
       v = halve(st, v); parts.push("enemy adjacent: halved");
       detail.halvedBy = alive(st).filter((e) => e.team === t.team && dist(e.hex, h) === 1).map((e) => e.uid);
@@ -385,7 +409,19 @@
   /** Dice. One d6 (match 3 rules) or two d6 added, graded (v1 rules). Each case: [roll, chance, label]. */
   const D6_CASES = [[1, 1 / 6, "1"], [3, 4 / 6, "2–5"], [6, 1 / 6, "6"]];
   const TWO_D6_CASES = [[2, 1 / 36, "2"], [3, 2 / 36, "3"], [7, 30 / 36, "4–10"], [11, 2 / 36, "11"], [12, 1 / 36, "12"]];
-  const dieCases = (st) => (sw(st, "dice2d6") ? TWO_D6_CASES : D6_CASES);
+  /* v3.5 (Brief 010, Game Laws 6.13): the normal band splits. 4–5 takes 10% off, 9–10 adds 10%, 6–8 stays normal.
+     Symmetric, so the average multiplier is v3.4's. Each case's roll is a total inside its band. */
+  const VARIETY_CASES = [[2, 1 / 36, "2"], [3, 2 / 36, "3"], [4, 7 / 36, "4–5 · −10%"], [7, 16 / 36, "6–8"], [9, 7 / 36, "9–10 · +10%"], [11, 2 / 36, "11"], [12, 1 / 36, "12"]];
+  const dieCases = (st) => (sw(st, "dice2d6") ? (sw(st, "diceVariety") ? VARIETY_CASES : TWO_D6_CASES) : D6_CASES);
+  /** The two-dice multiplier for a total: 2 ×0.5, 3 ×0.75, 11 ×1.25, 12 ×1.5; with diceVariety 4–5 ×0.9, 9–10 ×1.1. */
+  function diceMultiplier(st, die) {
+    if (die <= 2) return 0.5;
+    if (die === 3) return 0.75;
+    if (die === 11) return 1.25;
+    if (die >= 12) return 1.5;
+    if (sw(st, "diceVariety")) { if (die <= 5) return 0.9; if (die >= 9) return 1.1; }
+    return 1;
+  }
   const normalDie = (st) => (sw(st, "dice2d6") ? 7 : 3);
   /** A roll from a random source: 1-6, or 2-12 as two dice added. */
   function rollWith(st, rnd) {
@@ -396,8 +432,7 @@
   function applyDie(st, v, die, dodge) {
     let dmg;
     if (sw(st, "dice2d6")) {
-      const m = die <= 2 ? 0.5 : die === 3 ? 0.75 : die === 11 ? 1.25 : die >= 12 ? 1.5 : 1;
-      dmg = v * m;
+      dmg = v * diceMultiplier(st, die);
     } else {
       dmg = v;
       if (die === 1) dmg = Math.floor(v / 2);
@@ -412,6 +447,7 @@
   function doAttack(st, u, t, roll) {
     if (t.team === u.team) fail("Cannot attack a friendly unit.");
     const d = dist(u.hex, t.hex);
+    if (u.sp === "warm") fail(`${u.id} warmed up its special this turn: no attack until it fires.`);   // v3.7 (6.16)
     if (!canAttackFrom(st, u, u.hex, t)) fail(card(st, u).reload && u.attackedLast ? `${u.id} is reloading this turn.` : `${u.id} at ${u.hex} cannot attack ${t.id} at ${t.hex}.`);
     spend(st, u, st.rs.game.attackCost);
     u.done = true; u.attackedThis = true;
@@ -437,8 +473,9 @@
       msg += ` — ${t.id} REMOVED`;
       const holdsOwnFlag = sw(st, "holderHoldsHex") && isHolder(st, u);   // v3.1 (E1 fix): a holder never leaves its flag to take a hex
       if (isMelee(st, u) && d === 1 && u.hp > 0 && !wasHolder && !holdsOwnFlag) {
+        const was = u.hex;
         u.hex = t.hex; msg += `; ${u.id} takes ${t.hex}`;
-        if (st.rs.switches.captureTriggersSpike) msg += spikeCheck(st, u, u.hex);
+        if (st.rs.switches.captureTriggersSpike) msg += spikeCheck(st, u, u.hex, was);
       }
     }
     // v3.3 Evade: a Light unit whose adjacent attack left the target standing may step away instead of ending its turn.
@@ -450,10 +487,12 @@
     return { die, dmg };
   }
 
-  function canPullFrom(st, u, h) { return homeOf(foeOf(u.team)).has(h) && !holderOf(st, foeOf(u.team)); }
+  /** v3.6 (pullCountsForReload, 3.11): a reloading unit can't pull either. */
+  const pullReloading = (st, u) => sw(st, "pullCountsForReload") && !!card(st, u).reload && !!u.attackedLast;
+  function canPullFrom(st, u, h) { return homeOf(foeOf(u.team)).has(h) && !holderOf(st, foeOf(u.team)) && !pullReloading(st, u); }
   function pullValue(st, u) {
     const c = card(st, u), foe = foeOf(u.team);
-    let v = c.range > 1 ? halve(st, c.str) : c.str;
+    let v = c.range > 1 && !sw(st, "pullFullStrength") ? halve(st, c.str) : c.str;   // v3.6: a pull is always full Strength (4.6)
     const parts = [`Strength ${fmt(v)}`];
     if (sw(st, "pullSupport")) {
       // Pull Support: +1 (supportBonus) for every other friendly unit next to the flag, as Support on an attack.
@@ -466,9 +505,12 @@
     return { value: v, parts };
   }
   function doPull(st, u, roll) {
+    if (pullReloading(st, u)) fail(`${u.id} is reloading this turn.`);
+    if (u.sp === "warm") fail(`${u.id} warmed up its special this turn: no pull (a pull counts as an attack).`);   // v3.7 (6.16, F8)
     if (!canPullFrom(st, u, u.hex)) fail(`${u.id} is not next to the enemy flag.`);
     spend(st, u, st.rs.game.attackCost);
     u.done = true;
+    if (sw(st, "pullCountsForReload")) u.attackedThis = true;   // v3.6: a pull counts as an attack for Reload (no Evade, no parry)
     const foe = foeOf(u.team);
     const { value, parts } = pullValue(st, u);
     const die = roll();
@@ -479,15 +521,196 @@
   }
 
   function doBrace(st, u) {
+    if (u.sp === "warm") fail(`${u.id} warmed up its special this turn: no brace.`);   // v3.7 (6.16)
     spend(st, u, st.rs.game.braceCost);
     u.done = true; u.braced = true; u.spikeUsed = false;
     if (sw(st, "parryFirstOnly")) u.parryUsed = false;   // v3.2: a fresh brace has its parry ready
     log(st, `${u.id} braces at ${u.hex}`, "brace");
   }
 
+  // ---------- Specials (v3.7, Brief 011, Game Laws 6.16 and 6.17) ----------
+  /* A unit's special is in one of four states, kept on the unit as u.sp (only under the specials switch, so older rule
+     sets never see it): "unused"; "warm" (warmed up this turn: no attack, pull or brace for the rest of it; shown as
+     Warming up through the enemy's turn); "charged" (its next turn: it may fire now, or it lapses back to unused when the
+     turn ends); "used". The board and the brains read these; nothing keeps its own copy. */
+  const SPECIAL_NAMES = { arcHit: "Arc Hit", pickOff: "Pick Off", bullseye: "Bullseye", arrowStorm: "Arrow Storm", skewer: "Skewer", javelin: "Javelin" };
+  /** The unit's special kind under this rule set, or null (no specials switch, or no special on its card). */
+  const specialOf = (st, u) => (sw(st, "specials") && card(st, u).special) || null;
+  const specialName = (kind) => SPECIAL_NAMES[kind] || kind;
+  const specNums = (st, kind) => (st.rs.specials && st.rs.specials[kind]) || {};
+  const onFlag = (h) => h === FLAG.N || h === FLAG.S;
+  /** Cube coordinates back to a hex name (null when off the field). */
+  function fromCube(c) {
+    const q = c[0]; if (q < 0 || q >= NCOL) return null;
+    const r = c[2] + ((q - (q & 1)) >> 1) + 1, h = COLS[q] + r;
+    return CELLSET.has(h) ? h : null;
+  }
+  /** The hexes strictly between two hexes on one straight line, nearest first; null when they are not on one. */
+  function lineBetween(a, b) {
+    const ca = cube(...parse(a)), cb = cube(...parse(b)), d = dist(a, b);
+    if (![0, 1, 2].some((i) => ca[i] === cb[i])) return null;
+    const out = [];
+    for (let k = 1; k < d; k++) out.push(fromCube([0, 1, 2].map((i) => ca[i] + (cb[i] - ca[i]) * k / d)));
+    return out;
+  }
+  /** Skewer: the hex directly behind `t` seen from `a` (same straight line, one further), or null. */
+  function hexBehind(a, t) {
+    const ca = cube(...parse(a)), ct = cube(...parse(t));
+    return fromCube([0, 1, 2].map((i) => 2 * ct[i] - ca[i]));
+  }
+  /** Arc Hit's arc around target hex `t` from `a`: t plus the hexes next to both. A flag hex is never in it (6.17, F8). */
+  const arcOf = (a, t) => [t].concat(NBRS[t].filter((n) => dist(n, a) === 1)).filter((h) => !onFlag(h));
+  /** Can `u`'s special take `t` as its target from where `u` stands (state and costs aside)? */
+  function specialCanTarget(st, u, t) {
+    const kind = specialOf(st, u);
+    if (!kind || !t || t.hp <= 0 || t.team === u.team || onFlag(t.hex)) return false;   // no special on a flag hex (F8)
+    const d = dist(u.hex, t.hex);
+    if (kind === "arcHit" || kind === "pickOff" || kind === "skewer") return d === 1;
+    if (kind === "bullseye" || kind === "arrowStorm") return canAttackFrom(st, u, u.hex, t);
+    if (kind === "javelin") {
+      const n = specNums(st, kind), mid = lineBetween(u.hex, t.hex);
+      if (d < (n.minRange || 2) || d > (n.maxRange || 3) || !mid) return false;
+      if (sw(st, "flagBlocksLine") && flagBetween(u.hex, t.hex)) return false;   // the flag block (4.9)
+      return !alive(st).some((e) => e.team !== u.team && mid.includes(e.hex));    // over friends, never over enemies
+    }
+    return false;
+  }
+  /** One special hit on `t` from `u`'s hex: the normal value without the roll, times the multiplier (6.16.3). */
+  function specialHit(st, u, t, mult, opt) {
+    const b = breakdown(st, u, t, u.hex, opt && opt.reach !== undefined ? { reach: opt.reach } : undefined);
+    const dodge = opt && opt.noDodge ? 0 : b.dodge;
+    let dmg = b.value * (1 - dodge / 100) * mult;
+    dmg = sw(st, "halfPoints") ? half(dmg) : Math.round(dmg);
+    dmg = Math.max(st.rs.game.minDamage, dmg);
+    return { uid: t.uid, id: t.id, value: b.value, dodge: b.dodge, dodgeIgnored: !!(opt && opt.noDodge && b.dodge), mult, dmg, parts: b.parts, detail: b.detail,
+      hpBefore: effHp(st, t), kills: dmg >= effHp(st, t) - EPS, why: (opt && opt.why) || null };
+  }
+  /** Every hit a special would make on target `t` now, primary first: the exact numbers the engine will deal. */
+  function specialHits(st, u, t) {
+    const kind = specialOf(st, u), n = specNums(st, kind), out = [];
+    if (kind === "arcHit") {
+      const arc = arcOf(u.hex, t.hex);
+      out.push(specialHit(st, u, t, n.mult));
+      for (const h of arc) { const x = alive(st).find((e) => e.hex === h && e !== t); if (x && x.team !== u.team) out.push(specialHit(st, u, x, n.mult)); }
+    } else if (kind === "pickOff") {
+      const friends = alive(st).filter((f) => f.team === t.team && f !== t && dist(f.hex, t.hex) === 1).length;
+      const m = Math.max(n.floor !== undefined ? n.floor : 1, n.mult - (n.lessPerFriend || 0) * friends);
+      out.push(specialHit(st, u, t, m, { why: friends ? `${friends} friend${friends > 1 ? "s" : ""} next to the target: ×${fmt(m)}` : null }));
+    } else if (kind === "bullseye") {
+      out.push(specialHit(st, u, t, n.mult, { why: card(st, t).armor && card(st, u).trait === "ignoreArmor" ? `Armor ${card(st, t).armor} doesn't count (Pierce)` : null }));
+    } else if (kind === "arrowStorm") {
+      const h = specialHit(st, u, t, n.mult, { noDodge: true });
+      if (h.dodgeIgnored) h.why = `Dodge ${h.dodge}% doesn't count`;
+      out.push(h);
+    } else if (kind === "skewer") {
+      out.push(specialHit(st, u, t, n.first));
+      const b = hexBehind(u.hex, t.hex), x = b && !onFlag(b) ? alive(st).find((e) => e.hex === b) : null;   // a holder behind is never hit
+      if (x && x.team !== u.team) out.push(specialHit(st, u, x, n.behind, { reach: !!n.behindReach }));
+    } else if (kind === "javelin") {
+      out.push(specialHit(st, u, t, n.mult, { reach: true, why: `Reach −${st.rs.game.reachPenalty} Strength, then ×${fmt(n.mult)}` }));
+    }
+    return out;
+  }
+  /** Why the special can't be warmed up now (null = it can). */
+  function warmupBlock(st, u) {
+    if (!specialOf(st, u)) return "No special in this rule set";
+    if (u.sp === "used") return "Used";
+    if (u.sp === "warm") return "Fire it next turn";
+    if (u.braced) return "Braced this turn";
+    if (u.attackedThis) return "Already attacked this turn";   // a pull counts as an attack (6.16, F8)
+    if (u.done) return `${u.id} has ended its turn`;
+    if (evadeTarget(st, u)) return `${u.id} attacked this turn and may only evade or end`;
+    const c = st.rs.game.warmupCost;
+    if (u.stam + EPS < c || st.cmd + EPS < c) return "Not enough Stamina";
+    return null;
+  }
+  /** Why the special can't fire now, at any target (null = it can at some target). */
+  function fireBlock(st, u) {
+    if (!specialOf(st, u)) return "No special in this rule set";
+    if (u.sp === "used") return "Used";
+    if (u.sp === "warm") return "Fire it next turn";
+    if (u.sp !== "charged") return "Warm it up first";
+    if (u.braced) return "Braced this turn";
+    if (u.attackedThis) return "Already attacked this turn";
+    if (u.done) return `${u.id} has ended its turn`;
+    if (card(st, u).reload && u.attackedLast) return `${u.id} is reloading this turn`;
+    const c = st.rs.game.attackCost;
+    if (u.stam + EPS < c || st.cmd + EPS < c) return "Not enough Stamina";
+    if (!alive(st).some((t) => specialCanTarget(st, u, t))) return "No target in reach";
+    return null;
+  }
+  function doWarmup(st, u) {
+    const why = warmupBlock(st, u);
+    if (why) fail(why === "Used" || why === "Fire it next turn" ? `${u.id}'s ${specialName(specialOf(st, u))}: ${why.toLowerCase()}.` : `${u.id} cannot warm up: ${why}.`);
+    spend(st, u, st.rs.game.warmupCost);
+    const again = u.sp === "charged";
+    u.sp = "warm";
+    log(st, `${u.id} warms up ${specialName(specialOf(st, u))} at ${u.hex}${again ? " (again)" : ""}.`, "special");
+  }
+  function doSpecial(st, u, t) {
+    const kind = specialOf(st, u), why = fireBlock(st, u);
+    if (why) fail(`${u.id} cannot fire: ${why}.`);
+    if (!specialCanTarget(st, u, t)) fail(`${u.id}'s ${specialName(kind)} cannot target ${t.id} at ${t.hex}.`);
+    spend(st, u, st.rs.game.attackCost);
+    u.done = true; u.attackedThis = true; u.sp = "used";
+    const d = dist(u.hex, t.hex), hits = specialHits(st, u, t);
+    // All hits land first (Article 1.12), then reactions.
+    const pieces = [];
+    for (const h of hits) {
+      const x = unitByUid(st, h.uid);
+      hurt(st, x, h.dmg);
+      pieces.push(`${x.id} (${x.hex}): ${h.parts.join(", ")} = ${fmt(h.value)}; no dice${h.dodgeIgnored ? ", Dodge doesn't count" : h.dodge ? `, Dodge ${h.dodge}%` : ""}; ×${fmt(h.mult)} → ${fmt(h.dmg)} damage; ${x.id} HP ${fmt(Math.max(x.hp, 0))}` + (x.hp <= 0 ? ` — ${x.id} REMOVED` : ""));
+    }
+    let msg = `${u.id} (${u.hex}) fires ${specialName(kind)}: ` + pieces.join("; ");
+    // Parry: only adjacent hits on a braced Heavy Melee; each such hit uses up that unit's parry; one parry per action.
+    let parried = false;
+    for (const h of hits) {
+      const x = unitByUid(st, h.uid);
+      if (!(x.braced && card(st, x).brace === "parry" && dist(u.hex, x.hex) === 1)) continue;
+      if (!parried && u.hp > 0 && !(sw(st, "parryFirstOnly") && x.parryUsed) && !(sw(st, "parryNeedsSurvivor") && x.hp <= 0)) {
+        const pd = parryAmount(st, u), pp = hurt(st, u, pd);
+        parried = true;
+        msg += `; ${x.id} parries for ${fmt(pd)}${pp} (${u.id} HP ${fmt(Math.max(u.hp, 0))})` + (u.hp <= 0 ? ` — ${u.id} REMOVED` : "");
+      }
+      if (sw(st, "parryFirstOnly")) x.parryUsed = true;
+    }
+    // Taking the hex: Pick Off only, as any adjacent melee kill (3.6); Arc Hit and Skewer never step in (6.17).
+    if (kind === "pickOff" && t.hp <= 0 && d === 1 && u.hp > 0 && !(sw(st, "holderHoldsHex") && isHolder(st, u))) {
+      const was = u.hex;
+      u.hex = t.hex; msg += `; ${u.id} takes ${t.hex}`;
+      if (st.rs.switches.captureTriggersSpike) msg += spikeCheck(st, u, u.hex, was);
+    }
+    // Evade (6.5): a Light unit after an adjacent special that leaves its target standing.
+    if (sw(st, "evade") && card(st, u).evade && d === 1 && t.hp > 0 && u.hp > 0) {
+      u.done = false; u.evadeFrom = t.uid; u.evadeMoved = false;
+      msg += `; ${u.id} may evade`;
+    }
+    log(st, msg, "special");
+    return { hits: hits.map((h) => ({ uid: h.uid, dmg: h.dmg })) };
+  }
+  /** Everything the board shows about firing at `t` now: the hits (exact), the arc, parry and taking the hex. */
+  function specialPreview(st, u, t) {
+    const kind = specialOf(st, u);
+    if (!kind || !specialCanTarget(st, u, t)) return null;
+    const hits = specialHits(st, u, t), d = dist(u.hex, t.hex);
+    const parryFrom = hits.map((h) => unitByUid(st, h.uid)).find((x) => x.braced && card(st, x).brace === "parry" && dist(u.hex, x.hex) === 1 && !(sw(st, "parryFirstOnly") && x.parryUsed));
+    const n = specNums(st, kind);
+    return { kind, name: specialName(kind), target: t.uid, hits, arc: kind === "arcHit" ? arcOf(u.hex, t.hex) : null,
+      behind: kind === "skewer" ? hexBehind(u.hex, t.hex) : null,
+      parry: parryFrom ? { by: parryFrom.uid, amount: parryAmount(st, u), ifSurvives: sw(st, "parryNeedsSurvivor") } : null,
+      capture: kind === "pickOff" && d === 1 && !(sw(st, "holderHoldsHex") && isHolder(st, u)) ? capturePreview(st, u, t) : null,
+      evade: kind === "pickOff" || (kind === "arrowStorm" && d === 1) ? evadePreview(st, u, t) : null, nums: Object.assign({}, n) };
+  }
+  /** The special's state as the board shows it: "Unused", "Warming up", "Charged" (its firing turn) or "Used"; null without one. */
+  function specialState(st, u) {
+    if (!specialOf(st, u)) return null;
+    return u.sp === "used" ? "Used" : u.sp === "warm" ? "Warming up" : u.sp === "charged" ? "Charged" : "Unused";
+  }
+
   // ---------- Turns and results ----------
   function startTurn(st, team) {
     st.toMove = team;
+    if (sw(st, "spearOnArrival")) for (const u of alive(st)) u.spearTaken = false;   // v3.6: at most one set spear per unit per turn
     st.cmd = st.turn === 1 && team === st.first ? st.rs.game.firstTurnCommand : st.rs.game.command;
     for (const u of alive(st)) {
       if (u.team !== team) continue;
@@ -498,6 +721,7 @@
       u.attackedLast = !!u.attackedThis; u.attackedThis = false;
       if (sw(st, "parryFirstOnly")) u.parryUsed = false;   // v3.2: resets when this side's next turn begins
       if (sw(st, "evade")) { u.evadeFrom = null; u.evadeMoved = false; }
+      if (u.sp === "warm") u.sp = "charged";   // v3.7: warmed last turn, it may fire now
     }
     st.spend.push({ team, turn: st.turn, cmd: st.cmd, spent: null });
     log(st, `${team === "N" ? "North" : "South"} turn ${st.turn}: ${fmt(st.cmd)} Command`, "turn");
@@ -553,6 +777,8 @@
   function endTurn(st) {
     const rec = st.spend[st.spend.length - 1];
     if (rec) rec.spent = rec.cmd - st.cmd;
+    // v3.7 (6.16): a charged special not fired this turn lapses back to unused.
+    for (const u of alive(st)) if (u.team === st.toMove && u.sp === "charged") { u.sp = "unused"; log(st, `${u.id}'s ${specialName(specialOf(st, u))} lapses (not fired).`, "special"); }
     const next = foeOf(st.toMove);
     if (st.toMove !== st.first) {
       if (st.turn >= turnLimit(st)) return limitResult(st);
@@ -594,6 +820,7 @@
         st.units.push({ uid: team + "-" + l.id, team, id: l.id, card: l.card, fk: !!l.fk, hex: null, hp: c.hp, maxHp: c.hp,
           braced: false, wasBraced: false, stam: c.stamina !== undefined ? c.stamina : rs.game.stamina, moved: 0, zmode: null, done: false, tackled: false,
           spikeUsed: false, attackedLast: false, attackedThis: false });
+        if (rs.switches && rs.switches.specials && c.special) st.units[st.units.length - 1].sp = "unused";   // v3.7
       }
     }
     return st;
@@ -648,8 +875,8 @@
     if (st.phase !== "play") fail("The match is not in play.");
     if (action.type === "surrender" && action.team !== undefined && action.team !== "N" && action.team !== "S") fail("Surrender needs a side, N or S.");
     if (action.type === "move" && !CELLSET.has(action.to)) fail("That hex is not on the field.");
-    if ((action.type === "swap" && !action.with) || (action.type === "attack" && !action.target)) fail("That action needs a second unit.");
-    if (["move", "swap", "attack", "pull", "brace", "done"].includes(action.type) && !action.uid) fail("That action needs a unit.");
+    if ((action.type === "swap" && !action.with) || ((action.type === "attack" || action.type === "special") && !action.target)) fail("That action needs a second unit.");
+    if (["move", "swap", "attack", "pull", "brace", "done", "warmup", "special"].includes(action.type) && !action.uid) fail("That action needs a unit.");
     const actor = st.toMove;
     let out = {};
     const u = action.uid ? unitByUid(st, action.uid) : null;
@@ -672,6 +899,12 @@
         out = doAttack(st, u, t, roll); break;
       }
       case "pull": out = doPull(st, u, roll); break;
+      case "warmup": doWarmup(st, u); break;
+      case "special": {
+        const t = unitByUid(st, action.target);
+        if (!t || t.hp <= 0) fail("No such target.");
+        out = doSpecial(st, u, t); break;
+      }
       case "brace": doBrace(st, u); break;
       case "done": if (u.done) fail(`${u.id} has already ended its turn.`); u.done = true; if (u.evadeFrom) u.evadeFrom = null; log(st, `${u.id} ends its turn`, "done"); break;
       case "end": endTurn(st); break;
@@ -719,7 +952,8 @@
     const g = st.rs.game;
     const can = (cost) => u.stam + EPS >= cost && st.cmd + EPS >= cost;
     const attacks = [];
-    if (can(g.attackCost)) {
+    const warm = u.sp === "warm";   // v3.7: warmed up this turn, so no attack, pull or brace (6.16)
+    if (can(g.attackCost) && !warm) {
       for (const t of alive(st)) {
         if (t.team === u.team || !canAttackFrom(st, u, u.hex, t)) continue;
         const b = breakdown(st, u, t, u.hex);
@@ -730,13 +964,22 @@
       }
     }
     let pull = null;
-    if (can(g.attackCost) && canPullFrom(st, u, u.hex)) { const p = pullValue(st, u); const cs = dieCases(st).map(([d, pr]) => [applyDie(st, p.value, d), pr]); pull = { value: p.value, parts: p.parts, low: cs[0][0], high: cs[cs.length - 1][0], cases: cs }; }
+    if (can(g.attackCost) && !warm && canPullFrom(st, u, u.hex)) { const p = pullValue(st, u); const cs = dieCases(st).map(([d, pr]) => [applyDie(st, p.value, d), pr]); pull = { value: p.value, parts: p.parts, low: cs[0][0], high: cs[cs.length - 1][0], cases: cs }; }
     const swaps = [];
     for (const f of alive(st)) {
       if (f.team !== u.team || f === u || dist(f.hex, u.hex) !== 1 || evadeTarget(st, f)) continue;
       try { const c = swapCosts(st, u, f); if (u.stam + EPS >= c[0] && f.stam + EPS >= c[1] && st.cmd + EPS >= c[0] + c[1]) swaps.push(f.uid); } catch (e) { /* not allowed */ }
     }
-    return { moves: reachMap(st, u), attacks, pull, brace: can(g.braceCost), swaps };
+    const out = { moves: reachMap(st, u), attacks, pull, brace: can(g.braceCost) && !warm, swaps };
+    // v3.7 (Brief 011): the special, as attack and pull are: its state, whether it can be warmed up or fired, and the
+    // exact preview for every legal target. Only for units that have one.
+    const kind = specialOf(st, u);
+    if (kind) {
+      const fb = fireBlock(st, u);
+      out.special = { kind, name: specialName(kind), state: specialState(st, u), warmup: !warmupBlock(st, u), warmupCost: g.warmupCost,
+        fire: !fb, targets: fb ? [] : alive(st).filter((t) => specialCanTarget(st, u, t)).map((t) => specialPreview(st, u, t)) };
+    }
+    return out;
   }
 
   /** What parry would do if `u` attacked `t` now, for the board: null (no parry possible), {used: true} (v3.2: already
@@ -780,19 +1023,30 @@
   /** Why each action is unavailable for a unit right now (null = available), for the board's greyed-out buttons. */
   function blockReasons(st, uid) {
     const u = unitByUid(st, uid), g = st.rs.game, out = { attack: null, reach: null, brace: null, move: null, done: null, special: "No special actions in this rule set yet" };
-    const all = (r) => { for (const k of ["attack", "reach", "brace", "move", "done"]) out[k] = r; return out; };
+    const all = (r) => { for (const k of ["attack", "reach", "brace", "move", "done"]) out[k] = r; if (u && specialOf(st, u)) out.special = r; return out; };
+    // v3.7: the special button's reason. Charged: why it can't fire (it may still be warmed up again: specialWarmAgain).
+    // Otherwise: why it can't be warmed up. Read before the turn-ended check so a braced unit says "Braced this turn".
+    if (u && u.hp > 0 && specialOf(st, u) && st.phase === "play" && u.team === st.toMove) {
+      out.special = u.sp === "charged" ? fireBlock(st, u) : warmupBlock(st, u);
+      if (u.sp === "used") out.special = "Used";
+      if (u.braced) out.special = u.sp === "used" ? "Used" : "Braced this turn";
+    }
     if (!u || u.hp <= 0) return all("That unit has been removed");
     if (st.phase !== "play") return all("The match is not in play");
     if (u.team !== st.toMove) return all("It is not that side's turn");
-    if (u.done) return all(`${u.id} has ended its turn`);
+    if (u.done) { const sp = out.special; all(`${u.id} has ended its turn`); if (specialOf(st, u) && (sp === "Used" || sp === "Braced this turn" || sp === "Already attacked this turn")) out.special = sp; return out; }
     const ev = evadeTarget(st, u);
     const o = options(st, uid), c = card(st, u);
     const need = (k, cost) => (u.stam + EPS < cost ? `Needs ${fmt(cost)} Stamina, ${fmt(u.stam)} left` : st.cmd + EPS < cost ? `Needs ${fmt(cost)} Command, ${fmt(st.cmd)} left` : null);
-    if (ev) { out.attack = out.reach = out.brace = `${u.id} attacked this turn and may only evade or end`; }
+    if (ev) { out.attack = out.reach = out.brace = `${u.id} attacked this turn and may only evade or end`; if (specialOf(st, u) && u.sp !== "used") out.special = out.attack; }
+    else if (u.sp === "warm") { out.attack = out.reach = out.brace = "Warmed up this turn: fire it next turn"; }
     else {
       const reachShot = (a) => c.trait === "reach" && c.range === 1 && dist(u.hex, unitByUid(st, a.target).hex) === 2;
-      out.attack = need("attack", g.attackCost) || (c.reload && u.attackedLast ? `${u.id} is reloading this turn` : null) || (o.attacks.some((a) => !reachShot(a)) ? null : "No enemy in range");
-      out.reach = c.trait !== "reach" ? "Only Anti-Cavalry units can Reach" : need("attack", g.attackCost) || (o.attacks.some(reachShot) ? null : "No enemy 2 hexes away in a straight line, with nothing in between");
+      // v3.6: when the only thing stopping a shot is a flag in the line, say so (Game Laws 4.9).
+      const flagOnly = (reach) => sw(st, "flagBlocksLine") && alive(st).some((t) => t.team !== u.team && dist(u.hex, t.hex) >= 2 && flagBetween(u.hex, t.hex) &&
+        (reach ? straight2(u.hex, t.hex) : c.range > 1 && dist(u.hex, t.hex) <= c.range) && !(isHolder(st, t) && !GOAL[t.team].has(u.hex)) && !(reach && alive(st).some((e) => e.team !== u.team && e.hex === middle(u.hex, t.hex))));
+      out.attack = need("attack", g.attackCost) || (c.reload && u.attackedLast ? `${u.id} is reloading this turn` : null) || (o.attacks.some((a) => !reachShot(a)) ? null : flagOnly(false) ? "A flag blocks the line" : "No enemy in range");
+      out.reach = c.trait !== "reach" ? "Only Anti-Cavalry units can Reach" : need("attack", g.attackCost) || (o.attacks.some(reachShot) ? null : flagOnly(true) ? "A flag blocks the line" : "No enemy 2 hexes away in a straight line, with nothing in between");
       out.brace = need("brace", g.braceCost);
     }
     out.move = whyNoMove(st, u);
@@ -816,7 +1070,7 @@
     const moving = st.phase === "play" && u.team === st.toMove;
     return { hp: hpShown(st, u), maxHp: u.maxHp, braced: !!u.braced, bracedLast: !!(moving && u.wasBraced && !u.braced), holder: isHolder(st, u), stamNow: moving ? u.stam : null, stamNext: nextStam,
       done: moving && u.done, reloading: !!(c.reload && (moving ? u.attackedLast : u.attackedThis)), zone: projects(st, u),
-      dodge: c.dodge && sw(st, "dodgeRoom") && u.hex ? dodgeRoom(st, u).pct : null };
+      dodge: c.dodge && sw(st, "dodgeRoom") && u.hex ? dodgeRoom(st, u).pct : null, special: specialState(st, u), warming: u.sp === "warm" };
   }
 
   function zones(st) {
@@ -826,6 +1080,6 @@
   }
 
   const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, foeOf, clone, card, alive, unitByUid,
-    newMatch, act, apply, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, dieCases, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, STAMINA_EFFECTS, baseStamina, braceTiredness, staminaFloor, staminaMods, addStaminaMod, staminaWith, nextStamina, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
+    newMatch, act, apply, specialOf, specialName, specialCanTarget, specialHits, specialPreview, specialState, warmupBlock, fireBlock, arcOf, hexBehind, lineBetween, SPECIAL_NAMES, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, canPullFrom, flagBetween, dieCases, diceMultiplier, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, STAMINA_EFFECTS, baseStamina, braceTiredness, staminaFloor, staminaMods, addStaminaMod, staminaWith, nextStamina, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
   if (typeof module !== "undefined") module.exports = api; else root.GGEngine = api;
 })(this);

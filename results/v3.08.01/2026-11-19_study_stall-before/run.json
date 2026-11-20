@@ -1,0 +1,54 @@
+{
+ "id": "2026-11-19_study_stall-before",
+ "kind": "study",
+ "version": "v3.08.01",
+ "build": 12,
+ "commit": "e36d21725e4983e43d4d52387a4d96a666442f5b",
+ "brief": "016",
+ "question": "The stall baseline: when does fighting start and stop, how quiet is the ending, and what does each side have left, in balanced Brain 5 mirrors on v3.5? Same seeds as v3.08.00's release run, so the outcome table must match it exactly.",
+ "tags": [
+  "stall",
+  "brain5",
+  "v3.5",
+  "baseline"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-19T22:24:05.000Z",
+ "finished": "2026-11-19T23:25:10.019Z",
+ "games": 2000,
+ "seed_from": "tests/rng.js lab:release-v3-08-00:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.5",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000
+   },
+   {
+    "name": "7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.5",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000
+   }
+  ],
+  "measures": [
+   "play",
+   "clock",
+   "light"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "5v5: mirror, 58.0% ended on the turn limit, A/B 514–461; 7v7: mirror, 40.7% ended on the turn limit, A/B 482–484."
+}

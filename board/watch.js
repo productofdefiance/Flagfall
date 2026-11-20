@@ -116,6 +116,7 @@
     hooks = hooks || {};
     const m = setupMatch(spec), rand = matchRand(m);
     if (hooks.brains) m.brains = hooks.brains;   // a simulator's changed brain (a sweep); the board can't replay those
+    if (hooks.rs) m.rs = hooks.rs;   // a simulator's changed rule set (one switch off, Brief 015); the board can't replay those
     const st = E.newMatch(m.rs, m.opts);
     deployBots(m, st, rand);
     if (hooks.start) hooks.start(st, m);

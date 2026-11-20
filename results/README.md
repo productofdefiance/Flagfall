@@ -8,6 +8,7 @@ results/
   README.md       this file
   INDEX.md        one line per run, newest first, written automatically
   index.csv       the same list: id, date, version, kind, brief, tags, question, answer, path (more columns may follow)
+  nightly.csv     quiet nights ("no change, passed"), which have no run folder (Brief 016)
   v3.05.02/       runs grouped under the game version they tested
     2026-11-18_screen_lab-dry-run/
   pre-v3.05.00/   the studies from before the lab (data/sim_study6–10), moved as they were; see its README
@@ -80,3 +81,9 @@ Extend, never rename:
 - a new **measure**: an entry in `sims/lab/measures.js` (its columns join `games.csv` and it gets its own table);
 - a new **field** in `run.json` or a new **column** in `index.csv`: just write it; readers ignore what they don't know.
 - New formats (9v9), units (Cavalry), specials and brains need no change here: they're values in the core columns.
+
+## The index is rebuilt, never edited (Brief 016, F35)
+`INDEX.md` and `index.csv` are rebuilt from every run folder's `run.json` (and `nightly.csv`) each time the lab files a run: newest date first, then the run that finished last. Two results pull requests can then never leave a conflict that stays: when one falls behind `main`, the `results refresh` workflow (hourly, and on pushes to `main`) merges `main` into it and rebuilds both files (`node sims/lab/index.js --rebuild`). Don't edit either file by hand.
+
+## The Editor's own games (Brief 016)
+`node sims/lab/record.js data/human_records/*.json --out <file.csv>` runs copied match records through the same measures as lab games (see `data/human_records/README.md`).

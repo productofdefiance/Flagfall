@@ -1,0 +1,62 @@
+{
+ "id": "2026-11-19_screen_specials-onoff-b",
+ "kind": "screen",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "2bae2d3ad93a286268c105a79e0817405ae3f9c9",
+ "brief": "011",
+ "question": "Re-run on the fixed bot (it now counts an enemy's warmed-up Arrow Storm without Dodge, as the engine deals it; Skewer warms only for a plausible line-up), same seeds as specials-onoff. Specials on vs off: Brain 5 using specials (A) against Brain 5 ignoring them (useSpecials=0), v3.7, 400 games per format, sides and move order swapped evenly. If off wins by more than the noise, specials are a trap as written (ASK).",
+ "tags": [
+  "specials",
+  "on-off",
+  "brain5",
+  "v3.7"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T04:36:11.000Z",
+ "finished": "2026-11-20T05:14:27.733Z",
+ "games": 1200,
+ "seed_from": "tests/rng.js lab:specials-onoff:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "balanced-5v5",
+    "a": "brain5",
+    "b": "brain5:useSpecials=0",
+    "rules": "v3.7",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 400
+   },
+   {
+    "name": "balanced-7v7",
+    "a": "brain5",
+    "b": "brain5:useSpecials=0",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 400
+   },
+   {
+    "name": "light-7v7",
+    "a": "brain5",
+    "b": "brain5:useSpecials=0",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "light",
+    "games": 400
+   }
+  ],
+  "measures": [
+   "play",
+   "specials"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "balanced-5v5: brain5 took 80.0% of games against brain5:useSpecials=0 (decisive 230–25, tiebreak 88–53, draws 4); balanced-7v7: brain5 took 68.6% of games against brain5:useSpecials=0 (decisive 182–41, tiebreak 90–82, draws 5); light-7v7: brain5 took 89.3% of games against brain5:useSpecials=0 (decisive 299–17, tiebreak 57–25, draws 2)."
+}

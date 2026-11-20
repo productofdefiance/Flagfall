@@ -1,0 +1,36 @@
+{
+  "id": "flag-rulings-bots",
+  "kind": "screen",
+  "brief": "015",
+  "question": "Bot minimum: does Brain 6 play 200 balanced games per format on v3.6 against itself with no refused action, no error and no unfinished game? (Brain 5's mirrors are the 1,000-game v3.6 study.)",
+  "tags": [
+    "flag-rulings",
+    "bot-minimum",
+    "brain6",
+    "v3.6"
+  ],
+  "measures": [
+    "play",
+    "flagrules"
+  ],
+  "matchups": [
+    {
+      "name": "brain6-mirror-5v5",
+      "a": "brain6",
+      "b": "brain6",
+      "rules": "v3.6",
+      "format": "blitz5",
+      "mix": "mixed",
+      "games": 200
+    },
+    {
+      "name": "brain6-mirror-7v7",
+      "a": "brain6",
+      "b": "brain6",
+      "rules": "v3.6",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 200
+    }
+  ]
+}
