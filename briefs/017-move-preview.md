@@ -219,5 +219,6 @@ Play one match on a phone: tap a Light Ranged and preview three moves (one clean
   - Screenshots (390 × 844 and 1280 × 800, all nine views the brief lists plus the enemy view) are in `briefs/img/017/`. The Editor's hands-on check is still to do.
   - Bot slows by about 10–25% on v3.9 (route search inside its look-ahead): about 5.7 s vs 4.6 s per 5v5 game on this machine.
   - Plain readings needing a ruling: F017-1, F017-2.
-- **Flags closed / opened:** closed F021-3. Opened F017-1 (ASK), F017-2 (ASK), F017-3 (OPEN, information).
+- **Review fixes (the Editor, 20 Nov):** (1) the phone's key tab now sits in the field's bottom-left corner, 10 px from the left edge, so it no longer covers the bottom edge pill (off-screen units and flag); (2) the flag pill is drawn above the tokens and, when the flag is held, sits just outside the holder's widest ring (selection, braced, warm-up), so it is never hidden. Re-shot at 393 × 665: `phone-393x665-1-light-ranged-tapped.png`, `phone-393x665-7-attack-evade-kill.png`, plus `phone-393x665-held-flag.png` for the pill. Engine untouched, so no slow checks re-run; `test_ui`, `test_version` and `test_route` pass.
+- **Flags closed / opened:** closed F021-3. Opened F017-1 (ASK), F017-2 (ASK), F017-3 (OPEN, information), F017-4 (ASK: on a 393 × 665 phone the attack preview hides the Evade hexes and spear badge).
 - **Pull request:** #44
