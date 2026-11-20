@@ -1,0 +1,2 @@
+date,time_et,run,event,games,share,why,first_job_wait_min,run_min,checks_waiting_at_start
+2026-11-20,15:30,44812053848,pull_request,20,10,"Day, busy (11 other jobs running, 1 other lab run, 1 pull request pushed in 30 min): 10 of 20 machines",0.4,2.1,0
