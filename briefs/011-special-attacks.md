@@ -172,10 +172,44 @@ One 7v7 against the bot with one of each foot unit. Warm up and fire at least th
 - **Regression hashes** (`regress_engine.js`, 6 games per set; main's board vs this board, identical):
   `match3 ba9f9ad987385750` · `v1 4827f4ae8059d541` · `v2 0d208c5415782fde` · `v3 ec98a437a0e051d4` · `v3.1 a67f8605195788e1` · `v3.2 fb523ce9a70244bf` · `v3.3 059a117284e53942` · `v3.4 f4fab7c5888b11da` · `v3.5 ce0811710786bb5d` · `v3.6 4706bad95c877a09`
 - **Brain hashes, every older preset (v1–v3.6), main vs this board, identical:** `brain5 24f5ff8dbb19e3ea` · `brain6 a9c7422db34c8c9c` · `kitD dde416d0f0c6ee91` · `standard 0e2eb26d5b08ff59`.
-- **Double knockout (F20):** pending the lab (`specials-bots` and `specials-v37` count every action, column `both_win_actions`). Local: 0 in 8 Brain 5 games and 30 invariant games.
-- **Baseline table (rule changes only):** pending the lab (`specials-v37` on the same seeds as `flag-rulings-v36`; `specials-old-sizes`).
-- **Bot minimum:** pending the lab (`specials-bots`, `specials-onoff`). Local look (36 Brain 5 mirror games): fired 56–68% of warm-ups depending on format (5v5 lowest: a warming Light Ranged often dies before it fires); Arc Hit and Skewer are the least used. Thinking time per turn: pending (timing is collected on every lab run).
-- **Settings review:** pending the lab (`specials-settings`).
-- **Known gaps:** the bot's special play is a first version (the brief: tune later). Skewer gets few chances (enemies rarely line up).
-- **Flags closed / opened:** opened F38. F20 stays closed, with its new check.
+- **Overnight run (the Editor's plan, 20 Nov):** not merged; lab runs queued from this pull request; ASKs taken at their most reasonable reading and noted here (F38: full hit; F39: sizes left as the Editor set them).
+- **Bot fix after the first lab runs (Build 14, same version):** the bot counted an enemy's warmed-up Arrow Storm with the target's Dodge, though Arrow Storm ignores Dodge, so it walked Light units into a shot that kills. Fixed: an enemy's warmed special is now estimated as the engine deals it. Skewer is now warmed only when a line-up is plausible. Every v3.7 run below was played **before** the fix; the same orders re-run on the fixed bot overnight (`specials-v37-b`, `specials-old-sizes-b`, `specials-bots-b`, `specials-onoff-b`, same seeds). Older rule sets are untouched by the fix (brain hashes re-checked).
+- **Double knockout (F20):** **0** actions left both sides with a win condition, in 2,000 + 1,200 + 1,200 + 1,800 seeded v3.7 games (every action checked; column `both_win_actions`).
+- **Baseline table** (Brain 5 mirror, balanced, 1,000 games per format, same seeds on every rule set; first v3.7 runs, before the bot fix):
+
+  | Rule set | Format | Holder KO | Pull KO | TKO | Tiebreak win | Draw | Ended on turn limit | Games with a pull | Avg turn | First mover's share of decisive | Light removed per game |
+  |---|---|---|---|---|---|---|---|---|---|---|---|
+  | v3.6 | 5v5 | 3.7% | 26.3% | 13.3% | 54.4% | 2.3% | 56.7% | 26.4% | 19.23 | 38.6% | 3.74 |
+  | v3.7 | 5v5 | 7.1% | 56.6% | 18.5% | 16.9% | 0.9% | 17.8% | 56.6% | 12.97 | **1.8%** | 3.45 |
+  | v3.7 older sizes | 5v5 | 4.7% | 26.6% | 8.5% | 57.6% | 2.6% | 60.2% | 26.6% | 20.01 | 62.1% | 3.87 |
+  | v3.6 | 7v7 | 4.4% | 38.3% | 12.5% | 41.1% | 3.7% | 44.8% | 38.5% | 22.84 | 46.9% | 5.58 |
+  | v3.7 | 7v7 | 3.1% | 39.0% | 12.3% | 42.8% | 2.8% | 45.6% | 39.0% | 22.56 | 33.5% | 5.76 |
+  | v3.7 older sizes | 7v7 | 2.9% | 43.2% | 12.5% | 39.7% | 1.7% | 41.4% | 43.2% | 21.85 | 44.9% | 5.68 |
+
+  Reading (F23: gaps under about 8 points are noise): **5v5 changes completely.** Turn-limit games fall from 57% to 18% and pull KOs double. But the first mover wins only 15 of 822 decisive games. 7v7 hardly moves, except the first mover's share (47% to 34%, outside the noise). The older sizes leave 5v5 close to v3.6 and swing the first mover the other way (62%).
+- **Why 5v5 goes to the second mover (likely, not isolated):** in all 1,000 v3.7 5v5 games exactly one Arrow Storm fired, and it killed every time (1,000 fired, 1,000 kills). The balanced 5v5 squad has one Light Ranged a side, and Arrow Storm (7 × 2 = 14, Dodge doesn't count) kills a full-health Light Ranged (12 HP) from up to about 7 hexes away (4 hexes of movement plus range 3). The second mover sees the first mover's approach with a full 10 Command, warms up first and shoots first. With the older sizes (× 1.5 = 10.5) it doesn't kill: 96 kills in 1,990 shots. A local check of 200 games on the fixed bot still gave the first mover only 4.6% of decisive 5v5 games (warm-up slack 0: 16.1%), so the bot fix alone doesn't cure it: **F39**.
+- **Older sizes, per special:** Arc Hit at × 0.5 is never worth firing (0 fired); Arrow Storm 10.5 a shot; Javelin 8.2; Skewer's second hit rarely matters (Skewer barely fires at either size).
+- **Per-special uptake and damage** (`specials-bots`, 400 games per format, before the fix; damage per hit vs the normal hit it replaced, engine preview from the same hex):
+  - Arc Hit: warmed 284, fired 103, kills 39; 7.6 vs 7.6 a hit (its gain is the extra targets: 1.3 hits a shot).
+  - Pick Off: warmed 2,436, fired 1,281, kills 950; 14.6 vs 7.6.
+  - Bullseye: warmed 725, fired 552, kills 222; 13.1 vs 8.8.
+  - Arrow Storm: warmed 2,531, fired 1,714, kills 1,380; 14.1 vs 5.3.
+  - Skewer: warmed 12, fired **2**, kills 0; 5.0 vs 5.0.
+  - Javelin: warmed 2,392, fired 1,913, kills 448; 10.6 vs 5.6.
+  - Specials fired per game (balanced 7v7, 1,000 games): Javelin 1.81, Bullseye 1.33, Arrow Storm 1.28, Pick Off 0.87, Arc Hit 0.20, Skewer 0.00. Heavy Ranged doesn't fire far more than the others: Javelin fires more.
+  - On braced targets: 50 special hits in 1,000 7v7 games (452 damage, 9.0 a hit) and 11 in 1,000 5v5 games (65, 5.9 a hit).
+- **Bot minimum (before the fix):**
+  - Each special fired 50+ times in total: **not met for Skewer** (2 fired). It is a normal hit unless an enemy stands directly behind its target, and the bot rightly attacks normally otherwise (an unfired special lapses back to unused at no loss). The other five: 103 to 1,913.
+  - 60%+ of warm-ups fired the next turn: **met overall, 66.4%** (5,565 of 8,380); by format 46.6% (5v5), 73.9% (7v7), 68.0% (all-Light 7v7). In 5v5 the losing Light Ranged's warmed Arrow Storm never fires (400 of the 449 removed while warm).
+  - No illegal action, every game finished: **met** (0 refused, 0 unfinished in 6,200 v3.7 games).
+  - The bot never plans a warm-up and a pull together, or a pull on a firing turn (the engine forbids both, and `test_v37.js` checks the bot's games for them).
+- **Specials on vs off** (400 games per format, sides and order swapped): Brain 5 using specials took **80.3%** of balanced 5v5 games, **70.8%** of balanced 7v7, **88.4%** of all-Light 7v7. Using specials wins by far more than the noise: they are not a trap.
+- **Thinking time (F24):** worst turn 5.1 s (all-Light 7v7, 400 games), above the 4.6 s flag. Balanced: worst 0.7 s (5v5) and 1.8 s (7v7) on v3.7, against 0.9 s and 3.6 s on v3.6. Average per side-turn: 73 ms / 104 ms (v3.7, 5v5 / 7v7) vs 53 ms / 136 ms (v3.6). Flagged under F24.
+- **Settings review (new settings only; `specials-settings`, A = changed Brain 5 against the default, balanced 7v7, 200 games each; ±3.5 points is one standard error):**
+  - Warmed special's worth 0 (never values a warm-up): A 25.8%. At 1: A 31.0%. Both clearly worse than 0.5: **effect found**.
+  - Warm-up reach slack 0: A **57.8%** (about 2.2 standard errors): promising, confirming at 1,000 games per format overnight (`specials-warmslack-confirm`); slack 2: A 39.8%: **effect found** (worse).
+  - Warm-up cost 0: A 42.0%; 3: A 40.8%. Both about 2 to 3 standard errors worse than the default 1: likely an effect, not confirmed.
+  - Special margin 3: A 50.0%: **no effect found**.
+  - Warm-up moves tried 1: A 53.0%; 8: A 48.5%: **no effect found** (8 only costs time).
+  - Missing settings (harder to prove than the list above): none raised as a separate ASK. The one situation the brain keeps losing (walking a Light Ranged into a warmed Arrow Storm) is mostly a size question (F39), not a missing setting.
 - **Pull request:** see below.
