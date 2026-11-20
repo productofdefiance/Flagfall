@@ -40,14 +40,22 @@
     return bh[key] * (tm === undefined ? 1 : tm) * (cm === undefined ? 1 : cm);
   }
 
-  /** Can enemy `e` reach striking distance of `hex` on its next turn (ignoring blockers and zones)? */
+  /** Can enemy `e` reach striking distance of `hex` on its next turn (ignoring blockers and zones)?
+      v3.6 (flagBlocksLine): a shot from where it stands across a flag is no threat unless it can step off that line. */
   function canThreaten(st, e, hex) {
     const c = E.card(st, e), g = st.rs.game;
     const stam = E.status(st, e).stamNext;
     const steps = Math.max(0, Math.min(E.capOf(st, e), Math.floor((stam - g.attackCost) / c.hexCost + 1e-9)));
     const reach = c.range > 1 ? c.range : (c.trait === "reach" ? 2 : 1);
-    return E.dist(e.hex, hex) <= steps + reach;
+    const d = E.dist(e.hex, hex);
+    if (d > steps + reach) return false;
+    if (steps === 0 && d >= 2 && st.rs.switches.flagBlocksLine && E.flagBetween(e.hex, hex)) return false;
+    return true;
   }
+  /** v3.6 rules for a unit's pull next turn: its Strength before Support (full under pullFullStrength), and whether it
+      can pull at all (not while reloading under pullCountsForReload: it acted this turn, so next turn it reloads). */
+  const pullStr = (st, c) => (c.range > 1 && !st.rs.switches.pullFullStrength ? c.str / 2 : c.str);
+  const canPullNext = (st, u) => !(st.rs.switches.pullCountsForReload && E.card(st, u).reload && u.attackedThis);
 
   /** Expected damage of e attacking u (normal positions, no Support counted). */
   function expectedHit(st, e, u) {
@@ -70,7 +78,7 @@
     for (const e of enemies) for (const u of own) if (canThreaten(st, e, u.hex)) hits.set(e.uid + ">" + u.uid, expectedHit(st, e, u));
     const goal = [...E.GOAL[team]];
     const pulls = new Map();
-    for (const e of enemies) if (goal.some((h) => canThreaten(st, e, h))) pulls.set(e.uid, avgDamage(st, E.pullValue(st, e).value) * w.pull);
+    for (const e of enemies) if (canPullNext(st, e) && goal.some((h) => canThreaten(st, e, h))) pulls.set(e.uid, avgDamage(st, E.pullValue(st, e).value) * w.pull);
     let total = 0;
     const left = new Set(enemies);
     while (left.size) {
@@ -166,9 +174,9 @@
     const foe = E.foeOf(team), goal = [...E.GOAL[team]];
     let pot = 0;
     for (const e of E.alive(st)) {
-      if (e.team !== foe || !goal.some((h) => canThreaten(st, e, h))) continue;
+      if (e.team !== foe || !canPullNext(st, e) || !goal.some((h) => canThreaten(st, e, h))) continue;
       const c = E.card(st, e);
-      pot += avgDamage(st, c.range > 1 ? c.str / 2 : c.str);
+      pot += avgDamage(st, pullStr(st, c));
     }
     if (!pot) return 0;
     const W = B.weights.flagRisk === undefined ? 60 : B.weights.flagRisk;
@@ -189,7 +197,8 @@
     for (const u of E.alive(st)) {
       if (u.team !== team || E.isHolder(st, u) || !goal.some((h) => canThreaten(st, u, h))) continue;
       const c = E.card(st, u);
-      pot += holder ? expectedHit(st, u, holder) : avgDamage(st, c.range > 1 ? c.str / 2 : c.str);
+      if (!holder && !canPullNext(st, u)) continue;
+      pot += holder ? expectedHit(st, u, holder) : avgDamage(st, pullStr(st, c));
     }
     return 40 * raid * Math.min(1, pot / target);
   }
@@ -465,7 +474,7 @@
       const c = E.card(st, u), steps = Math.max(0, Math.min(E.capOf(st, u), Math.floor((E.status(st, u).stamNext - g.attackCost) / c.hexCost + 1e-9)));
       if (!goal.some((x) => E.dist(u.hex, x) <= steps)) continue;
       if (h) pots.push(expectedHit(st, u, h) * fl / (h.hp + fl));
-      else pots.push(avgDamage(st, E.pullValue(st, u).value));
+      else if (canPullNext(st, u)) pots.push(avgDamage(st, E.pullValue(st, u).value));
     }
     pots.sort((a, b) => b - a);
     return pots.slice(0, Math.max(0, Math.floor(g.command / g.attackCost))).reduce((a, b) => a + b, 0);
