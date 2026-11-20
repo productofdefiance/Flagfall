@@ -138,7 +138,7 @@ const MEASURES = {
             key = k;
             const s2 = open(st);
             for (const u of E.alive(st)) if (u.team === st.toMove) for (const t of E.alive(st)) {
-              if (t.team !== u.team && E.dist(u.hex, t.hex) >= 2 && E.flagBetween(u.hex, t.hex) && E.canAttackFrom(s2, u, u.hex, t)) o.flag_line_pairs++;
+              if (t.team !== u.team && E.fieldOf(st).dist(u.hex, t.hex) >= 2 && E.fieldOf(st).flagBetween(u.hex, t.hex) && E.canAttackFrom(s2, u, u.hex, t)) o.flag_line_pairs++;
             }
           }
           const u = c.action.uid && E.unitByUid(st, c.action.uid);
@@ -309,9 +309,9 @@ MEASURES.stall = {
     const sides = [];   // one per side-turn, in order: { key, turn, attack }
     const braces = [];   // turn of every brace
     const total = (st) => st.units.reduce((a, u) => a + Math.max(u.hp, 0), 0) - st.pole.N - st.pole.S;   // falls when anything takes damage
-    const adjacent = (st) => E.alive(st).some((u) => E.alive(st).some((e) => e.team !== u.team && E.dist(u.hex, e.hex) === 1));
+    const adjacent = (st) => E.alive(st).some((u) => E.alive(st).some((e) => e.team !== u.team && E.fieldOf(st).dist(u.hex, e.hex) === 1));
     const others = (st, t) => E.alive(st).filter((u) => u.team === t && !E.isHolder(st, u));
-    const gap = (st) => { const a = others(st, "N"), b = others(st, "S"); if (!a.length || !b.length) return ""; let g = Infinity; for (const x of a) for (const y of b) g = Math.min(g, E.dist(x.hex, y.hex)); return g; };
+    const gap = (st) => { const a = others(st, "N"), b = others(st, "S"); if (!a.length || !b.length) return ""; let g = Infinity; for (const x of a) for (const y of b) g = Math.min(g, E.fieldOf(st).dist(x.hex, y.hex)); return g; };
     const uc = (st, t) => E.alive(st).filter((u) => u.team === t).reduce((a, u) => a + (E.card(st, u).beings || 1), 0);
     const snap = (st) => ({ units_n_l3: others(st, "N").length, units_s_l3: others(st, "S").length, uc_n_l3: uc(st, "N"), uc_s_l3: uc(st, "S"),
       holder_n_l3: E.holderOf(st, "N") ? 1 : 0, holder_s_l3: E.holderOf(st, "S") ? 1 : 0, flag_n_l3: +E.flagShown(st, "N").toFixed(2), flag_s_l3: +E.flagShown(st, "S").toFixed(2), gap_l3: gap(st) });
@@ -403,7 +403,7 @@ MEASURES.alone = {
         const k = st.turn + st.toMove;
         if (k !== key && st.phase === "play") {
           close(); key = k; side = st.toMove; alone = new Map();
-          for (const u of E.alive(st)) alone.set(u.uid, !E.alive(st).some((f) => f.team === u.team && f.uid !== u.uid && !E.isHolder(st, f) && E.dist(f.hex, u.hex) <= 2));
+          for (const u of E.alive(st)) alone.set(u.uid, !E.alive(st).some((f) => f.team === u.team && f.uid !== u.uid && !E.isHolder(st, f) && E.fieldOf(st).dist(f.hex, u.hex) <= 2));
         }
         hpBefore = new Map(st.units.map((u) => [u.uid, u.hp]));
         if (c.action.type === "attack") { const t = E.unitByUid(st, c.action.target); if (t && E.isHolder(st, t)) strikers.add(c.action.uid); }
@@ -454,6 +454,27 @@ MEASURES.brain7 = {
         pending = null;
       },
       end() { return o; }
+    };
+  }
+};
+
+// Brief 014: which field the game was played on, and how each side deployed (units outside the deploy area, which the
+// engine refuses, and units started on their own flag). Read only.
+MEASURES.fields = {
+  about: "Fields (Brief 014): the field the game was played on, units deployed outside their side's deploy area (the engine refuses these, so anything above 0 is a bug), and units that started on their own flag.",
+  columns: ["field", "deploy_outside", "deploy_on_flag"],
+  make(ctx) {
+    const { E } = ctx;
+    return {
+      end(st) {
+        const G = E.fieldOf(st);
+        let outside = 0, onFlag = 0;
+        for (const a of st.actions.filter((x) => x.type === "deploy")) {
+          const zone = new Set(E.deployZone(st, a.team));
+          for (const uid in a.placements) { const h = a.placements[uid]; if (!zone.has(h)) outside++; if (h === G.FLAG[a.team]) onFlag++; }
+        }
+        return { field: G.id, deploy_outside: outside, deploy_on_flag: onFlag };
+      }
     };
   }
 };
