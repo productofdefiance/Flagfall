@@ -115,4 +115,4 @@ The standard items, plus: where the 5v5 and 7v7 numbers come from and which runs
 - **Settings review (brain builds only):** n/a
 - **Known gaps:** the Refresh key shares storage with the play builds (F023-1); play-links still pushes without a retry (F023-2); phone Flags column (F023-3). Without a key, re-reads use GitHub's API without sign-in (60 an hour per network); the 5-minute re-read uses 12, and if the limit is hit it falls back to the published copy.
 - **Flags closed / opened:** closed F021-2. Opened F023-1, F023-2, F023-3 (all ASK).
-- **Pull request:** see below.
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/40 (branch `claude/cool-feynman-xh58m7`)
