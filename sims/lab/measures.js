@@ -212,17 +212,19 @@ const MEASURES = {
   },
 
   specialsafety: {
-    about: "Brief 011 follow-up: how the other side reacts to a warmed-up special. At the start of each side-turn that faces at least one enemy special warmed up the turn before, counts that side's units inside its reach for next turn (the warmed unit's movement next turn plus the special's reach; flag holders are immune and left out), then at the end of that side-turn counts how many left, stayed, came in, and how many inside reach braced.",
-    columns: ["sw_threat_turns", "sw_units_start", "sw_exposed_start", "sw_left", "sw_stayed", "sw_entered", "sw_exposed_end", "sw_braced_in_reach", "sw_removed_in_reach"],
+    about: "Brief 011 follow-up: how the other side reacts to a warmed-up special. At the start of each side-turn that faces at least one enemy special warmed up the turn before, counts that side's units inside its reach for next turn (the warmed unit's movement next turn plus the special's reach; flag holders are immune and left out), then at the end of that side-turn counts how many left, stayed (braced or not), came in, and how many inside reach braced. Then, on the warmed side's next turn, counts how many of the units that ended inside reach were hit by one of those warmed specials (each unit once).",
+    columns: ["sw_threat_turns", "sw_units_start", "sw_exposed_start", "sw_left", "sw_stayed", "sw_entered", "sw_exposed_end", "sw_braced_in_reach", "sw_removed_in_reach",
+      "sw_stayed_braced", "sw_stayed_unbraced", "sw_hit_next", "sw_hit_next_braced"],
     make(ctx) {
       const { E, Bot } = ctx, o = Object.fromEntries(MEASURES.specialsafety.columns.map((k) => [k, 0]));
-      let key = "", start = null;
+      let key = "", start = null, watch = null, pend = null;   // watch: units that ended inside reach, waiting for the warmed side's next turn
       const reachOf = (st, w) => {
         const k = E.specialOf(st, w), n = (st.rs.specials && st.rs.specials[k]) || {}, c = E.card(st, w);
         if (k === "javelin") return n.maxRange || 3;
         if (k === "arcHit" || k === "pickOff" || k === "skewer") return 1;
         return c.range > 1 ? c.range : 1;
       };
+      const warmers = (st, team) => E.alive(st).filter((w) => w.team !== team && w.sp === "warm").map((w) => w.uid);
       /** uids of `team`'s units (not holders) inside the reach of any warmed-up enemy special. */
       const exposed = (st, team) => {
         const warm = E.alive(st).filter((w) => w.team !== team && w.sp === "warm");
@@ -234,9 +236,13 @@ const MEASURES = {
       const close = (st) => {
         if (!start) return;
         const now = exposed(st, start.team) || new Set();
-        for (const uid of start.set) { const u = E.unitByUid(st, uid); if (!u || u.hp <= 0) { o.sw_removed_in_reach++; continue; } if (now.has(uid)) o.sw_stayed++; else o.sw_left++; }
+        for (const uid of start.set) {
+          const u = E.unitByUid(st, uid); if (!u || u.hp <= 0) { o.sw_removed_in_reach++; continue; }
+          if (now.has(uid)) { o.sw_stayed++; if (u.braced) o.sw_stayed_braced++; else o.sw_stayed_unbraced++; } else o.sw_left++;
+        }
         for (const uid of now) { if (!start.set.has(uid)) o.sw_entered++; if (E.unitByUid(st, uid).braced) o.sw_braced_in_reach++; }
         o.sw_exposed_end += now.size;
+        watch = now.size ? { warmers: new Set(warmers(st, start.team)), units: new Map([...now].map((uid) => [uid, !!E.unitByUid(st, uid).braced])), hit: new Set(), side: E.foeOf(start.team), turn: null } : null;
         start = null;
       };
       return {
@@ -244,10 +250,20 @@ const MEASURES = {
           const k = st.turn + st.toMove;
           if (k !== key) {
             key = k;
+            if (watch) { if (watch.turn === null && st.toMove === watch.side) watch.turn = k; else if (watch.turn !== null) watch = null; }   // the warmed side's next turn only
             const set = exposed(st, st.toMove);
             if (set) { o.sw_threat_turns++; o.sw_units_start += E.alive(st).filter((u) => u.team === st.toMove && !E.isHolder(st, u)).length; o.sw_exposed_start += set.size; start = { team: st.toMove, set }; }
           }
           if (c.action.type === "end") close(st);
+          pend = null;
+          if (watch && watch.turn === k && c.action.type === "special" && watch.warmers.has(c.action.uid)) {
+            const u = E.unitByUid(st, c.action.uid), t = E.unitByUid(st, c.action.target);
+            if (u && t && E.specialCanTarget(st, u, t)) pend = E.specialHits(st, u, t).map((h) => h.uid);
+          }
+        },
+        after(st, c, r) {
+          if (pend && r.ok && !c.refusedEnd) for (const uid of pend) if (watch.units.has(uid) && !watch.hit.has(uid)) { watch.hit.add(uid); o.sw_hit_next++; if (watch.units.get(uid)) o.sw_hit_next_braced++; }
+          pend = null;
         },
         end(st) { close(st); return o; }
       };
