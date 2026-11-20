@@ -1,0 +1,235 @@
+{
+ "id": "2026-11-19_study_brain7-one-at-a-time",
+ "kind": "study",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "def08784c5f75e95432cc97b020c72d8445f6ed4",
+ "brief": "019",
+ "question": "Which behaviour does it? Brain 7 with only B1, B1+B2, B1+B3, B1+B4 or B1+B5, against Brain 5 and in mirrors, balanced 5v5 and 7v7 (the table the coaching revisit inherits).",
+ "tags": [
+  "brain7",
+  "one-at-a-time",
+  "v3.6"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T04:56:32.000Z",
+ "finished": "2026-11-20T08:12:41.340Z",
+ "games": 20000,
+ "seed_from": "tests/rng.js lab:release-v3-08-00:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "b1-v-b5-5v5",
+    "a": "brain7:care=0,storm=0,holderJoins=0,regroup=0",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b1-mirror-5v5",
+    "a": "brain7:care=0,storm=0,holderJoins=0,regroup=0",
+    "b": "brain7:care=0,storm=0,holderJoins=0,regroup=0",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b1-v-b5-7v7",
+    "a": "brain7:care=0,storm=0,holderJoins=0,regroup=0",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b1-mirror-7v7",
+    "a": "brain7:care=0,storm=0,holderJoins=0,regroup=0",
+    "b": "brain7:care=0,storm=0,holderJoins=0,regroup=0",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b1b2-v-b5-5v5",
+    "a": "brain7:storm=0,holderJoins=0,regroup=0",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b1b2-mirror-5v5",
+    "a": "brain7:storm=0,holderJoins=0,regroup=0",
+    "b": "brain7:storm=0,holderJoins=0,regroup=0",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b1b2-v-b5-7v7",
+    "a": "brain7:storm=0,holderJoins=0,regroup=0",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b1b2-mirror-7v7",
+    "a": "brain7:storm=0,holderJoins=0,regroup=0",
+    "b": "brain7:storm=0,holderJoins=0,regroup=0",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b1b3-v-b5-5v5",
+    "a": "brain7:care=0,holderJoins=0,regroup=0",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b1b3-mirror-5v5",
+    "a": "brain7:care=0,holderJoins=0,regroup=0",
+    "b": "brain7:care=0,holderJoins=0,regroup=0",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b1b3-v-b5-7v7",
+    "a": "brain7:care=0,holderJoins=0,regroup=0",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b1b3-mirror-7v7",
+    "a": "brain7:care=0,holderJoins=0,regroup=0",
+    "b": "brain7:care=0,holderJoins=0,regroup=0",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b1b4-v-b5-5v5",
+    "a": "brain7:care=0,storm=0,regroup=0",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b1b4-mirror-5v5",
+    "a": "brain7:care=0,storm=0,regroup=0",
+    "b": "brain7:care=0,storm=0,regroup=0",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b1b4-v-b5-7v7",
+    "a": "brain7:care=0,storm=0,regroup=0",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b1b4-mirror-7v7",
+    "a": "brain7:care=0,storm=0,regroup=0",
+    "b": "brain7:care=0,storm=0,regroup=0",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b1b5-v-b5-5v5",
+    "a": "brain7:care=0,storm=0,holderJoins=0",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b1b5-mirror-5v5",
+    "a": "brain7:care=0,storm=0,holderJoins=0",
+    "b": "brain7:care=0,storm=0,holderJoins=0",
+    "rules": "v3.6",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b1b5-v-b5-7v7",
+    "a": "brain7:care=0,storm=0,holderJoins=0",
+    "b": "brain5",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b1b5-mirror-7v7",
+    "a": "brain7:care=0,storm=0,holderJoins=0",
+    "b": "brain7:care=0,storm=0,holderJoins=0",
+    "rules": "v3.6",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   }
+  ],
+  "measures": [
+   "play",
+   "clock",
+   "brain7"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "20 matchups, 20000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 44.9% (b1b4-v-b5-5v5) to 49.6% (b1b5-v-b5-7v7). Mirrors ended on the turn limit in 50.2% of games."
+}
