@@ -46,6 +46,12 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+      # Only before Brief 021 is on main: take the script from the pull request that adds it, so it can be tried live.
+      - name: Script not on main yet (Brief 021's own pull request)
+        if: hashFiles('sims/status/board.js') == '' && github.event_name == 'pull_request'
+        run: |
+          git fetch -q origin "${{ github.event.pull_request.head.sha }}"
+          git checkout -q "${{ github.event.pull_request.head.sha }}" -- sims/status
       - uses: actions/setup-node@v5
         with:
           node-version: 20
