@@ -44,7 +44,7 @@ What's kept: all of the above, in the repository, for good. Turn-by-turn logs ar
 ### Column meanings
 - `flag_damage_n` is the damage North did to South's flag (hits on South's holder count, as the tiebreak counts them, F20); `units_lost_n` is North's unit cap (UC) lost.
 - `winner` is N, S, `draw` or `unfinished`; `how` is the engine's own words ("KO", "TKO", "turn limit, more pull damage", ...).
-- `replay` opens that game on the live board, set up and playing. If a brain's settings were changed for the run (a sweep), the board can't replay it and the cell says so.
+- `replay` opens that game on the live board, set up and playing, including a brain's changed settings (Brief 019). If rule switches were changed for the run, the board can't replay it and the cell says so.
 - `a_side` is the side brain A played. `a_result` is `win`, `loss`, `win_tiebreak`, `loss_tiebreak`, `draw` from A's side.
 - The measures and their columns are listed in `sims/lab/measures.js`, each with a line saying what it counts.
 
@@ -68,10 +68,10 @@ What's kept: all of the above, in the repository, for good. Turn-by-turn logs ar
   ]
 }
 ```
-- `a`, `b`: brain ids on the board. `id:key=value,...` changes a setting for a sweep (those games can't be replayed on the board).
+- `a`, `b`: brain ids on the board. `id:key=value,...` changes a setting for a sweep. Since Brief 019 the watch link carries the change (`n=brain7:stormLead=1`), so those games replay on the board too.
 - `format`: the board's format id (`blitz5`, `std7`). `mix`: the Teams screen's mix for both sides (`mixed` = the balanced lineup, `light`, `heavy`, `open` = the brain's own squad, `random`); `mix_a` / `mix_b` set one side.
 - Brain A plays each side and each move order equally, unless the matchup sets `a_side` or `first`.
-- `games` per matchup; `seed_from` (default 0) shifts the seeds. Seeds come from `tests/rng.js` (`lab:<order id>:<matchup name>`, game number), so the same order always plays the same games.
+- `games` per matchup; `seed_from` (default 0) shifts the seeds; `seed_as` (Brief 019) deals a matchup the seeds of another matchup name, so many matchups in one order can play the same deals. Seeds come from `tests/rng.js` (`lab:<order id>:<matchup name>`, game number), so the same order always plays the same games.
 - `measures`: names from `sims/lab/measures.js`, for the whole order or per matchup. `outcome` and `timing` are always collected. An unknown name is skipped and the summary says so.
 - Optional: `answer` (the one-line answer, if already known), `flags`, `seed_name`, and anything else (kept in `run.json` under `extra`).
 

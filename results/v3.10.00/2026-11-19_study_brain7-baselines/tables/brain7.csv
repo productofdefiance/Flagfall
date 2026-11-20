@@ -1,0 +1,5 @@
+matchup,games,b7_turns_n,b7_turns_s,b7_ahead_n,b7_ahead_s,b7_behind_n,b7_behind_s,b7_both_n,b7_both_s,b7_storm_n,b7_storm_s,b7_hold_n,b7_hold_s,b7_wait_n,b7_wait_s,b7_regroup_n,b7_regroup_s,b7_join_n,b7_join_s,b7_both_first_n,b7_both_first_s,lone_losing_n,lone_losing_s
+b5-v35-5v5,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,,,26,22
+b5-v35-7v7,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,,,28,30
+b5-v36-5v5,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,,,26,22
+b5-v36-7v7,1000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,,,28,30
