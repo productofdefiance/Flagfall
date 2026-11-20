@@ -132,7 +132,7 @@ As brief 009's key: hidden by default, first-time hint. In the move preview it l
 
 ### 11. Field
 - **Zones:** deployment arc hexes `#eceee8`, goal-zone hexes `#d9ddd4`, the same for both sides (no team colour). The flag hex stays `#b07a33`.
-- **Pitch lines** (a picture only; rules use the hexes), `#9ea693`, 1.6px, no fill, clipped to the field's outline: a circle round each flag hex centre of radius 3.25 × the hex centre-to-centre distance (deployment arc), a circle of radius 1.25 × that distance (goal circle), and a straight halfway line across the field through the centre of E10. Drawn under every mark and unit.
+- **Pitch lines** (a picture only; rules use the hexes), `#9ea693`, 1.6px, no fill, clipped to the field's outline: a circle round each flag hex centre of radius (deploy rings + 0.25) × the hex centre-to-centre distance (deployment arc: 3.25 with today's 3 rings; 2.25 on a 5v5 field that deploys 2 rings, brief 014; read the rings from the field data, never hard-code them), a circle of radius 1.25 × that distance (goal circle), and a straight halfway line across the field through the centre of the field's middle row (E10 on today's field; read it from the field data so the 9v9 and 13v13 fields get theirs). Drawn under every mark and unit.
 - **Flag pill** (replaces the `10+20` text): on the flag hex's outer flat edge (top edge for North, bottom edge for South), centred: pill 30×15, radius 7.5, fill `#b07a33`, white 1.2px edge, flag icon 10px + the flag's own HP (Plex Sans 700 10px white). The holder's token shows its own HP as any unit does. The pooled total shows only in the attack preview when the holder is attacked (as today).
 - **Token HP number:** 0.76 × token radius below the centre (was 0.62); icon unchanged.
 
