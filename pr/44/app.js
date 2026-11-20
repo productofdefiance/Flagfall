@@ -818,10 +818,14 @@
     const midY = pos(G.centre)[1];
     pitch += `<path d="M0 ${midY.toFixed(1)}H${boardW().toFixed(0)}"/>`;
     out += `<g clip-path="url(#fieldclip)" fill="none" stroke="var(--pitchLine)" stroke-width="1.6" pointer-events="none">${pitch}</g>`;
-    // Flag pills (section 11): on the flag hex's outer flat edge, the flag's own HP.
+    // Flag pills (section 11): on the flag hex's outer flat edge, the flag's own HP. Drawn above the tokens; when the
+    // flag is held, pushed out just far enough to clear the holder's widest ring (selection, braced, warm-up).
+    let flagPills = "";
     for (const t of ["N", "S"]) {
-      const [fx, fy] = pos(G.FLAG[t]), py = t === "N" ? fy - H / 2 : fy + H / 2;
-      out += `<g pointer-events="none" class="flagpill"><rect x="${fx - 15}" y="${(py - 7.5).toFixed(1)}" width="30" height="15" rx="7.5" fill="var(--flag)" stroke="#fff" stroke-width="1.2"/>
+      const [fx, fy] = pos(G.FLAG[t]), held = st.phase !== "deploy" && E.holderOf(st, t);
+      const ringOut = tr + 7.5 + 4.2 / 2 + 1.25;   // the widest ring a token can carry, with its white edge
+      const off = held ? Math.max(H / 2, ringOut + 7.5 + 1) : H / 2, py = t === "N" ? fy - off : fy + off;
+      flagPills += `<g pointer-events="none" class="flagpill"><rect x="${fx - 15}" y="${(py - 7.5).toFixed(1)}" width="30" height="15" rx="7.5" fill="var(--flag)" stroke="#fff" stroke-width="1.2"/>
         <g transform="translate(${fx - 13} ${(py - 5).toFixed(1)}) scale(${(10 / 24).toFixed(3)})" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${P.flag}</g>
         <text x="${fx + 5}" y="${(py + 3.6).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="var(--num)">${fmt(E.flagShown(st, t))}</text></g>`;
     }
@@ -960,7 +964,7 @@
         out += ring(x, y, tr + 6, "var(--attack)", on ? 4.5 : 3);
       }
     }
-    out += badges;   // badges sit over tokens
+    out += flagPills + badges;   // the flag pills and badges sit over tokens
     svg.innerHTML = `<defs><clipPath id="fieldclip">${clip}</clipPath>
       <pattern id="hatch" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#c62828" stroke-width="1.5" stroke-opacity="0.55"/></pattern></defs>` + out;
   }
