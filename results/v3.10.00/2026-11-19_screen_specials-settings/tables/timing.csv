@@ -1,0 +1,10 @@
+matchup,games,bot_turns,bot_ms,bot_ms_max_turn
+special-0,200,8272,1176233,2777
+special-1,200,8253,897192,1723
+warm-slack-0,200,8529,882344,2282
+warm-slack-2,200,8000,1058384,2366
+warm-cost-0,200,8133,908923,2003
+warm-cost-3,200,8990,1059955,2171
+special-margin-3,200,8405,934761,2024
+warm-moves-1,200,8729,908417,1965
+warm-moves-8,200,9126,926722,2048

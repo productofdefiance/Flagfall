@@ -6,7 +6,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
-| v3.10.00 | v3.6 | Brain 5 | v2 | 14 |
+| v3.11.00 | v3.7 | Brain 5 | v2 | 15 |
+| v3.10.00 | v3.7 | Brain 5 | v2 | 14 |
 | v3.09.01 | v3.6 | Brain 5 | v2 | 13 |
 | v3.09.00 | v3.6 | Brain 5 | v2 | 12 |
 | v3.08.00 | v3.5 | Brain 5 | v2 | 11 |
@@ -17,8 +18,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
-## v3.10.00 · Build 14 — Brief 019, Brain 7: know the lead, keep it, storm together (20 Nov 2026)
-Rule set: none changed (v3.6 stays the newest). Game version **v3.10.00** (YY: a new brain). Brain 5 stays the default.
+## v3.11.00 · Build 15 — Brief 019, Brain 7: know the lead, keep it, storm together (20 Nov 2026)
+Rule set: none changed (v3.7 stays the newest). Game version **v3.11.00** (YY: a new brain; brief 011 took v3.10.00 and Build 14 first). Brain 7 was built and measured on v3.6; it inherits Brain 5's specials play on v3.7, which these runs didn't measure. Brain 5 stays the default.
 
 **What a player will notice**
 - A new opponent, **Brain 7 (keeps its lead)**, on the Opponent and Teams screens. When it is ahead on units it stops throwing units away one at a time, gathers its spare units near your holder and attacks it with two or three at once. When you have only your holder left, its own holder may come forward too, but only if yours can't reach its flag first. When it is behind, it pulls its units together while there is time, then commits everything late.
@@ -27,14 +28,38 @@ Rule set: none changed (v3.6 stays the newest). Game version **v3.10.00** (YY: a
 - Brain 5, Brain 6 and every older brain and rule set play exactly as before.
 
 **Under the hood**
-- `bot.js`: Brain 7 is Brain 5's planner plus a reading of the board made once per plan (start of the turn and after each roll): the lead (units other than the holder, by unit cap and HP left), ahead or behind, storm or hold, whether to wait before striking the holder, whether to regroup, and the holder race check. It adds value terms and two attack costs; no "on turn N" rules and nothing carried between turns. One setting the brief didn't name, **Press the holder**, was needed: without it Brain 7 gathered round a braced holder and then waited (F38).
+- `bot.js`: Brain 7 is Brain 5's planner plus a reading of the board made once per plan (start of the turn and after each roll): the lead (units other than the holder, by unit cap and HP left), ahead or behind, storm or hold, whether to wait before striking the holder, whether to regroup, and the holder race check. It adds value terms and two attack costs; no "on turn N" rules and nothing carried between turns. One setting the brief didn't name, **Press the holder**, was needed: without it Brain 7 gathered round a braced holder and then waited (F42).
 - `brain.js`: Brain 7 and its labels. `watch.js`: `n=brain7:stormLead=1` style brain settings in watch links. `app.js`: the Lead table.
 - Lab: three new measures on every run (`lead_lost`, `lead_unused`, units lost alone or together and holder strikes solo or group), positions scored per side-turn in `timing`, a `brain7` measure (how often each behaviour was active, and lone losing attacks for any brain), `seed_as` in job orders so many matchups share one deal. `sims/lab/report019.js` builds the Report's tables.
 - New checks: `test_brain7.js` (all off = Brain 5, the five positions, legal play) and `sims/lab/test_lead.js` (the new measures on five saved games, checked by hand).
 
-**Flags opened:** F38 to F43. **Evidence for:** F10.
+**Flags opened:** F42 to F47 (renumbered after brief 011's F38 to F41). **Evidence for:** F10.
 
 **Results (34,000 games):** Brain 7 does not pass. It loses to Brain 5 at balanced 5v5 (45.6%) and all-Light 7v7 (45.6%), ties at 7v7, and leaves leads unused about as often at 5v5 (24.0% vs 26.9%), but mirror games end on the clock far less (26.6% vs 57.9% at 5v5, 17.6% vs 40.4% at 7v7), almost all from the holder joining the storm. Settings review (52,000 games): only the lead weight moves results; at 0 Brain 7 takes 52.1% of balanced 5v5 games against Brain 5.
+
+## v3.10.00 · Build 14 — Brief 011, rule set v3.7: special attacks (20 Nov 2026)
+Rule set: **v3.7** (new, the new-game default): v3.6 plus switch `specials`. Default brain: Brain 5, now using specials on v3.7 only. Game version **v3.10.00** (YY: a new rule set).
+
+**What a player will notice**
+- Every foot unit has one special attack a match, on its own button after Attack: **Arc Hit** (Heavy Melee), **Pick Off** (Light Melee), **Bullseye** (Heavy Ranged), **Arrow Storm** (Light Ranged), **Skewer** (Heavy Anti-Cavalry), **Javelin** (Light Anti-Cavalry).
+- Tap it to **warm up** (1 Stamina, then no attack, pull or brace that turn; moving and swapping are fine). Next turn the button turns gold: tap it, pick a red ring and **Fire**. If you don't fire that turn it goes back to unused.
+- A warming unit has a **gold ring with a soft glow** on the field, yours and the bot's.
+- The special's preview shows **one exact number** (no dice), the extra targets underneath (Arc Hit, Skewer), and Arc Hit outlines its 3-hex arc.
+- The unit card has a **Special** section with its status (Unused, Warming up, Used). The log reads "HM warms up Arc Hit at E9." and "HM fires Arc Hit: …".
+- No special can hit a flag hex or its holder. Older rule sets play exactly as before.
+
+**Under the hood**
+- `engine.js`: `warmup` and `special` actions, the special's state on each unit (only under the switch), exact previews in `options().special`, reasons in `blockReasons().special`. All sizes in `data.js` (`specials` block, `game.warmupCost`).
+- `bot.js` / `brain.js`: Brain 5 (and Brain 6) warm up when a target will likely be in reach next turn, fire when it beats the other choices, and fear the enemy's warmed-up specials. New settings: Use specials, Warmed special's worth, Warm-up reach slack, Warm-up cost, Special margin, Warm-up moves tried. Read on v3.7 only: brain hashes on every older rule set match `main`.
+- Lab: a `specials` measure (uptake, lapses, kills, damage vs the normal hit, hits on braced units, actions where both sides could win), and job orders may now change rule numbers for a sim-only copy (`"set"`).
+- New check `test_v37.js` (180 checks); `test_invariants.js` now plays Brain 5 games too, so specials are in play.
+
+**Flags closed:** none (F20 gets its new double-knockout check, stays closed). **Opened:** F38 (Skewer's second hit: full hit or Reach −1?), F39 (move order decides balanced 5v5 under specials), F40 (Skewer almost never fires).
+
+**Baseline** (Brain 5 mirror, balanced, 1,000 games per format, same seeds as v3.6; full table in brief 011's Report):
+- 5v5: ended on the turn limit 34.3% (v3.6: 56.7%), pull KO 41.3% (26.3%), first mover's share of decisive games **5.3%** (38.6%): see F39.
+- 7v7: ended on the turn limit 41.7% (44.8%), pull KO 41.6% (38.3%), first mover's share 31.6% (46.9%).
+
 ## v3.09.01 · Build 13 — Brief 016, stall logging (lab only) (19 Nov 2026)
 Rule set: none changed (v3.6 stays the newest). Game version **v3.09.01** (ZZ: lab tooling, nothing about how the game plays changes; brief 015 took v3.09.00 and Build 12 first).
 

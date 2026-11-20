@@ -1,0 +1,67 @@
+{
+ "id": "2026-11-19_study_specials-old-sizes",
+ "kind": "study",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "488d934dd21045e0eb5006da8de069f57aa25b72",
+ "brief": "011",
+ "question": "Sim-only v3.7 with the sizes first drafted on 18 Nov (Arrow Storm and Javelin x1.5, Skewer's second hit x0.75, Arc Hit x0.5): same games, same table, uptake and damage.",
+ "tags": [
+  "specials",
+  "brain5",
+  "v3.7",
+  "old-sizes"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T03:23:28.000Z",
+ "finished": "2026-11-20T04:29:12.539Z",
+ "games": 2000,
+ "seed_from": "tests/rng.js lab:flag-rulings:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "set": {
+     "specials.arrowStorm.mult": 1.5,
+     "specials.javelin.mult": 1.5,
+     "specials.skewer.behind": 0.75,
+     "specials.arcHit.mult": 0.5
+    }
+   },
+   {
+    "name": "7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "set": {
+     "specials.arrowStorm.mult": 1.5,
+     "specials.javelin.mult": 1.5,
+     "specials.skewer.behind": 0.75,
+     "specials.arcHit.mult": 0.5
+    }
+   }
+  ],
+  "measures": [
+   "play",
+   "light",
+   "flagrules",
+   "specials"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "5v5: mirror, 60.2% ended on the turn limit, A/B 464–510; 7v7: mirror, 41.4% ended on the turn limit, A/B 502–481."
+}

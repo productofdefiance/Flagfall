@@ -3,19 +3,23 @@
 const E = require("../engine.js"), Bot = require("../bot.js");
 const { PRESETS } = require("../data.js"); const { DEFAULT_BRAINS, BRAIN_LABELS } = require("../brain.js");
 const RS = PRESETS[PRESETS.length - 1], B5 = DEFAULT_BRAINS.brain5, B7 = DEFAULT_BRAINS.brain7;
+// The five hand-built positions were set up on v3.6, the rule set brief 019 builds and measures Brain 7 on, and stay there.
+// On v3.7 (specials, brief 011) Brain 5 warms up a special in the care and regroup positions instead of attacking, so the
+// positions no longer show the contrast. The all-off check and the seeded games below play the newest preset.
+const RS_POS = PRESETS.find((p) => p.id === "v3.6");
 const games = process.argv[2] === undefined ? 30 : +process.argv[2];
 let fails = 0, n = 0;
 const ok = (c, m) => { n++; if (!c) { fails++; console.log("FAIL:", m); } };
 const L = (a) => a.map(([id, card]) => ({ id, card }));
 const U = (st, id) => E.unitByUid(st, id);
 const FIVE = [["HM", "HM"], ["HM2", "HM"], ["HA", "HA"], ["LM", "LM"], ["LR", "LR"]];
-/** A 5v5 position on the newest rule set: deploy, then put units where the test says (null removes one), turn `turn`,
+/** A 5v5 position on v3.6: deploy, then put units where the test says (null removes one), turn `turn`,
     North to move with a full turn's Command. */
 function setup(place, turn) {
-  const st = E.newMatch(RS, { first: "N", lineups: { N: L(FIVE), S: L(FIVE) } });
+  const st = E.newMatch(RS_POS, { first: "N", lineups: { N: L(FIVE), S: L(FIVE) } });
   for (const team of ["N", "S"]) { const z = E.deployZone(st, team).filter((h) => h !== E.FLAG[team]), p = {}; let i = 0; for (const u of st.units.filter((x) => x.team === team)) p[u.uid] = z[i++]; E.act(st, { type: "deploy", team, placements: p }); }
   for (const uid in place) { if (place[uid] === null) U(st, uid).hp = 0; else U(st, uid).hex = place[uid]; }
-  st.turn = turn || 10; st.cmd = RS.game.command;
+  st.turn = turn || 10; st.cmd = RS_POS.game.command;
   return st;
 }
 const fmt = (p) => p.steps.map((a) => a.type + (a.to ? " " + a.to : a.target ? " " + a.target : "") + "(" + a.uid + ")").join(", ") || "(nothing)";

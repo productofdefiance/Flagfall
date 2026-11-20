@@ -1,0 +1,36 @@
+{
+  "id": "specials-warmslack-confirm",
+  "kind": "study",
+  "brief": "011",
+  "question": "Settings review, confirm stage: Brain 5 with warmSlack 0 (A) against the default Brain 5 (warmSlack 1), v3.7, 1,000 games per format. The screen gave A 57.8% of 200 7v7 games (about 2.2 standard errors).",
+  "tags": [
+    "specials",
+    "settings-review",
+    "brain5",
+    "v3.7"
+  ],
+  "measures": [
+    "play",
+    "specials"
+  ],
+  "matchups": [
+    {
+      "name": "5v5",
+      "a": "brain5:warmSlack=0",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "blitz5",
+      "mix": "mixed",
+      "games": 1000
+    },
+    {
+      "name": "7v7",
+      "a": "brain5:warmSlack=0",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 1000
+    }
+  ]
+}

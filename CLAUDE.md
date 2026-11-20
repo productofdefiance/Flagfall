@@ -64,7 +64,7 @@ One word, the same behaviour every time. The design chat keeps the full list in 
 - Don't invent rules the Editor hasn't agreed. List them as `ASK` rows instead.
 - Keep `FLAGS.md` current: close the rows your build fixes, open rows for anything you found.
 - **Game version (vX.YY.ZZ).** One game version is the reference for everything: rules, brains, UI and board. Each part keeps its own number (rule set v3.4, Brain 5, UI v1, Build N), and any change to any part bumps the game version:
-  - **X:** a big new system (Cavalry, specials, a UI overhaul).
+  - **X:** a big new system (Cavalry, a UI overhaul).
   - **YY:** a real change to any part (a new rule or mechanic, a new brain, a new screen). Reset ZZ to 00.
   - **ZZ:** tuning and fixes (numbers, brain settings, text, bug fixes).
   - Each brief states its game version in its header. The build sets it in `board/version.js` beside the build number. The board shows it on Home and in the menu, with the build number in small type ("v3.05.00 · Build 6"). It goes in the `CHANGELOG.md` heading. Keep a version table at the top of `CHANGELOG.md`, one row per game version: rule set, default brain, UI version, build. Always two digits after each dot.

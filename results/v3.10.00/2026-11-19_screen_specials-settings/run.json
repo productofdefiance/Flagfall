@@ -1,0 +1,116 @@
+{
+ "id": "2026-11-19_screen_specials-settings",
+ "kind": "screen",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "488d934dd21045e0eb5006da8de069f57aa25b72",
+ "brief": "011",
+ "question": "Settings review of Brain 5's new special settings: each moved up and down (or off) against the default Brain 5, v3.7 balanced 7v7, 200 games each. Which move results by more than the noise?",
+ "tags": [
+  "specials",
+  "settings-review",
+  "brain5",
+  "v3.7"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T03:23:28.000Z",
+ "finished": "2026-11-20T04:29:12.673Z",
+ "games": 1800,
+ "seed_from": "tests/rng.js lab:specials-settings:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "special-0",
+    "a": "brain5:special=0",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "special-1",
+    "a": "brain5:special=1",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "warm-slack-0",
+    "a": "brain5:warmSlack=0",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "warm-slack-2",
+    "a": "brain5:warmSlack=2",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "warm-cost-0",
+    "a": "brain5:warmCost=0",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "warm-cost-3",
+    "a": "brain5:warmCost=3",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "special-margin-3",
+    "a": "brain5:specialMargin=3",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "warm-moves-1",
+    "a": "brain5:warmMoves=1",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "warm-moves-8",
+    "a": "brain5:warmMoves=8",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   }
+  ],
+  "measures": [
+   "play",
+   "specials"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "9 matchups, 1800 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 25.8% (special-0) to 57.8% (warm-slack-0)."
+}

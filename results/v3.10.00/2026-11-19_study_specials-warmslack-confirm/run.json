@@ -1,0 +1,53 @@
+{
+ "id": "2026-11-19_study_specials-warmslack-confirm",
+ "kind": "study",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "2bae2d3ad93a286268c105a79e0817405ae3f9c9",
+ "brief": "011",
+ "question": "Settings review, confirm stage: Brain 5 with warmSlack 0 (A) against the default Brain 5 (warmSlack 1), v3.7, 1,000 games per format. The screen gave A 57.8% of 200 7v7 games (about 2.2 standard errors).",
+ "tags": [
+  "specials",
+  "settings-review",
+  "brain5",
+  "v3.7"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T04:36:11.000Z",
+ "finished": "2026-11-20T05:14:27.822Z",
+ "games": 2000,
+ "seed_from": "tests/rng.js lab:specials-warmslack-confirm:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "5v5",
+    "a": "brain5:warmSlack=0",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000
+   },
+   {
+    "name": "7v7",
+    "a": "brain5:warmSlack=0",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000
+   }
+  ],
+  "measures": [
+   "play",
+   "specials"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "5v5: brain5:warmSlack=0 took 48.2% of games against brain5 (decisive 311–293, tiebreak 164–218, draws 14); 7v7: brain5:warmSlack=0 took 53.8% of games against brain5 (decisive 337–285, tiebreak 194–170, draws 14)."
+}

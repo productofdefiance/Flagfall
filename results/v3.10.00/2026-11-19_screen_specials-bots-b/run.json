@@ -1,0 +1,62 @@
+{
+ "id": "2026-11-19_screen_specials-bots-b",
+ "kind": "screen",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "2bae2d3ad93a286268c105a79e0817405ae3f9c9",
+ "brief": "011",
+ "question": "Re-run on the fixed bot (it now counts an enemy's warmed-up Arrow Storm without Dodge, as the engine deals it; Skewer warms only for a plausible line-up), same seeds as specials-bots. Bot minimum: does Brain 5 use all six specials on v3.7 (each fired 50+ times, 60%+ of warm-ups fired next turn, no refused action, every game finished), 400 games per format?",
+ "tags": [
+  "specials",
+  "bot-minimum",
+  "brain5",
+  "v3.7"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T04:36:11.000Z",
+ "finished": "2026-11-20T05:14:27.621Z",
+ "games": 1200,
+ "seed_from": "tests/rng.js lab:specials-bots:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "balanced-5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 400
+   },
+   {
+    "name": "balanced-7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 400
+   },
+   {
+    "name": "light-7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "light",
+    "games": 400
+   }
+  ],
+  "measures": [
+   "play",
+   "specials"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "balanced-5v5: mirror, 37.5% ended on the turn limit, A/B 200–197; balanced-7v7: mirror, 41.5% ended on the turn limit, A/B 202–187; light-7v7: mirror, 39.3% ended on the turn limit, A/B 177–216."
+}
