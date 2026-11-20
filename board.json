@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-20T20:29:51.927Z",
- "board": "STATUS · updated 20 Nov 2026, 3:29 pm ET\n\nVERSION\n  On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5\n  Building: 017 → v3.13.00 · 022 → v3.13.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (20 Nov, 11:54 am ET)\n  study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov\n  study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov\n  study v3.10.00 · 52 matchups, 52,000 games · 20 Nov\n  screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov\n  release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov\n  release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov\n  release v3.10.00 · 5v5 37.0% · 7v7 45.1% on the turn limit · 20 Nov\n  nightly v3.11.00 · 5v5 30.0% · 7v7 30.0% on the turn limit · 20 Nov\n  +31 more in results/INDEX.md\n\nFLAGS (open, newest first)\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n    F017-3 · OPEN · 20 Nov · Set spear \"on the way\" can only ever fire where the move stops: every hex next to a…\n  ! F017-2 · ASK · 20 Nov · Two readings in the walk (2.11) the brief doesn't cover. (1) A move that stops short pays…\n  ! F017-1 · ASK · 20 Nov · Enemy view (§9) \"its special, if ready this turn\": during your turn an enemy's special is…\n    F37 · OPEN · 19 Nov · Brief 015, a reading of Game Laws 3.13 (set spear punishes arriving): arrival is judged…\n    F36 · TEST · 19 Nov · Brief 016: the summary's starting cut for a stall (last damage 5 or more side-turns…\n    F24 · OPEN · 18 Nov · Brain 5 has no time limit per turn. Its worst turn took 4.6 s on the build machine…\n    F22 · TEST · 18 Nov · Evade doesn't save Light units in bot games: Light units removed per game are unchanged…\n  +2 older in FLAGS.md\n\nBUILDS\n  Building\n    017 Move preview · PR #44 · needs sync · checks pass · not reviewed\n    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed\n  Ready to start\n    024 Lab capacity\n  Waiting\n    012 Cavalry ← 017, 018\n    018 Turn cue zoom ← 017\n    020 Victory values ← 022\n  Merged (last 3)\n    023 Status page · 20 Nov\n    014 Fields · v3.12.00 · 20 Nov\n    021 Status board · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n  Closed (last 5)\n    none\n",
+ "updated": "2026-11-20T20:31:18.018Z",
+ "board": "STATUS · updated 20 Nov 2026, 3:31 pm ET\n\nVERSION\n  On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5\n  Building: 017 → v3.13.00 · 022 → v3.13.00 · 024 → none\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (20 Nov, 11:54 am ET)\n  study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov\n  study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov\n  study v3.10.00 · 52 matchups, 52,000 games · 20 Nov\n  screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov\n  release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov\n  release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov\n  release v3.10.00 · 5v5 37.0% · 7v7 45.1% on the turn limit · 20 Nov\n  nightly v3.11.00 · 5v5 30.0% · 7v7 30.0% on the turn limit · 20 Nov\n  +31 more in results/INDEX.md\n\nFLAGS (open, newest first)\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  ! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…\n  ! F024-3 · ASK · 20 Nov · The status board starts on every pull request event and every finished checks…\n  ! F024-2 · ASK · 20 Nov · Every results pull request runs the full checks twice: once started by the lab's delivery…\n  ! F024-1 · ASK · 20 Nov · A release run puts each check in README.md on its own machine: 16 jobs, most of which…\n    F017-3 · OPEN · 20 Nov · Set spear \"on the way\" can only ever fire where the move stops: every hex next to a…\n  ! F017-2 · ASK · 20 Nov · Two readings in the walk (2.11) the brief doesn't cover. (1) A move that stops short pays…\n  ! F017-1 · ASK · 20 Nov · Enemy view (§9) \"its special, if ready this turn\": during your turn an enemy's special is…\n  +6 older in FLAGS.md\n\nBUILDS\n  Building\n    017 Move preview · PR #44 · needs sync · checks pass · not reviewed\n    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed\n    024 Lab capacity · PR #45 · Draft · checks running · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 017, 018\n    018 Turn cue zoom ← 017\n    020 Victory values ← 022\n  Merged (last 3)\n    023 Status page · 20 Nov\n    014 Fields · v3.12.00 · 20 Nov\n    021 Status board · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n  Closed (last 5)\n    none\n",
  "sections": [
   {
    "title": "VERSION",
@@ -11,7 +11,7 @@
      "mark": null
     },
     {
-     "text": "Building: 017 → v3.13.00 · 022 → v3.13.00",
+     "text": "Building: 017 → v3.13.00 · 022 → v3.13.00 · 024 → none",
      "indent": 1,
      "mark": null
     }
@@ -101,6 +101,26 @@
      "mark": null
     },
     {
+     "text": "! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "! F024-3 · ASK · 20 Nov · The status board starts on every pull request event and every finished checks…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "! F024-2 · ASK · 20 Nov · Every results pull request runs the full checks twice: once started by the lab's delivery…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "! F024-1 · ASK · 20 Nov · A release run puts each check in README.md on its own machine: 16 jobs, most of which…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
      "text": "  F017-3 · OPEN · 20 Nov · Set spear \"on the way\" can only ever fire where the move stops: every hex next to a…",
      "indent": 1,
      "mark": null
@@ -116,27 +136,7 @@
      "mark": "ask"
     },
     {
-     "text": "  F37 · OPEN · 19 Nov · Brief 015, a reading of Game Laws 3.13 (set spear punishes arriving): arrival is judged…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "  F36 · TEST · 19 Nov · Brief 016: the summary's starting cut for a stall (last damage 5 or more side-turns…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "  F24 · OPEN · 18 Nov · Brain 5 has no time limit per turn. Its worst turn took 4.6 s on the build machine…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "  F22 · TEST · 18 Nov · Evade doesn't save Light units in bot games: Light units removed per game are unchanged…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "+2 older in FLAGS.md",
+     "text": "+6 older in FLAGS.md",
      "indent": 1,
      "mark": null
     }
@@ -161,12 +161,17 @@
      "mark": null
     },
     {
+     "text": "024 Lab capacity · PR #45 · Draft · checks running · not reviewed",
+     "indent": 2,
+     "mark": null
+    },
+    {
      "text": "Ready to start",
      "indent": 1,
      "mark": null
     },
     {
-     "text": "024 Lab capacity",
+     "text": "none",
      "indent": 2,
      "mark": null
     },
@@ -251,7 +256,7 @@
   }
  },
  "schema": 2,
- "updatedText": "20 Nov 2026, 3:29 pm ET",
+ "updatedText": "20 Nov 2026, 3:31 pm ET",
  "main": {
   "game": "v3.12.00",
   "build": 16,
@@ -290,6 +295,19 @@
     "version": "v3.13.00",
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/41/"
+   },
+   {
+    "brief": "024",
+    "name": "Lab capacity",
+    "pr": 45,
+    "draft": true,
+    "checks": "running",
+    "review": null,
+    "sync": null,
+    "state": "running",
+    "version": null,
+    "size": "none",
+    "play": "https://productofdefiance.github.io/Flagfall/pr/45/"
    }
   ],
   "waiting": [
@@ -319,13 +337,6 @@
      "022"
     ],
     "ready": false,
-    "stated": true
-   },
-   {
-    "brief": "024",
-    "name": "Lab capacity",
-    "waitsOn": null,
-    "ready": true,
     "stated": true
    }
   ],
@@ -479,28 +490,28 @@
    "next": "Has a home, no answer needed now (the Editor, 20 Nov): brief 022 runs a sim-only screen (Arrow Storm × 2, × 1.75, × 1.5, and no warm-up on the first turn) with Brain 8 on brief 014's fields, and the sizes are judged there. The design chat's sim check (20 Nov) reads this as mostly the bot walking into the first strike, not Arrow Storm's size (likely, not isolated). Brief 014's baseline (F50) reports the first mover at 58.0% of decisive 5v5 games on v3.8. Code's first recommendation was: Sizes are the Editor's call (brief 011: \"not now\"). Neither size set fixes it, so the size alone isn't the lever. Recommended: merge v3.7, then run a sim-only screen before choosing a v3.8: Arrow Storm × 1.75 (12.5: kills only a hurt Light Ranged), and the first mover's turn-1 Command at 10 instead of 6 under specials, each against v3.7 on the same seeds"
   },
   {
-   "name": "F017-3",
-   "status": "OPEN",
-   "date": "20 Nov",
-   "issue": "Set spear \"on the way\" can only ever fire where the move stops: every hex next to a braced Heavy Anti-Cavalry is also in its Mark, so the walk stops there. Rule 3's \"a set spear that fires\" therefore only separates routes that both stop short (test: Fewer dangers)",
-   "issueFull": "Set spear \"on the way\" can only ever fire where the move stops: every hex next to a braced Heavy Anti-Cavalry is also in its Mark, so the walk stops there. Rule 3's \"a set spear that fires\" therefore only separates routes that both stop short (test: Fewer dangers)",
-   "next": "No action: information for the Game Laws note on 2.11. Cavalry's Pursuit (brief 012) will be the first danger that can fire mid-route"
-  },
-  {
-   "name": "F017-2",
+   "name": "F024-4",
    "status": "ASK",
    "date": "20 Nov",
-   "issue": "Two readings in the walk (2.11) the brief doesn't cover. (1) A move that stops short pays for the hexes it walked, and tackle by where it actually stopped (today's tackle rule, start and end). (2) A route may pass over its own empty flag hex; the walk treats that as stepping on and off it (no…",
-   "issueFull": "Two readings in the walk (2.11) the brief doesn't cover. (1) A move that stops short pays for the hexes it walked, and tackle by where it actually stopped (today's tackle rule, start and end). (2) A route may pass over its own empty flag hex; the walk treats that as stepping on and off it (no effect unless set spear hits it there, when the damage is pooled with the flag as for any holder)",
-   "next": "Recommended: accept both. Neither came up in 100 Brain 5 games"
+   "issue": "A pull request that changes the game version gets a release run (2,000 games, 20 parts). In the daytime with the repository busy it now takes a quarter of N (5 machines, in two waves): at about 50 minutes a part, roughly 3 to 4 hours instead of about 1. The policy says so; it may not be what the…",
+   "issueFull": "A pull request that changes the game version gets a release run (2,000 games, 20 parts). In the daytime with the repository busy it now takes a quarter of N (5 machines, in two waves): at about 50 minutes a part, roughly 3 to 4 hours instead of about 1. The policy says so; it may not be what the Editor wants for a release a build is waiting on",
+   "next": "Recommended: keep it, and use the lab: rush label on a build that is waiting on its release"
   },
   {
-   "name": "F017-1",
+   "name": "F024-3",
    "status": "ASK",
    "date": "20 Nov",
-   "issue": "Enemy view (§9) \"its special, if ready this turn\": during your turn an enemy's special is never ready (a charged special lapses at the end of its own turn). Built as: an enemy that warmed up on its last turn (it can fire on its next) shows its special's range in plum and its dashed plum ring; a…",
-   "issueFull": "Enemy view (§9) \"its special, if ready this turn\": during your turn an enemy's special is never ready (a charged special lapses at the end of its own turn). Built as: an enemy that warmed up on its last turn (it can fire on its next) shows its special's range in plum and its dashed plum ring; a solid plum ring never appears on your turn",
-   "next": "Recommended: accept. Alternative: show the plum range only for a solid ring, which would never show it"
+   "issue": "The status board starts on every pull request event and every finished checks, night-checks and lab run: about 40 runs between 6:15 and 8:00 pm ET on 20 Nov, most cancelled after a few seconds, some waiting 45 minutes for a machine. Each holds a machine while it starts",
+   "issueFull": "The status board starts on every pull request event and every finished checks, night-checks and lab run: about 40 runs between 6:15 and 8:00 pm ET on 20 Nov, most cancelled after a few seconds, some waiting 45 minutes for a machine. Each holds a machine while it starts",
+   "next": "Recommended: drop the workflow_run start (the hourly run and pull request events already cover it), or start the board only from the end of those runs' last job"
+  },
+  {
+   "name": "F024-2",
+   "status": "ASK",
+   "date": "20 Nov",
+   "issue": "Every results pull request runs the full checks twice: once started by the lab's delivery (workflow_dispatch) and once by the pull request itself. On 20 Nov: 44792582645 and 44792583096 on the same branch, each about 6 jobs for 25 to 40 minutes",
+   "issueFull": "Every results pull request runs the full checks twice: once started by the lab's delivery (workflow_dispatch) and once by the pull request itself. On 20 Nov: 44792582645 and 44792583096 on the same branch, each about 6 jobs for 25 to 40 minutes",
+   "next": "Recommended: keep one (the pull request's); the delivery stops starting its own. A change to deliver.sh, which brief 024 said not to touch"
   }
  ],
  "chats": {
@@ -516,10 +527,10 @@
   "closedLimit": 5
  },
  "tiles": {
-  "building": 2,
-  "flagsAsk": 4,
+  "building": 3,
+  "flagsAsk": 8,
   "flagsNewest": "F50",
-  "flagsMoreAsk": 0,
-  "flagsMoreOpen": 6
+  "flagsMoreAsk": 3,
+  "flagsMoreOpen": 7
  }
 }
