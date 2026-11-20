@@ -28,12 +28,12 @@ Rule set: none changed (v3.7 stays the newest). Game version **v3.11.00** (YY: a
 - Brain 5, Brain 6 and every older brain and rule set play exactly as before.
 
 **Under the hood**
-- `bot.js`: Brain 7 is Brain 5's planner plus a reading of the board made once per plan (start of the turn and after each roll): the lead (units other than the holder, by unit cap and HP left), ahead or behind, storm or hold, whether to wait before striking the holder, whether to regroup, and the holder race check. It adds value terms and two attack costs; no "on turn N" rules and nothing carried between turns. One setting the brief didn't name, **Press the holder**, was needed: without it Brain 7 gathered round a braced holder and then waited (F42).
+- `bot.js`: Brain 7 is Brain 5's planner plus a reading of the board made once per plan (start of the turn and after each roll): the lead (units other than the holder, by unit cap and HP left), ahead or behind, storm or hold, whether to wait before striking the holder, whether to regroup, and the holder race check. It adds value terms and two attack costs; no "on turn N" rules and nothing carried between turns. One setting the brief didn't name, **Press the holder**, was needed: without it Brain 7 gathered round a braced holder and then waited (F43).
 - `brain.js`: Brain 7 and its labels. `watch.js`: `n=brain7:stormLead=1` style brain settings in watch links. `app.js`: the Lead table.
 - Lab: three new measures on every run (`lead_lost`, `lead_unused`, units lost alone or together and holder strikes solo or group), positions scored per side-turn in `timing`, a `brain7` measure (how often each behaviour was active, and lone losing attacks for any brain), `seed_as` in job orders so many matchups share one deal. `sims/lab/report019.js` builds the Report's tables.
 - New checks: `test_brain7.js` (all off = Brain 5, the five positions, legal play) and `sims/lab/test_lead.js` (the new measures on five saved games, checked by hand).
 
-**Flags opened:** F42 to F47 (renumbered after brief 011's F38 to F41). **Evidence for:** F10.
+**Flags opened:** F43 to F48 (renumbered: brief 011 took F38 to F41 and the man-advantage flag F42). **Evidence for:** F10.
 
 **Results (34,000 games):** Brain 7 does not pass. It loses to Brain 5 at balanced 5v5 (45.6%) and all-Light 7v7 (45.6%), ties at 7v7, and leaves leads unused about as often at 5v5 (24.0% vs 26.9%), but mirror games end on the clock far less (26.6% vs 57.9% at 5v5, 17.6% vs 40.4% at 7v7), almost all from the holder joining the storm. Settings review (52,000 games): only the lead weight moves results; at 0 Brain 7 takes 52.1% of balanced 5v5 games against Brain 5.
 
