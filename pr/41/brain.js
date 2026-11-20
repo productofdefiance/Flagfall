@@ -153,11 +153,13 @@
      stay frozen. */
   const BRAIN_8 = JSON.parse(JSON.stringify(BRAIN_5));
   BRAIN_8.id = "brain8"; BRAIN_8.name = "Brain 8 (safe approach)";
-  BRAIN_8.note = "Brain 5 that doesn't walk into the enemy's first strike unless the trade favours it, steps out of (or braces against) a warmed-up special, sends its holder in when the enemy has only its holder and can't win the race, and has an opening tempo for going first and for going second.";
+  BRAIN_8.note = "Brain 5 that sends its holder in when the enemy has only its holder and can't win the race, with an opening tempo for going first and for going second. Its safe approach and its respect for warmed-up specials are switches, off by default: in testing they cost it wins against Brain 5.";
   BRAIN_8.approach = {
     holderJoins: 1,   // B4 The holder joins the storm when the enemy has only its holder and the race check passes (Brain 7's B4)
-    safe: 1,          // A1 Safe approach: a unit left where an enemy strikes first counts that strike as already taken
-    respect: 1,       // A2 Respect a warmed special: units in its reach next turn count its full damage
+    safe: 0,          // A1 Safe approach: a unit left where an enemy strikes first counts that strike as already taken.
+                      // Ships off: in the brief 022 screen it cost wins against Brain 5 (5v5, 200 games: 69 won, 109 lost)
+    respect: 0,       // A2 Respect a warmed special: units in its reach next turn count its full damage.
+                      // Ships off: it cost wins against Brain 5 (5v5: 64 won, 104 lost) and made warmed specials lapse far more
     tempo: 1,         // A3 Opening tempo: the two sliders below apply during the opening
     firstStrike: 1,   // A1: weight on the expected first-strike damage (and the unit, if it would be removed)
     warmedRespect: 1, // A2: weight on a warmed special's full damage (and the unit, if it would be removed)

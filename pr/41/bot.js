@@ -505,8 +505,8 @@
     }
     v += W.pull * (st.pole[foe] - st.pole[team]);
     const r = risk5(st, team, B, true);
-    v -= W.risk * r;
-    v += W.pressure * risk5(st, foe, B);
+    v -= (c8 && c8.open && c8.risk !== undefined ? c8.risk : W.risk) * r;
+    v += (c8 && c8.open ? c8.pressure : W.pressure) * risk5(st, foe, B);
     if (!join) v -= W.flagDanger * Math.min(1, flagRisk(st, team, Object.assign({}, B, { weights: Object.assign({}, B.weights, { flagRisk: 1 }) })));
     if (W.clock) { const near = clockNear(st, W); if (near > 0) v += W.clock * near * tiebreakOutlook(st, team); }   // Brain 6 (Brief 007): the clock
     if (c7) v += lead7Value(st, team, B, c7, r);   // Brain 7 (Brief 019)
@@ -538,6 +538,8 @@
         c.open = true; c.tempo = t;
         c.advance = W.advance * (1 + t);              // +1: twice the pull forward; -1: none
         c.hold = t < 0 ? -t * W.advance : 0;          // -1: each hex beyond its deploy area costs what a hex of advance is worth
+        c.pressure = W.pressure * (1 + Math.max(0, t));   // +1: twice the value of threats it could make next turn (close to strike first)
+        if (!A.safe && t > 0) c.risk = W.risk * (1 - t / 2);   // A1 off: +1 halves its fear of damage taken instead (A1's caution is what the slider scales when A1 is on)
         c.firstStrike *= 1 - t;                       // +1: no first-strike caution; -1: twice as much
         if (c.hold) c.zone = E.deployZone(st, team);
       }
