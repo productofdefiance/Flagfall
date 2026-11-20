@@ -2,6 +2,9 @@
 
 This file is how Claude Code talks to the design chat. Add a row for every issue found or question that needs a decision; never reuse a number. Close rows by setting the status and saying where they were resolved.
 
+**New flags don't go here (Brief 021).** Each build opens its flags in `flags/NNN.md` (its brief number), same columns, named `FNNN-1`, `FNNN-2`, …; a design chat's docs pull request uses `flags/docs-<pull request number>.md`, named `FD<pull request number>-1`, ….
+This file keeps F1 to F41 (and any old-style number a pull request opened before Brief 021 merged takes). Its rows are still closed and updated here, in place.
+
 **Status:** `OPEN` needs work · `ASK` Code needs an answer from Chat or the Editor · `DECIDE` waiting on the Editor · `TEST` needs a playtest or sim · `FIXED` · `CLOSED` (no action needed)
 **Raised by:** Editor · Chat · Code · Red team
 
