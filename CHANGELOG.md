@@ -35,9 +35,11 @@ Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `g
 - Lab: a `fields` measure (field played, units deployed outside their area, units started on their flag).
 - New check `test_fields.js` (the data, deploy areas, gaps, goal zones, symmetry, the turn-1 design rule, the rules the brief lists on the 7-column field, and Brain 5 on both new fields).
 
-**Flags closed:** none. **Opened:** F43 (the hot-seat snap can't show a whole 5v5 half on a 390 × 844 phone).
+**Flags closed:** none. **Opened:** F43 (the hot-seat snap can't show a whole 5v5 half on a 390 × 844 phone), F44 (5v5 on v3.8: the first-mover collapse is gone, but far more turn-limit games).
 
-**Baseline:** see brief 014's Report (v3.8 against v3.7, Brain 5 mirror, 1,000 games per format, same seeds).
+**Baseline** (Brain 5 mirror, balanced, 1,000 games per format, same seeds as v3.7; full table in brief 014's Report):
+- 5v5: ended on the turn limit **61.9%** (v3.7: 35.1%), pull KO 23.5% (44.0%), first mover's share of decisive games **58.0%** (3.2%). Likely the smaller deploy area; not isolated.
+- 7v7: ended on the turn limit 44.2% (42.7%), pull KO 39.4% (41.6%), first mover's share 31.4% (29.0%): no change beyond the noise.
 
 ## v3.10.00 · Build 14 — Brief 011, rule set v3.7: special attacks (20 Nov 2026)
 Rule set: **v3.7** (new, the new-game default): v3.6 plus switch `specials`. Default brain: Brain 5, now using specials on v3.7 only. Game version **v3.10.00** (YY: a new rule set).

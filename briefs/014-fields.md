@@ -127,18 +127,35 @@ Brain 5, the default, plays v3.7 at 5v5 and 7v7 with no illegal action, no crash
   - Two job orders, `fields-v38` and `fields-v37` (same seeds, 1,000 games per format each), for the baseline table.
   - Two old checks adjusted for a new newest preset, no rule change: `test_v37.js` (v3.7 is no longer the newest; its "no specials" loop now picks rule sets without the switch) and `test_reasons.js` (its hand-made positions are legacy hexes, and one lineup happens to be 5 units, which on v3.8 means the 5v5 field: the check now keeps the legacy field).
   - Rules screen: "Deployment radius, 5v5" and the "One field per format" switch.
-- **Checks run and results (paste regression hashes):** PENDING
-- **Baseline table (rule changes only):** PENDING (lab run on this pull request)
+- **Checks run and results (paste regression hashes):** every check in `README.md` passes locally: test_rules, v1, v3, v31, v33–v37, test_fields (127 checks), stamina, reasons, kitd, brain5, brain6, version, watch, ui, invariants (30 v3.8 games, 0 problems), rng, replay (386 checks, 0 mismatches), lab self_test (34), test_stall (39); board_check 4 games on v3.8 at 5v5 (watch links replay identically on the board) and 10 on v3.4 in CI. test_v32 ran in CI (40-game count). `regress_engine.js` (3 games per set) against a copy of the board from before this build: **every hash identical**:
+  ```
+  match3       37397ef2bd3ed86b
+  v1           7b25bca651c0cb31
+  v2           ddbe5fc437ff4e9d
+  v3           26371927b53d4413
+  v3.1         c71e4cd12fc984b0
+  v3.2         f62a061d2c147d83
+  v3.3         e6151bf463d6c9f8
+  v3.4         ee6ce003ac760250
+  v3.5         fca989aecfaf21c9
+  v3.6         a6bf327b54f7d5a1
+  v3.7         dd3c27d9dc9aafbb
+  ```
+  Also `regress_engine.js <board> 2 all` (every rule set × every brain, Brain 5 included, 110 lines): identical to the old board.
+- **Baseline table (rule changes only):** Brain 5 mirror, balanced lineups, 1,000 games per format per rule set, same seeds (runs `fields-v37` and `fields-v38` in `results/v3.11.00/`). Percent of games.
+  - **5v5, v3.7 → v3.8:** holder KO 2.3 → 3.9 · pull KO 44.0 → **23.5** · TKO 18.6 → 10.7 · tiebreak win 34.0 → **55.5** · draw 1.1 → 6.4 · ended on turn limit 35.1 → **61.9** · games with a pull 44.0 → 23.5 · average length 15.9 → 20.6 turns · first mover's share of decisive games 3.2 → **58.0**.
+  - **7v7, v3.7 → v3.8:** holder KO 3.1 → 4.0 · pull KO 41.6 → 39.4 · TKO 12.6 → 12.4 · tiebreak win 41.3 → 43.5 · draw 1.4 → 0.7 · ended on turn limit 42.7 → 44.2 · games with a pull 41.8 → 39.4 · average length 22.0 → 22.2 turns · first mover's share 29.0 → 31.4. Every gap under 4 points: no evidence of a change.
+  - Reading: 5v5 changed a lot, 7v7 not at all. On 5v5 the first attack comes later (turn 2.9 → 4.4) and the first-mover collapse of F39 is gone (3.2% → 58.0%), but far more games run to the turn limit. Likely the smaller deploy area and the 8-hex gap keep Arrow Storm out of turn-1/2 reach (F39's cause), but the field and the deploy radius changed together, so it is **likely, not isolated**. F44.
 - **The snap measurements (390 × 844 phone, headless Chromium, this build):** visible field view between the top bar and the action panel: **487 px** (design estimate ~590). Whole half in view = own edge to the middle of the centre hex's row.
   - 5v5: field 1,014 px tall (hexes 68 px wide; it fills the width), half 507 px: **not in view** (20 px short; 49 px to the centre hex's far edge). F43.
   - 7v7: field 897 px, half 449 px: in view.
   - 9v9: field 898 px, half 449 px: in view (worked out from the same drawing; not playable to measure live).
   - 13v13: field 833 px, half 416 px: in view (same).
   - The snap itself, measured: 5v5 and 7v7, North's turn 1 at the top (0 px), after End turn South at the bottom (526 / 410 px, the scroll maximum), after South's End turn North back at 0. Also checked on v3.7 (legacy field).
-- **Bot minimum (met / not met, with numbers):** PENDING
+- **Bot minimum (met / not met, with numbers):** **met.** 2,000 seeded Brain 5 vs Brain 5 games on v3.8 (1,000 at 5v5, 1,000 at 7v7; brief asked 200 per format): 0 errors, 0 refused actions, 0 bot errors, 0 unfinished, 0 units deployed outside their area (every game deployed one unit per side on its flag). Plus 30 impossible-state games and test_fields' games, all clean. No fixed hex name left in the bot. Stall rate (no tuning, as asked): turn-limit games 35.1% → 61.9% at 5v5, 42.7% → 44.2% at 7v7; quiet ending of turn-limit games 29.6 → 27.6 side-turns (5v5), 46.3 → 46.1 (7v7).
 - **Settings review (brain builds only):** not a brain build (no brain added or tuned).
 - **Known gaps:**
   - F43: a whole 5v5 half doesn't fit on a 390 × 844 phone after the snap.
   - A match whose unit cap matches no field (not possible from Setup today) falls back to the legacy field on v3.8.
-- **Flags closed / opened:** closed none; opened F43.
-- **Pull request:** PENDING
+- **Flags closed / opened:** closed none; opened F43 (snap on a small phone) and F44 (5v5 on v3.8: F39 gone, many more turn-limit games). F39 left open: its cause is likely but not isolated.
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/36
