@@ -303,7 +303,7 @@
   /** A braced Heavy Anti-Cavalry next to `hex` hits a unit entering it, once per turn.
       v3.6 (spearOnArrival, Game Laws 3.13): only a unit arriving next to that spear, i.e. not next to it on `from` (the
       hex before the action), and a unit takes set spear damage at most once per turn; a spear it doesn't take stays loaded. */
-  function spikeCheck(st, u, hex, from) {
+  function spikeCheck(st, u, hex, from, events) {
     const arrival = sw(st, "spearOnArrival");
     if (arrival && u.spearTaken) return "";
     for (const e of alive(st)) {
@@ -312,6 +312,7 @@
         e.spikeUsed = true;
         if (arrival) u.spearTaken = true;
         const pooled = hurt(st, u, st.rs.spikeDamage);
+        if (events) events.push({ type: "spear", hex, by: e.uid, amount: st.rs.spikeDamage });   // Brief 017: for route()
         return `; braced ${e.id} at ${e.hex} deals ${st.rs.spikeDamage}${pooled} (${u.id} HP ${fmt(Math.max(u.hp, 0))})` + (u.hp <= 0 ? ` — ${u.id} REMOVED` : "");
       }
     }
@@ -319,6 +320,7 @@
   }
 
   function doMove(st, u, dst) {
+    if (sw(st, "routeRule211")) { walkPath(st, u, planRoute(st, u, dst).path.slice(1), dst); return; }   // Brief 017 (2.11)
     const rm = reachMap(st, u);
     if (!rm[dst]) fail(`${u.id} cannot reach ${dst}.`);
     const { steps, mode, cost, tackle } = rm[dst];
@@ -332,6 +334,239 @@
     let msg = `${u.id} ${src} → ${dst} (${steps} hex${steps > 1 ? "es" : ""}, cost ${fmt(cost)}${tackle ? ", including " + fmt(tackleCostFor(st, u)) + " for tackle" + (tackleHexes(st) ? " and 1 hex of movement" : "") : ""})` + (evading ? "; evading" : "") + (mode !== "free" ? "; stopped by Zone of Control" : "") + left;
     if (u.hp > 0) msg += spikeCheck(st, u, dst, src);
     log(st, msg, "move");
+  }
+
+  // ---------- Routes (Brief 017, Game Laws 2.11; switch routeRule211) ----------
+  /* A move names only its destination; the engine picks the route and the unit walks it hex by hex.
+     1 cheapest (fewest hexes: every hex costs the unit's hex cost; Marks and set spears never block the search, only
+     units and flags do); 2 a route that arrives beats one that stops on the way; 3 fewer dangers (a Mark entered, a set
+     spear that fires); 4 hex by hex from the start, at the first hex where two routes differ: nearer the centre column,
+     then nearer the unit's own flag row. The walk stops where it enters an enemy Mark (3.8) and ends where set spear
+     removes it; it is never rerouted at extra cost. The move hexes offered stay as today (reachMap). The board, the
+     preview and the bots all read the same functions, and the real move walks the very path the preview shows. */
+  /** The Zone of Control mode after stepping onto a hex (inz: the hex is in an enemy Mark), or null if the step is not
+      allowed. The same transitions reachMap uses. */
+  function zoneStep(st, m, inz) {
+    if (m === "free") return inz ? "entered" : "free";
+    if (m === "startzone") return inz ? "shifted" : "free";
+    if (m === "entered") return !inz || sw(st, "zoneHardStop") ? null : "shifted";
+    return null;
+  }
+  const stopMode = (m) => m === "entered" || m === "shifted";
+  /** The enemy projecting the Mark on `h` (the first in unit order), for the preview's badge. */
+  function markerOf(st, u, h) {
+    const G = fieldOf(st), x = alive(st).find((e) => e.team !== u.team && projects(st, e) && G.dist(e.hex, h) === 1);
+    return x ? x.uid : null;
+  }
+  /** Walks `u` along `path` (the hexes after its own), as the move does: each hex entered in turn, set spear checked on
+      arrival at each, a stop where it enters a Mark, removal where set spear removes it. Then charges the hexes walked
+      (and tackle, by where it ended) and logs the move. Returns what happened. `dst` is the hex the player chose. */
+  function walkPath(st, u, path, dst) {
+    if (u.done) fail(`${u.id} has already ended its turn.`);
+    const G = fieldOf(st), c = card(st, u), z = zoneFor(st, u.team), ev = evadeTarget(st, u), evading = !!ev;
+    let m = ev && !u.evadeMoved ? (z.has(u.hex) ? "startzone" : "free") : (u.zmode || (z.has(u.hex) ? "startzone" : "free"));
+    const src = u.hex, events = [], walked = [];
+    let left = leaveFlag(st, u), spear = "";
+    for (const h of path) {
+      const nm = zoneStep(st, m, z.has(h));
+      if (nm === null) break;
+      const prev = u.hex;
+      if (walked.length && sw(st, "flagHolder") && prev === G.FLAG[u.team]) left += leaveFlag(st, u);   // passing over its own flag
+      u.hex = h; m = nm; walked.push(h);
+      if (u.hp > 0) spear += spikeCheck(st, u, h, prev, events);
+      if (stopMode(m)) events.push({ type: "mark", hex: h, by: markerOf(st, u, h) });
+      if (u.hp <= 0 || stopMode(m)) break;
+    }
+    if (!walked.length) fail(`${u.id} cannot step onto ${path[0]}.`);
+    const steps = walked.length, end = u.hex;
+    const tk = tackleApplies(st, u, src, end);
+    if (tk) {
+      const by = alive(st).find((e) => e.team !== u.team && card(st, e).trait === "tackle" && G.dist(e.hex, src) === 1 && G.dist(e.hex, end) !== 1);
+      events.unshift({ type: "tackle", hex: src, by: by ? by.uid : null, amount: tackleCostFor(st, u) });
+    }
+    if (steps + (tk ? tackleHexes(st) : 0) > capOf(st, u) - u.moved) fail(`${u.id} has no movement left for that.`);
+    const cost = steps * c.hexCost + (tk ? tackleCostFor(st, u) : 0);
+    spend(st, u, cost);
+    u.moved += steps + (tk ? tackleHexes(st) : 0); u.zmode = m;
+    if (tk) u.tackled = true;
+    if (evading) u.evadeMoved = true;
+    const short = end !== dst;
+    let msg = `${u.id} ${src} → ${end} (${steps} hex${steps > 1 ? "es" : ""} via ${walked.join(" ")}, cost ${fmt(cost)}${tk ? ", including " + fmt(tackleCostFor(st, u)) + " for tackle" + (tackleHexes(st) ? " and 1 hex of movement" : "") : ""})` +
+      (evading ? "; evading" : "") + (stopMode(m) ? (short ? `; stopped by Zone of Control short of ${dst}` : "; stopped by Zone of Control") : "") + left + spear;
+    if (short && u.hp <= 0 && !stopMode(m)) msg += ` (short of ${dst})`;
+    log(st, msg, "move");
+    return { walked, end, events, cost, steps, removed: u.hp <= 0 };
+  }
+  /** The default-direction key of a hex (rule 4): column steps from the centre column, then distance to its own flag's row. */
+  function dirKey(st, u, h) {
+    const G = fieldOf(st), row = (x) => G.geo(...G.parse(x))[1];
+    return [Math.abs(G.offset(h)), Math.abs(row(h) - row(G.FLAG[u.team]))];
+  }
+  /** Rule 4: compare two routes hex by hex from the start; the first hex where they differ decides. The hex name is a
+      last resort that no field reaches with equal-length routes (two different hexes next to one hex never share both
+      keys unless they mirror across the centre column, which a shortest route to one hex can't). */
+  function dirCompare(st, u, a, b) {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) {
+      if (a[i] === b[i]) continue;
+      const ka = dirKey(st, u, a[i]), kb = dirKey(st, u, b[i]);
+      if (ka[0] !== kb[0]) return ka[0] - kb[0];
+      if (ka[1] !== kb[1]) return ka[1] - kb[1];
+      return a[i] < b[i] ? -1 : 1;
+    }
+    return a.length - b.length;
+  }
+  /** Every path of exactly `L` steps from u's hex to dst over unblocked hexes (an evading unit: every step further from
+      the unit it attacked), no hex twice. */
+  function pathsOf(st, u, dst, L) {
+    const G = fieldOf(st), b = blocked(st, u), ev = evadeTarget(st, u);
+    const ok = (h, n) => !b.has(n) && (!ev || G.dist(n, ev.hex) > G.dist(h, ev.hex));
+    const out = [], path = [u.hex];
+    (function dfs(h, r) {
+      if (r === 0) { if (h === dst) out.push(path.slice()); return; }
+      if (G.dist(h, dst) > r) return;
+      for (const n of G.NBRS[h]) {
+        if (!ok(h, n) || path.includes(n)) continue;
+        path.push(n); dfs(n, r - 1); path.pop();
+      }
+    })(u.hex, L);
+    return out;
+  }
+  /** The route a move to dst takes (rules 1-4), with what walking it does, played on a scratch copy. */
+  function planRoute(st, u, dst) {
+    if (u.done) fail(`${u.id} has already ended its turn.`);
+    const rm = reachMap(st, u);
+    if (!rm[dst]) fail(`${u.id} cannot reach ${dst}.`);
+    const G = fieldOf(st), z = zoneFor(st, u.team);
+    const spears = alive(st).filter((e) => e.team !== u.team && e.braced && card(st, e).brace === "spike" && !e.spikeUsed);
+    const danger = (h) => z.has(h) || spears.some((e) => G.dist(e.hex, h) === 1);
+    const walk = (p) => {
+      const s = cloneLite(st), su = unitByUid(s, u.uid);
+      try { return walkPath(s, su, p.slice(1), dst); } catch (e) { if (!e.illegal) throw e; return null; }
+    };
+    for (let L = G.dist(u.hex, dst); L <= rm[dst].steps; L++) {
+      const paths = pathsOf(st, u, dst, L);
+      if (!paths.length) continue;
+      paths.sort((a, b) => dirCompare(st, u, a.slice(1), b.slice(1)));
+      // No route touches a danger: they all arrive with nothing on the way, so rule 4 alone decides.
+      if (!paths.some((p) => p.slice(1).some(danger))) { const r = walk(paths[0]); if (r) return Object.assign({ path: paths[0] }, r); }
+      const cands = [];
+      for (const p of paths) { const r = walk(p); if (r) cands.push(Object.assign({ path: p }, r)); }
+      if (!cands.length) continue;
+      const dangers = (r) => r.events.filter((e) => e.type === "mark" || e.type === "spear").length;
+      cands.sort((a, b) => ((a.end === dst ? 0 : 1) - (b.end === dst ? 0 : 1)) || (dangers(a) - dangers(b)));   // stable: rule 4 order kept
+      return cands[0];
+    }
+    fail(`${u.id} has no route to ${dst}.`);
+  }
+  /** Brief 017, for the board and the bots: the route a move to dst takes and what happens on it.
+      { path: [the unit's hex, ..., dst], end, stoppedShort, cost, events: [{type: 'mark'|'spear'|'tackle', hex, by, amount}] }
+      in walking order. Null if the unit can't move there. Rule sets before routeRule211 (the move jumps): the path is a
+      shortest legal one by the same direction rule, and the events are what the jump does (tackle, set spear at the end). */
+  function route(st, uid, dst) {
+    const u = unitByUid(st, uid);
+    if (!u || u.hp <= 0 || u.done || st.phase !== "play" || u.team !== st.toMove) return null;
+    const rm = reachMap(st, u);
+    if (!rm[dst]) return null;
+    try {
+      if (sw(st, "routeRule211")) {
+        const r = planRoute(st, u, dst);
+        return { path: r.path, end: r.end, stoppedShort: r.end !== dst, cost: r.cost, events: r.events };
+      }
+      // Older rule sets: a path that the old jump allows (only its last hex in a Mark, as reachMap), and the jump's events.
+      const z = zoneFor(st, u.team), ev = evadeTarget(st, u);
+      const m0 = ev && !u.evadeMoved ? (z.has(u.hex) ? "startzone" : "free") : (u.zmode || (z.has(u.hex) ? "startzone" : "free"));
+      const legal = (p) => { let m = m0; for (let i = 1; i < p.length; i++) { if (stopMode(m)) return false; m = zoneStep(st, m, z.has(p[i])); if (m === null) return false; } return true; };
+      const paths = pathsOf(st, u, dst, rm[dst].steps).filter(legal).sort((a, b) => dirCompare(st, u, a.slice(1), b.slice(1)));
+      const s = cloneLite(st), su = unitByUid(s, uid), events = [];
+      if (rm[dst].tackle) {
+        const by = alive(st).find((e) => e.team !== u.team && card(st, e).trait === "tackle" && fieldOf(st).dist(e.hex, u.hex) === 1 && fieldOf(st).dist(e.hex, dst) !== 1);
+        events.push({ type: "tackle", hex: u.hex, by: by ? by.uid : null, amount: tackleCostFor(st, u) });
+      }
+      leaveFlag(s, su); const from = su.hex; su.hex = dst;
+      if (su.hp > 0) spikeCheck(s, su, dst, from, events);
+      if (stopMode(rm[dst].mode)) events.push({ type: "mark", hex: dst, by: markerOf(st, u, dst) });
+      return { path: paths[0] || [u.hex, dst], end: dst, stoppedShort: false, cost: rm[dst].cost, events };
+    } catch (e) { if (!e.illegal) throw e; return null; }
+  }
+  /** Brief 017: could the unit still attack after moving to dst (Stamina, Command, Reload, warm-up, still standing)? */
+  function canAttackAfter(st, uid, dst) {
+    const s = cloneLite(st), u = unitByUid(s, uid);
+    if (!u) return false;
+    try { if (dst !== u.hex) apply(s, { type: "move", uid, to: dst }); } catch (e) { if (!e.illegal) throw e; return false; }
+    const g = s.rs.game;
+    if (u.hp <= 0 || u.done || u.sp === "warm" || evadeTarget(s, u)) return false;
+    if (card(s, u).reload && u.attackedLast) return false;
+    return u.stam + EPS >= g.attackCost && s.cmd + EPS >= g.attackCost;
+  }
+  /** Brief 017: every hex the unit could hit from `fromHex` (hexes, occupied or empty). kind 'normal': adjacent hexes,
+      Volley range, Reach's six spokes; 'special': the special's own shape (Javelin's spokes 2-3 over friends, never over
+      enemies; the adjacent specials' six hexes; Bullseye and Arrow Storm as the normal range). The flag blocks straight
+      lines (4.9). A flag hex counts only from its own goal zone (the holder is stormed from there); never for a special. */
+  function rangeHexes(st, uid, fromHex, kind) {
+    const u = unitByUid(st, uid), G = fieldOf(st);
+    if (!u || !fromHex) return [];
+    const c = card(st, u), out = [], block = (h) => sw(st, "flagBlocksLine") && G.flagBetween(fromHex, h);
+    const flagOk = (h) => !G.onFlag(h) || (sw(st, "flagHolder") && h !== G.FLAG[u.team] && G.GOAL[foeOf(u.team)].has(fromHex));
+    const normal = (h, d) => d === 1 || (!block(h) && ((c.range > 1 && d <= c.range) || (c.trait === "reach" && d === 2 && G.straight2(fromHex, h))));
+    const sk = kind === "special" ? specialOf(st, u) : null;
+    if (kind === "special" && !sk) return [];
+    for (const h of G.CELLS) {
+      if (h === fromHex) continue;
+      const d = G.dist(fromHex, h);
+      if (kind !== "special") { if (normal(h, d) && flagOk(h)) out.push(h); continue; }
+      if (G.onFlag(h)) continue;   // no special on a flag hex (F8)
+      if (sk === "arcHit" || sk === "pickOff" || sk === "skewer") { if (d === 1) out.push(h); continue; }
+      if (sk === "bullseye" || sk === "arrowStorm") { if (normal(h, d)) out.push(h); continue; }
+      if (sk === "javelin") {
+        const n = specNums(st, sk), mid = G.lineBetween(fromHex, h);
+        if (d < (n.minRange || 2) || d > (n.maxRange || 3) || !mid || block(h)) continue;
+        if (alive(st).some((e) => e.team !== u.team && mid.includes(e.hex))) continue;
+        out.push(h);
+      }
+    }
+    return out;
+  }
+  /** Brief 017: the hexes the attacker could Evade to if `t` survives its attack now: { hex: mode }. {} when no Evade. */
+  function evadeHexes(st, uid, targetUid) {
+    const u = unitByUid(st, uid), t = unitByUid(st, targetUid);
+    if (!u || !t || !sw(st, "evade") || !card(st, u).evade || fieldOf(st).dist(u.hex, t.hex) !== 1) return {};
+    const s = cloneLite(st), su = unitByUid(s, u.uid), g = st.rs.game;
+    su.stam -= g.attackCost; s.cmd -= g.attackCost; su.done = false; su.evadeFrom = t.uid; su.evadeMoved = false; su.attackedThis = true;
+    const moves = reachMap(s, su), out = {};
+    for (const h in moves) out[h] = moves[h].mode;
+    return out;
+  }
+  /** Brief 017: what follows if this attack removes `t`: the attacker takes the hex (3.6), so set spear on taking it
+      ({type:'spear', hex, by, amount}) and the Mark it would stand in ({type:'mark', hex, by}). [] if nothing; null if the
+      attacker doesn't take the hex (ranged, Reach from 2, a holder, a held flag). opt.special: Pick Off takes the hex too. */
+  function killConsequences(st, uid, targetUid, opt) {
+    const u = unitByUid(st, uid), t = unitByUid(st, targetUid);
+    if (!u || !t) return null;
+    const pick = opt && opt.special ? specialOf(st, u) === "pickOff" : true;
+    if (!pick || !capturePreview(st, u, t) || isHolder(st, t)) return null;
+    const s = cloneLite(st), su = unitByUid(s, uid), st2 = unitByUid(s, targetUid), events = [];
+    st2.hp = 0; const was = su.hex; su.hex = st2.hex;
+    if (s.rs.switches.captureTriggersSpike) spikeCheck(s, su, su.hex, was, events);
+    if (zoneFor(s, u.team).has(su.hex)) events.push({ type: "mark", hex: su.hex, by: markerOf(s, su, su.hex) });
+    return events;
+  }
+  /** Brief 017 (section 9): an enemy unit as it would stand at the start of its side's next turn: where it could move
+      (full Stamina less its own next-turn modifiers, its side's full Command), its normal range, its special's range if it
+      can fire next turn (warmed up now), and which of the side-to-move's units it could hit now. */
+  function enemyPreview(st, uid) {
+    const u = unitByUid(st, uid);
+    if (!u || u.hp <= 0 || !u.hex) return null;
+    const s = cloneLite(st), su = unitByUid(s, uid);
+    s.toMove = u.team; s.cmd = s.rs.game.command;
+    Object.assign(su, { stam: nextStamina(st, u), braced: false, done: false, moved: 0, zmode: null, tackled: false, evadeFrom: null, evadeMoved: false, spearTaken: false });
+    const moves = {}, rm = reachMap(s, su);
+    for (const h in rm) moves[h] = rm[h].mode;
+    const range = rangeHexes(st, uid, u.hex, "normal");
+    const specialNext = !!specialOf(st, u) && (u.sp === "warm" || u.sp === "charged");
+    const special = specialNext ? rangeHexes(st, uid, u.hex, "special") : null;
+    const reach = new Set(range.concat(special || []));
+    const canHit = alive(st).filter((x) => x.team !== u.team && reach.has(x.hex)).map((x) => x.uid);
+    return { moves, range, special, specialNext, canHit, stamNext: su.stam };
   }
 
   function swapCosts(st, a, b) {
@@ -1117,6 +1352,6 @@
      saved matches. Code that works on a match reads the match's field instead: fieldOf(st). */
   const { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, flagBetween, arcOf, hexBehind, lineBetween } = LEGACY;
   const api = { COLS, NCOL, NROW, FLAG, CELLS, CELLSET, NBRS, GOAL, parse, geo, dist, deployZone, FIELDS, fieldOf, fieldFor, deployRadiusFor, matchSize, foeOf, clone, card, alive, unitByUid,
-    newMatch, act, apply, specialOf, specialName, specialCanTarget, specialHits, specialPreview, specialState, warmupBlock, fireBlock, arcOf, hexBehind, lineBetween, SPECIAL_NAMES, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, canPullFrom, flagBetween, dieCases, diceMultiplier, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, STAMINA_EFFECTS, baseStamina, braceTiredness, staminaFloor, staminaMods, addStaminaMod, staminaWith, nextStamina, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
+    newMatch, act, apply, route, canAttackAfter, rangeHexes, evadeHexes, killConsequences, enemyPreview, specialOf, specialName, specialCanTarget, specialHits, specialPreview, specialState, warmupBlock, fireBlock, arcOf, hexBehind, lineBetween, SPECIAL_NAMES, cloneLite, poolSplit, hpShown, flagShown, seededRandom, makeSeed, options, canAttackFrom, capturePreview, pullValue, canPullFrom, flagBetween, dieCases, diceMultiplier, normalDie, rollWith, parryAmount, parryPreview, evadePreview, whyNoMove, blockReasons, tackleCostFor, tiebreak, turnLimit, turnLimitFor, capOfLineup, dodgeRoom, half, holderOf, isHolder, effHp, flagLeft, homeOf, zoneFor, status, zones, reachMap, STAMINA_EFFECTS, baseStamina, braceTiredness, staminaFloor, staminaMods, addStaminaMod, staminaWith, nextStamina, breakdown, applyDie, beingsLost, capOf, fmt, d6 };
   if (typeof module !== "undefined") module.exports = api; else root.GGEngine = api;
 })(this);

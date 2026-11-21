@@ -539,6 +539,32 @@ MEASURES.brain8 = {
       end() { return o; }
     };
   }
+MEASURES.routes = {
+  about: "Brief 017 (Game Laws 2.11, v3.9 routes): every move the bots made, how many stopped short of the hex they chose (a Mark entered on the way), how many took set spear and how much, and how many ended where the engine's route() said they would. Older rule sets jump, so they never stop short.",
+  columns: ["route_moves", "moves_short", "moves_spear", "spear_damage_moves", "moves_mark_end", "moves_predicted"],
+  make(ctx) {
+    const { E } = ctx; let moves = 0, short = 0, spear = 0, dmg = 0, markEnd = 0, predicted = 0, pend = null;
+    return {
+      before(st, c) {
+        pend = null;
+        if (!c || !c.action || c.action.type !== "move") return;
+        const u = E.unitByUid(st, c.action.uid);
+        pend = { uid: c.action.uid, to: c.action.to, hp: u ? u.hp : 0, n: st.log.length, end: E.route ? (E.route(st, c.action.uid, c.action.to) || {}).end : c.action.to };
+      },
+      after(st, c, r) {
+        if (!pend || !r || !r.ok || !c.action || c.action.type !== "move") { pend = null; return; }
+        const u = E.unitByUid(st, pend.uid), line = st.log.slice(pend.n).map((x) => x.text).join(" | ");
+        moves++;
+        if (u.hex !== pend.to) short++;
+        if (u.hex === pend.end) predicted++;
+        const m = line.match(/braced \S+ at \S+ deals ([0-9.]+)/);
+        if (m) { spear++; dmg += +m[1]; }
+        if (/stopped by Zone of Control/.test(line)) markEnd++;
+        pend = null;
+      },
+      end() { return { route_moves: moves, moves_short: short, moves_spear: spear, spear_damage_moves: dmg, moves_mark_end: markEnd, moves_predicted: predicted }; }
+      };
+    }
 };
 
 // Always collected: the outcome (it feeds the summary's key table), timing, (Brief 016) stall and (Brief 019) lead and alone.

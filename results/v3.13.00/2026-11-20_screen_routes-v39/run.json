@@ -1,0 +1,72 @@
+{
+ "id": "2026-11-20_screen_routes-v39",
+ "kind": "screen",
+ "version": "v3.13.00",
+ "build": 17,
+ "commit": "6039532bde2411a851c01f2e4880785cf048cd44",
+ "brief": "017",
+ "question": "Do routes (v3.9, Game Laws 2.11) change how balanced games end, against v3.8 on the same seeds, Brain 5 against itself? And how often do the bots' moves stop short or take set spear?",
+ "tags": [
+  "routes",
+  "brain5",
+  "v3.9"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T18:36:24.000Z",
+ "finished": "2026-11-20T20:33:54.564Z",
+ "games": 800,
+ "seed_from": "tests/rng.js lab:routes-v39:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "v38-5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "v39-5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "v38-5v5"
+   },
+   {
+    "name": "v38-7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "v39-7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "v38-7v7"
+   }
+  ],
+  "measures": [
+   "routes",
+   "play"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "v38-5v5: mirror, 65.0% ended on the turn limit, A/B 90–93; v39-5v5: mirror, 66.0% ended on the turn limit, A/B 87–96; v38-7v7: mirror, 45.5% ended on the turn limit, A/B 92–106; v39-7v7: mirror, 47.5% ended on the turn limit, A/B 94–102."
+}

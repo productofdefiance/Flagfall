@@ -1,0 +1,14 @@
+{
+  "id": "routes-v39",
+  "kind": "screen",
+  "brief": "017",
+  "question": "Do routes (v3.9, Game Laws 2.11) change how balanced games end, against v3.8 on the same seeds, Brain 5 against itself? And how often do the bots' moves stop short or take set spear?",
+  "tags": ["routes", "brain5", "v3.9"],
+  "measures": ["routes", "play"],
+  "matchups": [
+    { "name": "v38-5v5", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "blitz5", "mix": "mixed", "games": 200 },
+    { "name": "v39-5v5", "a": "brain5", "b": "brain5", "rules": "v3.9", "format": "blitz5", "mix": "mixed", "games": 200, "seed_as": "v38-5v5" },
+    { "name": "v38-7v7", "a": "brain5", "b": "brain5", "rules": "v3.8", "format": "std7", "mix": "mixed", "games": 200 },
+    { "name": "v39-7v7", "a": "brain5", "b": "brain5", "rules": "v3.9", "format": "std7", "mix": "mixed", "games": 200, "seed_as": "v38-7v7" }
+  ]
+}
