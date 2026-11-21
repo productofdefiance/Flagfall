@@ -111,8 +111,8 @@ Say whether each cause is isolated or only likely.
 - **Does respecting a warmed special save units, and does it cost tempo?** It saves a few (units hit next turn by a warmed special, against Brain 5, 5v5: 508 with A2 against 581 without) and costs a lot of tempo: warmed specials lapse 1.5× (5v5) to 9× (7v7) as often, because both sides step out of reach and nobody fires. Against Brain 5, B4+A2 won 64 and lost 104 of 200 (5v5).
 - **Does B4 cut 5v5's turn-limit games?** Yes. Confirmed at 1,000 games on the same deals: Brain 8 mirrors ended on the turn limit in **46.5%** of 5v5 games against **64.2%** for Brain 5 mirrors (F50's 61.9% was a different seed set), and **12.5%** against **40.3%** in 7v7. Isolated: B4 is the only behaviour on, and it changes nothing until one side has only its holder left (the first-loss and specials columns are identical in both arms).
 - **Does B4 alone keep Brain 7's stall cut without its losses?** Yes, but it doesn't make the bot stronger. At 1,000 games against Brain 5 it is **even**: 5v5 469 won (256 by KO or TKO, 213 on tiebreak), 462 lost (195, 267), 69 drawn; 7v7 475 won (417, 58), 511 lost (315, 196), 14 drawn (a 3.6-point gap: noise, F23). It finishes games instead of winning them on the clock: more KO wins, more tiebreak losses. The screen's 106 to 80 in 5v5 didn't hold up at 1,000. All-Light against Brain 5: 5v5 479 to 509, 7v7 483 to 503 (even).
-- **An opening for each side?** Possibly one, for the second mover only, and it needs the confirm run still playing (`brain8-tempo-confirm`). On the 200-game screen, **first mover even (0), second mover push (+1)** puts 7v7's first mover at **49.7%** of decisive games (39.3% at even-even on the same deals), inside F12's 45–55%, and leaves 5v5 where it was (54.2%) with 5v5 stalls unchanged (41.0%). Every pair where the first mover sits back or pushes breaks 5v5 (first mover 64–99%, or 90% draws at back-back). Brain 8 ships at 0 and 0 until the 1,000-game confirm is read. Likely, not isolated.
-- **Should Brain 8 become the default?** Recommended: **yes, once the tempo confirm is read**, because it plays as well as Brain 5 (even at 1,000 games in both formats and both lineups) and finishes far more games: a third fewer turn-limit games in 5v5 and two-thirds fewer in 7v7. It isn't a harder opponent, so it doesn't replace a difficulty step. The Editor decides (F022-5).
+- **An opening for each side?** One for the second mover, none for the first. Confirmed at 1,000: **first mover even (0), second mover push (+1)** moves 7v7's first mover from 34.7% to **43.7%** of decisive games (F12's target is 45–55%) and leaves 5v5 (57.9%) and stalls unchanged. Brain 8 ships with it. Every pair where the first mover sits back or pushes breaks 5v5 (first mover 64–99%, or 90% draws). Likely, not isolated.
+- **Should Brain 8 become the default?** Recommended: **yes**, because it plays as well as Brain 5 (even at 1,000 games in both formats and both lineups) and finishes far more games: a third fewer turn-limit games in 5v5 and two-thirds fewer in 7v7. It isn't a harder opponent, so it doesn't replace a difficulty step. The Editor decides (F022-5).
 
 ### Traces (Brief 022 "first, find out why"; `sims/trace022.js`, Brain 5 mirrors, v3.8)
 Finding the brief's case was itself a result: on the new 5v5 field the first mover's archer is the first lost in only 6 of 40 games (34 are the second mover's), and all 6 were trades (it had just fired). So the 10 archer traces are from 7v7, where it happens about half the time, plus the 10 warmed-special traces from 5v5. "Chosen − safe" compares Brain 5's value for the position it chose with the best position the unit could have taken out of every enemy's reach (or out of the warmed special's reach, or braced), scored at the same moment; the terms are the parts of Brain 5's value that made the difference.
@@ -155,7 +155,7 @@ All on v3.8 (the newest rule set when the runs were queued; brief 017's v3.9 mer
 | B4 + A2 | 49 / 15, 53 / 51, 32 | 15.5%, 92.3% | 75 / 5, 79 / 29, 12 | 21.5%, 51.0% |
 | B4 + A1 + A2 | 58 / 6, 101 / 32, 3 | 90.5%, 100% (21 decisive) | 57 / 9, 80 / 33, 21 | 44.0%, 59.8% |
 
-**Confirm** (`brain8-confirm`, 1,000 games each, Brain 8 as shipped: B4 on, A1 and A2 off, tempo 0 and 0).
+**Confirm** (`brain8-confirm`, 1,000 games each, Brain 8 with B4 on, A1 and A2 off, tempo 0 and 0; it now ships with tempoSecond +1, see the tempo confirm).
 
 | Matchup | Won KO / tiebreak | Lost KO / tiebreak | Draw | Holder KO | Pull KO | TKO | Turn limit | Games with a pull | Avg turn | First mover: of all / of decisive |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -186,7 +186,15 @@ First mover against the old field (brief 014's numbers): 5v5 first mover took 3.
 
 In 5v5 the second mover's slider changed nothing at even or push (identical games), likely because the first mover's turn-1 warm-up already sets the duel; not isolated. Sitting back raises 5v5 stalls only when both sit back (90%).
 
-Tempo confirm at 1,000 (`brain8-tempo-confirm`, even-push and back-push): SEE TEMPO CONFIRM.
+**Tempo confirm** (`brain8-tempo-confirm`, 1,000 games per pair, Brain 8 mirrors, same deals as `brain8-confirm`, whose Brain 8 mirror is even-even).
+
+| Pair | 5v5 first mover of decisive | 5v5 turn limit | 7v7 first mover of decisive | 7v7 turn limit |
+|---|---|---|---|---|
+| even, even | 57.9% | 46.5% | 34.7% | 12.5% |
+| **even, push** (shipped) | 57.9% (the same games) | 46.5% | **43.7%** | 12.1% |
+| back, push | 99.0% | 11.6% | 56.9% | 12.2% |
+
+Brain 8 ships with **tempoFirst 0, tempoSecond +1**: it moves 7v7's first mover 9 points towards even (still 1.3 points short of F12's 45%) and changes nothing in 5v5 or in stalls. In 5v5 the second mover's slider plays the same games, likely because its first turn is spent the same way whatever the slider (the archer warms up; nothing else is in reach); not isolated. Sitting back as first mover breaks 5v5 (99%). So the answer to "an opening for each side?": one for the second mover, which nearly fixes 7v7; none for the first mover. The rest of 7v7's gap is likely the rules (F39), not the opening.
 
 **F39 screen** (`brain8-sweep`, sim-only, Brain 8 mirrors, 200 games; ×2 is the confirm's Brain 8 mirror at 1,000).
 
@@ -217,11 +225,11 @@ All six positions pass (`board/tests/test_brain8.js`, 38 checks, on v3.8 and aga
 ### Checks run and results
 - Every check in `README.md` passes locally (rule tests, `test_brain5` to `test_brain8`, `test_watch`, `test_ui`, `test_version`, invariants 30 games, replay, lab self-test, stall, lead, capacity, status board, board check 10 games). On GitHub the first push failed `test_watch.js`: its Brain 8 link check still expected A2 on after I switched it off; fixed.
 - `regress_engine.js` (3 games per rule set): this build changes no rules file. `main`'s board and this branch print identical hashes (the script covers match3 to v3.8): match3 37397ef2bd3ed86b, v1 7b25bca651c0cb31, v2 ddbe5fc437ff4e9d, v3 26371927b53d4413, v3.1 c71e4cd12fc984b0, v3.2 f62a061d2c147d83, v3.3 e6151bf463d6c9f8, v3.4 ee6ce003ac760250, v3.5 fca989aecfaf21c9, v3.6 a6bf327b54f7d5a1, v3.7 dd3c27d9dc9aafbb, v3.8 022a298c49a02540.
-- `sims/brainhash.js`, every brain on every preset, before against after: standard 0fcd6621fb898ed2, easy 1ecb7608e712b099, kitA 613037e1df3211cd, kitA2 ea0b4085c8f61f47, kitC a964ff8de086b694, kitB 9b8b9e230b9b0737, batchC 9f25673263069a1e, kitD b9ada37b250125e4, brain5 478bcbd26b9feb48, brain6 0a85345d7ebaf93f, brain7 87b1d134e681d8b7: all unchanged. Brain 8 with all four off (`brain8:holderJoins=0,safe=0,respect=0,tempo=0@brain5`): 478bcbd26b9feb48, the same as Brain 5. (Run before the v3.9 sync; v3.9 adds a preset, so the next build's hashes include it.)
+- `sims/brainhash.js`, every brain on every preset, before against after: standard 0fcd6621fb898ed2, easy 1ecb7608e712b099, kitA 613037e1df3211cd, kitA2 ea0b4085c8f61f47, kitC a964ff8de086b694, kitB 9b8b9e230b9b0737, batchC 9f25673263069a1e, kitD b9ada37b250125e4, brain5 478bcbd26b9feb48, brain6 0a85345d7ebaf93f, brain7 87b1d134e681d8b7: all unchanged. Brain 8 with all four off (`brain8:holderJoins=0,safe=0,respect=0,tempo=0@brain5`): 478bcbd26b9feb48, the same as Brain 5. Run before the v3.9 sync. After it (v3.9 adds a preset, so every hash moves on both boards): `main`'s board and this branch both print brain5 39b3a3235af2e5d6, brain6 5e954847821f9145, brain7 6d4687cfec433e61, and Brain 8 with all four off prints 39b3a3235af2e5d6, the same as Brain 5.
 - The new measures checked by hand on saved games: `firstloss` against the traces (seed NLEP-6JGX-CBNQ: first Light Ranged lost by the first mover on turn 2, removed by an LR special; a 7v7 game with no archer lost shows blanks), `brain8` join counts against test position 4.
 
 ### What's in
-- **Brain 8** (`brain8`, "Brain 8 (safe approach)"): Brain 5 plus B4 (Brain 7's holder joins, with its race check, without B1), A1 safe approach, A2 respect for a warmed special and A3 opening tempo, each behind a switch in `approach`, with plain labels on the Opponent screen (the tempo sliders take −1 to +1). Ships with B4 and A3 on (tempo 0 and 0) and **A1 and A2 off** (F022-1). Brains 5, 6 and 7 are untouched; Brain 5 stays the default.
+- **Brain 8** (`brain8`, "Brain 8 (safe approach)"): Brain 5 plus B4 (Brain 7's holder joins, with its race check, without B1), A1 safe approach, A2 respect for a warmed special and A3 opening tempo, each behind a switch in `approach`, with plain labels on the Opponent screen (the tempo sliders take −1 to +1). Ships with B4 and A3 on (tempoFirst 0, tempoSecond +1) and **A1 and A2 off** (F022-1). Brains 5, 6 and 7 are untouched; Brain 5 stays the default.
 - Lab measures `firstloss` and `brain8`; `sims/trace022.js` (the traces); `sims/lab/report022.js` (this Report's tables); four job orders.
 
 ### Anything beyond the brief, and why
@@ -231,7 +239,7 @@ All six positions pass (`board/tests/test_brain8.js`, 38 checks, on v3.8 and aga
 
 ### Known gaps
 - **Measured on v3.8, not v3.9.** Brief 017 (routes, rule set v3.9) merged while the runs were playing. Brain 8 passes all its checks and plays legally on v3.9, but its numbers haven't been re-measured there. The next release run (v3.14.00, Brain 5 mirrors) will show v3.9's baseline.
-- The A3 confirm at 1,000 is still playing when this was written (SEE TEMPO CONFIRM).
+- The head-to-head against Brain 5 (confirm table) was played at tempo 0 and 0, before the sweep picked tempoSecond +1. With +1 Brain 8 only changes its first turn when moving second; I didn't re-run the head-to-head at the shipped setting.
 - The "no warm-up on the first turn" F39 arm wasn't played (F022-2).
 - The 10 "first mover's archer dies first" traces are 7v7, not 5v5: on the new 5v5 field it happened in only 6 of 40 games, all trades.
 - I didn't play the Editor's hands-on checks; links: an even-push mirror game is in the sweep's `games.csv` (`replay` column).

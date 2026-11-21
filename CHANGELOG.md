@@ -26,7 +26,7 @@ Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). De
 
 **What a player will notice**
 - A new opponent in the brain list, **"Brain 8 (safe approach)"**. When the enemy is down to its flag holder and the race is safe, its own holder joins the attack, so games end instead of running down the clock. It plays Brain 5 even, but in Brain 8 vs Brain 8 games far fewer reach the turn limit (5v5 46.5% against 64.2%; 7v7 12.5% against 40.3%, 1,000 games each).
-- Its own table on the Opponent screen: four behaviours you switch on (1) or off (0), the numbers they use, and two **opening sliders** (moving first, moving second) from −1 (sit back) to +1 (attack). Both sliders start at 0.
+- Its own table on the Opponent screen: four behaviours you switch on (1) or off (0), the numbers they use, and two **opening sliders** (moving first, moving second) from −1 (sit back) to +1 (attack). It ships pushing when it moves second (+1) and as Brain 5 when it moves first (0): in 7v7 that brings the first mover's share of decisive games from 34.7% to 43.7% without changing 5v5.
 - Two behaviours are there but **off**: "Safe approach" (don't end a turn where the enemy strikes first) and "Respect a warmed special" (step out of or brace against a warmed-up special). Switched on they made it lose to Brain 5.
 - Watch links carry Brain 8's settings, negative slider values included.
 

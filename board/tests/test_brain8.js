@@ -36,6 +36,7 @@ ok(JSON.stringify(B8.model) === JSON.stringify(B5.model) && JSON.stringify(B8.pl
 ok(B5.approach === undefined && DEFAULT_BRAINS.brain6.approach === undefined && B7.approach === undefined, "Brains 5, 6 and 7 have no approach settings (frozen)");
 for (const k of Object.keys(B8.approach)) ok(BRAIN_LABELS["approach." + k], `Brain 8 setting ${k} has a plain label`);
 for (const k of ["holderJoins", "tempo"]) ok(B8.approach[k] === 1, `behaviour ${k} ships on`);
+ok(B8.approach.tempoFirst === 0 && B8.approach.tempoSecond === 1, "opening ships as even (first mover) and push (second mover), from the brief 022 confirm");
 for (const k of ["safe", "respect"]) ok(B8.approach[k] === 0, `behaviour ${k} ships off (brief 022 screen: it cost wins against Brain 5)`);
 const B8A = variant({ safe: 1, respect: 1 });   // the positions for A1 and A2 switch them on
 

@@ -164,7 +164,8 @@
     firstStrike: 1,   // A1: weight on the expected first-strike damage (and the unit, if it would be removed)
     warmedRespect: 1, // A2: weight on a warmed special's full damage (and the unit, if it would be removed)
     tempoFirst: 0,    // A3: opening tempo when it moves first, from -1 (sit back) through 0 (Brain 5) to +1 (shock attack)
-    tempoSecond: 0    // A3: the same when it moves second
+    tempoSecond: 1    // A3: the same when it moves second. Ships at +1 (brief 022 confirm, 1,000 Brain 8 mirrors: 7v7 first mover
+                      // 34.7% -> 43.7% of decisive games; 5v5 and stalls unchanged)
   };
 
   const LABELS = {
