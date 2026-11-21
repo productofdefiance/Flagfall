@@ -1,4 +1,4 @@
-STATUS · updated 21 Nov 2026, 12:36 pm ET
+STATUS · updated 21 Nov 2026, 6:58 pm ET
 
 VERSION
   On main: v3.14.00 · Build 18 · Rules v3.9 · Brain 5
@@ -49,6 +49,6 @@ BUILDS
 CHATS
   Open
     FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov
-    FF UI v3.14.00 - · Specials flow comps (button states, re-warm, preview) · opened 21 Nov
   Closed (last 5)
+    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…
     FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…
