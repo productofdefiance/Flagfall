@@ -54,11 +54,11 @@ ok(/not playable/.test(W.problem(Object.assign({}, spec, { format: "s9" }))), "a
 }
 
 // 3c. Brief 022: Brain 8's settings travel the same way, including a negative opening tempo
-{ const sp = Object.assign({}, spec, { n: "brain8:tempoFirst=-1,tempoSecond=1,safe=0", s: "brain5", mixS: "mixed" });
+{ const sp = Object.assign({}, spec, { n: "brain8:tempoFirst=-1,tempoSecond=1,respect=1", s: "brain5", mixS: "mixed" });
   const back = W.fromQuery(W.toQuery(sp));
-  ok(back.n === "brain8:tempoFirst=-1,tempoSecond=1,safe=0" && W.problem(back) === null, "a Brain 8 link with a negative tempo reads back and is playable: " + W.toQuery(sp));
+  ok(back.n === "brain8:tempoFirst=-1,tempoSecond=1,respect=1" && W.problem(back) === null, "a Brain 8 link with a negative tempo reads back and is playable: " + W.toQuery(sp));
   const m = W.setupMatch(back), a = m.brains.N.approach;
-  ok(a.tempoFirst === -1 && a.tempoSecond === 1 && a.safe === 0 && a.respect === 1 && BR.DEFAULT_BRAINS.brain8.approach.tempoFirst === 0, "the link's Brain 8 settings are applied to the match's copy only");
+  ok(a.tempoFirst === -1 && a.tempoSecond === 1 && a.respect === 1 && a.safe === BR.DEFAULT_BRAINS.brain8.approach.safe && BR.DEFAULT_BRAINS.brain8.approach.tempoFirst === 0 && BR.DEFAULT_BRAINS.brain8.approach.respect === 0, "the link's Brain 8 settings are applied to the match's copy only");
 }
 
 // 4. Board seeds dealt by tests/rng.js look like the board's own
