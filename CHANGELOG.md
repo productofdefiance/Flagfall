@@ -30,14 +30,15 @@ Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 5
 - **The unit bar keeps one height** whatever you tap, so the field never jumps. It reads "Tap a unit" when nothing is tapped. A previewed move's dangers and costs show as chips beside the name; the route (C9 → C10) shows on the right. Tap the token or name for the unit's card, or the handle on top for the key. The "Pull up for the key" tab on the field is gone.
 - **One compact sheet** for attack, special and flag pull. It replaces the unit bar while it's open: both full names, HP bars under them with the two hexes between, modifiers under the bars, the outcomes, then a bracket (or a line) showing which outcomes bring a set spear, a Mark or "Flag falls". A special's Strength reads "9 ×1.75". Tap a name in the sheet for that unit's card; closing it brings the preview back.
 - **Flag pull** uses that sheet (no more dice grid), with the red **Pull** button in the action panel like Attack.
-- **Warming up** shows "Fires next turn · no attack or brace" in the unit bar; the button reads "Warm up Arrow Storm". Action buttons are 48 px tall and their labels never wrap.
+- **Warming up** shows "Fires next turn · no attack or brace" in the unit bar (two lines beside a long name, never cut off); the button reads "Warm up Arrow Storm". A charged special with no target says "Warm up Arrow Storm again" and "No target in range · fires next turn". Action buttons are 48 px tall and their labels never wrap; the Special button's state bar sits under its name.
+- **The menu and hex-names buttons hide** while a sheet or the key drawer is open, so nothing covers them. A preview scrolls the field so the attacker and every target sit above the sheet, even from the last rows.
 
 **Under the hood**
 - `index.html`, `app.js`: a phone-only layout under 900 px. The desktop layout (900 px and wider) is untouched: screenshots at 1280 × 800 are pixel-identical to Build 17's.
 - `ui.js`: `pullPreview()` (the pull sheet's numbers, read from the engine's pull) and `phoneSpecialStats()` ("9 ×1.75"). No engine change; every preset replays identically.
 - New check `test_phone.js` (headless browser at 393 × 665), run on GitHub beside `board_check.js`; new rows in `test_ui.js`.
 
-**Flags closed:** F017-1, F017-2 (accepted by the Editor, 20 Nov), F017-4 (this build). **Opened:** see `flags/025.md`.
+**Flags closed:** F017-1, F017-2 (accepted by the Editor, 20 Nov), F017-4, F025-2, F025-5 (this build). **Opened:** see `flags/025.md`.
 
 ## v3.13.00 · Build 17 — Brief 017, rule set v3.9: move and range preview, Approved UI v3 (20 Nov 2026)
 Rule set: **v3.9** (new, the new-game default): v3.8 plus switch `routeRule211` (Game Laws 2.11). Default brain: Brain 5, unchanged. UI: **v3** (Approved UI v3). Game version **v3.13.00** (YY: new screens and a routing rule).

@@ -18,7 +18,7 @@ function setup(arg) {
   const base = arg.rsId ? D.PRESETS.find((p) => p.id === arg.rsId) : D.PRESETS[D.PRESETS.length - 1];
   const rs = JSON.parse(JSON.stringify(base));
   const L = (list) => list.map(([id, card, fk]) => ({ id, card, fk: !!fk }));
-  App.match = { id: "phone", started: new Date().toISOString(), rs, opts: { first: "N", players: { N: { type: "human" }, S: { type: "bot", brainId: "brain5" } }, names: { N: "North", S: "South" }, lineups: { N: L(arg.N), S: L(arg.S) }, seed: "phone", format: "std7" }, brains: { S: BR.DEFAULT_BRAINS.brain5 || BR.DEFAULT_BRAINS.standard }, actions: [], draws: 0 };
+  App.match = { id: "phone", started: new Date().toISOString(), rs, opts: { first: "N", players: { N: { type: "human" }, S: arg.south ? { type: "human" } : { type: "bot", brainId: "brain5" } }, names: { N: "North", S: "South" }, lineups: { N: L(arg.N), S: L(arg.S) }, seed: "phone", format: "std7" }, brains: { S: BR.DEFAULT_BRAINS.brain5 || BR.DEFAULT_BRAINS.standard }, actions: [], draws: 0 };
   G.rebuild();
   const st = App.st;
   for (const team of ["N", "S"]) {
@@ -28,7 +28,8 @@ function setup(arg) {
   }
   App.match.actions = JSON.parse(JSON.stringify(st.actions));
   for (const uid in arg.place) E.unitByUid(st, uid).hex = arg.place[uid];
-  G.resetUi(); G.show("play");
+  if (arg.south) { E.act(st, { type: "end" }); App.match.actions = JSON.parse(JSON.stringify(st.actions)); }
+  G.resetUi(); document.getElementById("fieldscroll").scrollTop = 0; G.show("play");
 }
 const LINE = [["HM", "HM", true], ["HM2", "HM"], ["LM", "LM"], ["HR", "HR"], ["LR", "LR"], ["HA", "HA"], ["LA", "LA"]];
 const PLACE = { "N-HM": "E4", "N-HM2": "D9", "N-LM": "G9", "N-HR": "E7", "N-LR": "C9", "N-HA": "F6", "N-LA": "D7",
@@ -147,6 +148,62 @@ const labels = () => [...document.querySelectorAll("#actions .act")].filter((b) 
     else console.log(`  ${r.name}: ${r.w} of ${r.inner} px`);
   }
   ok(!fit.length, `every special's name fits its idle button on one line at 393 px:\n  ${fit.join("\n  ")}`);
+
+  // ---- Review of #47 ----
+  const HA2 = { N: [["HM", "HM", true], ["HA", "HA"], ["HA2", "HA"], ["HR", "HR"], ["LR", "LR"], ["LM", "LM"], ["LA", "LA"]], S: LINE,
+    place: { "N-HM": "E4", "N-HA": "F6", "N-HA2": "D9", "N-HR": "E7", "N-LR": "C9", "N-LM": "G9", "N-LA": "D7", "S-HM": "E16", "S-HM2": "E11", "S-LM": "B9", "S-HR": "H13", "S-LR": "G10", "S-HA": "G12", "S-LA": "C14" } };
+  // Fix 1: a note (warm-up, can't move) takes all of row 1 and never clips, with the longest names.
+  const noteOf = () => { const n = document.querySelector("#unitbar .ub-note"), bar = document.getElementById("unitbar"); if (!n) return null;
+    const r = n.getBoundingClientRect(), br = bar.getBoundingClientRect(), lh = parseFloat(getComputedStyle(n).lineHeight) || 11.5;
+    return { text: n.textContent, clipped: n.scrollWidth > n.clientWidth + 0.5 || n.scrollHeight > n.clientHeight + 2, lines: Math.round(r.height / lh), inside: r.right <= br.right - 13 && r.bottom <= br.bottom, side: !!document.querySelector("#unitbar .ub-side") }; };
+  for (const [lab, arg, uid] of [["Light Ranged", BASE, "N-LR"], ["Heavy Anti-Cavalry 2", HA2, "N-HA2"]]) {
+    for (const [what, run] of [["warm-up", `G.App.ui.sel = "${uid}"; G.App.ui.sheet = { kind: "warm" }; G.render();`], ["can't move", `G.E.unitByUid(G.App.st, "${uid}").stam = 0; G.App.ui.sel = "${uid}"; G.render();`],
+      ["re-warm", `G.E.unitByUid(G.App.st, "${uid}").sp = "charged"; G.E.unitByUid(G.App.st, "${uid}").hex = "A6"; G.App.ui.sel = "${uid}"; G.App.ui.sheet = { kind: "warm" }; G.render();`]]) {
+      const m = await go(arg, new Function(`const G = window.GGShots; ${run}`)), nt = await page.evaluate(noteOf);
+      ok(nt && !nt.clipped && nt.lines <= 2 && nt.inside && !nt.side, `${lab}, ${what}: the note shows in full across row 1, no hex or moves (${JSON.stringify(nt)})`);
+      ok(m.unitbar === 63, `${lab}, ${what}: unit bar still 63 px (got ${m.unitbar})`);
+      if (what === "can't move") ok(nt && nt.text === "No movement available this turn", `${lab}: "No movement available this turn" in full`);
+      if (what === "re-warm") {
+        ok(nt && nt.text === "No target in range · fires next turn", `${lab}: re-warm note (${nt && nt.text})`);
+        const t = await page.evaluate(() => { const g = document.querySelector('[data-act="warm-confirm"] .go-1'); return g && g.textContent; });
+        ok(/^Warm up (.+ )?again$/.test(t || ""), `${lab}: re-warm button says "again" (${t})`);
+      }
+      if (what === "warm-up") { const t = await page.evaluate(() => document.querySelector('[data-act="warm-confirm"] .go-1').textContent); ok(/^Warm up/.test(t) && !/again/.test(t), `${lab}: first warm-up button (${t})`); }
+    }
+  }
+  // Fix 2: field buttons are never covered: hidden under a sheet or the key drawer; otherwise their bottom sits a fixed
+  // 116 px above whatever is under the field, so they move up if it grows.
+  const fb = () => { const fw = document.getElementById("fieldwrap").getBoundingClientRect(), vis = (e) => !!e && getComputedStyle(e).display !== "none" && e.getBoundingClientRect().height > 0;
+    const sh = document.getElementById("sheet"), shTop = !sh.hidden && sh.parentNode.id === "fieldwrap" ? sh.getBoundingClientRect().top : Infinity;
+    return ["menubtn", "namesbtn"].map((id) => { const e = document.getElementById(id), r = e.getBoundingClientRect(); return { id, vis: vis(e), covered: vis(e) && r.bottom > shTop, gap: Math.round((fw.bottom - r.bottom) * 10) / 10, inField: r.top >= fw.top && r.bottom <= fw.bottom }; }); };
+  const under = { "attack sheet": sheets.attack, "special sheet": sheets.special, "flag-pull sheet": sheets["flag pull"],
+    "key drawer": () => { const G = window.GGShots; G.App.ui.sel = "N-LR"; G.render(); G.onBoardTap("C10"); document.querySelector("[data-act=key-open]").click(); },
+    "unit card": () => { const G = window.GGShots; G.App.ui.sel = "N-LR"; G.App.ui.sheet = { kind: "info", uid: "N-LR" }; G.render(); } };
+  for (const k in under) { await go(BASE, under[k]); const b = await page.evaluate(fb); ok(b.every((x) => !x.vis), `field buttons hidden under the ${k} (${JSON.stringify(b)})`); }
+  for (const [k, fn] of [["unit tapped", states["unit tapped"]], ["nothing tapped", null], ["deployment (taller bench)", () => { const G = window.GGShots; G.App.match.actions = []; G.rebuild(); G.resetUi(); G.App.ui.placements = {}; G.App.ui.deploySel = "N-HM"; G.show("play"); }]]) {
+    await go(BASE, fn); const b = await page.evaluate(fb), nm = b.find((x) => x.id === "namesbtn");
+    ok(b.every((x) => x.vis && x.inField && !x.covered) && nm.gap === 116, `${k}: field buttons shown, inside the field, hex names 116 px above what is under it (${JSON.stringify(b)})`);
+  }
+  // Fix 3: the Special button's state bar never touches its label or icon (Warming up, Charged).
+  for (const sp of ["warm", "charged"]) {
+    await go(BASE, new Function(`const G = window.GGShots; G.E.unitByUid(G.App.st, "N-LR").sp = "${sp}"; G.App.ui.sel = "N-LR"; G.render();`));
+    const r = await page.evaluate(() => { const b = document.querySelector('#actions [data-act="special"]'), bar = b.querySelector(".spbar"), lab = b.querySelector(":scope > span"), icon = b.querySelector(":scope > svg");
+      const glyph = (() => { const rg = document.createRange(); rg.selectNodeContents(lab); return rg.getBoundingClientRect(); })();
+      return { bar: bar.getBoundingClientRect().top, label: Math.max(lab.getBoundingClientRect().bottom, glyph.bottom), icon: icon.getBoundingClientRect().bottom }; });
+    ok(r.bar - Math.max(r.label, r.icon) >= 1, `Special ${sp}: the state bar sits clear of the label and icon (${JSON.stringify(r)})`);
+  }
+  // F025-4: the visible handle bar is outside the card's tap area, with the longest name.
+  await go(HA2, () => { const G = window.GGShots; G.App.ui.sel = "N-HA2"; G.render(); });
+  const hit = await page.evaluate(() => { const s = document.querySelector("#unitbar .ub-handle span").getBoundingClientRect(), pts = [[s.left + 1, s.top + 1], [s.right - 1, s.bottom - 1], [s.left + s.width / 2, s.top + s.height / 2]];
+    return pts.map(([x, y]) => { const e = document.elementFromPoint(x, y); return e && e.closest("[data-act]") ? e.closest("[data-act]").dataset.act : null; }); });
+  ok(hit.every((a) => a === "key-open"), `Heavy Anti-Cavalry 2: the handle bar opens the key, not the card (${hit})`);
+  // Fix 5: an Arc Hit by a South holder on E17: the attacker and every target scroll above the open sheet.
+  await go({ N: LINE, S: LINE, south: true, place: { ...PLACE, "S-HM2": "E17", "S-HM": "B15", "N-HM2": "E16", "N-LM": "D16", "N-LA": "F16" } },
+    () => { const G = window.GGShots; G.E.unitByUid(G.App.st, "S-HM2").sp = "charged"; G.App.ui.sel = "S-HM2"; G.App.ui.armed = "special"; G.render(); G.onBoardTap("E16"); });
+  await page.waitForTimeout(900);
+  const seen = await page.evaluate(() => { const sh = document.getElementById("sheet").getBoundingClientRect(), fw = document.getElementById("fieldwrap").getBoundingClientRect();
+    return ["E17", "E16", "D16", "F16"].map((h) => { const r = document.querySelector(`#board [data-hex="${h}"]`).getBoundingClientRect(); return { h, ok: r.top >= fw.top - 1 && r.bottom <= sh.top + 1 }; }); });
+  ok(seen.every((x) => x.ok), `Arc Hit from E17: the attacker and all three targets are above the sheet (${JSON.stringify(seen)})`);
 
   ok(!errors.length, `no page errors (${errors.join(" | ")})`);
   await browser.close();

@@ -982,12 +982,28 @@
     if (!center && y > top + 70 && y < top + vis - 70) return;
     sc.scrollTo({ top: Math.max(0, y - vis / 2), behavior: center ? "auto" : "smooth" });
   }
-  /** Put a hex in the upper part of the field, above a sheet that covers the bottom. */
+  /** The hexes a preview is about besides the unit: its target, a special's other targets, the flag it pulls. */
+  function previewHexes() {
+    const st = App.st, ui = App.ui, sh = ui.sheet, out = [];
+    if (!sh) return out;
+    const t = sh.target && E.unitByUid(st, sh.target);
+    if ((sh.kind === "attack" || sh.kind === "special") && t) out.push(t.hex);
+    if (sh.kind === "special") { const o = selOptions(), p = o && o.special && o.special.targets.find((x) => x.target === sh.target); if (p) for (const hh of p.hits) { const x = E.unitByUid(st, hh.uid); if (x && x.hex) out.push(x.hex); } }
+    if (sh.kind === "pull" && ui.sel) out.push(fld().FLAG[E.foeOf(E.unitByUid(st, ui.sel).team)]);
+    return out;
+  }
+  /** Put the unit and everything its preview is about in the part of the field above the sheet (phone). The field
+      has scroll room below its last row while a sheet is open (fieldRoom), so a unit on the last rows can come up too. */
   function revealAbove(h) {
-    const sc = $("fieldscroll"), svg = $("board");
+    const sc = $("fieldscroll"), svg = $("board"), sh = $("sheet");
     if (!svg.clientHeight || window.innerWidth >= 900) return;
-    const y = pos(h)[1] * (svg.clientHeight / boardH());
-    sc.scrollTo({ top: Math.max(0, y - sc.clientHeight * 0.28), behavior: "smooth" });
+    fieldRoom();
+    const k = svg.clientHeight / boardH(), ys = [h, ...previewHexes()].map((x) => pos(x)[1] * k);
+    const lo = Math.min(...ys), hi = Math.max(...ys), m = R * k + 8;   // a hex and a little air
+    const vis = sc.clientHeight - (!sh.hidden && sh.parentNode === $("fieldwrap") ? sh.getBoundingClientRect().height : 0);
+    let top = hi - lo + 2 * m <= vis ? (lo + hi) / 2 - vis / 2 : lo - m;
+    top = Math.max(0, Math.min(top, sc.scrollHeight - sc.clientHeight));
+    sc.scrollTo({ top, behavior: "smooth" });
   }
   function updateEdges() {
     const st = App.st, sc = $("fieldscroll"), svg = $("board");
@@ -1195,6 +1211,7 @@
     const cost = rt ? rt.cost : 0;
     const mv = movesLeft(st, sel);
     const warm = !!(ui.sheet && ui.sheet.kind === "warm" && o && o.special && o.special.warmup);
+    const rewarm = warm && o.special.state === "Charged";   // charged, no target in range: it warms up again
     // Chips in walking order, filling from the right; the Evade chip first in an Evade step.
     const evChip = (n) => `<span class="uchip">${ic("evade", 12, "#fff", "", 2.4)}${n}</span>`;
     const evHexes = () => Object.values(o.moves).reduce((m, x) => Math.max(m, x.steps), 0);
@@ -1202,23 +1219,27 @@
     if (o && o.evading) chips.push(evChip(evHexes()));
     if (rt) for (const e of rt.events) chips.push(e.type === "spear" ? `<span class="uchip hurt">${ic("setspear", 12, "#fff", "", 2.4)}${fmt(e.amount)}</span>` : e.type === "mark" ? `<span class="uchip">${ic("mark", 12, "#fff", "", 2.4)}</span>` : `<span class="uchip">+${fmt(e.amount)}</span>`);
     let note = "";
-    if (warm) note = "Fires next turn · no attack or brace";
+    if (rewarm) note = "No target in range · fires next turn";
+    else if (warm) note = "Fires next turn · no attack or brace";
     else if (!rt && o && !o.evading && !sel.done && !Object.keys(o.moves).length) note = "No movement available this turn";
     const after = note ? `<span class="ub-note">${esc(note)}</span>` : `<span class="ub-chips">${chips.join("")}</span>`;
+    // While a note shows (warm-up, can't move), it takes all of row 1: no hex and moves (review of #47, fix 1).
     let side;
-    if (warm) side = "";
+    if (note) side = null;
     else if (rt) side = `<span class="rfrom">${sel.hex}</span>${ic("arrow", 13)}<span class="rto">${ui.ghost}</span>`;
     else side = `${enemy ? `<span class="muted">Next turn</span>` : `<span role="img" aria-label="At ${sel.hex}" style="display:inline-flex;align-items:center;gap:4px">${ic("hex", 14, "var(--muted)")}${sel.hex}</span>`}
         <span role="img" aria-label="Can move ${mv} hex${mv === 1 ? "" : "es"}">→ ${mv}</span>`;
     const pct = s.maxHp ? Math.max(0, Math.min(100, (100 * s.hp) / s.maxHp)) : 0;
     el.innerHTML = `<button type="button" class="ub-handle" data-act="key-open" aria-controls="fieldkey" aria-label="Show the key"><span></span></button>
       <div class="ub-grid">
-        <div class="ub-r1"><button type="button" class="ub-id" data-act="info" aria-label="Unit information">${tokenInline(iconKey(st.rs, sel.card), sel.team, 24, sel.fk)}<span class="ub-name">${esc(UI.unitName(st, sel))}</span>${ic("info", 16, "var(--muted)")}</button>${after}</div>
-        <div class="ub-side">${side}</div>
+        <div class="ub-r1${side === null ? " wide" : ""}"><button type="button" class="ub-id" data-act="info" aria-label="Unit information">${tokenInline(iconKey(st.rs, sel.card), sel.team, 24, sel.fk)}<span class="ub-name">${esc(UI.unitName(st, sel))}</span>${ic("info", 16, "var(--muted)")}</button>${after}</div>
+        ${side === null ? "" : `<div class="ub-side">${side}</div>`}
         <div class="ub-hp" role="img" aria-label="HP ${fmt(s.hp)} of ${fmt(s.maxHp)}"><i style="width:${pct.toFixed(0)}%;background:${teamColor(sel.team)}"></i></div>
         <div class="ub-r2"><span class="num">${fmt(s.hp)}/${fmt(s.maxHp)}</span>${stamSquares(sel, now, cost)}</div>
       </div>`;
     fitChips(el);
+    const nt = el.querySelector(".ub-note");   // a note never clips: two lines if one won't fit (review of #47, fix 1)
+    if (nt && nt.scrollWidth > nt.clientWidth + 0.5) nt.classList.add("two");
   }
   /** §3: chips never cover the name or the (i). If they would not fit, they stop 8 px short of the (i) and the rest
       show as a last chip "+N". */
@@ -1237,7 +1258,7 @@
   function renderActions() {
     const st = App.st, ui = App.ui, el = $("actions");
     // A greyed-out button stays tappable when it has a reason: the tap shows why (Brief 005). Reasons come from the engine.
-    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}${opt.flex ? ` style="flex:${opt.flex} 1 0"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span>${opt.bar ? `<i class="spbar ${opt.bar}"></i>` : ""}</button>`;
+    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}${opt.bar ? " hasbar" : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}${opt.flex ? ` style="flex:${opt.flex} 1 0"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span>${opt.bar ? `<i class="spbar ${opt.bar}"></i>` : ""}</button>`;
     if (st.phase === "deploy") {
       const t = deployTeam(), mine = st.units.filter((u) => u.team === t);
       const placed = mine.filter((u) => ui.placements[u.uid]).length;
@@ -1268,7 +1289,8 @@
     if (sh && sh.kind === "warm" && o && o.special && o.special.warmup) {
       const u = E.unitByUid(st, ui.sel);
       // Phone (Brief 025 §5): no line above the buttons (the note is in the unit bar); the button names the special.
-      if (!wide()) { el.innerHTML = go("warm-confirm", " gold", "special", `Warm up ${esc(o.special.name)}`, o.special.warmupCost, u, "ink") + turnRow; fitWarm(el); return; }
+      // A charged special with no target warms up again: "Warm up <name> again" (review of #47, fix 4).
+      if (!wide()) { const again = o.special.state === "Charged"; el.innerHTML = go("warm-confirm", " gold", "special", `Warm up ${esc(o.special.name)}${again ? " again" : ""}`, o.special.warmupCost, u, "ink") + turnRow; fitWarm(el, again); return; }
       el.innerHTML = `<div class="warmline">${ic("special", 16, "var(--gold)")}<span>Warm up ${esc(o.special.name)}${o.special.state === "Charged" ? " again" : ""}: fire it next turn. No attack or brace this turn.</span></div>` +
         go("warm-confirm", " gold", "special", "Warm up", o.special.warmupCost, u, "ink") + turnRow;
       return;
@@ -1297,10 +1319,10 @@
         ${specialButton(st, su, enemy ? null : o, why, pick, b, enemy)}
         ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: W(why ? why.brace : pick), cls: ss && ss.braced ? "braced" : "", dot: ss && ss.braced ? "blue" : ss && ss.bracedLast ? "ring" : "", aria: ss && ss.braced ? "Brace, braced" : ss && ss.bracedLast ? "Brace, braced last turn" : "" })}</div>${turnRow}`;
   }
-  /** §5: "Warm up <name>" on one line; if a name is too long for the button it reads "Warm up". */
-  function fitWarm(el) {
+  /** §5: "Warm up <name>" (or "Warm up <name> again") on one line; if too long, "Warm up" (or "Warm up again"). */
+  function fitWarm(el, again) {
     const t = el.querySelector('[data-act="warm-confirm"] .go-1'), b = t && t.closest("button");
-    if (t && b && b.scrollWidth > b.clientWidth + 0.5) t.textContent = "Warm up";
+    if (t && b && b.scrollWidth > b.clientWidth + 0.5) t.textContent = again ? "Warm up again" : "Warm up";
   }
   /** The Special button (Brief 011, 5a): the unit's special by name, in its state. Older rule sets keep the greyed-out
       "Special" button. Every reason comes from the engine (blockReasons). */
@@ -1534,7 +1556,17 @@
     const sorted = rows.slice().sort((a, b) => KEY_ORDER.indexOf(a.kind) - KEY_ORDER.indexOf(b.kind));
     return `<div class="key" id="fieldkey"><div class="key-h">ON THE FIELD</div>${sorted.map((r) => `<div class="key-row mk">${keySwatch(r.kind)}<div><div class="key-1">${esc(KEY_NAMES[r.kind] || r.kind)}</div><div class="key-2">${esc(r.line)}</div></div></div>`).join("")}</div>`;
   }
-  function renderSheet() {
+  function renderSheet() { renderSheetBody(); fieldRoom(); }
+  /** Phone (review of #47, fixes 2 and 5): while a sheet or the key drawer is over the field, the field buttons hide
+      (they are never covered) and the field gets scroll room below its last row as tall as the sheet, so every unit
+      in a preview can scroll above it. Nothing covers the top of the field, so it needs no room there. */
+  function fieldRoom() {
+    const el = $("sheet"), sc = $("fieldscroll");
+    const open = !wide() && !el.hidden && el.parentNode === $("fieldwrap");
+    $("view-play").classList.toggle("sheet-open", open);
+    sc.style.paddingBottom = open ? Math.ceil(el.getBoundingClientRect().height) + "px" : "";
+  }
+  function renderSheetBody() {
     const st = App.st, ui = App.ui, el = $("sheet"), sc = $("scrim");
     let sh = ui.sheet;
     placeSheet();
