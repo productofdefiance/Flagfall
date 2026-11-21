@@ -212,5 +212,13 @@ const stat = (side, key) => side.stats.find((s) => s.key === key);
   ok(!bad.length, `no player-visible special text says the old word (${bad.length})`);
 }
 
+// Brief 017: no screen text uses Plex Mono; numbers are IBM Plex Sans with tabular figures.
+{ const fs = require("fs"), path = require("path"), read = (f) => fs.readFileSync(path.join(__dirname, "..", f), "utf8");
+  const files = ["index.html", "app.js", "skin.js", "ui.js"], mono = files.filter((f) => /Plex\+?\s?Mono|--mono\b/.test(read(f)));
+  ok(!mono.length, `no screen text uses Plex Mono (found in ${mono.join(", ") || "none"})`);
+  ok(/font-variant-numeric:\s*tabular-nums/.test(read("index.html")) && /num: "'IBM Plex Sans'/.test(read("skin.js")), "numbers: IBM Plex Sans, tabular figures");
+  const skin = read("skin.js");
+  ok(/brace: "#2e3338"/.test(skin) && /specialRange: "#d9a514"/.test(skin) && /zoneArc: "#eceee8"/.test(skin) && /zoneGoal: "#d9ddd4"/.test(skin) && /pitchLine: "#9ea693"/.test(skin) && /threat: "#c75400"/.test(skin) && /plum: "#6a3d8f"/.test(skin), "Approved UI v3 colours are in the skin"); }
+
 console.log(`${n - fails}/${n} UI checks passed`);
 if (fails) process.exit(1);

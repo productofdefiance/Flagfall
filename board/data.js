@@ -180,7 +180,15 @@
   V38.note = "v3.7 plus one field per format: 5v5 on its own small field with a 2-hex deploy area, 7v7 on the rounded 147-hex field.";
   V38.switches.fields = true;
   V38.game.deployRadius5 = 2;   // 5v5 deploys within 2 hexes of its flag (Game Laws 2.5); other formats use deployRadius
-  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35, V36, V37, V38];
+  /* Rule set v3.9 (Brief 017, Game Laws 2.11, locked by the Editor 19 Nov): v3.8 plus routes. A move names only its
+     destination; the engine picks the route (cheapest, then one that arrives, then fewer dangers, then toward the centre
+     column, then toward its own flag) and the unit walks it: it stops where it enters an enemy Mark and takes set spear
+     from any spear it arrives next to on the way. The move hexes offered are as before. Nothing else changes. */
+  const V39 = JSON.parse(JSON.stringify(V38));
+  V39.id = "v3.9"; V39.name = "v3.9 (2026-11-20)";
+  V39.note = "v3.8 plus routes: a move walks the cheapest route to the hex you pick; it stops where it enters a Mark on the way and set spear can hit it on the way.";
+  V39.switches.routeRule211 = true;
+  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35, V36, V37, V38, V39];
 
   const TRAITS = { tackle: "Tackle", reach: "Reach", ignoreArmor: "Ignores Armor", none: "None" };
   const BRACES = { parry: "Parry", dodgeDouble: "Dodge doubles", spike: "Set spear", zone: "Projects Zone of Control", fullStamina: "Full Stamina next turn", noSupport: "No Support against it", none: "None" };
