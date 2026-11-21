@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-21T04:03:21.631Z",
- "board": "STATUS · updated 20 Nov 2026, 11:03 pm ET\n\nVERSION\n  On main: v3.13.00 · Build 17 · Rules v3.9 · Brain 5\n  Building: 022 → v3.14.00 · 025 → v3.14.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (20 Nov, 11:54 am ET)\n  Queue: clear\n  study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov\n  study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov\n  study v3.10.00 · 52 matchups, 52,000 games · 20 Nov\n  screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov\n  screen v3.13.00 · 5v5 65.0% · 7v7 45.5% on the turn limit · 20 Nov\n  release v3.13.00 · 5v5 63.2% · 7v7 44.4% on the turn limit · 20 Nov\n  release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov\n  release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov\n  +3 more in results/INDEX.md\n\nFLAGS (open, newest first)\n  ! F025-4 · ASK · 21 Nov · §3: the unit card's tap area (token, name and (i), 44 px tall as asked) overlaps the…\n  ! F025-3 · ASK · 21 Nov · §6.6 says the pulling unit sits on the left. Built as: the pulling unit sits where an…\n  ! F025-1 · ASK · 21 Nov · §6.3 says a special shows \"base Strength, then the multiplier, nothing struck\" (9 ×1.75)…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n  ! F022-5 · DECIDE · 21 Nov · Brain 8 as shipped (B4 only) plays Brain 5 even at 1,000 games (5v5 469 won, 462 lost…\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  ! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…\n  ! F024-3 · ASK · 20 Nov · The status board starts on every pull request event and every finished checks…\n  +13 older in FLAGS.md\n\nBUILDS\n  Building\n    022 Safe approach · PR #41 · Draft · checks running · not reviewed\n    025 Phone fit · PR #47 · Ready · checks pass · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 018\n    018 Turn cue zoom ← 025\n    020 Victory values ← 022\n  Merged (last 3)\n    017 Move preview · v3.13.00 · 20 Nov\n    024 Lab capacity · 20 Nov\n    023 Status page · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n  Closed (last 5)\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-21T04:06:30.088Z",
+ "board": "STATUS · updated 20 Nov 2026, 11:06 pm ET\n\nVERSION\n  On main: v3.13.00 · Build 17 · Rules v3.9 · Brain 5\n  Building: 022 → v3.14.00 · 025 → v3.14.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (20 Nov, 11:54 am ET)\n  Queue: clear\n  study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov\n  study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov\n  study v3.10.00 · 52 matchups, 52,000 games · 20 Nov\n  screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov\n  screen v3.13.00 · 5v5 65.0% · 7v7 45.5% on the turn limit · 20 Nov\n  release v3.13.00 · 5v5 63.2% · 7v7 44.4% on the turn limit · 20 Nov\n  release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov\n  release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov\n  +3 more in results/INDEX.md\n\nFLAGS (open, newest first)\n  ! FD49-3 · ASK · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n  ! FD49-2 · ASK · 21 Nov · Brief 012 names its preset \"v3.8\", but v3.8 is already on main (fields, brief 014). The…\n  ! FD49-1 · ASK · 21 Nov · Brief 012 Measurements item 4 (Command and turn limits) screens 9v9 at Command 10, 12, 14…\n  ! F025-4 · ASK · 21 Nov · §3: the unit card's tap area (token, name and (i), 44 px tall as asked) overlaps the…\n  ! F025-3 · ASK · 21 Nov · §6.6 says the pulling unit sits on the left. Built as: the pulling unit sits where an…\n  ! F025-1 · ASK · 21 Nov · §6.3 says a special shows \"base Strength, then the multiplier, nothing struck\" (9 ×1.75)…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n  ! F022-5 · DECIDE · 21 Nov · Brain 8 as shipped (B4 only) plays Brain 5 even at 1,000 games (5v5 469 won, 462 lost…\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n  +16 older in FLAGS.md\n\nBUILDS\n  Building\n    022 Safe approach · PR #41 · Draft · checks running · not reviewed\n    025 Phone fit · PR #47 · Ready · checks pass · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 018\n    018 Turn cue zoom ← 025\n    020 Victory values ← 022\n  Merged (last 3)\n    017 Move preview · v3.13.00 · 20 Nov\n    024 Lab capacity · 20 Nov\n    023 Status page · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n  Closed (last 5)\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -81,6 +81,21 @@
    "title": "FLAGS (open, newest first)",
    "lines": [
     {
+     "text": "! FD49-3 · ASK · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "! FD49-2 · ASK · 21 Nov · Brief 012 names its preset \"v3.8\", but v3.8 is already on main (fields, brief 014). The…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "! FD49-1 · ASK · 21 Nov · Brief 012 Measurements item 4 (Command and turn limits) screens 9v9 at Command 10, 12, 14…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
      "text": "! F025-4 · ASK · 21 Nov · §3: the unit card's tap area (token, name and (i), 44 px tall as asked) overlaps the…",
      "indent": 1,
      "mark": "ask"
@@ -126,22 +141,7 @@
      "mark": null
     },
     {
-     "text": "  F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…",
-     "indent": 1,
-     "mark": "ask"
-    },
-    {
-     "text": "! F024-3 · ASK · 20 Nov · The status board starts on every pull request event and every finished checks…",
-     "indent": 1,
-     "mark": "ask"
-    },
-    {
-     "text": "+13 older in FLAGS.md",
+     "text": "+16 older in FLAGS.md",
      "indent": 1,
      "mark": null
     }
@@ -256,7 +256,7 @@
   }
  },
  "schema": 2,
- "updatedText": "20 Nov 2026, 11:03 pm ET",
+ "updatedText": "20 Nov 2026, 11:06 pm ET",
  "main": {
   "game": "v3.13.00",
   "build": 17,
@@ -443,6 +443,30 @@
  "resultsMore": 3,
  "flags": [
   {
+   "name": "FD49-3",
+   "status": "ASK",
+   "date": "21 Nov",
+   "issue": "Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017 merged, the newest rule set and new-game default is v3.9 (routes), which changes how moves walk and could move the first mover's share. Likely small, not measured",
+   "issueFull": "Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017 merged, the newest rule set and new-game default is v3.9 (routes), which changes how moves walk and could move the first mover's share. Likely small, not measured",
+   "next": "Recommended: read tonight's v3.8 results first; if any arm lands in 45–55%, confirm that arm and its baseline on v3.9 (1,000 games, same seeds) before ruling F12"
+  },
+  {
+   "name": "FD49-2",
+   "status": "ASK",
+   "date": "21 Nov",
+   "issue": "Brief 012 names its preset \"v3.8\", but v3.8 is already on main (fields, brief 014). The Editor approved v3.9 on 20 Nov, but brief 017 merged the same night as rule set v3.9 (routes), so v3.9 is taken too",
+   "issueFull": "Brief 012 names its preset \"v3.8\", but v3.8 is already on main (fields, brief 014). The Editor approved v3.9 on 20 Nov, but brief 017 merged the same night as rule set v3.9 (routes), so v3.9 is taken too",
+   "next": "Recommended: v3.10, a copy of v3.9 (fields and routes on). The brief's comparisons move up with it: the foot-identity check compares v3.10 (cavalry, fort, 5v5 Command change off) with v3.9, not v3.7, and Measurements item 1's columns become v3.9, v3.10 without the fort, v3.10"
+  },
+  {
+   "name": "FD49-1",
+   "status": "ASK",
+   "date": "21 Nov",
+   "issue": "Brief 012 Measurements item 4 (Command and turn limits) screens 9v9 at Command 10, 12, 14 and 13v13 at 14, 16, 18, each with the brief's first-turn Command. The Editor, 20 Nov: every one of those screens also runs with first-turn Command equal to full Command (if the first-mover penalty goes, it…",
+   "issueFull": "Brief 012 Measurements item 4 (Command and turn limits) screens 9v9 at Command 10, 12, 14 and 13v13 at 14, 16, 18, each with the brief's first-turn Command. The Editor, 20 Nov: every one of those screens also runs with first-turn Command equal to full Command (if the first-mover penalty goes, it goes in every format). Not yet written into the brief",
+   "next": "Design chat: add it to brief/012-cavalry. The Editor chose this flag row over Code pushing to the brief branch"
+  },
+  {
    "name": "F025-4",
    "status": "ASK",
    "date": "21 Nov",
@@ -481,30 +505,6 @@
    "issue": "Brain 8 as shipped (B4 only) plays Brain 5 even at 1,000 games (5v5 469 won, 462 lost; 7v7 475, 511; all-Light even too) and ends far fewer games on the turn limit (Brain 8 mirrors: 5v5 46.5% against 64.2%, 7v7 12.5% against 40.3%). Brief 022 keeps Brain 5 as the default until the Editor decides",
    "issueFull": "Brain 8 as shipped (B4 only) plays Brain 5 even at 1,000 games (5v5 469 won, 462 lost; 7v7 475, 511; all-Light even too) and ends far fewer games on the turn limit (Brain 8 mirrors: 5v5 46.5% against 64.2%, 7v7 12.5% against 40.3%). Brief 022 keeps Brain 5 as the default until the Editor decides",
    "next": "Recommended: make Brain 8 the default opponent in the next build that touches the board, It isn't harder than Brain 5; it finishes games. (Its head-to-head was played at tempo 0 and 0; it ships with the second mover pushing, which only changes its first turn when moving second)"
-  },
-  {
-   "name": "F50",
-   "status": "ASK",
-   "date": "20 Nov",
-   "issue": "Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7): 5v5 changed a lot, 7v7 didn't. At 5v5 the first mover's share of decisive games went from 3.2% to 58.0% (F39's collapse is gone), but games ending on the turn limit went from 35.1% to 61.9%, pull KOs from 44.0%…",
-   "issueFull": "Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7): 5v5 changed a lot, 7v7 didn't. At 5v5 the first mover's share of decisive games went from 3.2% to 58.0% (F39's collapse is gone), but games ending on the turn limit went from 35.1% to 61.9%, pull KOs from 44.0% to 23.5%, draws from 1.1% to 6.4%, and the first attack comes on turn 4.4 instead of 2.9. 7v7: every measure within 4 points. Likely the 2-ring deploy area and the 8-hex gap keep Arrow Storm out of early reach, but field and deploy radius changed together: likely, not isolated",
-   "next": "Recommended: merge v3.8 as the Editor locked it, then fold 5v5 v3.8 into the stall study (brief 016's follow-up) instead of tuning now. If the Editor wants the cause isolated first, one sim-only screen: v3.8 at 5v5 with deployRadius5 = 3 against v3.8, same seeds, 200 games per side. F39 can close if the Editor accepts the field as its fix"
-  },
-  {
-   "name": "F49",
-   "status": "ASK",
-   "date": "20 Nov",
-   "issue": "Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and the action panel is 487 px, not the ~590 px the design estimated. The 5v5 field is drawn 1,014 px tall (it fills the width, so its hexes are bigger than 7v7's: 68 px against 54 px), and a side's half (own edge…",
-   "issueFull": "Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and the action panel is 487 px, not the ~590 px the design estimated. The 5v5 field is drawn 1,014 px tall (it fills the width, so its hexes are bigger than 7v7's: 68 px against 54 px), and a side's half (own edge to the middle of the centre row, D9) is 507 px, so after the snap the centre row sits 20 px out of view (49 px to its far edge). 7v7 (449 px), 9v9 (449) and 13v13 (416) fit. Measured in a headless phone browser on this build",
-   "next": "Recommended: draw the 5v5 field at 7v7's hex size (centred, a margin each side) instead of filling the width; its half becomes about 400 px and fits with room. It changes the 5v5 look, so it needs the Editor's go-ahead. Not built"
-  },
-  {
-   "name": "F41",
-   "status": "OPEN",
-   "date": "20 Nov",
-   "issue": "Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to an enemy's warmed-up special. Of its units inside a warmed special's reach at the start of its turn, only 19% (balanced 7v7) to 46% (5v5) step out, and those that stay are almost never braced (7v7: 102 braced vs…",
-   "issueFull": "Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to an enemy's warmed-up special. Of its units inside a warmed special's reach at the start of its turn, only 19% (balanced 7v7) to 46% (5v5) step out, and those that stay are almost never braced (7v7: 102 braced vs 6,053 unbraced). 29–32% of units ending a turn in reach are hit by that special next turn; only 18–68 of those hits land on a braced unit. 400 games per format, specials-playtest-2. Harder to prove than a useless setting: no single example turn was pulled out where bracing or stepping back clearly wins",
-   "next": "Answered: the Editor said yes (20 Nov). Built in brief 022 (Brain 8) as A2, respect a warmed special; brief 022 closes this row when it merges. Was: Suggested setting: a weight on \"end the turn out of a warmed special's reach, or braced inside it\", for the unit that special would most likely pick. Needs the Editor's go-ahead (it changes how the bot plays v3.7), then a screen at 200 games per side against the current Brain 5"
   }
  ],
  "chats": {
@@ -527,9 +527,9 @@
  },
  "tiles": {
   "building": 2,
-  "flagsAsk": 12,
-  "flagsNewest": "F025-4",
-  "flagsMoreAsk": 6,
-  "flagsMoreOpen": 11
+  "flagsAsk": 15,
+  "flagsNewest": "FD49-3",
+  "flagsMoreAsk": 8,
+  "flagsMoreOpen": 12
  }
 }
