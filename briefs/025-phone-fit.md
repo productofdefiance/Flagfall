@@ -131,20 +131,39 @@ On your phone, in the browser, one 7v7 against the bot:
 6. Pull a flag (move a unit next to an empty enemy flag and tap the flag): the new sheet, a red Pull button, "Flag falls" bracketed.
 7. Open the menu from its new place.
 
-## Report back
-The height table and the screenshot pairs above; the four section 7 states; anything in the approved pictures you could not match and why.
-
----
-
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code. Branch `claude/fervent-cori-z3hc7y`, started from `brief/025-phone-fit`, synced with `main` after brief 017 merged.*
 
-- **What's in:**
-- **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
+- **What's in:** everything in sections 1 to 7, phone only (under 900 px). No title bar in a match; menu button on the field (left 8, 38 px below the scoreboard); hex-names button at brief 018's position with 018's look and pressed state; the key tab removed (the key opens from the unit bar's handle and the sheet's handle); a 63 px unit bar in every play state with chips, the route in row 1, `+N` overflow and a 44 px card tap area; a 116 px action panel with 48 px buttons and labels that never wrap; the warm-up note in the unit bar and `Warm up <name>` (falls back to `Warm up` if it would not fit); one sheet for attack, special and flag pull (name strip with a centred handle, hexes between the HP bars, modifiers under the bars with wrapping, `9 ×1.75`, outcomes, bracket or single-outcome line for results); the flag pull with `Flag falls` and the red Pull button in the panel. A name in the sheet opens that unit's card; closing the card brings the preview back.
+- **Height table, 393 × 665** (top bar / field / unit bar / panel / sheet / field left in view, px):
+
+  | State | Top | Field | Unit bar | Panel | Sheet | In view |
+  |---|---|---|---|---|---|---|
+  | 01 Nothing tapped | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 02 Unit tapped | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 03 Move previewed | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 04 Enemy tapped | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 05 Attack preview (no results) | 84 | 465 | hidden | 116 | 137 | 328 |
+  | 06 Attack, longest names | 84 | 465 | hidden | 116 | 137 | 328 |
+  | 07 Attack, one kill outcome (results) | 84 | 465 | hidden | 116 | 156 | 309 |
+  | 08 Attack, most modifiers | 84 | 465 | hidden | 116 | 137 | 328 |
+  | 09 Special fired | 84 | 465 | hidden | 116 | 137 | 328 |
+  | 10 Pulling the flag | 84 | 465 | hidden | 116 | 156 | 309 |
+  | 11 Warming up | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 12 Info card | 84 | 402 | 63 | 116 | 322 | 80 |
+  | 13 End turn confirm | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 14 Deployment | 84 | 411 | 107 (bench) | 63 (one row) | 0 | 411 |
+
+  Expected: 84 / 402 / 63 / 116; sheets 157, 138, 138, 155. Built: 156, 137, 137, 156 (within 1 px). The info card is its own layout (out of scope) and still covers most of the field.
+- **Screenshots:** approved pictures in `briefs/img/025/`; this build's beside them in `briefs/img/025/build-393x665/` (same file names, plus `s7-evade-step`, `s7-cannot-move`, `s7-special-several-targets`, `s7-key-drawer` for section 7), the taller phone in `briefs/img/025/build-390x844/` (nothing breaks: field 581 in play, 488 to 507 under a sheet), and desktop in `briefs/img/025/build-desktop/`. Desktop 1280 × 800: all 18 states compared pixel by pixel with Build 17 (017's board) and **identical**.
+- **Section 7 readings (built as the brief says):** Evade step: the Evade chip in the chips' place, the route on the right when an Evade hex is previewed. Can't move: the note in the chips' place, but it doesn't fit beside a normal name while the hex stays (F025-2). Special with several targets: the extra rows as built, names in full. Key drawer: opens from either handle, unchanged inside.
+- **Anything beyond the brief, and why:** closing a unit card opened from a sheet's name returns to that preview (otherwise checking a name would throw the preview away). The menu opens from the field's top left on a phone (its button moved).
+- **Where the build differs from the approved pictures:** the hex-names button sits 56 px higher (018's position, as the brief says); no match log or zoom button (018's); the unit bar's tap area for the card overlaps the handle's touch area over the name (F025-4). Chips overflowing to `+N` never happened in the test states, including the longest names (`Light Anti-Cavalry 2`, `Heavy Anti-Cavalry 2`).
+- **Checks run and results (paste regression hashes):** CHECKS_PLACEHOLDER
+- **Where the new checks live:** the brief asks for the layout checks in `test_ui.js`. GitHub runs `test_ui.js` before any browser is installed, so the layout checks are in a new `test_phone.js` (headless browser at 393 × 665, 32 checks), run on GitHub right after `board_check.js` installs Playwright. `test_ui.js` gets the checks that need no browser (pull sheet numbers, `9 ×1.75`, special names 14 characters or fewer, `nowrap` on labels, no key tab). `test_phone.js` fails on Build 17's board (26 of 32 fail) and passes on this one. Special names measured at 393 px: Arrow Storm 65 of 85 px (the longest), Bullseye 44, Pick Off 40, Skewer 38, Javelin 37, Arc Hit 35.
 - **Baseline table (rule changes only):** n/a
 - **Bot minimum (met / not met, with numbers):** n/a
 - **Settings review (brain builds only):** n/a
-- **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+- **Known gaps:** the pull sheet's modifiers are read from the engine's own wording of the pull (`pullValue().parts`); if that wording changes, `test_ui.js` fails rather than the sheet going wrong silently. Desktop still says "Tap one of your units" (desktop is out of scope).
+- **Flags closed / opened:** closed F017-1, F017-2 (the Editor, 20 Nov) and F017-4 (this build) in `flags/017.md`. Opened in `flags/025.md`: F025-1 to F025-4 (ASK), F025-5 (OPEN, for brief 018).
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/47
