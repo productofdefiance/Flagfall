@@ -34,7 +34,7 @@ Out: every desktop screen (900 px and wider keeps 017's layout untouched); the t
 ### 2. Field buttons
 One look for every button that floats on the field: 44 × 44, radius 10, background ink `#1f2421`, icon `#f8f9f5` 20 px, 1.5 px white border, shadow `0 2px 6px rgba(0,0,0,0.25)`. (This is brief 018's field-button look, section 7 there; use it now so 018 changes nothing.)
 - **Menu** (the same Options button, same icon, same menu): on the field, **left 8 px, its top 38 px below the bottom of the scoreboard**. It mirrors where 018 will put the match log button on the right, so both top corners of the field stay free for 018's turn tag.
-- **Hex names:** the board's own hex-name icon, unchanged (the Editor, 20 Nov: keep the old icon). Position: **right 8 px, bottom 60 px**. (018 adds the zoom button under it at bottom 8 px; until then that slot is empty.) Its pressed state is 018's: light `#f8f9f5` button with an ink edge and ink icon.
+- **Hex names:** the board's own hex-name icon, unchanged (the Editor, 20 Nov: keep the old icon). Position: **where brief 018's section 7 puts it** (the Editor approved those positions on 19 Nov): right 8 px, its bottom edge 116 px above the bottom of the visible field. 018 adds the zoom button under it; until then that slot is empty. (The approved pictures draw both buttons 56 px lower; 018's positions win.) Its pressed state is 018's: light `#f8f9f5` button with an ink edge and ink icon.
 - **The "Pull up for the key" tab on the field is removed.** The key opens from the handle on the unit bar (section 3) and from the handle on the sheet (section 6). The key drawer itself is unchanged.
 - The top and bottom edge pills (off-screen units and the flag) stay where they are.
 
