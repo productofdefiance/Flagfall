@@ -1,12 +1,12 @@
-STATUS · updated 20 Nov 2026, 11:07 pm ET
+STATUS · updated 20 Nov 2026, 11:26 pm ET
 
 VERSION
-  On main: v3.13.00 · Build 17 · Rules v3.9 · Brain 5
-  Building: 022 → v3.14.00 · 025 → v3.14.00
+  On main: v3.14.00 · Build 18 · Rules v3.9 · Brain 5
+  Building: 022 → YY
 
 RESULTS (last 24 hours)
   Nightly checks: pass (20 Nov, 11:54 am ET)
-  Queue: 15 jobs waiting, oldest 0 min · lab using 5 of 20
+  Queue: 45 jobs waiting, oldest 8 min · lab using 18 of 20
   study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov
   study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov
   study v3.10.00 · 52 matchups, 52,000 games · 20 Nov
@@ -34,18 +34,16 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    022 Safe approach · PR #41 · Draft · checks running · not reviewed
-    025 Phone fit · PR #47 · Ready · checks pass · not reviewed
+    022 Safe approach · PR #41 · needs sync · checks running · not reviewed
   Ready to start
-    none
+    018 Turn cue zoom
   Waiting
     012 Cavalry ← 018
-    018 Turn cue zoom ← 025
     020 Victory values ← 022
   Merged (last 3)
+    025 Phone fit · v3.14.00 · 20 Nov
     017 Move preview · v3.13.00 · 20 Nov
     024 Lab capacity · 20 Nov
-    023 Status page · 20 Nov
 
 CHATS
   Open
