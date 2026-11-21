@@ -1,0 +1,26 @@
+Earlier board (0329f0c58757544454342353231af918cd8cba9c):
+match3       37397ef2bd3ed86b {"turn limit, more pull damage":1,"TKO":2,"KO":1,"turn limit, draw":1,"turn limit, fewer beings lost":1}
+v1           7b25bca651c0cb31 {"turn limit, more pull damage":1,"TKO":2,"turn limit, fewer beings lost":1,"turn limit, draw":1,"KO":1}
+v2           ddbe5fc437ff4e9d {"turn limit, more pull damage":2,"KO":2,"TKO":1,"turn limit, draw":1}
+v3           26371927b53d4413 {"turn limit, fewer beings lost":1,"KO":2,"turn limit, draw":3}
+v3.1         c71e4cd12fc984b0 {"turn limit, draw":3,"turn limit, fewer beings lost":2,"turn limit, more pull damage":1}
+v3.2         f62a061d2c147d83 {"turn limit, fewer beings lost":3,"turn limit, draw":2,"turn limit, more pull damage":1}
+v3.3         e6151bf463d6c9f8 {"turn limit, fewer beings lost":1,"KO":1,"turn limit, draw":3,"turn limit, more pull damage":1}
+v3.4         ee6ce003ac760250 {"turn limit, fewer beings lost":2,"turn limit, more pull damage":1,"turn limit, draw":2,"KO":1}
+v3.5         fca989aecfaf21c9 {"turn limit, fewer beings lost":1,"turn limit, more pull damage":1,"turn limit, draw":3,"KO":1}
+v3.6         a6bf327b54f7d5a1 {"turn limit, fewer beings lost":1,"turn limit, more pull damage":1,"KO":2,"turn limit, draw":2}
+v3.7         dd3c27d9dc9aafbb {"turn limit, fewer beings lost":3,"turn limit, more pull damage":1,"turn limit, draw":2}
+v3.8         022a298c49a02540 {"turn limit, fewer beings lost":1,"turn limit, more pull damage":1,"KO":4}
+This board:
+match3       37397ef2bd3ed86b {"turn limit, more pull damage":1,"TKO":2,"KO":1,"turn limit, draw":1,"turn limit, fewer beings lost":1}
+v1           7b25bca651c0cb31 {"turn limit, more pull damage":1,"TKO":2,"turn limit, fewer beings lost":1,"turn limit, draw":1,"KO":1}
+v2           ddbe5fc437ff4e9d {"turn limit, more pull damage":2,"KO":2,"TKO":1,"turn limit, draw":1}
+v3           26371927b53d4413 {"turn limit, fewer beings lost":1,"KO":2,"turn limit, draw":3}
+v3.1         c71e4cd12fc984b0 {"turn limit, draw":3,"turn limit, fewer beings lost":2,"turn limit, more pull damage":1}
+v3.2         f62a061d2c147d83 {"turn limit, fewer beings lost":3,"turn limit, draw":2,"turn limit, more pull damage":1}
+v3.3         e6151bf463d6c9f8 {"turn limit, fewer beings lost":1,"KO":1,"turn limit, draw":3,"turn limit, more pull damage":1}
+v3.4         ee6ce003ac760250 {"turn limit, fewer beings lost":2,"turn limit, more pull damage":1,"turn limit, draw":2,"KO":1}
+v3.5         fca989aecfaf21c9 {"turn limit, fewer beings lost":1,"turn limit, more pull damage":1,"turn limit, draw":3,"KO":1}
+v3.6         a6bf327b54f7d5a1 {"turn limit, fewer beings lost":1,"turn limit, more pull damage":1,"KO":2,"turn limit, draw":2}
+v3.7         dd3c27d9dc9aafbb {"turn limit, fewer beings lost":3,"turn limit, more pull damage":1,"turn limit, draw":2}
+v3.8         022a298c49a02540 {"turn limit, fewer beings lost":1,"turn limit, more pull damage":1,"KO":4}
