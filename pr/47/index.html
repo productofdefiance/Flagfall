@@ -326,12 +326,14 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
   .ub5 .ub-handle span { width: 36px; height: 4px; border-radius: 2px; background: var(--line); }
   .ub5 .ub-grid { position: relative; margin-top: 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; row-gap: 6px; align-items: center; pointer-events: none; }
   .ub5 .ub-grid > * { pointer-events: auto; }
+  .ub5 .ub-r1.wide { grid-column: 1 / -1; }
   .ub5 .ub-r1 { height: 22px; display: flex; align-items: center; gap: 8px; min-width: 0; }
   .ub5 .ub-id { position: relative; flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px; border: 0; background: none; padding: 0; height: 22px; color: var(--ink); text-align: left; }
   .ub5 .ub-id::before { content: ""; position: absolute; left: -6px; right: -6px; top: 0; height: 44px; }
   .ub5 .ub-name { font: 700 17px/1 var(--display); letter-spacing: .02em; white-space: nowrap; margin: 0; }
   .ub5 .ub-chips { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: row-reverse; justify-content: flex-start; gap: 5px; overflow: hidden; margin-left: 0; }
-  .ub5 .ub-note { flex: 1 1 auto; min-width: 0; text-align: right; font: 500 11.5px/1 var(--body); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ub5 .ub-note { flex: 1 1 auto; min-width: 0; text-align: right; font: 500 11.5px/1 var(--body); color: var(--muted); white-space: nowrap; }
+  .ub5 .ub-note.two { white-space: normal; line-height: 11px; text-wrap: balance; }   /* only when one line won't fit beside the name */
   .ub5 .ub-side { height: 22px; display: flex; align-items: center; justify-content: flex-end; gap: 8px; font: 600 13px/1 var(--num); white-space: nowrap; }
   .ub5 .ub-side .rfrom { color: var(--muted); } .ub5 .ub-side > svg { color: var(--ink); }
   .ub5 .ub-hp { height: 6px; border-radius: 3px; background: #dfe3dc; overflow: hidden; }
@@ -341,9 +343,12 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
   .uchip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 3px; height: 17px; border-radius: 8.5px; padding: 0 7px; background: var(--ink); color: #fff; font: 700 11px/1 var(--num); }
   .uchip.hurt { background: var(--attack); }
   #view-play.sheet-up #unitbar { display: none; }
+  #view-play.sheet-open .fbtn, #view-play.sheet-open #namesbtn { display: none; }
   /* 4. Action panel: 116 px, every button 48 px */
   #actions { padding: 6px 10px 8px; gap: 5px; }
   .act { height: 48px; }
+  .act.hasbar { padding-bottom: 9px; gap: 1px; }   /* the special's state bar sits under the label, never on it */
+  .act.hasbar .spbar { height: 4px; }
   /* 6. One sheet for attack, special and flag pull */
   #sheet.v5 { padding: 9px 14px 12px; gap: 0; }
   .v5 .strip { margin-top: 3px; display: grid; grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr); column-gap: 8px; align-items: center; min-height: 22px; cursor: pointer; touch-action: none; }
