@@ -15,7 +15,7 @@
 ## Context
 The Editor's phone shows the game in **393 × 665** inside the browser (the phone is 393 × 852; the browser's bars take the rest). Earlier briefs assumed 390 × 844, so every phone screen so far was designed about 180 px too tall. From now on, phone screens are designed and checked at 393 × 665.
 
-The design was worked out on the UI Brainstorm canvas, page **Phone fit**, Rounds 1 to 11, and approved by the Editor on 20 Nov as the 14 frames titled **Final 01 to Final 14** (they go onto the Approved UI canvas as page **v5** with this brief). Pictures of those 14 frames are in `briefs/img/025/` so you never need to open a canvas. **Where a picture and this brief differ, the brief wins.** The pictures also show three things that are brief 018's, drawn only to check positions: the match log button (top right), the zoom button (bottom right) and, in none of the final 14, the turn tag. Do not build those here.
+The design was worked out on the UI Brainstorm canvas, page **Phone fit**, Rounds 1 to 11, and approved by the Editor on 20 Nov as the 14 frames titled **Final 01 to Final 14** (they go onto the Approved UI canvas as page **v5** with this brief). Pictures of those 14 frames are in `briefs/img/025/` so you never need to open a canvas. **Where a picture and this brief differ, the brief wins.** The pictures also show two things that are brief 018's, drawn only to check positions: the match log button (top right) and the zoom button (bottom right). Do not build those here, and do not build 018's turn tag.
 
 Where the height goes today on 017's build, unit tapped, 393 × 665: title bar 61, scoreboard 89, field 293, unit bar 81, buttons 141.
 
