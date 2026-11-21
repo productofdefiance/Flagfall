@@ -1,4 +1,4 @@
-STATUS · updated 20 Nov 2026, 7:06 pm ET
+STATUS · updated 20 Nov 2026, 7:07 pm ET
 
 VERSION
   On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
@@ -40,7 +40,7 @@ BUILDS
     none
   Waiting
     012 Cavalry ← 017, 018
-    018 Turn cue zoom ← 017
+    018 Turn cue zoom ← 017, 025
     020 Victory values ← 022
     025 Phone fit ← 017
   Merged (last 3)
