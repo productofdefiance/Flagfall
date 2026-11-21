@@ -2,6 +2,8 @@
 
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
+- 2026-11-20 · screen · v3.13.00 · brief 022 · [2026-11-20_screen_brain8-sweep](v3.13.00/2026-11-20_screen_brain8-sweep/SUMMARY.md): 20 matchups, 4000 games (per-matchup numbers in tables/outcomes.csv). Mirrors ended on the turn limit in 23.7% of games.
+- 2026-11-20 · study · v3.13.00 · brief 022 · [2026-11-20_study_brain8-confirm](v3.13.00/2026-11-20_study_brain8-confirm/SUMMARY.md): 8 matchups, 8000 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 48.2% (b8-v-b5-7v7) to 50.3% (b8-v-b5-5v5). Mirrors ended on the turn limit in 40.9% of games.
 - 2026-11-20 · experiment · v3.12.00 · brief 024 · [2026-11-20_experiment_lab-capacity-check](v3.12.00/2026-11-20_experiment_lab-capacity-check/SUMMARY.md): mirror-5v5: mirror, 40.0% ended on the turn limit, A/B 3–5; mirror-7v7: mirror, 20.0% ended on the turn limit, A/B 5–5.
 - 2026-11-20 · screen · v3.13.00 · brief 022 · [2026-11-20_screen_brain8-screen](v3.13.00/2026-11-20_screen_brain8-screen/SUMMARY.md): 42 matchups, 8400 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 7.8% (respect-double-v-b5-5v5) to 56.5% (b4-v-b5-5v5). Mirrors ended on the turn limit in 37.9% of games.
 - 2026-11-20 · nightly · v3.11.00 · [2026-11-20_nightly_health](v3.11.00/2026-11-20_nightly_health/SUMMARY.md): passed: all 4 night checks
