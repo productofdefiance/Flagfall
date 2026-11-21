@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-21T01:14:45.553Z",
- "board": "STATUS · updated 20 Nov 2026, 8:14 pm ET\n\nVERSION\n  On main: v3.13.00 · Build 17 · Rules v3.9 · Brain 5\n  Building: 022 → v3.14.00 · 025 → v3.14.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (20 Nov, 11:54 am ET)\n  Queue: 7 jobs waiting, oldest 50 min · lab using 1 of 20\n  study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov\n  study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov\n  study v3.10.00 · 52 matchups, 52,000 games · 20 Nov\n  screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov\n  screen v3.13.00 · 5v5 65.0% · 7v7 45.5% on the turn limit · 20 Nov\n  release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov\n  release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov\n  release v3.10.00 · 5v5 37.0% · 7v7 45.1% on the turn limit · 20 Nov\n  +2 more in results/INDEX.md\n\nFLAGS (open, newest first)\n    F025-5 · OPEN · 21 Nov · The hex-names button sits at Brief 018's position (its bottom 116 px above the field's…\n  ! F025-4 · ASK · 21 Nov · §3: the unit card's tap area (token, name and (i), 44 px tall as asked) overlaps the…\n  ! F025-3 · ASK · 21 Nov · §6.6 says the pulling unit sits on the left. Built as: the pulling unit sits where an…\n  ! F025-2 · ASK · 21 Nov · §7 \"A unit that can't move\": No movement available this turn doesn't fit beside a normal…\n  ! F025-1 · ASK · 21 Nov · §6.3 says a special shows \"base Strength, then the multiplier, nothing struck\" (9 ×1.75)…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n  ! F022-5 · DECIDE · 21 Nov · Brain 8 as shipped (B4 only) plays Brain 5 even at 1,000 games (5v5 469 won, 462 lost…\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  +15 older in FLAGS.md\n\nBUILDS\n  Building\n    022 Safe approach · PR #41 · Draft · checks running · not reviewed\n    025 Phone fit · PR #47 · Draft · checks pass · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 018\n    018 Turn cue zoom ← 025\n    020 Victory values ← 022\n  Merged (last 3)\n    017 Move preview · v3.13.00 · 20 Nov\n    024 Lab capacity · 20 Nov\n    023 Status page · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n  Closed (last 5)\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-21T01:26:29.893Z",
+ "board": "STATUS · updated 20 Nov 2026, 8:26 pm ET\n\nVERSION\n  On main: v3.13.00 · Build 17 · Rules v3.9 · Brain 5\n  Building: 022 → v3.14.00 · 025 → v3.14.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (20 Nov, 11:54 am ET)\n  Queue: 6 jobs waiting, oldest 62 min · lab using 1 of 20\n  study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov\n  study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov\n  study v3.10.00 · 52 matchups, 52,000 games · 20 Nov\n  screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov\n  screen v3.13.00 · 5v5 65.0% · 7v7 45.5% on the turn limit · 20 Nov\n  release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov\n  release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov\n  release v3.10.00 · 5v5 37.0% · 7v7 45.1% on the turn limit · 20 Nov\n  +2 more in results/INDEX.md\n\nFLAGS (open, newest first)\n    F025-5 · OPEN · 21 Nov · The hex-names button sits at Brief 018's position (its bottom 116 px above the field's…\n  ! F025-4 · ASK · 21 Nov · §3: the unit card's tap area (token, name and (i), 44 px tall as asked) overlaps the…\n  ! F025-3 · ASK · 21 Nov · §6.6 says the pulling unit sits on the left. Built as: the pulling unit sits where an…\n  ! F025-2 · ASK · 21 Nov · §7 \"A unit that can't move\": No movement available this turn doesn't fit beside a normal…\n  ! F025-1 · ASK · 21 Nov · §6.3 says a special shows \"base Strength, then the multiplier, nothing struck\" (9 ×1.75)…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n  ! F022-5 · DECIDE · 21 Nov · Brain 8 as shipped (B4 only) plays Brain 5 even at 1,000 games (5v5 469 won, 462 lost…\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  +15 older in FLAGS.md\n\nBUILDS\n  Building\n    022 Safe approach · PR #41 · Draft · checks fail · not reviewed\n    025 Phone fit · PR #47 · Draft · checks pass · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 018\n    018 Turn cue zoom ← 025\n    020 Victory values ← 022\n  Merged (last 3)\n    017 Move preview · v3.13.00 · 20 Nov\n    024 Lab capacity · 20 Nov\n    023 Status page · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n  Closed (last 5)\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -26,7 +26,7 @@
      "mark": null
     },
     {
-     "text": "Queue: 7 jobs waiting, oldest 50 min · lab using 1 of 20",
+     "text": "Queue: 6 jobs waiting, oldest 62 min · lab using 1 of 20",
      "indent": 1,
      "mark": null
     },
@@ -156,7 +156,7 @@
      "mark": null
     },
     {
-     "text": "022 Safe approach · PR #41 · Draft · checks running · not reviewed",
+     "text": "022 Safe approach · PR #41 · Draft · checks fail · not reviewed",
      "indent": 2,
      "mark": null
     },
@@ -256,7 +256,7 @@
   }
  },
  "schema": 2,
- "updatedText": "20 Nov 2026, 8:14 pm ET",
+ "updatedText": "20 Nov 2026, 8:26 pm ET",
  "main": {
   "game": "v3.13.00",
   "build": 17,
@@ -264,10 +264,10 @@
   "brain": "Brain 5"
  },
  "queue": {
-  "text": "Queue: 7 jobs waiting, oldest 50 min · lab using 1 of 20",
+  "text": "Queue: 6 jobs waiting, oldest 62 min · lab using 1 of 20",
   "mark": "heads",
-  "jobsWaiting": 7,
-  "oldestWaitMin": 50,
+  "jobsWaiting": 6,
+  "oldestWaitMin": 62,
   "labUsing": 1
  },
  "nightly": {
@@ -282,10 +282,10 @@
     "name": "Safe approach",
     "pr": 41,
     "draft": true,
-    "checks": "running",
+    "checks": "fail",
     "review": null,
     "sync": null,
-    "state": "running",
+    "state": "broken",
     "version": "v3.14.00",
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/41/"
