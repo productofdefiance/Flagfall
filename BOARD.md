@@ -1,4 +1,4 @@
-STATUS · updated 21 Nov 2026, 12:26 am ET
+STATUS · updated 21 Nov 2026, 12:28 am ET
 
 VERSION
   On main: v3.14.00 · Build 18 · Rules v3.9 · Brain 5
@@ -6,16 +6,16 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (20 Nov, 11:54 am ET)
-  Queue: clear · lab using 1 of 20
+  Queue: clear
   study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov
   study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov
   study v3.10.00 · 52 matchups, 52,000 games · 20 Nov
   screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov
   screen v3.13.00 · 5v5 65.0% · 7v7 45.5% on the turn limit · 20 Nov
+  release v3.14.00 · 5v5 65.3% · 7v7 43.3% on the turn limit · 20 Nov
   release v3.13.00 · 5v5 63.2% · 7v7 44.4% on the turn limit · 20 Nov
   release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov
-  release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov
-  +3 more in results/INDEX.md
+  +4 more in results/INDEX.md
 
 FLAGS (open, newest first)
   ! FD49-4 · ASK · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…
