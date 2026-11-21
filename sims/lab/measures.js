@@ -539,6 +539,7 @@ MEASURES.brain8 = {
       end() { return o; }
     };
   }
+};
 MEASURES.routes = {
   about: "Brief 017 (Game Laws 2.11, v3.9 routes): every move the bots made, how many stopped short of the hex they chose (a Mark entered on the way), how many took set spear and how much, and how many ended where the engine's route() said they would. Older rule sets jump, so they never stop short.",
   columns: ["route_moves", "moves_short", "moves_spear", "spear_damage_moves", "moves_mark_end", "moves_predicted"],
