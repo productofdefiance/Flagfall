@@ -10,10 +10,18 @@
 | Branch | Any branch your session may push to, started from `brief/018-turn-cue-zoom` |
 | Flags | none to close |
 | Status | **Ready to build** (the UI chat, 20 Nov): the mobile match log is designed, approved by the Editor (UI Brainstorm, Match log page, Round 8) and added as section 10. Wait for the Order below. |
-| Waits on | 017 |
-| Order | **After brief 017 merges** (017 adds the flag pill, the token HP position, the badges and Plex Sans numbers that this brief scales; same drawing code) and **before brief 012** (012 makes 9v9 and 13v13 playable; their hexes are too small to use on a phone without zoom). 014 (fields and the hot-seat snap) is already in by then. Run `sync` first. |
+| Waits on | 017, 025 |
+| Order | **After brief 025 merges** (the Editor, 20 Nov: 017, then 025 Phone fit, then this; 025 changes the phone layout this brief places its tag, buttons and log against). Originally: **After brief 017 merges** (017 adds the flag pill, the token HP position, the badges and Plex Sans numbers that this brief scales; same drawing code) and **before brief 012** (012 makes 9v9 and 13v13 playable; their hexes are too small to use on a phone without zoom). 014 (fields and the hot-seat snap) is already in by then. Run `sync` first. |
 
 ## Context
+**Built on brief 025's phone layout (added 20 Nov).** Read brief 025 first. What it changes for this brief, on phones (under 900 px):
+- The Editor's phone shows 393 × 665 inside the browser. Take every phone screenshot this brief asks for at **393 × 665** as well as 390 × 844, and report the visible field height at both.
+- There is no title bar in a match: the dark top bar is the scoreboard alone (84 px). The edge tag hangs from it exactly as section 2 says.
+- The menu button already sits on the field at the top left (left 8 px, 38 px below the scoreboard) in the field-button look of section 7. It mirrors this brief's match log button (section 10.1). In view 3 it turns with the other field buttons.
+- The hex-name button is already bottom right in the dark look, at the position section 7 gives it; this brief adds zoom under it.
+- The "Pull up for the key" tab on the field is gone; the key opens from the handle on the unit bar or on a preview sheet.
+- The unit bar is 63 px in every play state and the action panel 116 px; an open preview sheet takes the unit bar's place. "The top of the action panel" in section 7 means the top of the unit bar when no sheet is open.
+
 The match log (section 10) was designed on the UI Brainstorm, page **Match log** (Rounds 1 to 8); the Editor approved Round 8's log and specials screens for build on 20 Nov. Its overtime screens are not part of this brief (see section 10.9).
 
 Designed on the UI Brainstorm canvas, pages **Turn cue** (Rounds 1 to 3) and **Field zoom** (Round 2), approved by the Editor on 19 Nov; the screens go onto the Approved UI canvas as page **v4**. The idea rows are in the Ideas Log's UI table. This brief carries every size, colour and word, so you never need to open a canvas.
