@@ -103,14 +103,143 @@ Say whether each cause is isolated or only likely.
 ---
 
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code. Branch `claude/epic-carson-k4ieor`, started from `brief/022-safe-approach`.*
 
-- **What's in:**
-- **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
-- **Baseline table (rule changes only):** n/a (no rule change); the measurements above instead
-- **Bot minimum (met / not met, with numbers):**
-- **Settings review (brain builds only): settings with no effect found; settings that seem to be missing (with evidence):**
-- **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+### In plain words
+- **Why did the bot walk into the first strike?** Not because it under-rates the enemy's normal shot. In the traces (below) the unit almost always ended its turn in reach because it **warmed up its own special there**, inside reach of an enemy special that was already warm, and was removed before it could fire. Brain 5 counts its own warm-up (`model.special` × the edge over a normal hit) as if the unit will live to fire it: +4.5 to +6.5 value points in the traced turns, more than the extra risk it books (`model.risk` × the expected hit, which the greedy threat count often puts on another unit anyway). Likely, not isolated. In most traces a friend could answer the striker, so A1 as the brief wrote it would not have fired at all.
+- **Does Brain 8 stop?** With A1 or A2 switched on, yes in the test positions (Bot minimum 1 to 3 pass). But both **cost wins against Brain 5** in the screen, so Brain 8 ships with them off (F022-1). The narrower fix the traces point to (discount our own warm-up by its chance of being removed first) is the missing setting from the settings review.
+- **Does respecting a warmed special save units, and does it cost tempo?** It saves a few (units hit next turn by a warmed special, against Brain 5, 5v5: 508 with A2 against 581 without) and costs a lot of tempo: warmed specials lapse 1.5× (5v5) to 9× (7v7) as often, because both sides step out of reach and nobody fires. Against Brain 5, B4+A2 won 64 and lost 104 of 200 (5v5).
+- **Does B4 cut 5v5's turn-limit games?** Yes. Confirmed at 1,000 games on the same deals: Brain 8 mirrors ended on the turn limit in **46.5%** of 5v5 games against **64.2%** for Brain 5 mirrors (F50's 61.9% was a different seed set), and **12.5%** against **40.3%** in 7v7. Isolated: B4 is the only behaviour on, and it changes nothing until one side has only its holder left (the first-loss and specials columns are identical in both arms).
+- **Does B4 alone keep Brain 7's stall cut without its losses?** Yes, but it doesn't make the bot stronger. At 1,000 games against Brain 5 it is **even**: 5v5 469 won (256 by KO or TKO, 213 on tiebreak), 462 lost (195, 267), 69 drawn; 7v7 475 won (417, 58), 511 lost (315, 196), 14 drawn (a 3.6-point gap: noise, F23). It finishes games instead of winning them on the clock: more KO wins, more tiebreak losses. The screen's 106 to 80 in 5v5 didn't hold up at 1,000. All-Light against Brain 5: 5v5 479 to 509, 7v7 483 to 503 (even).
+- **An opening for each side?** Possibly one, for the second mover only, and it needs the confirm run still playing (`brain8-tempo-confirm`). On the 200-game screen, **first mover even (0), second mover push (+1)** puts 7v7's first mover at **49.7%** of decisive games (39.3% at even-even on the same deals), inside F12's 45–55%, and leaves 5v5 where it was (54.2%) with 5v5 stalls unchanged (41.0%). Every pair where the first mover sits back or pushes breaks 5v5 (first mover 64–99%, or 90% draws at back-back). Brain 8 ships at 0 and 0 until the 1,000-game confirm is read. Likely, not isolated.
+- **Should Brain 8 become the default?** Recommended: **yes, once the tempo confirm is read**, because it plays as well as Brain 5 (even at 1,000 games in both formats and both lineups) and finishes far more games: a third fewer turn-limit games in 5v5 and two-thirds fewer in 7v7. It isn't a harder opponent, so it doesn't replace a difficulty step. The Editor decides (F022-5).
+
+### Traces (Brief 022 "first, find out why"; `sims/trace022.js`, Brain 5 mirrors, v3.8)
+Finding the brief's case was itself a result: on the new 5v5 field the first mover's archer is the first lost in only 6 of 40 games (34 are the second mover's), and all 6 were trades (it had just fired). So the 10 archer traces are from 7v7, where it happens about half the time, plus the 10 warmed-special traces from 5v5. "Chosen − safe" compares Brain 5's value for the position it chose with the best position the unit could have taken out of every enemy's reach (or out of the warmed special's reach, or braced), scored at the same moment; the terms are the parts of Brain 5's value that made the difference.
+
+| Game (seed) | Format | Unit, turn | Struck that turn | Answered by a friend | Removed by | Chosen − safe | Term that won it |
+|---|---|---|---|---|---|---|---|
+| NLEP-6JGX-CBNQ | 7v7 | first mover's LR, 2 | no | yes | LR special | 7.10 | own warm-up +6.51 |
+| MBZ7-VY2X-CYZP | 7v7 | LR, 2 | no | yes | LA special | 4.50 | own warm-up +4.51 |
+| 4KFB-XBYB-42H7 | 7v7 | LR, 2 | no | yes | LR special | 7.87 | own warm-up +7.57 |
+| G9TJ-UK82-TN9E | 7v7 | LR, 2 | no | yes | LR special | 4.15 | own warm-up +6.51 (risk −4.76) |
+| FUK7-JTEP-YKWB | 7v7 | LR, 2 | no | yes | LR special | 6.47 | own warm-up +6.32 |
+| CC7Z-AU5D-779Z | 7v7 | LR, 2 | no | yes | LA special | 4.80 | own warm-up +4.51 |
+| 5YRK-P75D-XL7X | 7v7 | LR, 2 | no | yes | LR special | 5.97 | own warm-up +4.51 |
+| PXZ2-DYGP-QZ9R | 7v7 | LR, 3 | yes | no | HM attack | 12.50 | a hit landed (material +4.5), risk +5.6 |
+| Z9D7-SY82-8NEW | 7v7 | LR, 4 | yes | yes | LR attack | 10.54 | a kill (material +11): a fair trade |
+| 6A33-7Z2G-UMRK | 7v7 | LR, 4 | yes | yes | LR special | no safe hex | - |
+| NKJB-EBHT-GGN9 | 5v5 | second mover's LR, 1 | warmed up | - | Arrow Storm | 4.31 | own warm-up +6.51 (risk −2.8) |
+| WTDQ-8XB8-2N5Y | 5v5 | LR, 1 | warmed up | - | Arrow Storm | 4.31 | own warm-up +6.51 |
+| 2Q2T-8LKY-ZS2N | 5v5 | LR, 1 | warmed up | - | Arrow Storm | 4.01 | own warm-up +6.51 |
+| RM5G-PY7L-DJBE | 5v5 | LR, 1 | warmed up | - | Arrow Storm | 4.01 | own warm-up +6.51 |
+| NKJB-EBHT-GGN9 | 5v5 | LR, 2 | fired | - | Pick Off | 15.44 | it had just removed the enemy archer (+18): a trade |
+| WTDQ-8XB8-2N5Y | 5v5 | LR, 2 | fired | - | Pick Off | 15.44 | the same trade |
+| 2Q2T-8LKY-ZS2N | 5v5 | LR, 2 | fired | - | Pick Off | 12.91 | the same trade |
+| RM5G-PY7L-DJBE | 5v5 | LR, 2 | fired | - | Pick Off | 12.91 | the same trade |
+| 2Q2T-8LKY-ZS2N | 5v5 | HA, 6 | no | - | Pick Off | 0.10 | a near tie (stamina +0.5) |
+| 2Q2T-8LKY-ZS2N | 5v5 | LM, 7 | struck | - | Arc Hit | 8.36 | a kill (material +10) |
+
+Reading: 11 of the 20 are the own-warm-up case, 7 are trades the value model is right to take, 2 have no safe hex or are a tie. So the brief's idea (an under-counted enemy first strike) is only partly right: what is missing is the chance of being removed before our own special fires. I built A1 and A2 as the brief says (so the Editor can see them measured) and raised the narrower fix as F022-1, rather than stopping the build, because B4 and A3 didn't depend on it.
+
+### Measurements
+All on v3.8 (the newest rule set when the runs were queued; brief 017's v3.9 merged afterwards, see Known gaps), balanced unless named, sides and move order swapped evenly, same deals across the arms of a run. Tiebreak wins counted apart. Full tables: `sims/lab/report022.js <run id>`; run folders under `results/v3.13.00/`.
+
+**Screen, one behaviour at a time** (`brain8-screen`, 200 games each). A = Brain 8 with the behaviours named.
+
+| Arm | 5v5 vs Brain 5: won KO / tiebreak, lost KO / tiebreak, draw | 5v5 mirror: turn limit, first mover of decisive | 7v7 vs Brain 5 | 7v7 mirror: turn limit, first mover of decisive |
+|---|---|---|---|---|
+| Brain 5 mirror (baseline) | - | 56.5%, 55.2% | - | 47.0%, 34.9% |
+| B4 | 68 / 38, 39 / 41, 14 | 41.0%, 54.2% | 83 / 17, 54 / 44, 2 | 16.0%, 39.3% |
+| B4 + A1 | 41 / 28, 46 / 63, 22 | 36.0%, 34.4% | 75 / 17, 52 / 50, 6 | 13.0%, 48.9% |
+| B4 + A2 | 49 / 15, 53 / 51, 32 | 15.5%, 92.3% | 75 / 5, 79 / 29, 12 | 21.5%, 51.0% |
+| B4 + A1 + A2 | 58 / 6, 101 / 32, 3 | 90.5%, 100% (21 decisive) | 57 / 9, 80 / 33, 21 | 44.0%, 59.8% |
+
+**Confirm** (`brain8-confirm`, 1,000 games each, Brain 8 as shipped: B4 on, A1 and A2 off, tempo 0 and 0).
+
+| Matchup | Won KO / tiebreak | Lost KO / tiebreak | Draw | Holder KO | Pull KO | TKO | Turn limit | Games with a pull | Avg turn | First mover: of all / of decisive |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Brain 5 mirror, 5v5 | - | - | 69 | 4.9% | 22.7% | 8.2% | 64.2% | 22.7% | 20.8 | 47.8% / 61.2% |
+| Brain 8 vs Brain 5, 5v5 | 256 / 213 | 195 / 267 | 69 | 5.3% | 29.8% | 10.0% | 54.9% | 29.8% | 19.9 | 47.6% / 59.9% |
+| Brain 8 mirror, 5v5 | - | - | 69 | 5.9% | 36.8% | 10.8% | 46.5% | 36.8% | 19.0 | 47.3% / 57.9% |
+| Brain 8 vs Brain 5, all-Light 5v5 | 416 / 63 | 194 / 315 | 12 | 12.8% | 30.6% | 17.6% | 39.0% | 31.0% | 14.6 | 40.1% / 42.8% |
+| Brain 5 mirror, 7v7 | - | - | 14 | 3.2% | 41.6% | 14.9% | 40.3% | 41.9% | 21.4 | 36.6% / 28.5% |
+| Brain 8 vs Brain 5, 7v7 | 417 / 58 | 315 / 196 | 14 | 3.6% | 54.4% | 15.2% | 26.8% | 54.5% | 18.6 | 36.3% / 32.1% |
+| Brain 8 mirror, 7v7 | - | - | 14 | 4.8% | 66.9% | 15.8% | 12.5% | 67.0% | 15.7 | 36.6% / 34.7% |
+| Brain 8 vs Brain 5, all-Light 7v7 | 442 / 41 | 331 / 172 | 14 | 20.0% | 41.4% | 15.9% | 22.7% | 41.5% | 15.2 | 40.3% / 38.4% |
+
+First mover against the old field (brief 014's numbers): 5v5 first mover took 3.2% of decisive games on v3.7 and 58.0% on v3.8 (F50); here 61.2% for Brain 5 mirrors. 7v7: 31.4% then, 28.5% here. First Light Ranged lost (Brain 5 mirrors): 5v5 first mover 159, second mover 841; 7v7 524 and 476 (F022-4). Warmed specials (Brain 5 mirrors, 5v5): of units in reach at their turn's start, 2,773 stepped out, 759 stayed braced, 8,335 stayed unbraced, 2,862 were hit next turn. Brain 8 as shipped leaves these unchanged (A2 is off).
+
+**A3 sweep** (`brain8-sweep`, 200 games per pair, Brain 8 mirrors; first mover's tempo first; even-even is the screen's B4 mirror on the same deals). First mover's share of decisive games, then games ended on the turn limit.
+
+| Pair | 5v5 | 7v7 |
+|---|---|---|
+| back, back | 100% (20 decisive), 90.0% | 51.9%, 35.5% |
+| back, even | 98.3%, 10.0% | 61.9%, 12.0% |
+| back, push | 98.9%, 10.0% | 50.0%, 13.0% |
+| even, back | 73.7%, 43.0% | 31.0%, 16.0% |
+| **even, even** (shipped) | 54.2%, 41.0% | 39.3%, 16.0% |
+| **even, push** | 54.2%, 41.0% | **49.7%**, 10.5% |
+| push, back | 64.4%, 27.0% | 23.5%, 8.5% |
+| push, even | 86.3%, 30.5% | 26.3%, 12.5% |
+| push, push | 84.5%, 22.5% | 51.5%, 14.5% |
+
+In 5v5 the second mover's slider changed nothing at even or push (identical games), likely because the first mover's turn-1 warm-up already sets the duel; not isolated. Sitting back raises 5v5 stalls only when both sit back (90%).
+
+Tempo confirm at 1,000 (`brain8-tempo-confirm`, even-push and back-push): SEE TEMPO CONFIRM.
+
+**F39 screen** (`brain8-sweep`, sim-only, Brain 8 mirrors, 200 games; ×2 is the confirm's Brain 8 mirror at 1,000).
+
+| Arrow Storm | 5v5 first mover of decisive | 5v5 turn limit | 5v5 kills per firing | 7v7 first mover of decisive | 7v7 turn limit | 7v7 kills per firing |
+|---|---|---|---|---|---|---|
+| ×2 (as built) | 57.9% | 46.5% | 0.86 | 34.7% | 12.5% | 0.69 |
+| ×1.75 | 43.2% | 26.0% | 0.23 | 34.3% | 11.0% | 0.58 |
+| ×1.5 | 21.3% | 25.0% | 0.04 | 38.8% | 15.0% | 0.42 |
+
+Reading: a smaller Arrow Storm swings 5v5 towards the second mover (×1.5 overshoots badly) and doesn't move 7v7 at all. So 7v7's move-order problem is not Arrow Storm's size; likely the opening (the sweep's push for the second mover reaches 49.7%) or another rule. ×1.75 is the only size that keeps 5v5 inside 45–55%-ish (43.2%) and it also cuts 5v5 stalls (26.0%); worth a 1,000-game confirm in a rules brief. The "no warm-up on the first turn" arm wasn't played (F022-2). Not confirmed at 1,000 here: none of the three sizes fixes 7v7, which is the open problem.
+
+**Speed** (GitHub machines). Average ms per side-turn, Brain 5 mirror against Brain 8 mirror: 5v5 43 against 46; 7v7 117 against 158. Worst side-turn: 5v5 504 and 411 ms; 7v7 2,497 and 2,544 ms. The worst side-turn in the whole build was **5,634 ms** in all-Light 7v7 (Brain 8 against Brain 5; the measure doesn't say which side's turn it was), above the 4.6 s mark (F022-6). Positions examined, worst side-turn: 4,676 in balanced 7v7 for both brains (Brain 8 adds no plan steps; it scores each position a little more slowly).
+
+### Bot minimum (met)
+All six positions pass (`board/tests/test_brain8.js`, 38 checks, on v3.8 and again on v3.9 after the sync): 1 Brain 5 walks its archer into reach, Brain 8 with A1 stops short; 2 with a kill on, Brain 8 goes in and strikes; 3a steps out of a warmed storm, 3b braces where the brace saves it, 3c strikes the archer first when nothing else saves it (A2 on); 4 the holder joins when the race check passes (reads exactly as Brain 7's: 5 / 5) and stays when it fails; 5 tempo −1 holds inside the deploy area on turns 1–2 (0.00 hexes beyond), +1 closes faster (7.67 from the enemy flag against 9.33 at 0), and the slider stops once a unit is hurt; 6 all four off plays Brain 5's actions. Legal play: 30 seeded games per format and lineup on the newest preset, 0 refused, 0 errors, 0 unfinished (2 per format in `checks`, 30 in night checks). 3,000+ lab games per arm with no refused actions or bot errors in the `play` measure.
+
+### Settings review
+**No effect found** (within the noise, F23):
+- `holderJoins` off against on changes nothing before one side is down to its holder (the first-loss, specials and specials-safety columns are identical). Not useless: it is what cuts stalls.
+- `tempoSecond` at 0 against +1 in 5v5: identical games (sweep, 200; see above).
+- `tempo` (the A3 switch) at tempo 0 and 0: no effect, by design.
+
+**Settings that move results** (both A1 and A2 are off in the shipped brain, so their weights act only when switched on): `firstStrike` ×0.5 against Brain 5, 5v5: 60 won, 106 lost; ×2: 54, 145. `warmedRespect` ×0.5: 59, 141; ×2: 14, 183 (screen, with A1 and A2 on). Both make Brain 8 worse the higher they go.
+
+**Missing settings** (harder to prove than the list above):
+- A unit's own warmed special is valued as if it will live to fire it. In 11 of 20 traced deaths (table above, e.g. game NLEP-6JGX-CBNQ, 7v7, North's Light Ranged on turn 2) it warmed up inside reach of an enemy special already warm and was removed first. Suggested setting: discount `model.special` by the chance of being removed before firing. F022-1.
+
+### Checks run and results
+- Every check in `README.md` passes locally (rule tests, `test_brain5` to `test_brain8`, `test_watch`, `test_ui`, `test_version`, invariants 30 games, replay, lab self-test, stall, lead, capacity, status board, board check 10 games). On GitHub the first push failed `test_watch.js`: its Brain 8 link check still expected A2 on after I switched it off; fixed.
+- `regress_engine.js` (3 games per rule set): this build changes no rules file. `main`'s board and this branch print identical hashes (the script covers match3 to v3.8): match3 37397ef2bd3ed86b, v1 7b25bca651c0cb31, v2 ddbe5fc437ff4e9d, v3 26371927b53d4413, v3.1 c71e4cd12fc984b0, v3.2 f62a061d2c147d83, v3.3 e6151bf463d6c9f8, v3.4 ee6ce003ac760250, v3.5 fca989aecfaf21c9, v3.6 a6bf327b54f7d5a1, v3.7 dd3c27d9dc9aafbb, v3.8 022a298c49a02540.
+- `sims/brainhash.js`, every brain on every preset, before against after: standard 0fcd6621fb898ed2, easy 1ecb7608e712b099, kitA 613037e1df3211cd, kitA2 ea0b4085c8f61f47, kitC a964ff8de086b694, kitB 9b8b9e230b9b0737, batchC 9f25673263069a1e, kitD b9ada37b250125e4, brain5 478bcbd26b9feb48, brain6 0a85345d7ebaf93f, brain7 87b1d134e681d8b7: all unchanged. Brain 8 with all four off (`brain8:holderJoins=0,safe=0,respect=0,tempo=0@brain5`): 478bcbd26b9feb48, the same as Brain 5. (Run before the v3.9 sync; v3.9 adds a preset, so the next build's hashes include it.)
+- The new measures checked by hand on saved games: `firstloss` against the traces (seed NLEP-6JGX-CBNQ: first Light Ranged lost by the first mover on turn 2, removed by an LR special; a 7v7 game with no archer lost shows blanks), `brain8` join counts against test position 4.
+
+### What's in
+- **Brain 8** (`brain8`, "Brain 8 (safe approach)"): Brain 5 plus B4 (Brain 7's holder joins, with its race check, without B1), A1 safe approach, A2 respect for a warmed special and A3 opening tempo, each behind a switch in `approach`, with plain labels on the Opponent screen (the tempo sliders take −1 to +1). Ships with B4 and A3 on (tempo 0 and 0) and **A1 and A2 off** (F022-1). Brains 5, 6 and 7 are untouched; Brain 5 stays the default.
+- Lab measures `firstloss` and `brain8`; `sims/trace022.js` (the traces); `sims/lab/report022.js` (this Report's tables); four job orders.
+
+### Anything beyond the brief, and why
+- **A1 and A2 ship off.** The brief says to build them; it doesn't say to ship them on, and the screen shows both cost wins.
+- **A3 also scales the value of threats and, with A1 off, the fear of damage taken**, during the opening only: with A1 off, scaling advance alone changed nothing (Brain 5 already advances as far as its Command lets it on turns 1–2), so +1 couldn't "close fast and strike first". −1 adds a cost per hex beyond its own deploy area so that it holds there.
+- `reach_contact_turn` instead of `first_contact_turn` (F022-3). Brain 8's settings travel in watch links (`n=brain8:tempoSecond=1`), negative values included (`test_watch.js`).
+
+### Known gaps
+- **Measured on v3.8, not v3.9.** Brief 017 (routes, rule set v3.9) merged while the runs were playing. Brain 8 passes all its checks and plays legally on v3.9, but its numbers haven't been re-measured there. The next release run (v3.14.00, Brain 5 mirrors) will show v3.9's baseline.
+- The A3 confirm at 1,000 is still playing when this was written (SEE TEMPO CONFIRM).
+- The "no warm-up on the first turn" F39 arm wasn't played (F022-2).
+- The 10 "first mover's archer dies first" traces are 7v7, not 5v5: on the new 5v5 field it happened in only 6 of 40 games, all trades.
+- I didn't play the Editor's hands-on checks; links: an even-push mirror game is in the sweep's `games.csv` (`replay` column).
+
+### Flags closed / opened
+- Closed: F47 (Brain 8 is Brain 5 + B4), F48 (the Editor's answer recorded on `main`), F021-3 (the `version.js` header).
+- Still open: F41 (Brain 8's A2 does it but costs wins; next step F022-1). F39 stays open as evidence: Brain 8 doesn't change the archer duel; the size screen above is the evidence for the rules brief.
+- Opened: F022-1 to F022-6 in `flags/022.md`.
+
+### Pull request
+https://github.com/productofdefiance/Flagfall/pull/41
