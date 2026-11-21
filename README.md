@@ -63,6 +63,7 @@ node tests/test_brain7.js
 node tests/test_version.js
 node tests/test_watch.js
 node tests/test_ui.js
+node tests/test_phone.js
 node tests/test_invariants.js
 node tests/test_rng.js
 node tests/test_replay.js ../data/match3_log.txt
@@ -81,6 +82,8 @@ node sims/lab/board_check.js 10
 ```
 
 `board_check.js` plays 10 simulated games and opens the same 10 on the board in a headless browser; their moves must be identical. It needs Playwright (pre-installed in Claude sessions).
+
+`test_phone.js` opens the board at 393 × 665 (the Editor's phone in its browser) in the same headless browser and checks the phone layout (Brief 025): no title bar or key tab in a match, the 84 px top bar, 63 px unit bar and 116 px action panel in every state, the unit bar hidden under a preview sheet, and that no action button's label wraps. It needs Playwright too; GitHub runs it with `board_check.js`.
 
 ## The lab
 
