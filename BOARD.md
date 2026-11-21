@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (20 Nov, 11:54 am ET)
-  Queue: 7 jobs waiting, oldest 48 min · lab using 2 of 20
+  Queue: 8 jobs waiting, oldest 48 min · lab using 5 of 20
   study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov
   study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov
   study v3.10.00 · 52 matchups, 52,000 games · 20 Nov
