@@ -1,4 +1,4 @@
-STATUS · updated 20 Nov 2026, 7:26 pm ET
+STATUS · updated 20 Nov 2026, 7:28 pm ET
 
 VERSION
   On main: v3.13.00 · Build 17 · Rules v3.9 · Brain 5
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (20 Nov, 11:54 am ET)
-  Queue: 22 jobs waiting, oldest 2 min · lab using 10 of 20
+  Queue: 17 jobs waiting, oldest 3 min · lab using 11 of 20
   study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov
   study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov
   study v3.10.00 · 52 matchups, 52,000 games · 20 Nov
@@ -50,4 +50,4 @@ CHATS
   Open
     FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov
   Closed (last 5)
-    FF UI+Rules v3.12.00 · closed 20 Nov · 017 reviewed (review: merge); phone fit approved, brief 025 pushed (builds…
+    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…
