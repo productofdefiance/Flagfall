@@ -1,10 +1,11 @@
-/* Flagfall Arena — version numbers. The only place they are kept (Brief 003, Brief 007).
-   `game` is the one global version (vX.YY.ZZ) for rules, brains, screens and board. The design chat picks it and
-   states it in each brief; Code doesn't choose it. `build` is the internal counter the checks workflow uses.
-   Every build that changes board/ raises `build` by one and changes `game`; the checks workflow fails a pull request
-   that doesn't. `preview` stays null here; the play-link workflow sets it (for example "PR #6") on preview copies only. */
+/* Flagfall Arena — version numbers. The only place they are kept (Brief 003, Brief 007, Brief 021).
+   `game` is the one global version (vX.YY.ZZ) for rules, brains, screens and board. A brief states only the size of
+   its bump (X, YY, ZZ or none); Code sets the number here at its last `sync` before Ready for review: the next free
+   number of that size after `main`. `build` is the internal counter the checks workflow uses. Every build that changes
+   board/ raises `build` by one and changes `game`; the checks workflow fails a pull request that doesn't. `preview`
+   stays null here; the play-link workflow sets it (for example "PR #6") on preview copies only. */
 (function (root) {
-  const VERSION = { game: "v3.12.00", build: 16, date: "2026-11-20", preview: null };
+  const VERSION = { game: "v3.13.00", build: 17, date: "2026-11-20", preview: null };
   /** "Playtest board · v3.09.01 · Build 13 · Rules v3.6" (CLAUDE.md: the version, with the build in small type); a
       preview copy also says which pull request it is. */
   VERSION.line = function (newestRules, V) {
