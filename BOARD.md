@@ -1,21 +1,21 @@
-STATUS · updated 20 Nov 2026, 7:11 pm ET
+STATUS · updated 20 Nov 2026, 7:24 pm ET
 
 VERSION
-  On main: v3.12.00 · Build 16 · Rules v3.8 · Brain 5
-  Building: 017 → v3.13.00 · 022 → v3.13.00
+  On main: v3.13.00 · Build 17 · Rules v3.9 · Brain 5
+  Building: 022 → YY
 
 RESULTS (last 24 hours)
   Nightly checks: pass (20 Nov, 11:54 am ET)
-  Queue: clear · lab using 10 of 20
+  Queue: clear · lab using 9 of 20
   study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov
   study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov
   study v3.10.00 · 52 matchups, 52,000 games · 20 Nov
   screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov
+  screen v3.13.00 · 5v5 65.0% · 7v7 45.5% on the turn limit · 20 Nov
   release v3.12.00 · 5v5 63.0% · 7v7 43.9% on the turn limit · 20 Nov
   release v3.11.00 · 5v5 36.7% · 7v7 41.4% on the turn limit · 20 Nov
   release v3.10.00 · 5v5 37.0% · 7v7 45.1% on the turn limit · 20 Nov
-  nightly v3.11.00 · 5v5 30.0% · 7v7 30.0% on the turn limit · 20 Nov
-  +1 more in results/INDEX.md
+  +2 more in results/INDEX.md
 
 FLAGS (open, newest first)
   ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…
@@ -34,19 +34,17 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    017 Move preview · PR #44 · Ready · checks pass · reviewed: merge
-    022 Safe approach · PR #41 · Draft · checks fail · not reviewed
+    022 Safe approach · PR #41 · needs sync · checks fail · not reviewed
   Ready to start
-    none
+    025 Phone fit
   Waiting
-    012 Cavalry ← 017, 018
-    018 Turn cue zoom ← 017, 025
+    012 Cavalry ← 018
+    018 Turn cue zoom ← 025
     020 Victory values ← 022
-    025 Phone fit ← 017
   Merged (last 3)
+    017 Move preview · v3.13.00 · 20 Nov
     024 Lab capacity · 20 Nov
     023 Status page · 20 Nov
-    014 Fields · v3.12.00 · 20 Nov
 
 CHATS
   Open
