@@ -185,6 +185,13 @@
     if (p2) pv.rows.push({ icon: "parry", name: "Parry", red: true, means: `A braced ${E.card(st, p2).name} hits back at the first melee attacker each turn. One parry per action.`,
       why: `${unitName(st, p2)} is braced in the arc: you take ${fmt(p.parry.amount)}${p.parry.ifSurvives ? " if it survives the hit" : ""}.` });
     const kind = p.kind, mults = [...new Set(p.hits.map((h) => h.mult))];
+    // Brief 017 §8: Strength shows its change struck through (Javelin 8 → 14: Reach −1, then ×2), then the multiplier
+    // as its own stat with the special icon. Only with one multiplier; the damage below is the engine's exact number.
+    if (mults.length === 1 && h0.mult !== 1) {
+      const d = h0.detail, after = d.strAfter * h0.mult;
+      pv.attacker.stats = pv.attacker.stats.filter((x) => x.key !== "maul");
+      pv.attacker.stats.unshift({ key: "maul", label: "Strength", old: fmt(d.str), val: fmt(after), tone: after < d.str ? "hurt" : "help" }, { key: "special", label: `${p.name} multiplier`, val: multText(h0.mult) });
+    }
     const why = h0.why || (kind === "arcHit" ? `${plural(p.hits.length, "enemy", "enemies")} in the arc.` : kind === "skewer" ? (p.hits.length > 1 ? `${unitName(st, E.unitByUid(st, p.hits[1].uid))} is behind ${unitName(st, t)}.` : `Nobody behind ${unitName(st, t)}: a single hit.`) : "No dice: exactly this much.");
     pv.rows.unshift({ icon: "special", name: `${p.name} ${mults.map(multText).join(" / ")}`, means: specialAbout(st.rs, kind), why, special: true });
     pv.special = { kind, name: p.name, arc: p.arc, extra: p.hits.slice(1).map((h) => { const x = E.unitByUid(st, h.uid); return { uid: x.uid, team: x.team, name: unitName(st, x), hp: E.hpShown(st, x), maxHp: x.maxHp, dmg: h.dmg, kills: h.kills }; }) };
