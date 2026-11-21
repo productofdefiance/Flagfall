@@ -279,7 +279,9 @@
         if (!s1) continue;
         const u1 = E.unitByUid(s1, u.uid);
         if (!u1 || u1.hp <= 0 || u1.done) continue;
-        for (const a of E.options(s1, u.uid).attacks) out.push({ u: u.uid, hex: h, move: h, t: a.target, exp: expOf(a), kill: a.killChance, melee: E.fieldOf(st).dist(h, E.unitByUid(s1, a.target).hex) === 1 });
+        // Brief 017: the move is played through the engine, so u1 stands where the route really ends (it may stop
+        // short in a Mark); on older rule sets that is always h.
+        for (const a of E.options(s1, u.uid).attacks) out.push({ u: u.uid, hex: u1.hex, move: h, t: a.target, exp: expOf(a), kill: a.killChance, melee: E.fieldOf(st).dist(u1.hex, E.unitByUid(s1, a.target).hex) === 1 });
       }
     }
     return out;
