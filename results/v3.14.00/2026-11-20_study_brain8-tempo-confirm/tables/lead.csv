@@ -1,0 +1,5 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+tempo-even-push-mirror-5v5,1000,55,N:29 S:26,92,566,376,S:201 N:175
+tempo-back-push-mirror-5v5,1000,40,S:21 N:19,76,538,86,S:40 N:46
+tempo-even-push-mirror-7v7,1000,30,S:16 N:14,55,258,87,S:44 N:43
+tempo-back-push-mirror-7v7,1000,33,N:19 S:14,60,240,104,N:50 S:54

@@ -1,0 +1,5 @@
+matchup,games,lost_alone_n,lost_alone_s,lost_together_n,lost_together_s,holder_strikes_solo_n,holder_strikes_solo_s,holder_strikes_group_n,holder_strikes_group_s
+tempo-even-push-mirror-5v5,1000,1285,1236,1909,1921,512,517,492,495
+tempo-back-push-mirror-5v5,1000,1331,1318,1758,1747,528,594,642,633
+tempo-even-push-mirror-7v7,1000,2038,2026,3079,3122,494,542,572,590
+tempo-back-push-mirror-7v7,1000,2151,1977,3047,2989,462,448,547,644

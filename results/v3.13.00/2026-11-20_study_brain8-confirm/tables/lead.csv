@@ -1,0 +1,9 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+b5-mirror-5v5,1000,63,S:28 N:34 both:1,87,823,371,S:195 N:176
+b8-v-b5-5v5,1000,62,N:33 S:28 both:1,94,725,373,S:198 N:175
+b8-mirror-5v5,1000,55,N:29 S:26,92,566,376,S:201 N:175
+b8-v-b5-light-5v5,1000,53,N:27 S:26,97,333,133,S:73 N:60
+b5-mirror-7v7,1000,22,S:15 N:7,39,143,228,S:126 N:102
+b8-v-b5-7v7,1000,28,N:13 S:15,52,195,171,S:91 N:80
+b8-mirror-7v7,1000,32,N:18 S:14,62,221,102,N:46 S:56
+b8-v-b5-light-7v7,1000,49,S:24 N:24 both:1,81,393,76,S:38 N:38
