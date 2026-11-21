@@ -2,6 +2,8 @@
 
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
+- 2026-11-20 · screen · v3.13.00 · brief 017 · [2026-11-20_screen_routes-v39](v3.13.00/2026-11-20_screen_routes-v39/SUMMARY.md): v38-5v5: mirror, 65.0% ended on the turn limit, A/B 90–93; v39-5v5: mirror, 66.0% ended on the turn limit, A/B 87–96; v38-7v7: mirror, 45.5% ended on the turn limit, A/B 92–106; v39-7v7: mirror, 47.5% ended on the turn limit, A/B 94–102.
+- 2026-11-20 · experiment · v3.12.00 · brief 024 · [2026-11-20_experiment_lab-capacity-check](v3.12.00/2026-11-20_experiment_lab-capacity-check/SUMMARY.md): mirror-5v5: mirror, 40.0% ended on the turn limit, A/B 3–5; mirror-7v7: mirror, 20.0% ended on the turn limit, A/B 5–5.
 - 2026-11-20 · nightly · v3.11.00 · [2026-11-20_nightly_health](v3.11.00/2026-11-20_nightly_health/SUMMARY.md): passed: all 4 night checks
 - 2026-11-20 · release · v3.12.00 · [2026-11-20_release_release-v3-12-00](v3.12.00/2026-11-20_release_release-v3-12-00/SUMMARY.md): 5v5: mirror, 63.0% ended on the turn limit, A/B 453–481; 7v7: mirror, 43.9% ended on the turn limit, A/B 491–499.
 - 2026-11-20 · release · v3.11.00 · [2026-11-20_release_release-v3-11-00](v3.11.00/2026-11-20_release_release-v3-11-00/SUMMARY.md): 5v5: mirror, 36.7% ended on the turn limit, A/B 503–492; 7v7: mirror, 41.4% ended on the turn limit, A/B 460–522.

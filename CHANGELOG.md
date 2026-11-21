@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.13.00 | v3.9 | Brain 5 | v3 | 17 |
 | v3.12.00 | v3.8 | Brain 5 | v2 | 16 |
 | v3.11.00 | v3.7 | Brain 5 | v2 | 15 |
 | v3.10.00 | v3.7 | Brain 5 | v2 | 14 |
@@ -18,6 +19,43 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.13.00 · Build 17 — Brief 017, rule set v3.9: move and range preview, Approved UI v3 (20 Nov 2026)
+Rule set: **v3.9** (new, the new-game default): v3.8 plus switch `routeRule211` (Game Laws 2.11). Default brain: Brain 5, unchanged. UI: **v3** (Approved UI v3). Game version **v3.13.00** (YY: new screens and a routing rule).
+
+**What a player will notice**
+- **Tap a move hex once to see the move before it happens:** the route the unit will walk (a blue line with an arrow), a faded copy of the unit where it will end, and badges for anything on the way: a Mark that stops it, a set spear that hits it, the Stamina tackle costs. Tap again, or press the new blue **Move** button, to go. Tapping another hex previews that one; tapping elsewhere cancels.
+- **v3.9 moves walk a route.** The engine picks the cheapest route; if that route enters an enemy Mark before your hex, the move stops there (the preview shows it in grey, dashed, beyond the stop). It never takes a longer way round to avoid danger: take shorter steps for that. Set spear can now hit a unit on the way, not only at the end.
+- **Range outlines:** tapping a Ranged or Anti-Cavalry unit outlines what it can hit from where it stands, and from the end hex while you preview a move. A Heavy Ranged that would have no Stamina left gets a "no attack after" badge instead. A special that is ready to fire shows its own range in a gold double line.
+- **Tap an enemy** on your turn: its moves on its next turn (orange), its range, its special if it can fire next turn (plum), and four orange marks round each of your units it can hit now.
+- **Attack preview:** the attacker's Evade hexes show on the field, and pills under the killing outcomes say what taking the hex brings (set spear damage, a Mark).
+- **New look:** neutral field zones with pitch lines (deployment arc, goal circle, halfway line), the flag's HP in a pill on the flag hex's outer edge, a charcoal braced ring, red hatching beside every loaded braced Heavy Anti-Cavalry, gold/plum warm-up rings, numbers in IBM Plex Sans (Plex Mono is gone), buttons in the order Attack, Reach, Special, Brace. A pull-up **Key** (bottom-left of the field) lists only what is on the field now, one line each. The flag pill stays visible above a holder. Desktop: hover a move hex to preview, click once to move, Escape cancels.
+- Older rule sets and saved matches move exactly as before (the move jumps).
+
+**Under the hood**
+- `engine.js`: `route()` (rules 1–4 of 2.11 and the walk), and read-only `canAttackAfter()`, `rangeHexes()`, `evadeHexes()`, `killConsequences()`, `enemyPreview()`. On v3.9 the move itself walks the very path `route()` names, so the preview and the move can't disagree. The move hexes offered are unchanged (`reachMap`).
+- `bot.js`: plans already play every move through the engine; one look-ahead now reads where the unit really ended (it can stop short), which only differs on v3.9.
+- New check `test_route.js` (the brief's set-ups, each mirrored; the preview agrees with the move on 1,000 random legal moves). New script `sims/route_bot.js` (the Bot-minimum counts).
+
+**Flags closed:** none. **Opened:** see `flags/017.md`.
+
+## No game version — Brief 024, tooling: the lab shares GitHub's machines (20 Nov 2026)
+Nothing in the game changes (`board/` untouched). Every game the lab plays is the same.
+
+**What the Editor will notice**
+- In the daytime, pull request checks wait less: a lab run takes 15 of GitHub's 20 machines when the repository is quiet, 10 when it is busy, 5 for a big run when busy. At night (11 pm to 7 am ET, or after the night checks) it takes all 20.
+- A lab run can be rushed: the new "rush" box when starting it by hand, or the `lab: rush` label on a pull request.
+- A new push to a pull request replaces its older lab run instead of queueing behind it.
+- The status page and `BOARD.md` show a Queue line ("Queue: 12 jobs waiting, oldest 43 min · lab using 9 of 20", or "Queue: clear").
+- When GitHub is jammed, Code may offer to run checks or a small screen in its own session, and asks you first every time.
+
+**Under the hood**
+- New `sims/lab/capacity.js` and `capacity.json`; `lab.yml` uses them for each wave and the release checks.
+- Big daytime runs play in two waves; the second chooses its share again. Same parts, same games.
+- New `sims/lab/queuelog.js`: one line per run in `queue/queue-log.csv` on the `status` branch.
+- New check `sims/lab/test_capacity.js`, run in `checks`.
+
+**Flags closed:** none. **Opened:** F024-1 to F024-4 (all ASK).
 
 ## v3.12.00 · Build 16 — Brief 014, rule set v3.8: one field per format, and the hot-seat snap (20 Nov 2026)
 Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `game.deployRadius5: 2`. Default brain: Brain 5, unchanged. Game version **v3.12.00** (YY: a new rule set; brief 019 took v3.11.00 and Build 15 first). The brief planned the rule set as v3.7; brief 011 took v3.7 first, so it is v3.8.

@@ -197,6 +197,15 @@ check("Builds: a Ready to start group between Building and Waiting", grpAt("Buil
 const waitPart = hb.slice(grpAt("Waiting"), grpAt("Merged")), readyPart = hb.slice(grpAt("Ready to start"), grpAt("Waiting"));
 check("ready briefs leave Waiting", readyPart.includes("017 Move preview") && !waitPart.includes("017 Move preview") && waitPart.includes("014 Fields") && !waitPart.includes("Ready to start</span>"));
 check("the set-up panel says the key expires after 90 days", /90 days/.test(P2.renderApp(B.boardJson(b, {}), { setupOpen: true })));
+// Brief 024: the Queue line.
+const bq = B.buildBoard(Object.assign({}, facts, { queue: { jobsWaiting: 12, oldestWaitMin: 43, labUsing: 9, checksWaiting: 10 } }));
+check("BOARD.md: the Queue line under RESULTS", bq.sections.find((s) => s.title.startsWith("RESULTS")).lines[1].text === "Queue: 12 jobs waiting, oldest 43 min · lab using 9 of 20");
+check("the page: the Queue row under the tiles, with the Running mark over 15 minutes", (() => { const h = require("./page.js").renderApp(B.boardJson(bq, {}), {}); const t = h.indexOf('class="tiles"'), q = h.indexOf('class="qrow"'), c = h.indexOf('class="cols"'); return t < q && q < c && /qrow"><span class="pill p-running">[\s\S]*Waiting<\/span><span>Queue: 12 jobs waiting/.test(h); })());
+const bc = B.buildBoard(Object.assign({}, facts, { queue: { jobsWaiting: 0, labUsing: 0 } }));
+check("Queue: clear", bc.text.includes("  Queue: clear\n"));
+check("a queue that can't be read says so", B.buildBoard(Object.assign({}, facts, { queue: null })).text.includes("Queue: unknown"));
+check("a board built without queue facts (old fixtures) has no Queue line", !b.text.includes("Queue:"));
+check(`BOARD.md with the Queue line is under 4 KB (${Buffer.byteLength(mb.text)} bytes, full board)`, Buffer.byteLength(B.buildBoard(Object.assign({}, many, { queue: { jobsWaiting: 99, oldestWaitMin: 999, labUsing: 20 } })).text) < 4096);
 const pageChecks = require("./test_page.js").run(check, B, b23, j23);
 
 pageChecks.catch((e) => check("page checks ran", false, e && e.stack)).then(() => {
