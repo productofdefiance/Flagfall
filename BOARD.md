@@ -1,4 +1,4 @@
-STATUS · updated 20 Nov 2026, 11:57 pm ET
+STATUS · updated 21 Nov 2026, 12:01 am ET
 
 VERSION
   On main: v3.14.00 · Build 18 · Rules v3.9 · Brain 5
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (20 Nov, 11:54 am ET)
-  Queue: 22 jobs waiting, oldest 35 min · lab using 19 of 20
+  Queue: 15 jobs waiting, oldest 39 min · lab using 15 of 20
   study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov
   study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov
   study v3.10.00 · 52 matchups, 52,000 games · 20 Nov
@@ -18,6 +18,7 @@ RESULTS (last 24 hours)
   +3 more in results/INDEX.md
 
 FLAGS (open, newest first)
+  ! FD49-4 · ASK · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…
   ! FD49-3 · ASK · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…
   ! FD49-2 · ASK · 21 Nov · Brief 012 names its preset "v3.8", but v3.8 is already on main (fields, brief 014). The…
   ! FD49-1 · ASK · 21 Nov · Brief 012 Measurements item 4 (Command and turn limits) screens 9v9 at Command 10, 12, 14…
@@ -29,8 +30,7 @@ FLAGS (open, newest first)
     F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…
     F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…
   ! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…
-  ! F024-3 · ASK · 20 Nov · The status board starts on every pull request event and every finished checks…
-  +13 older in FLAGS.md
+  +14 older in FLAGS.md
 
 BUILDS
   Building
