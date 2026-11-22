@@ -1,4 +1,4 @@
-STATUS · updated 21 Nov 2026, 8:56 pm ET
+STATUS · updated 21 Nov 2026, 9:02 pm ET
 
 VERSION
   On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (21 Nov, 11:05 am ET)
-  Queue: 14 jobs waiting, oldest 9 min · lab using 5 of 20
+  Queue: 12 jobs waiting, oldest 15 min · lab using 5 of 20
   nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
 FLAGS (open, newest first)
