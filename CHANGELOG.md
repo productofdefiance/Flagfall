@@ -6,7 +6,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
-| v3.14.00 | v3.9 | Brain 5 | v3 | 18 |
+| v3.15.00 | v3.9 | Brain 8 | v5 | 19 |
+| v3.14.00 | v3.9 | Brain 5 | v5 | 18 |
 | v3.13.00 | v3.9 | Brain 5 | v3 | 17 |
 | v3.12.00 | v3.8 | Brain 5 | v2 | 16 |
 | v3.11.00 | v3.7 | Brain 5 | v2 | 15 |
@@ -21,10 +22,11 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
-## v3.14.00 · Build 18 — Brief 022, Brain 8: holder joins, safe approach, warmed-special respect, opening tempo (21 Nov 2026)
-Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). Default brain: Brain 5, unchanged (F022-5 asks the Editor). Game version **v3.14.00** (YY: a new brain; brief 017 took v3.13.00 first).
+## v3.15.00 · Build 19 — Brief 022, Brain 8: holder joins, safe approach, warmed-special respect, opening tempo (22 Nov 2026)
+Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). Default brain: **Brain 8** (the Editor, 21 Nov, F022-5). Game version **v3.15.00** (YY: a new brain; briefs 017 and 025 took v3.13.00 and v3.14.00 first).
 
 **What a player will notice**
+- **The computer opponent is now Brain 8** in a new match (it was Brain 5; Brain 5 stays in the list).
 - A new opponent in the brain list, **"Brain 8 (safe approach)"**. When the enemy is down to its flag holder and the race is safe, its own holder joins the attack, so games end instead of running down the clock. It plays Brain 5 even, but in Brain 8 vs Brain 8 games far fewer reach the turn limit (5v5 46.5% against 64.2%; 7v7 12.5% against 40.3%, 1,000 games each).
 - Its own table on the Opponent screen: four behaviours you switch on (1) or off (0), the numbers they use, and two **opening sliders** (moving first, moving second) from −1 (sit back) to +1 (attack). It ships pushing when it moves second (+1) and as Brain 5 when it moves first (0): in 7v7 that brings the first mover's share of decisive games from 34.7% to 43.7% without changing 5v5.
 - Two behaviours are there but **off**: "Safe approach" (don't end a turn where the enemy strikes first) and "Respect a warmed special" (step out of or brace against a warmed-up special). Switched on they made it lose to Brain 5.
@@ -36,6 +38,25 @@ Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). De
 - `test_brain8.js` (38 checks) in the checks and night checks.
 
 **Flags:** closed F47, F021-3 (F48 recorded). Opened F022-1 to F022-6. F41 stays open (next step F022-1).
+
+## v3.14.00 · Build 18 — Brief 025, no rule change: phone fit, Approved UI v5 (21 Nov 2026)
+Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 5, unchanged. UI: **v5** (Approved UI v5, phone only). Game version **v3.14.00** (YY: new screens).
+
+**What a player will notice (on a phone; desktop is unchanged)**
+- **More field.** With a unit tapped the field gets 402 px of a 665 px screen (was 293), and about 310 to 330 px under an attack, special or flag-pull preview (was about 125).
+- **No title bar in a match.** The scoreboard alone sits at the top. The menu button moves onto the field, top left; the hex-names button sits on the right, lower down.
+- **The unit bar keeps one height** whatever you tap, so the field never jumps. It reads "Tap a unit" when nothing is tapped. A previewed move's dangers and costs show as chips beside the name; the route (C9 → C10) shows on the right. Tap the token or name for the unit's card, or the handle on top for the key. The "Pull up for the key" tab on the field is gone.
+- **One compact sheet** for attack, special and flag pull. It replaces the unit bar while it's open: both full names, HP bars under them with the two hexes between, modifiers under the bars, the outcomes, then a bracket (or a line) showing which outcomes bring a set spear, a Mark or "Flag falls". A special's Strength reads "9 ×1.75". Tap a name in the sheet for that unit's card; closing it brings the preview back.
+- **Flag pull** uses that sheet (no more dice grid), with the red **Pull** button in the action panel like Attack.
+- **Warming up** shows "Fires next turn · no attack or brace" in the unit bar (two lines beside a long name, never cut off); the button reads "Warm up Arrow Storm". A charged special with no target says "Warm up Arrow Storm again" and "No target in range · fires next turn". Action buttons are 48 px tall and their labels never wrap; the Special button's state bar sits under its name.
+- **The menu and hex-names buttons hide** while a sheet or the key drawer is open, so nothing covers them. A preview scrolls the field so the attacker and every target sit above the sheet, even from the last rows.
+
+**Under the hood**
+- `index.html`, `app.js`: a phone-only layout under 900 px. The desktop layout (900 px and wider) is untouched: screenshots at 1280 × 800 are pixel-identical to Build 17's.
+- `ui.js`: `pullPreview()` (the pull sheet's numbers, read from the engine's pull) and `phoneSpecialStats()` ("9 ×1.75"). No engine change; every preset replays identically.
+- New check `test_phone.js` (headless browser at 393 × 665), run on GitHub beside `board_check.js`; new rows in `test_ui.js`.
+
+**Flags closed:** F017-1, F017-2 (accepted by the Editor, 20 Nov), F017-4, F025-2, F025-5 (this build). **Opened:** see `flags/025.md`.
 
 ## v3.13.00 · Build 17 — Brief 017, rule set v3.9: move and range preview, Approved UI v3 (20 Nov 2026)
 Rule set: **v3.9** (new, the new-game default): v3.8 plus switch `routeRule211` (Game Laws 2.11). Default brain: Brain 5, unchanged. UI: **v3** (Approved UI v3). Game version **v3.13.00** (YY: new screens and a routing rule).

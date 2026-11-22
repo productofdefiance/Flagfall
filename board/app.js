@@ -218,7 +218,7 @@
 
   function defaultSetup() {
     return { format: "std7", rulesetId: (D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id), first: "coin", seed: E.makeSeed(),
-      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: "brain5", name: "South", mix: "open" } } };
+      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: "brain8", name: "South", mix: "open" } } };
   }
 
   // ---------- Matches ----------
@@ -507,7 +507,7 @@
     else if (name === "first") s.first = val;
     else if (name.startsWith("player-")) {
       const t = name.slice(7), p = s.players[t];
-      p.type = val; if (val === "bot" && !App.brains[p.brainId]) p.brainId = "brain5";
+      p.type = val; if (val === "bot" && !App.brains[p.brainId]) p.brainId = "brain8";
     } else if (name === "keeper") { App.picks[App.lineupSide].keeper = val; renderLineup(); return; }
     else if (name.startsWith("mix-")) { s.players[name.slice(4)].mix = val; Store.local("setup", s); renderTeams(); return; }
     Store.local("setup", s);
@@ -517,8 +517,8 @@
     const s = App.setup;
     if (!s.seed) s.seed = E.makeSeed();
     for (const t of ["N", "S"]) if (!s.players[t].mix) s.players[t].mix = "open";
-    if (s.players.N.type === "bot" && !App.brains[s.players.N.brainId]) s.players.N.brainId = "brain5";
-    if (s.players.S.type === "bot" && !App.brains[s.players.S.brainId]) s.players.S.brainId = "brain5";
+    if (s.players.N.type === "bot" && !App.brains[s.players.N.brainId]) s.players.N.brainId = "brain8";
+    if (s.players.S.type === "bot" && !App.brains[s.players.S.brainId]) s.players.S.brainId = "brain8";
     show("teams");
   }
 
@@ -982,12 +982,28 @@
     if (!center && y > top + 70 && y < top + vis - 70) return;
     sc.scrollTo({ top: Math.max(0, y - vis / 2), behavior: center ? "auto" : "smooth" });
   }
-  /** Put a hex in the upper part of the field, above a sheet that covers the bottom. */
+  /** The hexes a preview is about besides the unit: its target, a special's other targets, the flag it pulls. */
+  function previewHexes() {
+    const st = App.st, ui = App.ui, sh = ui.sheet, out = [];
+    if (!sh) return out;
+    const t = sh.target && E.unitByUid(st, sh.target);
+    if ((sh.kind === "attack" || sh.kind === "special") && t) out.push(t.hex);
+    if (sh.kind === "special") { const o = selOptions(), p = o && o.special && o.special.targets.find((x) => x.target === sh.target); if (p) for (const hh of p.hits) { const x = E.unitByUid(st, hh.uid); if (x && x.hex) out.push(x.hex); } }
+    if (sh.kind === "pull" && ui.sel) out.push(fld().FLAG[E.foeOf(E.unitByUid(st, ui.sel).team)]);
+    return out;
+  }
+  /** Put the unit and everything its preview is about in the part of the field above the sheet (phone). The field
+      has scroll room below its last row while a sheet is open (fieldRoom), so a unit on the last rows can come up too. */
   function revealAbove(h) {
-    const sc = $("fieldscroll"), svg = $("board");
+    const sc = $("fieldscroll"), svg = $("board"), sh = $("sheet");
     if (!svg.clientHeight || window.innerWidth >= 900) return;
-    const y = pos(h)[1] * (svg.clientHeight / boardH());
-    sc.scrollTo({ top: Math.max(0, y - sc.clientHeight * 0.28), behavior: "smooth" });
+    fieldRoom();
+    const k = svg.clientHeight / boardH(), ys = [h, ...previewHexes()].map((x) => pos(x)[1] * k);
+    const lo = Math.min(...ys), hi = Math.max(...ys), m = R * k + 8;   // a hex and a little air
+    const vis = sc.clientHeight - (!sh.hidden && sh.parentNode === $("fieldwrap") ? sh.getBoundingClientRect().height : 0);
+    let top = hi - lo + 2 * m <= vis ? (lo + hi) / 2 - vis / 2 : lo - m;
+    top = Math.max(0, Math.min(top, sc.scrollHeight - sc.clientHeight));
+    sc.scrollTo({ top, behavior: "smooth" });
   }
   function updateEdges() {
     const st = App.st, sc = $("fieldscroll"), svg = $("board");
@@ -1050,7 +1066,11 @@
         <div class="tb-row">${dots("N")}${centre}${dots("S")}</div>
         ${active ? `<div class="underline" role="img" aria-label="${sideName(active)} to move" style="${active === "N" ? "left" : "right"}:0;background:${LIGHT[active]}"></div>` : ""}
       </div>`;
+    const mb = $("menubtn");   // Brief 025 §2: on a phone the same Options button sits on the field, top left
+    if (mb) { if (!mb.innerHTML) mb.innerHTML = ic("menu", 20); mb.setAttribute("aria-expanded", App.ui.menu ? "true" : "false"); }
   }
+  /** The Options button the player can see: on the field (phone) or in the title bar (desktop). */
+  const optionsButton = () => [$("menubtn"), $("optionsbtn")].find((b) => b && b.offsetWidth) || $("optionsbtn");
 
   // ---------- Options menu (UI v2, Brief 009) ----------
   const shortBrain = (b) => String((b && b.name) || "").replace(/\s*\(.*\)\s*$/, "");
@@ -1075,15 +1095,17 @@
       ${item("menu-match", "list", "Match log and record")}${item("menu-rules", "book", "Rules and unit data")}${item("menu-home", "home", "Home")}
       ${live ? `<div class="msep" role="separator"></div>${item("menu-surrender", "lowflag", `${sideName(st.toMove)} surrenders`, "danger")}` : ""}`;
     el.hidden = false; dim.hidden = false;
-    // Open over the Options button, so ✕ lands where Options was (phone: top 4, right 4; desktop: over the centred button).
-    const btn = $("optionsbtn"), r = btn && btn.getBoundingClientRect();
-    if (r && r.width) { el.style.top = Math.max(4, r.top - 4) + "px"; el.style.right = Math.max(4, window.innerWidth - r.right - 8) + "px"; }
+    // Open over the Options button, so ✕ lands near where Options was (phone: the field's top left, Brief 025; desktop:
+    // over the centred button in the title bar).
+    const btn = optionsButton(), r = btn && btn.getBoundingClientRect();
+    if (r && r.width && btn.id === "menubtn") { el.style.top = Math.max(4, r.top - 4) + "px"; el.style.left = Math.max(4, r.left - 4) + "px"; el.style.right = "auto"; }
+    else if (r && r.width) { el.style.left = ""; el.style.top = Math.max(4, r.top - 4) + "px"; el.style.right = Math.max(4, window.innerWidth - r.right - 8) + "px"; }
   }
   function openMenu() { App.ui.menu = true; renderTopbar(); renderMenu(); const f = $("menu").querySelector("[role=menuitem]"); if (f) f.focus(); }
   function closeMenu(refocus) {
     if (!App.ui.menu) return;
     App.ui.menu = false; renderMenu(); renderTopbar();
-    if (refocus !== false) { const b = $("optionsbtn"); if (b) b.focus(); }
+    if (refocus !== false) { const b = optionsButton(); if (b) b.focus(); }
   }
 
   // ---------- Drawing: unit bar ----------
@@ -1113,6 +1135,8 @@
   }
   function renderUnitbar() {
     const st = App.st, ui = App.ui, el = $("unitbar");
+    el.className = "";
+    if (st.phase !== "deploy" && !wide()) { renderUnitbarPhone(); return; }
     if (st.phase === "deploy") {
       const t = deployTeam(), mine = st.units.filter((u) => u.team === t);
       el.innerHTML = `<div class="bench" role="group" aria-label="Units to place">${mine.map((u) => {
@@ -1164,12 +1188,77 @@
       <button type="button" class="ub-info" data-act="info" aria-label="Unit information">${ic("info", 24)}</button>`;
   }
 
+  /** The phone's unit bar (Brief 025 §3, §5, §7): 63 px in every play state. Row 1: token, full name, (i), then the
+      route's chips (or a note) right-aligned toward the HP bar's end; hex and moves (or the previewed route) on the right.
+      Row 2: the HP bar across the left column; HP and Stamina on the right. Every value from the engine, as before. */
+  function renderUnitbarPhone() {
+    const st = App.st, ui = App.ui, el = $("unitbar");
+    el.className = "ub5";
+    const sel = ui.sel && E.unitByUid(st, ui.sel);
+    if (!sel || sel.hp <= 0) {
+      let msg;
+      if (st.phase === "over") msg = st.result.winner ? `${esc(st.names[st.result.winner])} wins · ${esc(say(st.result.how))}` : "Draw";
+      else if (isBot(st.toMove)) msg = `${ic("bot", 18)}<span>${esc(ui.botReason || "Thinking…")}</span>`;
+      else msg = `Tap a unit`;
+      el.innerHTML = `<div class="ub-empty">${msg}</div>`;
+      return;
+    }
+    const s = E.status(st, sel);
+    const mine = st.phase === "play" && sel.team === st.toMove;
+    const enemy = enemyTapped();
+    const now = mine ? s.stamNow : s.stamNext;
+    const o = selOptions(), rt = previewRoute();
+    const cost = rt ? rt.cost : 0;
+    const mv = movesLeft(st, sel);
+    const warm = !!(ui.sheet && ui.sheet.kind === "warm" && o && o.special && o.special.warmup);
+    const rewarm = warm && o.special.state === "Charged";   // charged, no target in range: it warms up again
+    // Chips in walking order, filling from the right; the Evade chip first in an Evade step.
+    const evChip = (n) => `<span class="uchip">${ic("evade", 12, "#fff", "", 2.4)}${n}</span>`;
+    const evHexes = () => Object.values(o.moves).reduce((m, x) => Math.max(m, x.steps), 0);
+    const chips = [];
+    if (o && o.evading) chips.push(evChip(evHexes()));
+    if (rt) for (const e of rt.events) chips.push(e.type === "spear" ? `<span class="uchip hurt">${ic("setspear", 12, "#fff", "", 2.4)}${fmt(e.amount)}</span>` : e.type === "mark" ? `<span class="uchip">${ic("mark", 12, "#fff", "", 2.4)}</span>` : `<span class="uchip">+${fmt(e.amount)}</span>`);
+    let note = "";
+    if (rewarm) note = "No target in range · fires next turn";
+    else if (warm) note = "Fires next turn · no attack or brace";
+    else if (!rt && o && !o.evading && !sel.done && !Object.keys(o.moves).length) note = "No movement available this turn";
+    const after = note ? `<span class="ub-note">${esc(note)}</span>` : `<span class="ub-chips">${chips.join("")}</span>`;
+    // While a note shows (warm-up, can't move), it takes all of row 1: no hex and moves (review of #47, fix 1).
+    let side;
+    if (note) side = null;
+    else if (rt) side = `<span class="rfrom">${sel.hex}</span>${ic("arrow", 13)}<span class="rto">${ui.ghost}</span>`;
+    else side = `${enemy ? `<span class="muted">Next turn</span>` : `<span role="img" aria-label="At ${sel.hex}" style="display:inline-flex;align-items:center;gap:4px">${ic("hex", 14, "var(--muted)")}${sel.hex}</span>`}
+        <span role="img" aria-label="Can move ${mv} hex${mv === 1 ? "" : "es"}">→ ${mv}</span>`;
+    const pct = s.maxHp ? Math.max(0, Math.min(100, (100 * s.hp) / s.maxHp)) : 0;
+    el.innerHTML = `<button type="button" class="ub-handle" data-act="key-open" aria-controls="fieldkey" aria-label="Show the key"><span></span></button>
+      <div class="ub-grid">
+        <div class="ub-r1${side === null ? " wide" : ""}"><button type="button" class="ub-id" data-act="info" aria-label="Unit information">${tokenInline(iconKey(st.rs, sel.card), sel.team, 24, sel.fk)}<span class="ub-name">${esc(UI.unitName(st, sel))}</span>${ic("info", 16, "var(--muted)")}</button>${after}</div>
+        ${side === null ? "" : `<div class="ub-side">${side}</div>`}
+        <div class="ub-hp" role="img" aria-label="HP ${fmt(s.hp)} of ${fmt(s.maxHp)}"><i style="width:${pct.toFixed(0)}%;background:${teamColor(sel.team)}"></i></div>
+        <div class="ub-r2"><span class="num">${fmt(s.hp)}/${fmt(s.maxHp)}</span>${stamSquares(sel, now, cost)}</div>
+      </div>`;
+    fitChips(el);
+    const nt = el.querySelector(".ub-note");   // a note never clips: two lines if one won't fit (review of #47, fix 1)
+    if (nt && nt.scrollWidth > nt.clientWidth + 0.5) nt.classList.add("two");
+  }
+  /** §3: chips never cover the name or the (i). If they would not fit, they stop 8 px short of the (i) and the rest
+      show as a last chip "+N". */
+  function fitChips(el) {
+    const box = el.querySelector(".ub-chips");
+    if (!box || !box.children.length || box.scrollWidth <= box.clientWidth + 0.5) return;
+    const all = [...box.children];
+    let hidden = 0;
+    const more = document.createElement("span"); more.className = "uchip"; box.appendChild(more);
+    while (hidden < all.length && box.scrollWidth > box.clientWidth + 0.5) { all[all.length - 1 - hidden].remove(); hidden++; more.textContent = "+" + hidden; }
+    App.ui.chipOverflow = (App.ui.chipOverflow || 0) + 1;
+  }
+
   // ---------- Drawing: action bar ----------
   const PICK = "Pick one of your own units";
   function renderActions() {
     const st = App.st, ui = App.ui, el = $("actions");
     // A greyed-out button stays tappable when it has a reason: the tap shows why (Brief 005). Reasons come from the engine.
-    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}${opt.flex ? ` style="flex:${opt.flex} 1 0"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span>${opt.bar ? `<i class="spbar ${opt.bar}"></i>` : ""}</button>`;
+    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}${opt.bar ? " hasbar" : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}${opt.flex ? ` style="flex:${opt.flex} 1 0"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span>${opt.bar ? `<i class="spbar ${opt.bar}"></i>` : ""}</button>`;
     if (st.phase === "deploy") {
       const t = deployTeam(), mine = st.units.filter((u) => u.team === t);
       const placed = mine.filter((u) => ui.placements[u.uid]).length;
@@ -1199,6 +1288,9 @@
     // Specials (Brief 011, 5b): warming up opens a line and Warm up (3 parts) / Cancel (1) in the UNIT row.
     if (sh && sh.kind === "warm" && o && o.special && o.special.warmup) {
       const u = E.unitByUid(st, ui.sel);
+      // Phone (Brief 025 §5): no line above the buttons (the note is in the unit bar); the button names the special.
+      // A charged special with no target warms up again: "Warm up <name> again" (review of #47, fix 4).
+      if (!wide()) { const again = o.special.state === "Charged"; el.innerHTML = go("warm-confirm", " gold", "special", `Warm up ${esc(o.special.name)}${again ? " again" : ""}`, o.special.warmupCost, u, "ink") + turnRow; fitWarm(el, again); return; }
       el.innerHTML = `<div class="warmline">${ic("special", 16, "var(--gold)")}<span>Warm up ${esc(o.special.name)}${o.special.state === "Charged" ? " again" : ""}: fire it next turn. No attack or brace this turn.</span></div>` +
         go("warm-confirm", " gold", "special", "Warm up", o.special.warmupCost, u, "ink") + turnRow;
       return;
@@ -1206,6 +1298,11 @@
     // Firing (section 7): the preview is open on a target; the button carries the special's name.
     if (sh && sh.kind === "special" && o && o.special && o.special.targets.some((x) => x.target === sh.target)) {
       el.innerHTML = go("special-confirm", " gold", "special", esc(o.special.name), st.rs.game.attackCost, E.unitByUid(st, ui.sel), "ink") + turnRow;
+      return;
+    }
+    // Phone (Brief 025 §6.6): the flag pull's sheet leaves its buttons to the panel, as an attack does.
+    if (sh && sh.kind === "pull" && o && o.pull && !wide()) {
+      el.innerHTML = go("pull-confirm", "", "flag", "Pull", st.rs.game.attackCost, E.unitByUid(st, ui.sel), "white") + turnRow;
       return;
     }
     const nAtt = o ? targetsFor(o, "attack").length : 0, nReach = o ? targetsFor(o, "reach").length : 0;
@@ -1221,6 +1318,11 @@
         ${hasReach ? b("arm-reach", "reach", "Reach", { dis: !nReach, why: W(why ? why.reach : pick), cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" }) : ""}
         ${specialButton(st, su, enemy ? null : o, why, pick, b, enemy)}
         ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: W(why ? why.brace : pick), cls: ss && ss.braced ? "braced" : "", dot: ss && ss.braced ? "blue" : ss && ss.bracedLast ? "ring" : "", aria: ss && ss.braced ? "Brace, braced" : ss && ss.bracedLast ? "Brace, braced last turn" : "" })}</div>${turnRow}`;
+  }
+  /** §5: "Warm up <name>" (or "Warm up <name> again") on one line; if too long, "Warm up" (or "Warm up again"). */
+  function fitWarm(el, again) {
+    const t = el.querySelector('[data-act="warm-confirm"] .go-1'), b = t && t.closest("button");
+    if (t && b && b.scrollWidth > b.clientWidth + 0.5) t.textContent = again ? "Warm up again" : "Warm up";
   }
   /** The Special button (Brief 011, 5a): the unit's special by name, in its state. Older rule sets keep the greyed-out
       "Special" button. Every reason comes from the engine (blockReasons). */
@@ -1326,6 +1428,89 @@
         ${faceSide(st, right, true)}</div>${extra ? `<div class="sp-extras">${extra}</div>` : ""}
       ${outcome}`;
   }
+  // ---------- The phone's sheet (Brief 025 §6, Approved UI v5) ----------
+  /* One layout for the attack preview, the special preview and the flag pull: a name strip with the handle dead
+     centre, the HP row with the hexes between the bars, the modifiers under the bars, the outcomes, then what a kill or
+     a fallen flag brings. Every number from the engine (ui.js reads it), exactly as the desktop sheet shows it. */
+  function nameBlock5(st, side, right) {
+    const nm = `<span class="nm">${esc(side.name)}</span>`;
+    if (side.flag) {
+      const tok = `<span class="ftoken">${ic("flag", 12, "#fff", side.team === "S" ? ' style="transform:scaleX(-1)"' : "", 2.2)}</span>`;
+      return `<div class="nb${right ? " right" : ""}" role="img" aria-label="${esc(side.name)}">${right ? nm + tok : tok + nm}</div>`;
+    }
+    const u = E.unitByUid(st, side.uid), tok = tokenInline(iconKey(st.rs, u.card), side.team, 22, u.fk), i = ic("info", 15, "var(--muted)");
+    return `<button type="button" class="nb${right ? " right" : ""}" data-act="card" data-uid="${side.uid}" aria-label="${esc(side.name)}: unit information">${right ? i + nm + tok : tok + nm + i}</button>`;
+  }
+  function hpSide5(side, right) {
+    const pct = side.maxHp ? Math.max(0, Math.min(100, (100 * side.hp) / side.maxHp)) : 0, col = side.flag ? "var(--flag)" : teamColor(side.team);
+    const num = `<span class="fo-hp"${side.flag ? ' style="color:var(--flag)"' : ""}>${fmt(side.hp)}/${fmt(side.maxHp)}</span>`;
+    const bar = `<div class="fo-bar"><i style="width:${pct.toFixed(0)}%;background:${col};${right ? "margin-left:auto" : ""}"></i></div>`;
+    return `<div class="hpside" role="img" aria-label="HP ${fmt(side.hp)} of ${fmt(side.maxHp)}">${right ? bar + num : num + bar}</div>`;
+  }
+  const statHtml5 = (s, right) => {
+    const icon = ic(s.key, 14, s.red ? "var(--attack)" : "var(--muted)");
+    let num = s.old !== undefined
+      ? `<span class="fo-old">${esc(s.old)}</span><span class="fo-new${s.tone === "hurt" ? " hurt" : ""}">${esc(s.val)}</span>`
+      : `<span class="fo-num${s.red ? " hurt" : ""}">${esc(s.val)}</span>`;
+    if (s.mult) num += `<span class="fo-mult">${esc(s.mult)}</span>`;
+    return `<span class="fo-stat" role="img" aria-label="${esc(s.label)} ${s.old !== undefined ? esc(s.old) + " now " : ""}${esc(s.val)}${s.mult ? " " + esc(s.mult) : ""}">${right ? num + icon : icon + num}</span>`;
+  };
+  /** Strip, HP row and modifier row. `pv` has attacker, target, from, to; `col` is the arrow's colour. */
+  function face5(st, pv, col, aStats) {
+    const left = pv.attacker.team === "N" ? pv.attacker : pv.target, right = left === pv.attacker ? pv.target : pv.attacker;
+    const pointsLeft = left !== pv.attacker, keyOpen = !!App.ui.keyOpen;
+    const stats = (side) => (side === pv.attacker && aStats ? aStats : side.stats);
+    const mid = `<span class="mid">${esc(pointsLeft ? pv.to : pv.from)}${ic("arrow", 12, col, pointsLeft ? ' style="transform:scaleX(-1)"' : "", 2.2)}${esc(pointsLeft ? pv.from : pv.to)}</span>`;
+    return `<div class="strip" data-act="key-toggle">${nameBlock5(st, left, false)}<button type="button" class="handle" data-act="key-toggle" aria-expanded="${keyOpen}" aria-controls="attackkey" aria-label="${keyOpen ? "Hide" : "Show"} the key"><span></span></button>${nameBlock5(st, right, true)}</div>
+      <div class="face">${hpSide5(left, false)}${mid}${hpSide5(right, true)}
+        <div class="mods left">${stats(left).map((x) => statHtml5(x, false)).join("")}</div><span></span><div class="mods right">${stats(right).map((x) => statHtml5(x, true)).join("")}</div></div>`;
+  }
+  function outcomes5(segs, n, aria) {
+    const cell = (sg, cls, style, html) => `<div class="${cls}" style="grid-column:span ${sg.slots};${style}">${html}</div>`;
+    const row = (rowCls, fn) => `<div class="ob-row ${rowCls}" style="grid-template-columns:repeat(${n}, minmax(0, 1fr))">${segs.map(fn).join("")}</div>`;
+    return `<div class="ob" role="img" aria-label="${esc(aria)}">
+      ${row("ob-p", (sg) => cell(sg, "", "", UI.pct1(sg.p)))}
+      ${row("ob-bar", (sg, i) => cell(sg, (i === 0 ? "first " : "") + (i === segs.length - 1 ? "last" : ""), `background:${sg.kills ? "var(--attack)" : `rgba(31,36,33,${sg.opacity.toFixed(3)})`}`, ""))}
+      ${row("ob-d", (sg) => cell(sg, sg.kills ? "kill" : "", "", `−${fmt(sg.dmg)}`))}</div>`;
+  }
+  /** §6.5: the results under the outcomes they apply to: a bracket over a range, or a line up to a single outcome. */
+  function results5(segs, n, pills) {
+    const ks = segs.map((sg, i) => (sg.kills ? i : -1)).filter((i) => i >= 0);
+    if (!ks.length || !pills) return "";
+    const slots = (a, b) => segs.slice(a, b).reduce((s2, sg) => s2 + sg.slots, 0);
+    const before = slots(0, ks[0]), span = slots(ks[0], ks[ks.length - 1] + 1), after = n - before - span;
+    const one = ks.length === 1 && before > 0;
+    return `<div class="res" style="grid-template-columns:repeat(${n}, minmax(0, 1fr))">${before ? `<div style="grid-column:span ${before}"></div>` : ""}<div class="span" style="grid-column:span ${span}"><div class="${one ? "one" : "brk"}"></div><div class="pills">${pills}</div></div>${after ? `<div style="grid-column:span ${after}"></div>` : ""}</div>`;
+  }
+  function keyRows5(head, rows, special) {
+    if (!App.ui.keyOpen) return "";
+    return `<div class="key" id="attackkey"><div class="key-h">${head}</div>${rows.map((r) => `<div class="key-row">${ic(r.icon, 18, special && r.special ? "var(--gold)" : r.red || r.icon === "parry" ? "var(--attack)" : "var(--ink)")}<div>
+        <div class="key-1${r.red ? " hurt" : ""}">${esc(r.name)}</div><div class="key-2">${esc(r.means)}</div><div class="key-3">${esc(r.why)}</div></div></div>`).join("") || `<div class="key-3">Nothing changes the numbers in this attack.</div>`}</div>`;
+  }
+  function renderPreviewPhone(st, u, t, a) {
+    const pv = UI.attackPreview(st, u, t, a), segs = pv.segments, n = a.cases.length;
+    const kc = E.killConsequences(st, u.uid, t.uid);
+    const pills = kc && kc.length ? kc.map((e) => e.type === "spear" ? `<span class="kpill hurt">${ic("setspear", 11, "#fff", "", 2.4)}${fmt(e.amount)}</span>` : `<span class="kpill">${ic("mark", 11, "#fff", "", 2.4)}</span>`).join("") : "";
+    return face5(st, pv, "var(--attack)") + outcomes5(segs, n, `Outcomes: ${segs.map((sg) => `${UI.pct1(sg.p)} −${fmt(sg.dmg)}${sg.kills ? (pv.pooled ? " brings the flag down" : " kills") : ""}`).join(", ")}`) +
+      results5(segs, n, pills) + keyRows5("IN THIS ATTACK", pv.rows);
+  }
+  function renderSpecialPhone(st, u, t, p) {
+    const pv = UI.specialPreview(st, u, t, p), sg = pv.segments[0];
+    const extra = pv.special.extra.map((x) => { const pct = x.maxHp ? Math.max(0, Math.min(100, (100 * x.hp) / x.maxHp)) : 0, xu = E.unitByUid(st, x.uid);
+      return `<div class="sp-extra">${tokenInline(iconKey(st.rs, xu.card), x.team, 24, xu.fk)}<span class="fo-name">${esc(x.name)}</span>
+        <div class="fo-bar" role="img" aria-label="HP ${fmt(x.hp)} of ${fmt(x.maxHp)}"><i style="width:${pct.toFixed(0)}%;background:${teamColor(x.team)}"></i></div><span class="fo-hp">${fmt(x.hp)}/${fmt(x.maxHp)}</span>
+        <b class="${x.kills ? "kill" : ""}">−${fmt(x.dmg)}</b></div>`; }).join("");
+    const outcome = `<div class="ob" role="img" aria-label="Exactly −${fmt(sg.dmg)}${sg.kills ? " kills" : ""}, no dice">
+      <div class="ob-row ob-p" style="grid-template-columns:1fr"><div>100% · no dice</div></div>
+      <div class="ob-row ob-bar" style="grid-template-columns:1fr"><div class="first last" style="background:${sg.kills ? "var(--attack)" : "var(--ink)"}"></div></div>
+      <div class="ob-row ob-d" style="grid-template-columns:1fr"><div class="${sg.kills ? "kill" : ""}">−${fmt(sg.dmg)}</div></div></div>`;
+    return face5(st, pv, "var(--gold)", UI.phoneSpecialStats(pv)) + (extra ? `<div class="sp-extras">${extra}</div>` : "") + outcome + keyRows5("IN THIS SPECIAL", pv.rows, true);
+  }
+  function renderPullPhone(st, u, pull) {
+    const pv = UI.pullPreview(st, u, pull), segs = pv.segments, n = pull.cases.length;
+    const pills = `<span class="kpill hurt">${ic("flag", 11, "#fff", "", 2.4)}Flag falls</span>`;
+    return face5(st, pv, "var(--attack)") + outcomes5(segs, n, `Pull outcomes: ${segs.map((sg) => `${UI.pct1(sg.p)} −${fmt(sg.dmg)}${sg.kills ? " brings the flag down" : ""}`).join(", ")}`) + results5(segs, n, pills);
+  }
   function chip(label, color, dot) { return `<span class="chip" style="color:${color};border-color:${color}"><i style="${dot === "hollow" ? `border:2px solid ${color}` : `background:${color}`}"></i>${esc(label)}</span>`; }
   /** The full unit card (in a match, or on the Lineup screen when `lineup` is given). Text from ui.js, numbers from the engine or the card. */
   function unitCardHtml(rs, code, opt) {
@@ -1371,23 +1556,25 @@
     const sorted = rows.slice().sort((a, b) => KEY_ORDER.indexOf(a.kind) - KEY_ORDER.indexOf(b.kind));
     return `<div class="key" id="fieldkey"><div class="key-h">ON THE FIELD</div>${sorted.map((r) => `<div class="key-row mk">${keySwatch(r.kind)}<div><div class="key-1">${esc(KEY_NAMES[r.kind] || r.kind)}</div><div class="key-2">${esc(r.line)}</div></div></div>`).join("")}</div>`;
   }
-  /** The pull-up tab for the field key (phone): shown when something on the field has a key row and no sheet is open. */
-  function renderKeyTab(sh) {
-    const t = $("keytab"); if (!t) return;
-    const rows = App.ui.keyRows || [], show = !wide() && !sh && !App.ui.cover && App.st.phase === "play" && rows.length > 0 && !!(App.ui.sel || rows.some((r) => r.kind === "hatch"));
-    t.hidden = !show;
-    if (!show) return;
-    let seen = 2; try { seen = +Store.local("fieldKeySeen") || 0; } catch (e) { seen = 2; }
-    t.innerHTML = `<span class="kt-bar"></span><span>${seen < 2 ? "Pull up for the key" : "Key"}</span>`;
+  function renderSheet() { renderSheetBody(); fieldRoom(); }
+  /** Phone (review of #47, fixes 2 and 5): while a sheet or the key drawer is over the field, the field buttons hide
+      (they are never covered) and the field gets scroll room below its last row as tall as the sheet, so every unit
+      in a preview can scroll above it. Nothing covers the top of the field, so it needs no room there. */
+  function fieldRoom() {
+    const el = $("sheet"), sc = $("fieldscroll");
+    const open = !wide() && !el.hidden && el.parentNode === $("fieldwrap");
+    $("view-play").classList.toggle("sheet-open", open);
+    sc.style.paddingBottom = open ? Math.ceil(el.getBoundingClientRect().height) + "px" : "";
   }
-  function renderSheet() {
+  function renderSheetBody() {
     const st = App.st, ui = App.ui, el = $("sheet"), sc = $("scrim");
     let sh = ui.sheet;
     placeSheet();
     el.className = "";
     // Desktop: while a move is previewed or an enemy is tapped, the key sits in the right-hand column (section 13).
     if (!sh && wide() && st.phase === "play" && (previewRoute() || enemyTapped()) && (ui.keyRows || []).length) sh = { kind: "key", auto: true };
-    renderKeyTab(sh);
+    const phone = !wide();
+    $("view-play").classList.toggle("sheet-up", !!(phone && sh && !App.ui.cover && ["attack", "special", "pull"].includes(sh.kind)));   // §6: the sheet takes the unit bar's place
     if (!sh || App.ui.cover) { el.hidden = true; sc.hidden = true; return; }
     if (sh.kind === "key") {
       el.hidden = false; sc.hidden = true; el.className = "preview keysheet";
@@ -1403,14 +1590,17 @@
       const a = o.attacks.find((x) => x.target === sh.target);
       if (!a) { ui.sheet = null; el.hidden = true; sc.hidden = true; return; }
       const t = E.unitByUid(st, a.target);
-      el.className = "preview"; sc.hidden = true;   // the field stays live under the preview: tap another red ring to switch target
-      el.innerHTML = renderPreview(st, u, t, a);
+      el.className = phone ? "preview v5" : "preview"; sc.hidden = true;   // the field stays live under the preview: tap another red ring to switch target
+      el.innerHTML = phone ? renderPreviewPhone(st, u, t, a) : renderPreview(st, u, t, a);
     } else if (sh.kind === "special" && o && o.special) {
       const p = o.special.targets.find((x) => x.target === sh.target);
       if (!p) { ui.sheet = null; el.hidden = true; sc.hidden = true; return; }
-      el.className = "preview"; sc.hidden = true;
-      el.innerHTML = renderSpecialPreview(st, u, E.unitByUid(st, p.target), p);
+      el.className = phone ? "preview v5" : "preview"; sc.hidden = true;
+      el.innerHTML = phone ? renderSpecialPhone(st, u, E.unitByUid(st, p.target), p) : renderSpecialPreview(st, u, E.unitByUid(st, p.target), p);
     } else if (sh.kind === "warm") { el.hidden = true; sc.hidden = true;
+    } else if (sh.kind === "pull" && o && o.pull && phone) {
+      el.className = "preview v5"; sc.hidden = true;
+      el.innerHTML = renderPullPhone(st, u, o.pull);
     } else if (sh.kind === "pull" && o && o.pull) {
       const left = g.poleHP - st.pole[E.foeOf(u.team)];
       el.innerHTML = `${grab}<div style="font:700 20px/1.1 var(--display);letter-spacing:.02em">${esc(u.id)} pulls the ${sideName(E.foeOf(u.team))} flag <span class="muted" style="font:500 13px/1 var(--body)">flag HP ${left}</span></div>
@@ -1711,7 +1901,10 @@
         if (!ui.confirmEnd) { ui.confirmEnd = true; renderActions(); break; }
         act({ type: "end" }); break;
       case "info": if (ui.sel) { ui.sheet = { kind: "info", uid: ui.sel }; render(); } break;
-      case "sheet-close": ui.sheet = null; ui.armed = null; ui.ghost = null; render(); break;
+      case "sheet-close":
+        if (ui.sheet && ui.sheet.kind === "info" && ui.sheet.back) { ui.sheet = ui.sheet.back; render(); break; }   // back to the preview it was opened from
+        ui.sheet = null; ui.armed = null; ui.ghost = null; render(); break;
+      case "card": if (a && el && el.dataset.uid) { ui.sheet = { kind: "info", uid: el.dataset.uid, back: ui.sheet }; render(); } break;   // Brief 025 §6.1: a name in the sheet opens that unit's card
       // Options menu (Brief 009)
       case "options": if (ui.menu) closeMenu(); else openMenu(); break;
       case "menu-close": closeMenu(); break;
@@ -1723,7 +1916,7 @@
         if (st.phase === "play" && !isBot(st.toMove) && (await confirmBox(`${sideName(st.toMove)} surrenders?`, "The match ends and is saved.", "Surrender", "danger"))) act({ type: "surrender", team: st.toMove });
         break;
       }
-      case "key-open": ui.sheet = { kind: "key" }; try { Store.local("fieldKeySeen", (+Store.local("fieldKeySeen") || 0) + 1); } catch (e) { /* no storage */ } render(); break;
+      case "key-open": ui.sheet = { kind: "key" }; render(); break;   // Brief 025: from the unit bar's handle
       case "key-close": ui.sheet = null; render(); break;
       case "key-toggle": if (!App.ui.keySwiped) { ui.keyOpen = !ui.keyOpen; renderSheet(); } App.ui.keySwiped = false; break;
       // Lineup unit card (Brief 009)
@@ -2063,7 +2256,7 @@
     $("lscrim").addEventListener("click", () => { App.lineupCard = null; renderLineupCard(); });
     // The attack preview's grab handle: drag up opens the key, drag down closes it; a tap toggles it (Brief 009 §3a).
     let keyDrag = null;
-    document.addEventListener("pointerdown", (e) => { const h = e.target.closest && e.target.closest("#sheet .handle"); keyDrag = h ? { y: e.clientY } : null; });
+    document.addEventListener("pointerdown", (e) => { const h = e.target.closest && !e.target.closest("#sheet .nb") && e.target.closest("#sheet .handle, #sheet .strip"); keyDrag = h ? { y: e.clientY } : null; });
     document.addEventListener("pointerup", (e) => {
       if (!keyDrag) return;
       const dy = e.clientY - keyDrag.y; keyDrag = null;
@@ -2072,7 +2265,7 @@
       const open = dy < 0;
       if (App.ui.keyOpen !== open) { App.ui.keyOpen = open; renderSheet(); }
     });
-    window.addEventListener("resize", () => { if (App.view === "play" && App.st) renderSheet(); });
+    window.addEventListener("resize", () => { if (App.view === "play" && App.st) { renderUnitbar(); renderActions(); renderSheet(); } });   // phone ↔ desktop (Brief 025)
     window.addEventListener("beforeunload", (e) => { if (App.dirty || App.brainDirty) { e.preventDefault(); e.returnValue = ""; } });
   }
 

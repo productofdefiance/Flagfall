@@ -40,6 +40,13 @@ ok(B8.approach.tempoFirst === 0 && B8.approach.tempoSecond === 1, "opening ships
 for (const k of ["safe", "respect"]) ok(B8.approach[k] === 0, `behaviour ${k} ships off (brief 022 screen: it cost wins against Brain 5)`);
 const B8A = variant({ safe: 1, respect: 1 });   // the positions for A1 and A2 switch them on
 
+// ---- The default opponent (the Editor, 21 Nov, F022-5): a new match's computer side plays Brain 8 as shipped ----
+{ const app = require("fs").readFileSync(require("path").join(__dirname, "..", "app.js"), "utf8");
+  const m = /S:\s*\{\s*type:\s*"bot",\s*brainId:\s*"([\w-]+)"/.exec(app);   // the same reading the lab's release run makes (sims/lab/plan.js)
+  ok(m && m[1] === "brain8", `a new match's computer opponent is Brain 8 (found ${m && m[1]})`);
+  ok(!/brainId = "brain5"/.test(app), "a missing saved brain falls back to Brain 8, not Brain 5");
+}
+
 // ---- 6. All four off = Brain 5 (also checked over every preset by sims/brainhash.js; see the Report) ----
 { const off = variant(OFF); let same = true, acts = 0;
   for (const size of [5, 7]) for (let g = 0; g < 2; g++) {

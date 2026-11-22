@@ -218,6 +218,10 @@ jobs:
         env:
           NODE_PATH: /tmp/pw/node_modules
         run: node sims/lab/board_check.js 10
+      - name: test_phone.js (Brief 025 - the play screen at 393 x 665)
+        env:
+          NODE_PATH: /tmp/pw/node_modules
+        run: node board/tests/test_phone.js
 
   compare:
     name: build number and replay hashes

@@ -238,7 +238,7 @@ All six positions pass (`board/tests/test_brain8.js`, 38 checks, on v3.8 and aga
 - `reach_contact_turn` instead of `first_contact_turn` (F022-3). Brain 8's settings travel in watch links (`n=brain8:tempoSecond=1`), negative values included (`test_watch.js`).
 
 ### Known gaps
-- **Measured on v3.8, not v3.9.** Brief 017 (routes, rule set v3.9) merged while the runs were playing. Brain 8 passes all its checks and plays legally on v3.9, but its numbers haven't been re-measured there. The next release run (v3.14.00, Brain 5 mirrors) will show v3.9's baseline.
+- **Measured on v3.8, not v3.9.** Brief 017 (routes, rule set v3.9) merged while the runs were playing. Brain 8 passes all its checks and plays legally on v3.9, but its numbers haven't been re-measured there. The next release run (v3.15.00, Brain 5 mirrors) will show v3.9's baseline.
 - The head-to-head against Brain 5 (confirm table) was played at tempo 0 and 0, before the sweep picked tempoSecond +1. With +1 Brain 8 only changes its first turn when moving second; I didn't re-run the head-to-head at the shipped setting.
 - The "no warm-up on the first turn" F39 arm wasn't played (F022-2).
 - The 10 "first mover's archer dies first" traces are 7v7, not 5v5: on the new 5v5 field it happened in only 6 of 40 games, all trades.
