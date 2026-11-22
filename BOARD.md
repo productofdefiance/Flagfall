@@ -1,12 +1,12 @@
-STATUS · updated 21 Nov 2026, 8:47 pm ET
+STATUS · updated 21 Nov 2026, 8:55 pm ET
 
 VERSION
   On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5
-  Building: 022 → YY
+  Building: 022 → v3.15.00
 
 RESULTS (last 24 hours)
   Nightly checks: pass (21 Nov, 11:05 am ET)
-  Queue: 27 jobs waiting, oldest 0 min · lab using 1 of 20
+  Queue: 14 jobs waiting, oldest 8 min · lab using 5 of 20
   nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
 FLAGS (open, newest first)
@@ -14,7 +14,6 @@ FLAGS (open, newest first)
     FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…
   ! FD49-2 · ASK · 21 Nov · Brief 012 names its preset "v3.8", but v3.8 is already on main (fields, brief 014). The…
     F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…
-  ! F022-5 · DECIDE · 21 Nov · Brain 8 as shipped (B4 only) plays Brain 5 even at 1,000 games (5v5 469 won, 462 lost…
   ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…
   ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…
     F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…
@@ -22,11 +21,12 @@ FLAGS (open, newest first)
     F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…
   ! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…
   ! F024-3 · ASK · 20 Nov · The status board starts on every pull request event and every finished checks…
-  +13 older in FLAGS.md
+  ! F024-2 · ASK · 20 Nov · Every results pull request runs the full checks twice: once started by the lab's delivery…
+  +12 older in FLAGS.md
 
 BUILDS
   Building
-    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed
+    022 Safe approach · PR #41 · needs sync · no checks yet · not reviewed
   Ready to start
     018 Turn cue zoom
   Waiting
