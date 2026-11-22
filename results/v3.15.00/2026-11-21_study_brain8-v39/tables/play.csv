@@ -1,0 +1,5 @@
+matchup,games,braces,braces_no_threat,attacks,holder_attacks,moves,safety_stops,refused,bot_errors
+b8-v-b5-5v5,1000,4009,495,15550,2901,41663,0,0,0
+b8-v-b5-light-5v5,1000,4631,1578,11358,2580,33130,0,0,0
+b8-v-b5-7v7,1000,5965,510,23102,3441,59371,0,0,0
+b8-v-b5-light-7v7,1000,5192,2048,17591,2907,46919,0,0,0

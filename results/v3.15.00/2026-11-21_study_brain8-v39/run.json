@@ -1,0 +1,79 @@
+{
+ "id": "2026-11-21_study_brain8-v39",
+ "kind": "study",
+ "version": "v3.15.00",
+ "build": 20,
+ "commit": "d36fedcfabe190acf8affe98981b6ccff5d75fa3",
+ "brief": "022",
+ "question": "Re-measure on v3.9 (routes, brief 017): Brain 8 as shipped (B4 on, A1 and A2 off, tempoFirst 0, tempoSecond +1) against Brain 5, 1,000 games per format, balanced and all-Light; sides and move order swapped evenly (the Editor, 21 Nov).",
+ "tags": [
+  "brain8",
+  "study",
+  "v3.9",
+  "head-to-head"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-22T04:56:36.000Z",
+ "finished": "2026-11-22T06:21:51.611Z",
+ "games": 4000,
+ "seed_from": "tests/rng.js lab:brain8-v39:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "b8-v-b5-5v5",
+    "a": "brain8",
+    "b": "brain5",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b8-v-b5-light-5v5",
+    "a": "brain8",
+    "b": "brain5",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "light",
+    "games": 1000,
+    "seed_as": "light-5v5"
+   },
+   {
+    "name": "b8-v-b5-7v7",
+    "a": "brain8",
+    "b": "brain5",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b8-v-b5-light-7v7",
+    "a": "brain8",
+    "b": "brain5",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "light",
+    "games": 1000,
+    "seed_as": "light-7v7"
+   }
+  ],
+  "measures": [
+   "play",
+   "specials",
+   "specialsafety",
+   "firstloss",
+   "brain8",
+   "routes"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "b8-v-b5-5v5: brain8 took 50.6% of games against brain5 (decisive 263–206, tiebreak 204–248, draws 79); b8-v-b5-light-5v5: brain8 took 46.9% of games against brain5 (decisive 372–189, tiebreak 85–330, draws 24); b8-v-b5-7v7: brain8 took 46.3% of games against brain5 (decisive 384–316, tiebreak 71–214, draws 15); b8-v-b5-light-7v7: brain8 took 47.3% of games against brain5 (decisive 420–350, tiebreak 45–169, draws 16)."
+}

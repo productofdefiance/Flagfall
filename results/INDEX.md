@@ -2,6 +2,8 @@
 
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
+- 2026-11-21 · study · v3.15.00 · brief 022 · [2026-11-21_study_command-storm-v39](v3.15.00/2026-11-21_study_command-storm-v39/SUMMARY.md): 12 matchups, 12000 games (per-matchup numbers in tables/outcomes.csv). Mirrors ended on the turn limit in 23.2% of games.
+- 2026-11-21 · study · v3.15.00 · brief 022 · [2026-11-21_study_brain8-v39](v3.15.00/2026-11-21_study_brain8-v39/SUMMARY.md): b8-v-b5-5v5: brain8 took 50.6% of games against brain5 (decisive 263–206, tiebreak 204–248, draws 79); b8-v-b5-light-5v5: brain8 took 46.9% of games against brain5 (decisive 372–189, tiebreak 85–330, draws 24); b8-v-b5-7v7: brain8 took 46.3% of games against brain5 (decisive 384–316, tiebreak 71–214, draws 15); b8-v-b5-light-7v7: brain8 took 47.3% of games against brain5 (decisive 420–350, tiebreak 45–169, draws 16).
 - 2026-11-21 · nightly · v3.14.00 · [2026-11-21_nightly_health](v3.14.00/2026-11-21_nightly_health/SUMMARY.md): passed: all 4 night checks
 - 2026-11-20 · release · v3.14.00 · [2026-11-20_release_release-v3-14-00](v3.14.00/2026-11-20_release_release-v3-14-00/SUMMARY.md): 5v5: mirror, 65.3% ended on the turn limit, A/B 466–451; 7v7: mirror, 43.3% ended on the turn limit, A/B 493–486.
 - 2026-11-20 · study · v3.13.00 · [2026-11-20_study_move-order-command-storm](v3.13.00/2026-11-20_study_move-order-command-storm/SUMMARY.md): 10 matchups, 10000 games (per-matchup numbers in tables/outcomes.csv). Mirrors ended on the turn limit in 50.2% of games.
