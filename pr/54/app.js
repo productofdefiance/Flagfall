@@ -1142,6 +1142,12 @@
     const r = $("fieldscroll").getBoundingClientRect();
     return App.ui.rot ? [r.right - x, r.bottom - y] : [x - r.left, y - r.top];
   }
+  /** Once a gesture is a pan or a pinch, the field area holds its fingers: a redraw replaces the hexes under them, and
+      a finger whose element is gone would stop reporting (review of #54: a pinch that started on your own unit did nothing). */
+  function holdPointers() {
+    const sc = $("fieldscroll");
+    for (const id of GS.pts.keys()) { try { sc.setPointerCapture(id); } catch (err) { /* finger already lifted */ } }
+  }
   function gDown(e) {
     if (App.view !== "play" || !App.st || (e.pointerType === "mouse" && e.button !== 0)) return;
     GS.pts.set(e.pointerId, local(e.clientX, e.clientY));
@@ -1156,14 +1162,14 @@
       const [a, b] = [...GS.pts.values()];
       const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
       Object.assign(GS, { mode: "pinch", d0: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, k0: curK(), bp: boardAt(m[0], m[1]) });
-      blockTaps();
+      blockTaps(); holdPointers();
     }
   }
   function gMove(e) {
     if (!GS.pts.has(e.pointerId)) return;
     const p = local(e.clientX, e.clientY); GS.pts.set(e.pointerId, p);
     const sc = $("fieldscroll");
-    if (GS.mode === "tap" && !App.ui.drag && Math.hypot(p[0] - GS.sx, p[1] - GS.sy) > 8) { GS.mode = "pan"; blockTaps(); }
+    if (GS.mode === "tap" && !App.ui.drag && Math.hypot(p[0] - GS.sx, p[1] - GS.sy) > 8) { GS.mode = "pan"; blockTaps(); holdPointers(); }
     if (GS.mode === "pan") {
       e.preventDefault();
       sc.scrollLeft = GS.sl - (p[0] - GS.sx); sc.scrollTop = GS.stp - (p[1] - GS.sy);
