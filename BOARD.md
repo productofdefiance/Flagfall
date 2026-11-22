@@ -1,12 +1,12 @@
 STATUS · updated 21 Nov 2026, 8:47 pm ET
 
 VERSION
-  On main: v3.14.00 · Build 18 · Rules v3.9 · Brain 5
-  Building: 022 → YY · 025 → v3.14.01
+  On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5
+  Building: 022 → YY
 
 RESULTS (last 24 hours)
   Nightly checks: pass (21 Nov, 11:05 am ET)
-  Queue: clear
+  Queue: 2 jobs waiting, oldest 0 min · lab using 1 of 20
   nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
 FLAGS (open, newest first)
@@ -27,7 +27,6 @@ FLAGS (open, newest first)
 BUILDS
   Building
     022 Safe approach · PR #41 · needs sync · checks pass · not reviewed
-    025 Phone fit · PR #50 · Ready · checks pass · reviewed: merge
   Ready to start
     018 Turn cue zoom
   Waiting
@@ -35,7 +34,7 @@ BUILDS
     020 Victory values ← 022
     026 Specials flow ← 018
   Merged (last 3)
-    025 Phone fit · v3.14.00 · 20 Nov
+    025 Phone fit · v3.14.01 · 21 Nov
     017 Move preview · v3.13.00 · 20 Nov
     024 Lab capacity · 20 Nov
 
