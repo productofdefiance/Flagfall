@@ -1,0 +1,49 @@
+{
+ "id": "2026-11-20_experiment_lab-capacity-check",
+ "kind": "experiment",
+ "version": "v3.12.00",
+ "build": 16,
+ "commit": "3b5427ee21541b26655bc2d6fc8bcbc0af0606b1",
+ "brief": "024",
+ "question": "Does a lab run on a pull request choose its share of machines, say why in one line, and write its queue log line (Brief 024)?",
+ "tags": [
+  "lab",
+  "capacity",
+  "v3.8"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T20:31:08.000Z",
+ "finished": "2026-11-20T20:32:55.331Z",
+ "games": 20,
+ "seed_from": "tests/rng.js lab:lab-capacity-check:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "mirror-5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 10
+   },
+   {
+    "name": "mirror-7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 10
+   }
+  ],
+  "measures": []
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "mirror-5v5: mirror, 40.0% ended on the turn limit, A/B 3–5; mirror-7v7: mirror, 20.0% ended on the turn limit, A/B 5–5."
+}

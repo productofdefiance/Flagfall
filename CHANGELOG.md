@@ -6,6 +6,12 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.14.01 | v3.9 | Brain 5 | v5 | 19 |
+| v3.14.00 | v3.9 | Brain 5 | v5 | 18 |
+| v3.13.00 | v3.9 | Brain 5 | v3 | 17 |
+| v3.12.00 | v3.8 | Brain 5 | v2 | 16 |
+| v3.11.00 | v3.7 | Brain 5 | v2 | 15 |
+| v3.10.00 | v3.7 | Brain 5 | v2 | 14 |
 | v3.09.01 | v3.6 | Brain 5 | v2 | 13 |
 | v3.09.00 | v3.6 | Brain 5 | v2 | 12 |
 | v3.08.00 | v3.5 | Brain 5 | v2 | 11 |
@@ -15,6 +21,174 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.14.01 · Build 19 — Brief 025 follow-up, no rule change: a special's Strength never struck (21 Nov 2026)
+Rule set: none changed. Default brain: Brain 5. UI: v5. Game version **v3.14.01** (ZZ: a screen fix).
+
+**What a player will notice (phone)**
+- A special's preview shows Strength × multiplier with nothing struck through, even when Reach or Half Strength changed the Strength first: Javelin from 2 hexes reads `7 ×2` (was `8` struck, `7 ×2`). The numbers add up to the damage shown; the key still says why the Strength changed.
+
+**Under the hood:** `ui.js` `phoneSpecialStats()`; a new `test_ui.js` check (fails on Build 18). Desktop unchanged.
+
+**Flags closed:** F025-1, F025-3, F025-4 (the Editor, 21 Nov).
+
+## v3.14.00 · Build 18 — Brief 025, no rule change: phone fit, Approved UI v5 (21 Nov 2026)
+Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 5, unchanged. UI: **v5** (Approved UI v5, phone only). Game version **v3.14.00** (YY: new screens).
+
+**What a player will notice (on a phone; desktop is unchanged)**
+- **More field.** With a unit tapped the field gets 402 px of a 665 px screen (was 293), and about 310 to 330 px under an attack, special or flag-pull preview (was about 125).
+- **No title bar in a match.** The scoreboard alone sits at the top. The menu button moves onto the field, top left; the hex-names button sits on the right, lower down.
+- **The unit bar keeps one height** whatever you tap, so the field never jumps. It reads "Tap a unit" when nothing is tapped. A previewed move's dangers and costs show as chips beside the name; the route (C9 → C10) shows on the right. Tap the token or name for the unit's card, or the handle on top for the key. The "Pull up for the key" tab on the field is gone.
+- **One compact sheet** for attack, special and flag pull. It replaces the unit bar while it's open: both full names, HP bars under them with the two hexes between, modifiers under the bars, the outcomes, then a bracket (or a line) showing which outcomes bring a set spear, a Mark or "Flag falls". A special's Strength reads "9 ×1.75". Tap a name in the sheet for that unit's card; closing it brings the preview back.
+- **Flag pull** uses that sheet (no more dice grid), with the red **Pull** button in the action panel like Attack.
+- **Warming up** shows "Fires next turn · no attack or brace" in the unit bar (two lines beside a long name, never cut off); the button reads "Warm up Arrow Storm". A charged special with no target says "Warm up Arrow Storm again" and "No target in range · fires next turn". Action buttons are 48 px tall and their labels never wrap; the Special button's state bar sits under its name.
+- **The menu and hex-names buttons hide** while a sheet or the key drawer is open, so nothing covers them. A preview scrolls the field so the attacker and every target sit above the sheet, even from the last rows.
+
+**Under the hood**
+- `index.html`, `app.js`: a phone-only layout under 900 px. The desktop layout (900 px and wider) is untouched: screenshots at 1280 × 800 are pixel-identical to Build 17's.
+- `ui.js`: `pullPreview()` (the pull sheet's numbers, read from the engine's pull) and `phoneSpecialStats()` ("9 ×1.75"). No engine change; every preset replays identically.
+- New check `test_phone.js` (headless browser at 393 × 665), run on GitHub beside `board_check.js`; new rows in `test_ui.js`.
+
+**Flags closed:** F017-1, F017-2 (accepted by the Editor, 20 Nov), F017-4, F025-2, F025-5 (this build). **Opened:** see `flags/025.md`.
+
+## v3.13.00 · Build 17 — Brief 017, rule set v3.9: move and range preview, Approved UI v3 (20 Nov 2026)
+Rule set: **v3.9** (new, the new-game default): v3.8 plus switch `routeRule211` (Game Laws 2.11). Default brain: Brain 5, unchanged. UI: **v3** (Approved UI v3). Game version **v3.13.00** (YY: new screens and a routing rule).
+
+**What a player will notice**
+- **Tap a move hex once to see the move before it happens:** the route the unit will walk (a blue line with an arrow), a faded copy of the unit where it will end, and badges for anything on the way: a Mark that stops it, a set spear that hits it, the Stamina tackle costs. Tap again, or press the new blue **Move** button, to go. Tapping another hex previews that one; tapping elsewhere cancels.
+- **v3.9 moves walk a route.** The engine picks the cheapest route; if that route enters an enemy Mark before your hex, the move stops there (the preview shows it in grey, dashed, beyond the stop). It never takes a longer way round to avoid danger: take shorter steps for that. Set spear can now hit a unit on the way, not only at the end.
+- **Range outlines:** tapping a Ranged or Anti-Cavalry unit outlines what it can hit from where it stands, and from the end hex while you preview a move. A Heavy Ranged that would have no Stamina left gets a "no attack after" badge instead. A special that is ready to fire shows its own range in a gold double line.
+- **Tap an enemy** on your turn: its moves on its next turn (orange), its range, its special if it can fire next turn (plum), and four orange marks round each of your units it can hit now.
+- **Attack preview:** the attacker's Evade hexes show on the field, and pills under the killing outcomes say what taking the hex brings (set spear damage, a Mark).
+- **New look:** neutral field zones with pitch lines (deployment arc, goal circle, halfway line), the flag's HP in a pill on the flag hex's outer edge, a charcoal braced ring, red hatching beside every loaded braced Heavy Anti-Cavalry, gold/plum warm-up rings, numbers in IBM Plex Sans (Plex Mono is gone), buttons in the order Attack, Reach, Special, Brace. A pull-up **Key** (bottom-left of the field) lists only what is on the field now, one line each. The flag pill stays visible above a holder. Desktop: hover a move hex to preview, click once to move, Escape cancels.
+- Older rule sets and saved matches move exactly as before (the move jumps).
+
+**Under the hood**
+- `engine.js`: `route()` (rules 1–4 of 2.11 and the walk), and read-only `canAttackAfter()`, `rangeHexes()`, `evadeHexes()`, `killConsequences()`, `enemyPreview()`. On v3.9 the move itself walks the very path `route()` names, so the preview and the move can't disagree. The move hexes offered are unchanged (`reachMap`).
+- `bot.js`: plans already play every move through the engine; one look-ahead now reads where the unit really ended (it can stop short), which only differs on v3.9.
+- New check `test_route.js` (the brief's set-ups, each mirrored; the preview agrees with the move on 1,000 random legal moves). New script `sims/route_bot.js` (the Bot-minimum counts).
+
+**Flags closed:** none. **Opened:** see `flags/017.md`.
+
+## No game version — Brief 024, tooling: the lab shares GitHub's machines (20 Nov 2026)
+Nothing in the game changes (`board/` untouched). Every game the lab plays is the same.
+
+**What the Editor will notice**
+- In the daytime, pull request checks wait less: a lab run takes 15 of GitHub's 20 machines when the repository is quiet, 10 when it is busy, 5 for a big run when busy. At night (11 pm to 7 am ET, or after the night checks) it takes all 20.
+- A lab run can be rushed: the new "rush" box when starting it by hand, or the `lab: rush` label on a pull request.
+- A new push to a pull request replaces its older lab run instead of queueing behind it.
+- The status page and `BOARD.md` show a Queue line ("Queue: 12 jobs waiting, oldest 43 min · lab using 9 of 20", or "Queue: clear").
+- When GitHub is jammed, Code may offer to run checks or a small screen in its own session, and asks you first every time.
+
+**Under the hood**
+- New `sims/lab/capacity.js` and `capacity.json`; `lab.yml` uses them for each wave and the release checks.
+- Big daytime runs play in two waves; the second chooses its share again. Same parts, same games.
+- New `sims/lab/queuelog.js`: one line per run in `queue/queue-log.csv` on the `status` branch.
+- New check `sims/lab/test_capacity.js`, run in `checks`.
+
+**Flags closed:** none. **Opened:** F024-1 to F024-4 (all ASK).
+
+## v3.12.00 · Build 16 — Brief 014, rule set v3.8: one field per format, and the hot-seat snap (20 Nov 2026)
+Rule set: **v3.8** (new, the new-game default): v3.7 plus switch `fields` and `game.deployRadius5: 2`. Default brain: Brain 5, unchanged. Game version **v3.12.00** (YY: a new rule set; brief 019 took v3.11.00 and Build 15 first). The brief planned the rule set as v3.7; brief 011 took v3.7 first, so it is v3.8.
+
+**What a player will notice**
+- **5v5 has its own small field** on v3.8: 103 hexes, 7 columns (A–G), flags D3 and D15. You deploy **two rings** round your flag (19 hexes, the flag hex included for one unit).
+- **7v7 plays on the rounded 147-hex field** on v3.8: the old field plus 8 corner hexes (B2, H2, B17, H17, A4, I4, A16, I16). Flags and the 3-ring deploy area as before.
+- **Human vs human on a phone:** each time the turn passes, the field scrolls to the side to move's own end (North: the very top, South: the very bottom). Also on the first turn after the start cover. Not against the bot, not during deployment, not when the whole field fits on screen.
+- Older rule sets, and old saved matches, play and replay on the old 139-hex field exactly as before.
+- 9v9 and 13v13 still say "come later"; their fields are in the data for brief 012.
+
+**Under the hood**
+- New `board/fields.js`: the five fields as data (legacy, 5v5, 7v7, 9v9, 13v13), checked hex for hex against `briefs/014-fields.json`.
+- `engine.js`: the field is no longer built once at the top. Each field's geometry (hexes, neighbours, distances, straight lines, goal zones, flags, centre hex) is built from the data, with positions worked out from the middle column (Game Laws 2.4; on 7 and 11 columns this is the opposite of the old column-index rule). Every rule reads the match's field (`fieldOf(st)`); a v3.8 match records which field it plays on. The old exports (`E.dist`, `E.FLAG`, …) stay as the legacy field for old tests.
+- `bot.js`, `app.js`, `ui.js` and the lab read the match's field; the fixed centre "E10" became the field's centre hex (D9, E10, F12, G13). The drawing's size comes from the field.
+- Lab: a `fields` measure (field played, units deployed outside their area, units started on their flag).
+- New check `test_fields.js` (the data, deploy areas, gaps, goal zones, symmetry, the turn-1 design rule, the rules the brief lists on the 7-column field, and Brain 5 on both new fields).
+
+**Flags closed:** none. **Opened:** F49 (the hot-seat snap can't show a whole 5v5 half on a 390 × 844 phone), F50 (5v5 on v3.8: the first-mover collapse is gone, but far more turn-limit games).
+
+**Baseline** (Brain 5 mirror, balanced, 1,000 games per format, same seeds as v3.7; full table in brief 014's Report):
+- 5v5: ended on the turn limit **61.9%** (v3.7: 35.1%), pull KO 23.5% (44.0%), first mover's share of decisive games **58.0%** (3.2%). Likely the smaller deploy area; not isolated.
+- 7v7: ended on the turn limit 44.2% (42.7%), pull KO 39.4% (41.6%), first mover's share 31.4% (29.0%): no change beyond the noise.
+## No game version — Brief 023, tooling: status page redesign, Needs sync, a Refresh that rebuilds (20 Nov 2026)
+Nothing in the game changes (`board/` untouched).
+
+**What the Editor will notice**
+- The status page (https://productofdefiance.github.io/Flagfall/status/) has the approved design: a dark header, four tiles (On main, Building, Nightly checks, Flags), then Builds, Results, Chats, Flags and a Key. One layout for phone and computer.
+- Every mark has an icon and a word, never colour alone: Review, Ready to merge, Needs sync, Heads up / On hold, Broken, Running, Needs an answer, Passing, Merged.
+- A build that conflicts with `main`, or has fallen behind it (lab results aside), shows **Needs sync** instead of Review or Ready to merge, with "Your move: type "sync" in its Code chat". `BOARD.md` says "needs sync" in place of "Ready".
+- Results show the share of games that ended on the turn limit, 5v5 and 7v7, read from each run's own table. `BOARD.md` uses the same short line.
+- **Refresh**: with a key saved on that device, it rebuilds the board (about 1 to 3 minutes) and redraws when the new one lands. Without a key it re-reads the latest board. "Set up one-tap rebuild" explains making the key. The page also re-reads by itself every 5 minutes while open.
+
+**Under the hood**
+- New `sims/status/page.js`: draws the page, in Node when the board is built and in the browser when a newer board arrives; holds the Refresh logic.
+- `board.json` gains the structured facts the page draws (builds, results with their two shares, flags with ~300 characters of issue, chats, tiles). The `board` text and every old field stay.
+- The status page publishes in its own concurrency group with a retrying push (F021-2), and waits for a running play-link publish before pushing.
+- A run started by hand (or by Refresh) always publishes, so the "Updated" time moves.
+- New checks in `test_board.js` and `test_page.js` (no network).
+
+- **Flags** (the Editor's design): each row is name and date, the status pill, then the issue on its own full-width line as a two-line preview. Tap a row to open the whole issue and its "Resolved in / next step" text; tap again to close.
+- **Builds** has a Ready to start group between Building and Waiting.
+- The set-up panel asks for a 90-day key.
+- `play-links.yml` retries its push, so a status publish can't make a play link miss an update.
+
+**Flags closed:** F021-2, F023-1, F023-2, F023-3.
+
+## No game version — Brief 021, tooling: status board, chat log, flag and version numbering (20 Nov 2026)
+Nothing in the game changes (`board/` untouched: no game version, no build number).
+
+**What the Editor will notice**
+- A **status board**: type "status" in any chat, or open https://productofdefiance.github.io/Flagfall/status/ on a phone. It shows what's on `main`, results from the last day, open flags (`!` = waiting on you or the chat), every brief (building, ready to start, waiting on what, merged) and the open design chats. GitHub keeps it current, hourly and on every pull request change.
+- Briefs now say only the **size** of the version bump (X, YY or ZZ). Code takes the actual number just before marking its pull request Ready, so two builds can't expect the same number.
+- New flags go in a file per brief, named **F021-1, F021-2, …**, so two builds can't take the same flag name.
+- Two pull request labels: `review: merge` and `review: hold`, shown on the board.
+
+**Under the hood**
+- `sims/status/board.js` (builds the board), `sims/status/test_board.js` (run in `checks`), workflow `status-board.yml`, branch `status` (the board and `chats/`). `play-links` now leaves `status/` alone on gh-pages.
+- `CLAUDE.md`: `status`, `sync`, `handoff`, flags and version rules rewritten. `briefs/TEMPLATE.md`: size-only Game version, new `Waits on` row.
+- Flags opened: F021-1 (ASK), F021-2, F021-3. None closed.
+
+## v3.11.00 · Build 15 — Brief 019, Brain 7: know the lead, keep it, storm together (20 Nov 2026)
+Rule set: none changed (v3.7 stays the newest). Game version **v3.11.00** (YY: a new brain; brief 011 took v3.10.00 and Build 14 first). Brain 7 was built and measured on v3.6; it inherits Brain 5's specials play on v3.7, which these runs didn't measure. Brain 5 stays the default.
+
+**What a player will notice**
+- A new opponent, **Brain 7 (keeps its lead)**, on the Opponent and Teams screens. When it is ahead on units it stops throwing units away one at a time, gathers its spare units near your holder and attacks it with two or three at once. When you have only your holder left, its own holder may come forward too, but only if yours can't reach its flag first. When it is behind, it pulls its units together while there is time, then commits everything late.
+- On the Opponent screen, Brain 7 has a **Lead** table: five behaviours switched on with 1 and off with 0, and the numbers they use. With all five off it plays exactly like Brain 5.
+- Watch links can now carry a brain's changed settings, so games from a lab sweep open and play on the board.
+- Brain 5, Brain 6 and every older brain and rule set play exactly as before.
+
+**Under the hood**
+- `bot.js`: Brain 7 is Brain 5's planner plus a reading of the board made once per plan (start of the turn and after each roll): the lead (units other than the holder, by unit cap and HP left), ahead or behind, storm or hold, whether to wait before striking the holder, whether to regroup, and the holder race check. It adds value terms and two attack costs; no "on turn N" rules and nothing carried between turns. One setting the brief didn't name, **Press the holder**, was needed: without it Brain 7 gathered round a braced holder and then waited (F43).
+- `brain.js`: Brain 7 and its labels. `watch.js`: `n=brain7:stormLead=1` style brain settings in watch links. `app.js`: the Lead table.
+- Lab: three new measures on every run (`lead_lost`, `lead_unused`, units lost alone or together and holder strikes solo or group), positions scored per side-turn in `timing`, a `brain7` measure (how often each behaviour was active, and lone losing attacks for any brain), `seed_as` in job orders so many matchups share one deal. `sims/lab/report019.js` builds the Report's tables.
+- New checks: `test_brain7.js` (all off = Brain 5, the five positions, legal play) and `sims/lab/test_lead.js` (the new measures on five saved games, checked by hand).
+
+**Flags opened:** F43 to F48 (renumbered: brief 011 took F38 to F41 and the man-advantage flag F42). **Evidence for:** F10.
+
+**Results (34,000 games):** Brain 7 does not pass. It loses to Brain 5 at balanced 5v5 (45.6%) and all-Light 7v7 (45.6%), ties at 7v7, and leaves leads unused about as often at 5v5 (24.0% vs 26.9%), but mirror games end on the clock far less (26.6% vs 57.9% at 5v5, 17.6% vs 40.4% at 7v7), almost all from the holder joining the storm. Settings review (52,000 games): only the lead weight moves results; at 0 Brain 7 takes 52.1% of balanced 5v5 games against Brain 5.
+
+## v3.10.00 · Build 14 — Brief 011, rule set v3.7: special attacks (20 Nov 2026)
+Rule set: **v3.7** (new, the new-game default): v3.6 plus switch `specials`. Default brain: Brain 5, now using specials on v3.7 only. Game version **v3.10.00** (YY: a new rule set).
+
+**What a player will notice**
+- Every foot unit has one special attack a match, on its own button after Attack: **Arc Hit** (Heavy Melee), **Pick Off** (Light Melee), **Bullseye** (Heavy Ranged), **Arrow Storm** (Light Ranged), **Skewer** (Heavy Anti-Cavalry), **Javelin** (Light Anti-Cavalry).
+- Tap it to **warm up** (1 Stamina, then no attack, pull or brace that turn; moving and swapping are fine). Next turn the button turns gold: tap it, pick a red ring and **Fire**. If you don't fire that turn it goes back to unused.
+- A warming unit has a **gold ring with a soft glow** on the field, yours and the bot's.
+- The special's preview shows **one exact number** (no dice), the extra targets underneath (Arc Hit, Skewer), and Arc Hit outlines its 3-hex arc.
+- The unit card has a **Special** section with its status (Unused, Warming up, Used). The log reads "HM warms up Arc Hit at E9." and "HM fires Arc Hit: …".
+- No special can hit a flag hex or its holder. Older rule sets play exactly as before.
+
+**Under the hood**
+- `engine.js`: `warmup` and `special` actions, the special's state on each unit (only under the switch), exact previews in `options().special`, reasons in `blockReasons().special`. All sizes in `data.js` (`specials` block, `game.warmupCost`).
+- `bot.js` / `brain.js`: Brain 5 (and Brain 6) warm up when a target will likely be in reach next turn, fire when it beats the other choices, and fear the enemy's warmed-up specials. New settings: Use specials, Warmed special's worth, Warm-up reach slack, Warm-up cost, Special margin, Warm-up moves tried. Read on v3.7 only: brain hashes on every older rule set match `main`.
+- Lab: a `specials` measure (uptake, lapses, kills, damage vs the normal hit, hits on braced units, actions where both sides could win), and job orders may now change rule numbers for a sim-only copy (`"set"`).
+- New check `test_v37.js` (180 checks); `test_invariants.js` now plays Brain 5 games too, so specials are in play.
+
+**Flags closed:** none (F20 gets its new double-knockout check, stays closed). **Opened:** F38 (Skewer's second hit: full hit or Reach −1?), F39 (move order decides balanced 5v5 under specials), F40 (Skewer almost never fires).
+
+**Baseline** (Brain 5 mirror, balanced, 1,000 games per format, same seeds as v3.6; full table in brief 011's Report):
+- 5v5: ended on the turn limit 34.3% (v3.6: 56.7%), pull KO 41.3% (26.3%), first mover's share of decisive games **5.3%** (38.6%): see F39.
+- 7v7: ended on the turn limit 41.7% (44.8%), pull KO 41.6% (38.3%), first mover's share 31.6% (46.9%).
 
 ## v3.09.01 · Build 13 — Brief 016, stall logging (lab only) (19 Nov 2026)
 Rule set: none changed (v3.6 stays the newest). Game version **v3.09.01** (ZZ: lab tooling, nothing about how the game plays changes; brief 015 took v3.09.00 and Build 12 first).

@@ -1,0 +1,21 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+b1-v-b5-5v5,1000,1770,0,1770,0,N:289 ended_earlier:395 S:301 level:15,won_tiebreak:590,69
+b1-mirror-5v5,1000,1788,0,1788,0,N:308 ended_earlier:397 S:288 level:7,won_tiebreak:596,48
+b1-v-b5-7v7,1000,1215,0,1215,0,ended_earlier:565 N:193 S:212 level:30,won_tiebreak:405,82
+b1-mirror-7v7,1000,1251,0,1251,0,ended_earlier:552 N:226 S:191 level:31,won_tiebreak:417,95
+b1b2-v-b5-5v5,1000,1929,0,1929,0,N:320 ended_earlier:344 S:323 level:13,won_tiebreak:643,104
+b1b2-mirror-5v5,1000,2196,0,2196,0,N:383 S:349 ended_earlier:262 level:6,won_tiebreak:732,107
+b1b2-v-b5-7v7,1000,1521,0,1521,0,N:256 ended_earlier:463 S:251 level:30,won_tiebreak:507,110
+b1b2-mirror-7v7,1000,1878,0,1878,0,N:335 S:291 ended_earlier:342 level:32,won_tiebreak:626,147
+b1b3-v-b5-5v5,1000,1815,0,1815,0,N:294 ended_earlier:381 S:311 level:14,won_tiebreak:605,59
+b1b3-mirror-5v5,1000,1854,0,1854,0,N:319 ended_earlier:376 S:299 level:6,won_tiebreak:618,39
+b1b3-v-b5-7v7,1000,1251,0,1251,0,ended_earlier:553 N:197 S:220 level:30,won_tiebreak:417,79
+b1b3-mirror-7v7,1000,1371,0,1371,0,ended_earlier:512 S:218 N:239 level:31,won_tiebreak:457,86
+b1b4-v-b5-5v5,1000,1266,0,1266,0,ended_earlier:562 S:218 level:15 N:205,won_tiebreak:422 lost:1,84
+b1b4-mirror-5v5,1000,786,0,786,0,ended_earlier:731 S:131 N:131 level:7,won_tiebreak:262,68
+b1b4-v-b5-7v7,1000,807,0,807,0,ended_earlier:701 S:146 level:30 N:123,won_tiebreak:269,80
+b1b4-mirror-7v7,1000,441,0,441,0,ended_earlier:822 S:71 N:76 level:31,won_tiebreak:147,87
+b1b5-v-b5-5v5,1000,1749,0,1749,0,N:290 ended_earlier:402 level:15 S:293,won_tiebreak:583,70
+b1b5-mirror-5v5,1000,1749,0,1749,0,N:311 ended_earlier:407 S:272 level:10,won_tiebreak:583,48
+b1b5-v-b5-7v7,1000,1263,0,1263,0,ended_earlier:546 N:215 S:206 level:33,won_tiebreak:421,93
+b1b5-mirror-7v7,1000,1162,1,1160,0,ended_earlier:583 S:193 N:194 level:30,lost:1 won_tiebreak:386,75

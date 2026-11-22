@@ -105,7 +105,7 @@ for (let g = 0; g < games; g++) {
       T.botMs += tMs; T.botTurns++; if (tMs > T.botMsMax) T.botMsMax = tMs;
     }
     if (a.type === "pull") pulls++;
-    if (wasHolder && u.hp > 0 && u.hex !== E.FLAG[u.team]) { if (a.type === "attack") T.holderDraggedOff++; else T.holderWalkedOff++; }
+    if (wasHolder && u.hp > 0 && u.hex !== E.fieldOf(st).FLAG[u.team]) { if (a.type === "attack") T.holderDraggedOff++; else T.holderWalkedOff++; }
     lastA = a;
   }
   closeLate();

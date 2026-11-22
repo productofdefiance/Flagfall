@@ -21,7 +21,7 @@
     for (const k in SK.colors) root.setProperty("--" + k, SK.colors[k]);
     root.setProperty("--display", SK.fonts.display);
     root.setProperty("--body", SK.fonts.body);
-    root.setProperty("--mono", SK.fonts.mono);
+    root.setProperty("--num", SK.fonts.num);
   })();
 
   // ---------- Line icons (24×24, stroked) ----------
@@ -64,11 +64,21 @@
     armor: '<path d="M8.5 4h7l3.5 3-2 3.2V20H7V10.2L5 7z"/><path d="M10 4c.3 2.2 3.7 2.2 4 0"/><path d="M7 14h10"/>',
     dodge: '<path d="M12 2.5 20.5 7.3v9.4L12 21.5 3.5 16.7V7.3z" stroke-dasharray="3 2.6"/>',
     parry: '<path d="M4 20 18 6"/><path d="M15 4h5v5"/><path d="M6 15l3 3"/><path d="M20 20 6 6"/><path d="M9 4H4v5"/><path d="M18 15l-3 3"/>',
-    arrow: '<path d="M5 12h12"/><path d="M13 7l5 5-5 5"/>'
+    arrow: '<path d="M5 12h12"/><path d="M13 7l5 5-5 5"/>',
+    // Approved UI v3 (Brief 017)
+    mark: '<path d="M12 2.5 20.5 7.3v9.4L12 21.5 3.5 16.7V7.3z"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><path d="M12 6.5v2.8"/><path d="M10.8 8.2 12 9.4l1.2-1.2"/><path d="M12 17.5v-2.8"/><path d="M10.8 15.8 12 14.6l1.2 1.2"/><path d="M6.8 12h2.6"/><path d="M8.3 10.8 9.5 12l-1.2 1.2"/><path d="M17.2 12h-2.6"/><path d="M15.7 10.8 14.5 12l1.2 1.2"/>',
+    setspear: '<path d="M4.5 20.5 16 9"/><path d="M14.2 6.2 19.8 4.2l-2 5.6-2.4.2-1.4-1.4z"/><path d="M3 20.5h8"/><path d="M8.5 16.5l2 2"/>'
   };
   P.sword = P.attack; P.spear = P.reach; P.shield = P.brace;
   function ic(name, size, color, extra, sw) {
     return `<svg width="${size || 22}" height="${size || 22}" viewBox="0 0 24 24" fill="none" stroke="${color || "currentColor"}" stroke-width="${sw || 1.9}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra || ""}>${P[name]}</svg>`;
+  }
+
+  /** Brief 017 §9: "Pick one of your own units", just above the unit panel, gone after 2 seconds or on the next tap. */
+  function pickNote() {
+    const t = $("picknote"); if (!t) return;
+    t.textContent = "Pick one of your own units"; t.hidden = false;
+    clearTimeout(pickNote._t); pickNote._t = setTimeout(() => (t.hidden = true), 2000);
   }
 
   // ---------- Storage: the artifact's database, with this browser as a fallback ----------
@@ -252,10 +262,10 @@
     if (t) {
       App.ui.placements = {}; App.ui.deploySel = nextUnplaced(t);
       App.ui.cover = bothHuman() ? { kind: "deploy", team: t } : null;
-      App.ui.scrollTo = E.FLAG[t];
+      App.ui.scrollTo = fld().FLAG[t];
     } else {
       App.ui.cover = bothHuman() ? { kind: "start" } : null;
-      App.ui.scrollTo = "E10";
+      App.ui.scrollTo = fld().centre;
     }
   }
   function startMatch() {
@@ -609,7 +619,7 @@
     const last = App.lineupQueue[App.lineupQueue.length - 1] === t;
     $("view-lineup").innerHTML = `<div class="scroll" style="display:flex;flex-direction:column"><div class="wrap" style="flex:1">
       ${backbar(sideName(t) + " lineup", "teams")}${steps(3)}
-      <div class="counter"><div class="row" style="justify-content:space-between"><span class="lab" style="font:600 13px/1 var(--body)">Unit cap (UC)</span><span class="num" style="font:600 15px/1 var(--mono)">${used}/${size}</span></div><div class="pips">${pips}</div></div>
+      <div class="counter"><div class="row" style="justify-content:space-between"><span class="lab" style="font:600 13px/1 var(--body)">Unit cap (UC)</span><span class="num" style="font:600 15px/1 var(--num)">${used}/${size}</span></div><div class="pips">${pips}</div></div>
       ${kc ? `<div class="field"><label for="keeper-pick">Flagkeeper</label>
         <div class="keeper">${tokenInline(iconKey(rs, pick.keeper), t, 34, true)}<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
           <select class="inp" id="keeper-pick" data-keeper="1" style="height:40px;font-weight:600">${cards.map((c) => `<option value="${c}" ${c === pick.keeper ? "selected" : ""}>${esc(rs.cards[c].name)}</option>`).join("")}</select>
@@ -628,9 +638,12 @@
 
   // ---------- Board geometry ----------
   const R = SK.board.hexRadius, H = Math.sqrt(3) * R, PAD = SK.board.pad;
-  const W = 14 * R + 2 * PAD, HH = 19 * H + 2 * PAD;
+  /* The field comes from the match (Brief 014): its size, positions and hex names. fld() is the match's field; the
+     drawing is as wide as its columns (14 R for 9 columns) and as tall as its middle column (19 H for 19 rows). */
+  const fld = () => E.fieldOf(App.st);
+  const boardW = () => (1.5 * (fld().NCOL - 1) + 2) * R + 2 * PAD, boardH = () => fld().NROW * H + 2 * PAD;
   function pos(h) {
-    const [q, r] = E.parse(h); const [gx, gy] = E.geo(q, r);
+    const G = fld(), [q, r] = G.parse(h); const [gx, gy] = G.geo(q, r);
     return [PAD + R + 1.5 * R * gx, PAD + H / 2 + H * (gy - 1)];
   }
   const hexPts = (x, y, r) => [0, 1, 2, 3, 4, 5].map((i) => { const a = (Math.PI / 3) * i; return (x + r * Math.cos(a)).toFixed(1) + "," + (y + r * Math.sin(a)).toFixed(1); }).join(" ");
@@ -642,57 +655,264 @@
     if (!sel || st.phase !== "play" || sel.team !== st.toMove || isBot(st.toMove) || sel.hp <= 0) return null;
     return E.options(st, sel.uid);
   }
-  const isReachShot = (st, u, t) => E.card(st, u).trait === "reach" && E.card(st, u).range === 1 && E.dist(u.hex, t.hex) === 2;
+  const isReachShot = (st, u, t) => E.card(st, u).trait === "reach" && E.card(st, u).range === 1 && E.fieldOf(st).dist(u.hex, t.hex) === 2;
   function targetsFor(o, kind) {
     const st = App.st, u = E.unitByUid(st, App.ui.sel);
     return o.attacks.filter((a) => { const r = isReachShot(st, u, E.unitByUid(st, a.target)); return kind === "reach" ? r : kind === "attack" ? !r : true; });
   }
 
-  // ---------- Drawing: field ----------
+  // ---------- Drawing: field (Approved UI v3, Brief 017) ----------
+  /* Every hex, route, range, number and badge comes from an engine function (route, rangeHexes, canAttackAfter,
+     evadeHexes, killConsequences, enemyPreview, options, status). Nothing here works out a rule. While drawing, the field
+     notes each kind of mark it puts on screen (App.ui.keyRows) so the key lists only what is there. */
+  /** The side whose marks are blue: the side to move in a two-player game, the human against the bot. */
+  function viewer() {
+    const st = App.st;
+    if (!st || st.phase !== "play") return st ? st.toMove : "N";
+    if (bothHuman() || (isBot("N") && isBot("S"))) return st.toMove;
+    return isBot("N") ? "S" : "N";
+  }
+  const AP = Math.sqrt(3) / 2;   // a hex's apothem per unit of radius
+  /** The enemy unit the human tapped (section 9), or null. */
+  function enemyTapped() {
+    const st = App.st, sel = App.ui.sel && E.unitByUid(st, App.ui.sel);
+    if (!sel || sel.hp <= 0 || st.phase !== "play") return null;
+    const v = viewer();
+    return sel.team !== v && !(isBot(v) && isBot(E.foeOf(v))) ? sel : null;
+  }
+  /** The move being previewed (first tap or hover): the engine's route, or null. */
+  function previewRoute() {
+    const st = App.st, ui = App.ui, o = selOptions();
+    if (!o || ui.armed || !ui.ghost || !o.moves[ui.ghost]) return null;
+    return E.route(st, ui.sel, ui.ghost);
+  }
+  /** Hex at a pixel position (to find the neighbour across an edge). */
+  function hexByPos() {
+    const m = {};
+    for (const h of fld().CELLS) { const [x, y] = pos(h); m[Math.round(x) + "," + Math.round(y)] = h; }
+    return (x, y) => m[Math.round(x) + "," + Math.round(y)] || null;
+  }
+  /** Edge i of a hex at inset `d` px inside its edge: [x1, y1, x2, y2]. Edge i runs from corner i to corner i+1. */
+  function edgeAt(x, y, i, d) {
+    const r = R - d / AP, a1 = (Math.PI / 3) * i, a2 = (Math.PI / 3) * (i + 1);
+    return [x + r * Math.cos(a1), y + r * Math.sin(a1), x + r * Math.cos(a2), y + r * Math.sin(a2)];
+  }
+  /** The outer edge of a set of hexes, drawn `d` px inside: one path. */
+  function outlinePath(set, d) {
+    const at = hexByPos(); let p = "";
+    for (const h of set) {
+      const [x, y] = pos(h);
+      for (let i = 0; i < 6; i++) {
+        const a = (Math.PI / 3) * i + Math.PI / 6, nb = at(x + H * Math.cos(a), y + H * Math.sin(a));
+        if (nb && set.has(nb)) continue;
+        const e = edgeAt(x, y, i, d);
+        p += `M${e[0].toFixed(1)} ${e[1].toFixed(1)}L${e[2].toFixed(1)} ${e[3].toFixed(1)}`;
+      }
+    }
+    return p;
+  }
+  /** The range outline (sections 3 and 9): Ranged = the outer edge of the set; Reach = its six spokes, each outlined;
+      melee-only = nothing. Returns { svg, lined: hexes that carry the line }. */
+  function rangeOutline(st, u, from, color) {
+    const c = E.card(st, u), G = E.fieldOf(st), hexes = E.rangeHexes(st, u.uid, from, "normal");
+    if (c.range > 1) {
+      const set = new Set(hexes), at = hexByPos(), lined = new Set();
+      for (const h of set) { const [x, y] = pos(h); for (let i = 0; i < 6; i++) { const a = (Math.PI / 3) * i + Math.PI / 6, nb = at(x + H * Math.cos(a), y + H * Math.sin(a)); if (!nb || !set.has(nb)) lined.add(h); } }
+      return { svg: `<path d="${outlinePath(set, 1.2)}" fill="none" stroke="${color}" stroke-width="1.6" stroke-linecap="round" pointer-events="none"/>`, lined };
+    }
+    if (c.trait === "reach") {
+      const spokes = hexes.filter((h) => G.dist(from, h) === 2);
+      return { svg: spokes.map((h) => { const [x, y] = pos(h); return `<polygon points="${hexPts(x, y, R - 1.2 / AP)}" fill="none" stroke="${color}" stroke-width="1.6" pointer-events="none"/>`; }).join(""), lined: new Set(spokes) };
+    }
+    return { svg: "", lined: new Set() };
+  }
+  /** The special's range: a double line in every hex (3px at 1.8 inside + 1.2px at 5.8; 3px further in where the hex
+      also carries the range line). */
+  function specialOutline(st, u, from, color, lined) {
+    return E.rangeHexes(st, u.uid, from, "special").map((h) => {
+      const [x, y] = pos(h), k = lined.has(h) ? 3 : 0;
+      return `<polygon points="${hexPts(x, y, R - (1.8 + k) / AP)}" fill="none" stroke="${color}" stroke-width="3" pointer-events="none"/><polygon points="${hexPts(x, y, R - (5.8 + k) / AP)}" fill="none" stroke="${color}" stroke-width="1.2" pointer-events="none"/>`;
+    }).join("");
+  }
+  /** A ring with a white underlay 2.5px wider (every ring and line over the field holds on any fill). */
+  function ring(x, y, r, color, w, dash) {
+    const da = dash ? ` stroke-dasharray="${dash}"` : "";
+    return `<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="#fff" stroke-width="${w + 2.5}"${da} pointer-events="none"/><circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${color}" stroke-width="${w}"${da} pointer-events="none"/>`;
+  }
+  /* Badges (section 6): one pill, one spot per kind on a hex's sloped edges, 86% of the way out. */
+  const BADGE = { mark: 330, spear: 210, noattack: 30, tackle: 150 };
+  const BADGE_ICON = {
+    mark: '<path d="M12 2.5 20.5 7.3v9.4L12 21.5 3.5 16.7V7.3z"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><path d="M12 6.5v2.8"/><path d="M10.8 8.2 12 9.4l1.2-1.2"/><path d="M12 17.5v-2.8"/><path d="M10.8 15.8 12 14.6l1.2 1.2"/><path d="M6.8 12h2.6"/><path d="M8.3 10.8 9.5 12l-1.2 1.2"/><path d="M17.2 12h-2.6"/><path d="M15.7 10.8 14.5 12l1.2 1.2"/>',
+    spear: '<path d="M4.5 20.5 16 9"/><path d="M14.2 6.2 19.8 4.2l-2 5.6-2.4.2-1.4-1.4z"/><path d="M3 20.5h8"/><path d="M8.5 16.5l2 2"/>',
+    noattack: P.attack + '<path d="M4 4l16 16" stroke-width="3.6"/>'
+  };
+  function badge(h, kind, amount) {
+    const [cx, cy] = pos(h), a = (BADGE[kind] * Math.PI) / 180, k = 0.86 * AP * R;
+    return pill(cx + k * Math.cos(a), cy + k * Math.sin(a), kind, amount);
+  }
+  function pill(x, y, kind, amount) {
+    const wide = kind === "tackle", w = wide ? 30 : 19;
+    const fill = kind === "spear" ? "var(--attack)" : kind === "noattack" ? "#f8f9f5" : "var(--ink)";
+    const fg = kind === "noattack" ? "var(--muted)" : "#fff", edge = kind === "noattack" ? "var(--muted)" : "#fff";
+    let g = `<g pointer-events="none"><rect x="${(x - w / 2).toFixed(1)}" y="${(y - 7.5).toFixed(1)}" width="${w}" height="15" rx="7.5" fill="${fill}" stroke="${edge}" stroke-width="1.2"/>`;
+    if (wide) g += `<text x="${x.toFixed(1)}" y="${(y + 3.6).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="var(--num)">+${fmt(amount)}</text>`;
+    else g += `<g transform="translate(${(x - 6).toFixed(1)} ${(y - 6).toFixed(1)}) scale(0.5)" fill="none" stroke="${fg}" color="${fg}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${BADGE_ICON[kind]}</g>`;
+    return g + `</g>`;
+  }
+  /** The route line: white underlay, blue line, one arrowhead at the middle of its length. */
+  function routeLine(pts, color) {
+    const d = pts.map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join("");
+    let out = `<path d="${d}" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/><path d="${d}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>`;
+    return out;
+  }
+  function arrowHead(pts, color) {
+    const seg = []; let total = 0;
+    for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); seg.push(l); total += l; }
+    let half = total / 2, i = 0;
+    while (i < seg.length - 1 && half > seg[i]) { half -= seg[i]; i++; }
+    const [x1, y1] = pts[i], [x2, y2] = pts[i + 1], f = seg[i] ? half / seg[i] : 0, mx = x1 + (x2 - x1) * f, my = y1 + (y2 - y1) * f;
+    const ang = Math.atan2(y2 - y1, x2 - x1), c = Math.cos(ang), s = Math.sin(ang), L = 10, W = 13;
+    const tip = [mx + c * L / 2, my + s * L / 2], b1 = [mx - c * L / 2 - s * W / 2, my - s * L / 2 + c * W / 2], b2 = [mx - c * L / 2 + s * W / 2, my - s * L / 2 - c * W / 2];
+    return `<polygon points="${[tip, b1, b2].map((p) => p.map((v) => v.toFixed(1)).join(",")).join(" ")}" fill="${color}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round" pointer-events="none"/>`;
+  }
+  /** The tapped unit's token at 60% with a dashed edge (the ghost on the end hex). */
+  function ghostToken(st, u, h) {
+    const [x, y] = pos(h);
+    return `<g pointer-events="none"><circle cx="${x}" cy="${y}" r="${tr}" fill="${teamColor(u.team)}" fill-opacity="0.6" stroke="${teamColor(u.team)}" stroke-width="1.5" stroke-dasharray="3 2"/>${iconShape(iconKey(st.rs, u.card), x, y - 3.5, tr * 0.33, "#fff", 1.6)}</g>`;
+  }
+  /** Note a key row for what is on screen (section 10): kind, then the sentence for this exact mark. */
+  function keyNote(kind, line) { const k = App.ui.keyRows; if (k && !k.some((r) => r.kind === kind && r.line === line)) k.push({ kind, line }); }
   function renderBoard() {
     const st = App.st, ui = App.ui, svg = $("board");
-    svg.setAttribute("viewBox", `0 0 ${W.toFixed(0)} ${HH.toFixed(0)}`);
-    const g = st.rs.game;
+    svg.setAttribute("viewBox", `0 0 ${boardW().toFixed(0)} ${boardH().toFixed(0)}`);
+    ui.keyRows = [];
     const arcs = { N: new Set(E.deployZone(st, "N")), S: new Set(E.deployZone(st, "S")) };
     const dTeam = deployTeam();
     const sel = ui.sel && E.unitByUid(st, ui.sel);
     const opts = selOptions();
     const zones = st.phase !== "deploy" ? E.zones(st) : null;
     const names = !!ui.names;
+    const v = viewer(), mine = "var(--move)", theirs = "var(--threat)";
+    const enemy = enemyTapped(), ep = enemy ? E.enemyPreview(st, enemy.uid) : null;
+    const rt = previewRoute();
     let out = "";
-    for (const h of E.CELLS) {
+    const G = E.fieldOf(st);
+    // Field: neutral zones (section 11), the flag hex in flag colour.
+    let clip = "";
+    for (const h of G.CELLS) {
       const [x, y] = pos(h);
       let fill = "var(--hex)";
-      if (arcs.N.has(h)) fill = "var(--northArc)";
-      if (arcs.S.has(h)) fill = "var(--southArc)";
-      if (E.GOAL.N.has(h)) fill = "var(--northGoal)";
-      if (E.GOAL.S.has(h)) fill = "var(--southGoal)";
-      const isFlag = h === E.FLAG.N || h === E.FLAG.S;
+      if (arcs.N.has(h) || arcs.S.has(h)) fill = "var(--zoneArc)";
+      if (G.GOAL.N.has(h) || G.GOAL.S.has(h)) fill = "var(--zoneGoal)";
+      const isFlag = G.onFlag(h);
       if (isFlag) fill = "var(--flag)";
+      clip += `<polygon points="${hexPts(x, y, R + 0.4)}"/>`;
       out += `<g class="cell" data-hex="${h}"><polygon points="${hexPts(x, y, R)}" fill="${fill}" stroke="var(--line)" stroke-width="0.8"/>`;
-      if (names && !isFlag) out += `<text x="${x}" y="${y - H * 0.3}" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="var(--mono)" pointer-events="none">${h}</text>`;
-      if (isFlag) {
-        const team = h === E.FLAG.N ? "N" : "S";
-        const held = E.holderOf && st.phase !== "deploy" ? E.holderOf(st, team) : null;
-        if (held) out += `<text x="${x}" y="${(y - R * 0.6).toFixed(1)}" text-anchor="middle" font-size="${(R * 0.32).toFixed(0)}" font-weight="700" fill="#fff" font-family="var(--mono)" pointer-events="none">${fmt(E.flagShown(st, team))}+${fmt(E.hpShown(st, held))}</text>`;
-        else out += `<text x="${x}" y="${y + 5}" text-anchor="middle" font-size="${(R * 0.5).toFixed(0)}" font-weight="700" fill="#fff" font-family="var(--mono)" pointer-events="none">${fmt(g.poleHP - st.pole[team])}</text>`;
-      }
+      if (names && !isFlag) out += `<text x="${x}" y="${y - H * 0.3}" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="var(--num)" pointer-events="none">${h}</text>`;
       out += `</g>`;
+    }
+    // Pitch lines (a picture only): the deployment arc and the goal circle round each flag, the halfway line.
+    const rings = Math.max(...E.deployZone(st, "N").map((h) => G.dist(h, G.FLAG.N)));
+    let pitch = "";
+    for (const t of ["N", "S"]) { const [fx, fy] = pos(G.FLAG[t]); pitch += `<circle cx="${fx}" cy="${fy}" r="${((rings + 0.25) * H).toFixed(1)}"/><circle cx="${fx}" cy="${fy}" r="${(1.25 * H).toFixed(1)}"/>`; }
+    const midY = pos(G.centre)[1];
+    pitch += `<path d="M0 ${midY.toFixed(1)}H${boardW().toFixed(0)}"/>`;
+    out += `<g clip-path="url(#fieldclip)" fill="none" stroke="var(--pitchLine)" stroke-width="1.6" pointer-events="none">${pitch}</g>`;
+    // Flag pills (section 11): on the flag hex's outer flat edge, the flag's own HP. Drawn above the tokens; when the
+    // flag is held, pushed out just far enough to clear the holder's widest ring (selection, braced, warm-up).
+    let flagPills = "";
+    for (const t of ["N", "S"]) {
+      const [fx, fy] = pos(G.FLAG[t]), held = st.phase !== "deploy" && E.holderOf(st, t);
+      const ringOut = tr + 7.5 + 4.2 / 2 + 1.25;   // the widest ring a token can carry, with its white edge
+      const off = held ? Math.max(H / 2, ringOut + 7.5 + 1) : H / 2, py = t === "N" ? fy - off : fy + off;
+      flagPills += `<g pointer-events="none" class="flagpill"><rect x="${fx - 15}" y="${(py - 7.5).toFixed(1)}" width="30" height="15" rx="7.5" fill="var(--flag)" stroke="#fff" stroke-width="1.2"/>
+        <g transform="translate(${fx - 13} ${(py - 5).toFixed(1)}) scale(${(10 / 24).toFixed(3)})" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${P.flag}</g>
+        <text x="${fx + 5}" y="${(py + 3.6).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="var(--num)">${fmt(E.flagShown(st, t))}</text></g>`;
     }
     if (dTeam) for (const h of arcs[dTeam]) { const [x, y] = pos(h); out += `<polygon points="${hexPts(x, y, R - 2.5)}" fill="none" stroke="${teamColor(dTeam)}" stroke-width="1.4" stroke-opacity="0.7" pointer-events="none"/>`; }
     if (zones) for (const team of ["N", "S"]) for (const h of zones[team]) {
       const [x, y] = pos(h);
       out += `<polygon points="${hexPts(x, y, R * (team === "N" ? 0.86 : 0.76))}" fill="none" stroke="${teamColor(team)}" stroke-opacity="0.4" stroke-width="1" stroke-dasharray="3 3" pointer-events="none"/>`;
     }
-    if (opts && !ui.armed) {
-      for (const h in opts.moves) { const [x, y] = pos(h); out += `<g class="cell" data-hex="${h}"><polygon points="${hexPts(x, y, R - 2)}" fill="var(--move)" fill-opacity="0.16" stroke="none"/></g>`; }
-      if (ui.ghost && opts.moves[ui.ghost]) { const [x, y] = pos(ui.ghost); out += `<g class="cell" data-hex="${ui.ghost}"><polygon points="${hexPts(x, y, R - 1.5)}" fill="var(--move)" fill-opacity="0.3" stroke="var(--move)" stroke-width="3"/></g>`; }
+    // Set spear hatching (section 3): every empty hex next to a loaded braced Heavy Anti-Cavalry, both sides, until it fires.
+    if (st.phase === "play") {
+      const occupied = new Set(E.alive(st).map((u) => u.hex)), hatched = new Set();
+      for (const u of E.alive(st)) {
+        if (!(u.braced && E.card(st, u).brace === "spike" && !u.spikeUsed)) continue;
+        for (const n of G.NBRS[u.hex]) if (!occupied.has(n) && !G.onFlag(n)) hatched.add(n);
+        keyNote("hatch", `${UI.unitName(st, u)} on ${u.hex} is braced: set spear ${fmt(st.rs.spikeDamage)} to the first enemy arriving next to it.`);
+      }
+      for (const h of hatched) { const [x, y] = pos(h); out += `<polygon points="${hexPts(x, y, R * 0.72)}" fill="url(#hatch)" stroke="none" pointer-events="none"/>`; }
+    }
+    // Move hexes: your unit's (blue, 16%; 9% under a preview), or the tapped enemy's next turn (threat orange).
+    const showMoves = opts && !ui.armed && !(ui.sheet && (ui.sheet.kind === "attack" || ui.sheet.kind === "special"));
+    if (showMoves) {
+      for (const h in opts.moves) { const [x, y] = pos(h); out += `<g class="cell" data-hex="${h}"><polygon points="${hexPts(x, y, R - 2)}" fill="${mine}" fill-opacity="${rt ? 0.09 : 0.16}" stroke="none"/></g>`; }
+      if (Object.keys(opts.moves).length) keyNote(opts.evading ? "evade" : "moves", opts.evading ? `${sel.id} may step further from the unit it attacked.` : `Where ${sel.id} can move this turn.`);
+    }
+    if (ep) {
+      for (const h in ep.moves) { const [x, y] = pos(h); out += `<polygon points="${hexPts(x, y, R - 2)}" fill="${theirs}" fill-opacity="0.16" stroke="none" pointer-events="none"/>`; }
+      if (Object.keys(ep.moves).length) keyNote("enemyMoves", `Where ${enemy.id} can move on its next turn.`);
     }
     if (opts && opts.pull && !ui.armed) {
-      const [x, y] = pos(E.FLAG[E.foeOf(sel.team)]);
+      const [x, y] = pos(G.FLAG[E.foeOf(sel.team)]);
       out += `<polygon points="${hexPts(x, y, R - 1)}" fill="none" stroke="var(--attack)" stroke-width="${ui.sheet && ui.sheet.kind === "pull" ? 4 : 2.6}" pointer-events="none"/>`;
     }
-    // units
+    // Attack picked (section 5): the attacker's Evade hexes, when an outcome leaves the target standing.
+    if (opts && ui.sheet && (ui.sheet.kind === "attack" || ui.sheet.kind === "special")) {
+      const t = E.unitByUid(st, ui.sheet.target);
+      let survives = false;
+      if (ui.sheet.kind === "attack") { const a = opts.attacks.find((x) => x.target === ui.sheet.target); survives = !!(a && a.cases.some(([dm]) => dm < a.effHp - EPS)); }
+      else { const p = opts.special && opts.special.targets.find((x) => x.target === ui.sheet.target); survives = !!(p && p.evade && !p.hits[0].kills); }
+      if (t && survives) {
+        const ev = E.evadeHexes(st, sel.uid, t.uid);
+        for (const h in ev) { const [x, y] = pos(h); out += `<polygon points="${hexPts(x, y, R - 2)}" fill="${mine}" fill-opacity="0.18" stroke="none" pointer-events="none"/>`; }
+        if (Object.keys(ev).length) keyNote("evade", `If ${t.id} survives, ${sel.id} may step to these hexes (Evade).`);
+      }
+    }
+    // Range (section 3), redrawn from the end hex while a move is previewed; the special's range when it can fire.
+    let rangeSvg = "", badges = "", routeSvg = "";
+    const rangeOf = (u, from, col, spCol, spReady) => {
+      const ro = rangeOutline(st, u, from, col);
+      rangeSvg += ro.svg;
+      if (ro.svg) keyNote(u.team === v ? "range" : "enemyRange", `What ${u.id} can hit from ${from}.`);
+      if (spReady) { const so = specialOutline(st, u, from, spCol, ro.lined); if (so) { rangeSvg += so; keyNote(u.team === v ? "special" : "enemySpecial", `${E.specialName(E.specialOf(st, u))}: what ${u.id}'s special can hit from ${from}.`); } }
+    };
+    if (opts && sel && !ui.armed && !(ui.sheet && ui.sheet.kind !== "info") && !opts.evading) {
+      const ready = !!(opts.special && opts.special.state === "Charged" && opts.special.fire);
+      if (rt) {
+        if (E.canAttackAfter(st, sel.uid, rt.end)) rangeOf(sel, rt.end, mine, "var(--specialRange)", ready);
+        else { badges += badge(rt.end, "noattack"); keyNote("noattack", `${sel.id} can't attack after moving to ${rt.end}.`); }
+      } else rangeOf(sel, sel.hex, mine, "var(--specialRange)", ready);
+    }
+    if (ep) rangeOf(enemy, enemy.hex, theirs, "var(--plum)", ep.specialNext);
+    // The previewed move (section 4): route, arrow, stop short, badges for what happens on the way.
+    if (rt && sel) {
+      const pts = rt.path.map(pos), k = rt.path.indexOf(rt.end);
+      routeSvg += routeLine(pts.slice(0, k + 1), mine);
+      if (rt.stoppedShort) {
+        const rest = pts.slice(k).map(([x, y], i) => `${i ? "L" : "M"}${x.toFixed(1)} ${y.toFixed(1)}`).join("");
+        routeSvg += `<path d="${rest}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4 4" pointer-events="none"/>`;
+        const [x, y] = pos(ui.ghost);
+        routeSvg += `<polygon points="${hexPts(x, y, R - 3 / AP)}" fill="none" stroke="var(--muted)" stroke-width="1.6" stroke-dasharray="4 3" pointer-events="none"/>`;
+        keyNote("short", `The move stops at ${rt.end}, short of ${ui.ghost}: take shorter steps to go another way.`);
+      }
+      routeSvg += k > 0 ? arrowHead(pts.slice(0, k + 1), mine) : "";
+      keyNote("route", `${sel.id} walks ${rt.path.slice(0, k + 1).join(" → ")}.`);
+      for (const e of rt.events) {
+        const by = e.by && E.unitByUid(st, e.by);
+        if (e.type === "mark") { badges += badge(e.hex, "mark"); keyNote("mark", `${by ? `The ${UI.unitName(st, by)} on ${by.hex}` : "An enemy"} marks ${e.hex}: the move stops there.`); }
+        if (e.type === "spear" && by) { badges += badge(by.hex, "spear"); keyNote("spear", `The braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)} when ${sel.id} arrives on ${e.hex}.`); }
+        if (e.type === "tackle" && by) { badges += badge(by.hex, "tackle", e.amount); keyNote("tackle", `Breaking away from ${by.id} costs ${fmt(e.amount)} more Stamina.`); }
+      }
+    }
+    // Attack picked: the set spear badge on the spearman that a kill would set off.
+    if (opts && ui.sheet && ui.sheet.kind === "attack") {
+      const kc = E.killConsequences(st, sel.uid, ui.sheet.target) || [];
+      for (const e of kc) if (e.type === "spear") { const by = E.unitByUid(st, e.by); if (by) { badges += badge(by.hex, "spear"); keyNote("spear", `If the attack kills, ${sel.id} takes the hex and the braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)}.`); } }
+    }
+    out += rangeSvg + routeSvg;
+    // Units
     const shown = st.phase === "deploy"
       ? st.units.filter((u) => u.team === dTeam).map((u) => Object.assign({}, u, { hex: ui.placements[u.uid] })).filter((u) => u.hex)
       : E.alive(st);
@@ -701,30 +921,52 @@
       const s = E.status(st, u), team = u.team === "N" ? "north" : "south";
       const isSel = ui.sel === u.uid || ui.deploySel === u.uid;
       out += `<g class="cell unit" data-hex="${u.hex}" data-uid="${u.uid}" opacity="${s.done ? 0.5 : 1}">`;
-      if (isSel) out += `<circle cx="${x}" cy="${y}" r="${tr + 6}" fill="none" stroke="var(--move)" stroke-width="2.5"/>`;
-      if (s.braced) out += `<circle cx="${x}" cy="${y}" r="${tr + 3.5}" fill="none" stroke="var(--brace)" stroke-width="3"/>`;
+      if (isSel) out += ring(x, y, tr + 6, enemy && enemy.uid === u.uid ? theirs : mine, 2.5);
+      if (s.braced) { out += ring(x, y, tr + 3.6, "var(--brace)", 3.2); keyNote("braced", `${u.id} is braced.`); }
+      else if (s.bracedLast) { out += `<circle cx="${x}" cy="${y}" r="${tr + 3.6}" fill="none" stroke="#fff" stroke-width="6" stroke-dasharray="4 3" pointer-events="none"/><circle cx="${x}" cy="${y}" r="${tr + 3.6}" fill="none" stroke="var(--brace)" stroke-width="3.2" stroke-dasharray="4 3" pointer-events="none"/>`; keyNote("bracedLast", `${u.id} braced last turn: ${fmt(s.stamNow !== null ? s.stamNow : s.stamNext)} Stamina now.`); }
+      // Warm-up ring (6.16): gold on your units, plum on theirs; dashed while warming up, solid when ready to fire.
+      const ready = u.sp === "charged", warm = u.sp === "warm";
+      if (st.phase === "play" && (ready || warm)) {
+        const col = u.team === v ? "var(--keeper)" : "var(--plum)", out2 = s.braced && ready ? tr + 7.5 : ready ? tr + 3.8 : tr + 3.5;
+        out += ready ? ring(x, y, out2, col, 4.2) : ring(x, y, s.braced ? tr + 7.5 : out2, col, 2.6, "4 3");
+        keyNote(u.team === v ? (ready ? "spReady" : "spWarm") : (ready ? "enemySpReady" : "enemySpWarm"), `${u.id}'s ${E.specialName(E.specialOf(st, u))} ${ready ? "is ready to fire this turn" : u.team === v ? "is warming up: it fires next turn" : "is warming up: it can fire on its next turn"}.`);
+      }
       out += `<circle cx="${x}" cy="${y}" r="${tr}" fill="var(--${team})" stroke="${u.fk ? "var(--keeper)" : `var(--${team}Dark)`}" stroke-width="${u.fk ? 3 : 1.2}"/>`;
       out += iconShape(iconKey(st.rs, u.card), x, y - 3.5, tr * 0.33, "#fff", 1.6);
-      out += `<text x="${x}" y="${(y + tr * 0.62).toFixed(1)}" text-anchor="middle" font-size="${(tr * 0.55).toFixed(1)}" font-weight="600" fill="#fff" font-family="var(--mono)">${fmt(s.hp)}</text>`;
-      if (dupLabel(st, u)) out += `<text x="${x + tr - 1}" y="${y + tr + 3}" text-anchor="middle" font-size="8" font-weight="700" fill="var(--ink)" font-family="var(--mono)">${esc(u.id.replace(/^[A-Z]+/, ""))}</text>`;
+      out += `<text x="${x}" y="${(y + tr * 0.76).toFixed(1)}" text-anchor="middle" font-size="${(tr * 0.55).toFixed(1)}" font-weight="600" fill="#fff" font-family="var(--num)">${fmt(s.hp)}</text>`;
+      if (dupLabel(st, u)) out += `<text x="${x + tr - 1}" y="${y + tr + 3}" text-anchor="middle" font-size="8" font-weight="700" fill="var(--ink)" font-family="var(--num)">${esc(u.id.replace(/^[A-Z]+/, ""))}</text>`;
       out += `</g>`;
     }
-    if (opts && !ui.armed && ui.ghost && opts.moves[ui.ghost]) {
-      const [x, y] = pos(ui.ghost), m = opts.moves[ui.ghost];
-      out += `<g pointer-events="none"><circle cx="${x}" cy="${y}" r="${tr}" fill="${teamColor(sel.team)}" fill-opacity="0.6" stroke="${teamColor(sel.team)}" stroke-width="1.5" stroke-dasharray="3 2"/>`;
-      out += iconShape(iconKey(st.rs, sel.card), x, y - 3.5, tr * 0.33, "#fff", 1.6);
-      if (m.mode !== "free") { const sx = x + tr + 3, sy = y - tr - 1; out += `<polygon points="${hexPts(sx, sy, 7)}" fill="var(--south)"/><rect x="${sx - 3.5}" y="${sy - 1}" width="7" height="2" fill="#fff"/>`; }
-      out += `</g>`;
+    if (rt && sel) out += ghostToken(st, sel, rt.end);
+    // It can hit you (section 9): four sight marks round each of your units the tapped enemy can hit now.
+    if (ep) for (const uid of ep.canHit) {
+      const t = E.unitByUid(st, uid), [x, y] = pos(t.hex);
+      let m = "";
+      for (const deg of [45, 135, 225, 315]) { const a = (deg * Math.PI) / 180, c = Math.cos(a), s2 = Math.sin(a); m += `M${(x + c * (tr + 3)).toFixed(1)} ${(y + s2 * (tr + 3)).toFixed(1)}L${(x + c * (tr + 10)).toFixed(1)} ${(y + s2 * (tr + 10)).toFixed(1)}`; }
+      out += `<path d="${m}" stroke="#fff" stroke-width="6.1" stroke-linecap="round" pointer-events="none"/><path d="${m}" stroke="${theirs}" stroke-width="3.6" stroke-linecap="round" pointer-events="none"/>`;
+      keyNote("canHit", `${enemy.id} can hit ${t.id} from where it stands.`);
     }
     if (opts && ui.drag && ui.drag.active) for (const uid of opts.swaps) { const f = E.unitByUid(st, uid); const [x, y] = pos(f.hex); out += `<circle cx="${x}" cy="${y}" r="${tr + 6}" fill="none" stroke="var(--move)" stroke-width="2.5" stroke-dasharray="5 3" pointer-events="none"/>`; }
-    if (opts && !(ui.drag && ui.drag.active)) {
+    // Firing a special (5c): legal targets ringed as Attack's are; Arc Hit outlines its arc around the chosen target.
+    if (opts && ui.armed === "special" && opts.special) {
+      const chosen = ui.sheet && ui.sheet.kind === "special" ? opts.special.targets.find((x) => x.target === ui.sheet.target) : null;
+      const arcFor = chosen || (ui.spHover && opts.special.targets.find((x) => x.target === ui.spHover));
+      if (arcFor && arcFor.arc) for (const h of arcFor.arc) { const [x, y] = pos(h); out += `<polygon points="${hexPts(x, y, R - 1.5)}" fill="none" stroke="var(--keeper)" stroke-width="3" pointer-events="none"/>`; }
+      for (const p of opts.special.targets) {
+        const t = E.unitByUid(st, p.target); const [x, y] = pos(t.hex);
+        out += ring(x, y, tr + 6, "var(--attack)", chosen && chosen.target === p.target ? 4.5 : 3);
+      }
+    }
+    if (opts && ui.armed !== "special" && !(ui.drag && ui.drag.active)) {
       for (const a of targetsFor(opts, ui.armed)) {
         const t = E.unitByUid(st, a.target); const [x, y] = pos(t.hex);
         const on = ui.sheet && ui.sheet.kind === "attack" && ui.sheet.target === a.target;
-        out += `<circle cx="${x}" cy="${y}" r="${tr + 6}" fill="none" stroke="var(--attack)" stroke-width="${on ? 4.5 : 3}" pointer-events="none"/>`;
+        out += ring(x, y, tr + 6, "var(--attack)", on ? 4.5 : 3);
       }
     }
-    svg.innerHTML = out;
+    out += flagPills + badges;   // the flag pills and badges sit over tokens
+    svg.innerHTML = `<defs><clipPath id="fieldclip">${clip}</clipPath>
+      <pattern id="hatch" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#c62828" stroke-width="1.5" stroke-opacity="0.55"/></pattern></defs>` + out;
   }
   function dupLabel(st, u) {
     if (u.fk) return false;
@@ -735,29 +977,45 @@
   function revealHex(h, center) {
     const sc = $("fieldscroll"), svg = $("board");
     if (!sc || !svg.clientHeight) return;
-    const k = svg.clientHeight / HH, y = pos(h)[1] * k;
+    const k = svg.clientHeight / boardH(), y = pos(h)[1] * k;
     const top = sc.scrollTop, vis = sc.clientHeight;
     if (!center && y > top + 70 && y < top + vis - 70) return;
     sc.scrollTo({ top: Math.max(0, y - vis / 2), behavior: center ? "auto" : "smooth" });
   }
-  /** Put a hex in the upper part of the field, above a sheet that covers the bottom. */
+  /** The hexes a preview is about besides the unit: its target, a special's other targets, the flag it pulls. */
+  function previewHexes() {
+    const st = App.st, ui = App.ui, sh = ui.sheet, out = [];
+    if (!sh) return out;
+    const t = sh.target && E.unitByUid(st, sh.target);
+    if ((sh.kind === "attack" || sh.kind === "special") && t) out.push(t.hex);
+    if (sh.kind === "special") { const o = selOptions(), p = o && o.special && o.special.targets.find((x) => x.target === sh.target); if (p) for (const hh of p.hits) { const x = E.unitByUid(st, hh.uid); if (x && x.hex) out.push(x.hex); } }
+    if (sh.kind === "pull" && ui.sel) out.push(fld().FLAG[E.foeOf(E.unitByUid(st, ui.sel).team)]);
+    return out;
+  }
+  /** Put the unit and everything its preview is about in the part of the field above the sheet (phone). The field
+      has scroll room below its last row while a sheet is open (fieldRoom), so a unit on the last rows can come up too. */
   function revealAbove(h) {
-    const sc = $("fieldscroll"), svg = $("board");
+    const sc = $("fieldscroll"), svg = $("board"), sh = $("sheet");
     if (!svg.clientHeight || window.innerWidth >= 900) return;
-    const y = pos(h)[1] * (svg.clientHeight / HH);
-    sc.scrollTo({ top: Math.max(0, y - sc.clientHeight * 0.28), behavior: "smooth" });
+    fieldRoom();
+    const k = svg.clientHeight / boardH(), ys = [h, ...previewHexes()].map((x) => pos(x)[1] * k);
+    const lo = Math.min(...ys), hi = Math.max(...ys), m = R * k + 8;   // a hex and a little air
+    const vis = sc.clientHeight - (!sh.hidden && sh.parentNode === $("fieldwrap") ? sh.getBoundingClientRect().height : 0);
+    let top = hi - lo + 2 * m <= vis ? (lo + hi) / 2 - vis / 2 : lo - m;
+    top = Math.max(0, Math.min(top, sc.scrollHeight - sc.clientHeight));
+    sc.scrollTo({ top, behavior: "smooth" });
   }
   function updateEdges() {
     const st = App.st, sc = $("fieldscroll"), svg = $("board");
     if (!st || App.view !== "play" || !svg.clientHeight) return;
-    const top = sc.scrollTop, vis = sc.clientHeight, k = svg.clientHeight / HH;
+    const top = sc.scrollTop, vis = sc.clientHeight, k = svg.clientHeight / boardH();
     $("fadeTop").style.opacity = top > 2 ? 1 : 0;
     $("fadeBottom").style.opacity = top + vis < sc.scrollHeight - 2 ? 1 : 0;
     const above = { N: 0, S: 0 }, below = { N: 0, S: 0 }, flags = { up: [], down: [] };
     const units = st.phase === "deploy" ? [] : E.alive(st);
     for (const u of units) { const y = pos(u.hex)[1] * k; if (y < top + 30) above[u.team]++; else if (y > top + vis - 30) below[u.team]++; }
-    for (const t of ["N", "S"]) { const y = pos(E.FLAG[t])[1] * k; if (y < top + 30) flags.up.push(t); else if (y > top + vis - 30) flags.down.push(t); }
-    const chip = (t, n) => `<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="${teamColor(t)}"/><text x="10" y="14" text-anchor="middle" font-size="11" font-weight="600" fill="#fff" font-family="var(--mono)">${n}</text></svg>`;
+    for (const t of ["N", "S"]) { const y = pos(fld().FLAG[t])[1] * k; if (y < top + 30) flags.up.push(t); else if (y > top + vis - 30) flags.down.push(t); }
+    const chip = (t, n) => `<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="9" fill="${teamColor(t)}"/><text x="10" y="14" text-anchor="middle" font-size="11" font-weight="600" fill="#fff" font-family="var(--num)">${n}</text></svg>`;
     const label = (cnt, fl) => ["N", "S"].filter((t) => cnt[t]).map((t) => `${cnt[t]} ${sideName(t)} unit${cnt[t] > 1 ? "s" : ""}`).concat(fl.map((t) => `${sideName(t)} flag`)).join(", ");
     const fill = (el, cnt, fl, dir) => {
       const parts = ["N", "S"].filter((t) => cnt[t]).map((t) => chip(t, cnt[t])).concat(fl.map((t) => ic("flag", 15, teamColor(t))));
@@ -808,7 +1066,11 @@
         <div class="tb-row">${dots("N")}${centre}${dots("S")}</div>
         ${active ? `<div class="underline" role="img" aria-label="${sideName(active)} to move" style="${active === "N" ? "left" : "right"}:0;background:${LIGHT[active]}"></div>` : ""}
       </div>`;
+    const mb = $("menubtn");   // Brief 025 §2: on a phone the same Options button sits on the field, top left
+    if (mb) { if (!mb.innerHTML) mb.innerHTML = ic("menu", 20); mb.setAttribute("aria-expanded", App.ui.menu ? "true" : "false"); }
   }
+  /** The Options button the player can see: on the field (phone) or in the title bar (desktop). */
+  const optionsButton = () => [$("menubtn"), $("optionsbtn")].find((b) => b && b.offsetWidth) || $("optionsbtn");
 
   // ---------- Options menu (UI v2, Brief 009) ----------
   const shortBrain = (b) => String((b && b.name) || "").replace(/\s*\(.*\)\s*$/, "");
@@ -833,15 +1095,17 @@
       ${item("menu-match", "list", "Match log and record")}${item("menu-rules", "book", "Rules and unit data")}${item("menu-home", "home", "Home")}
       ${live ? `<div class="msep" role="separator"></div>${item("menu-surrender", "lowflag", `${sideName(st.toMove)} surrenders`, "danger")}` : ""}`;
     el.hidden = false; dim.hidden = false;
-    // Open over the Options button, so ✕ lands where Options was (phone: top 4, right 4; desktop: over the centred button).
-    const btn = $("optionsbtn"), r = btn && btn.getBoundingClientRect();
-    if (r && r.width) { el.style.top = Math.max(4, r.top - 4) + "px"; el.style.right = Math.max(4, window.innerWidth - r.right - 8) + "px"; }
+    // Open over the Options button, so ✕ lands near where Options was (phone: the field's top left, Brief 025; desktop:
+    // over the centred button in the title bar).
+    const btn = optionsButton(), r = btn && btn.getBoundingClientRect();
+    if (r && r.width && btn.id === "menubtn") { el.style.top = Math.max(4, r.top - 4) + "px"; el.style.left = Math.max(4, r.left - 4) + "px"; el.style.right = "auto"; }
+    else if (r && r.width) { el.style.left = ""; el.style.top = Math.max(4, r.top - 4) + "px"; el.style.right = Math.max(4, window.innerWidth - r.right - 8) + "px"; }
   }
   function openMenu() { App.ui.menu = true; renderTopbar(); renderMenu(); const f = $("menu").querySelector("[role=menuitem]"); if (f) f.focus(); }
   function closeMenu(refocus) {
     if (!App.ui.menu) return;
     App.ui.menu = false; renderMenu(); renderTopbar();
-    if (refocus !== false) { const b = $("optionsbtn"); if (b) b.focus(); }
+    if (refocus !== false) { const b = optionsButton(); if (b) b.focus(); }
   }
 
   // ---------- Drawing: unit bar ----------
@@ -852,12 +1116,12 @@
     for (let i = 0; i < Math.ceil(max - EPS); i++) {
       const full = i + 1 <= now + EPS, half = !full && i < now - EPS;
       const afterFull = i + 1 <= now - cost + EPS, afterHalf = !afterFull && i < now - cost - EPS;
-      let cls = kind === "white" ? "sq w" : "sq";
+      let cls = kind === "white" ? "sq w" : kind === "ink" ? "sq k" : "sq";   // "ink": on the gold Special buttons
       if (cost > 0 && (full || half)) cls += afterFull ? " on" : afterHalf ? (full ? " halfcost" : " half") : " cost";
       else if (full) cls += " on"; else if (half) cls += " half";
       out.push(`<span class="${cls}"></span>`);
     }
-    return `<span class="sqs" role="img" aria-label="Stamina ${fmt(now)} of ${fmt(max)}${cost ? `, this ${kind === "white" ? "attack" : "move"} costs ${fmt(cost)}` : ""}">${out.join("")}</span>`;
+    return `<span class="sqs" role="img" aria-label="Stamina ${fmt(now)} of ${fmt(max)}${cost ? `, this ${kind === "white" ? "attack" : kind === "ink" ? "special" : "move"} costs ${fmt(cost)}` : ""}">${out.join("")}</span>`;
   }
   /** Hexes of movement the unit has left now: the furthest hex the engine lets it reach (its cap on the other side's turn). */
   function movesLeft(st, u) {
@@ -867,10 +1131,12 @@
   }
   function hpLine(hp, max, team, w) {
     const pct = max ? Math.max(0, Math.min(100, (100 * hp) / max)) : 0;
-    return `<div style="display:flex;align-items:center;gap:7px" role="img" aria-label="HP ${fmt(hp)} of ${fmt(max)}"><div class="hpbar" style="width:${w || 70}px"><i style="width:${pct.toFixed(0)}%;background:${teamColor(team)}"></i></div><span class="num" style="font:600 13px/1 var(--mono)">${fmt(hp)}/${fmt(max)}</span></div>`;
+    return `<div style="display:flex;align-items:center;gap:7px" role="img" aria-label="HP ${fmt(hp)} of ${fmt(max)}"><div class="hpbar" style="width:${w || 70}px"><i style="width:${pct.toFixed(0)}%;background:${teamColor(team)}"></i></div><span class="num" style="font:600 13px/1 var(--num)">${fmt(hp)}/${fmt(max)}</span></div>`;
   }
   function renderUnitbar() {
     const st = App.st, ui = App.ui, el = $("unitbar");
+    el.className = "";
+    if (st.phase !== "deploy" && !wide()) { renderUnitbarPhone(); return; }
     if (st.phase === "deploy") {
       const t = deployTeam(), mine = st.units.filter((u) => u.team === t);
       el.innerHTML = `<div class="bench" role="group" aria-label="Units to place">${mine.map((u) => {
@@ -890,29 +1156,109 @@
     }
     const s = E.status(st, sel);
     const mine = st.phase === "play" && sel.team === st.toMove;
+    const enemy = enemyTapped();
     const now = mine ? s.stamNow : s.stamNext;
-    const o = selOptions();
-    const cost = o && ui.ghost && o.moves[ui.ghost] ? o.moves[ui.ghost].cost : 0;
+    const o = selOptions(), rt = previewRoute();
+    const cost = rt ? rt.cost : 0;
     const mv = movesLeft(st, sel);
+    // The row under the HP bar (section 8): from → to and the route's events while a move is previewed; the Evade chip
+    // in an Evade step; one line when the unit can't move; else nothing.
+    const evChip = (n) => `<span class="rchip">${ic("evade", 14)}${n}</span>`;
+    const evIcon = { mark: ic("mark", 14), spear: ic("setspear", 14) };
+    let row = "";
+    if (rt) {
+      const chips = rt.events.map((e) => e.type === "spear" ? `<span class="rchip hurt">${evIcon.spear}${fmt(e.amount)}</span>` : e.type === "mark" ? `<span class="rchip">${evIcon.mark}</span>` : `<span class="rchip">+${fmt(e.amount)}</span>`);
+      if (o && o.evading) chips.unshift(evChip(Object.values(o.moves).reduce((m, x) => Math.max(m, x.steps), 0)));
+      row = `<span class="rfrom">${sel.hex}</span>${ic("arrow", 13)}<span class="rto">${ui.ghost}</span><span class="rchips">${chips.join("")}</span>`;
+    } else if (o && o.evading) {
+      row = `<span class="rchips">${evChip(Object.values(o.moves).reduce((m, x) => Math.max(m, x.steps), 0))}</span>`;
+    } else if (o && !sel.done && !Object.keys(o.moves).length) row = `<span class="rline">No movement available this turn</span>`;
     el.innerHTML = `${tokenInline(iconKey(st.rs, sel.card), sel.team, 30, sel.fk)}
-      <div style="display:flex;flex-direction:column;gap:6px;min-width:0;flex:1">
+      <div class="ub-left">
         <div class="ub-name">${esc(UI.unitName(st, sel))}</div>
-        ${hpLine(s.hp, s.maxHp, sel.team, 70)}
+        ${hpLine(s.hp, s.maxHp, sel.team, 110)}
+        <div class="ub-route${rt ? " on" : ""}">${row}</div>
       </div>
       <div class="ub-right">
         <div style="display:flex;align-items:center;gap:10px">
-          <span class="ub-stat" role="img" aria-label="At ${sel.hex}">${ic("hex", 14, "var(--muted)")}${sel.hex}</span>
+          ${enemy ? `<span class="ub-stat muted">Next turn</span>` : `<span class="ub-stat" role="img" aria-label="At ${sel.hex}">${ic("hex", 14, "var(--muted)")}${sel.hex}</span>`}
           <span class="ub-stat" role="img" aria-label="Can move ${mv} hex${mv === 1 ? "" : "es"}">→ ${mv}</span></div>
         ${stamSquares(sel, now, cost)}
       </div>
       <button type="button" class="ub-info" data-act="info" aria-label="Unit information">${ic("info", 24)}</button>`;
   }
 
+  /** The phone's unit bar (Brief 025 §3, §5, §7): 63 px in every play state. Row 1: token, full name, (i), then the
+      route's chips (or a note) right-aligned toward the HP bar's end; hex and moves (or the previewed route) on the right.
+      Row 2: the HP bar across the left column; HP and Stamina on the right. Every value from the engine, as before. */
+  function renderUnitbarPhone() {
+    const st = App.st, ui = App.ui, el = $("unitbar");
+    el.className = "ub5";
+    const sel = ui.sel && E.unitByUid(st, ui.sel);
+    if (!sel || sel.hp <= 0) {
+      let msg;
+      if (st.phase === "over") msg = st.result.winner ? `${esc(st.names[st.result.winner])} wins · ${esc(say(st.result.how))}` : "Draw";
+      else if (isBot(st.toMove)) msg = `${ic("bot", 18)}<span>${esc(ui.botReason || "Thinking…")}</span>`;
+      else msg = `Tap a unit`;
+      el.innerHTML = `<div class="ub-empty">${msg}</div>`;
+      return;
+    }
+    const s = E.status(st, sel);
+    const mine = st.phase === "play" && sel.team === st.toMove;
+    const enemy = enemyTapped();
+    const now = mine ? s.stamNow : s.stamNext;
+    const o = selOptions(), rt = previewRoute();
+    const cost = rt ? rt.cost : 0;
+    const mv = movesLeft(st, sel);
+    const warm = !!(ui.sheet && ui.sheet.kind === "warm" && o && o.special && o.special.warmup);
+    const rewarm = warm && o.special.state === "Charged";   // charged, no target in range: it warms up again
+    // Chips in walking order, filling from the right; the Evade chip first in an Evade step.
+    const evChip = (n) => `<span class="uchip">${ic("evade", 12, "#fff", "", 2.4)}${n}</span>`;
+    const evHexes = () => Object.values(o.moves).reduce((m, x) => Math.max(m, x.steps), 0);
+    const chips = [];
+    if (o && o.evading) chips.push(evChip(evHexes()));
+    if (rt) for (const e of rt.events) chips.push(e.type === "spear" ? `<span class="uchip hurt">${ic("setspear", 12, "#fff", "", 2.4)}${fmt(e.amount)}</span>` : e.type === "mark" ? `<span class="uchip">${ic("mark", 12, "#fff", "", 2.4)}</span>` : `<span class="uchip">+${fmt(e.amount)}</span>`);
+    let note = "";
+    if (rewarm) note = "No target in range · fires next turn";
+    else if (warm) note = "Fires next turn · no attack or brace";
+    else if (!rt && o && !o.evading && !sel.done && !Object.keys(o.moves).length) note = "No movement available this turn";
+    const after = note ? `<span class="ub-note">${esc(note)}</span>` : `<span class="ub-chips">${chips.join("")}</span>`;
+    // While a note shows (warm-up, can't move), it takes all of row 1: no hex and moves (review of #47, fix 1).
+    let side;
+    if (note) side = null;
+    else if (rt) side = `<span class="rfrom">${sel.hex}</span>${ic("arrow", 13)}<span class="rto">${ui.ghost}</span>`;
+    else side = `${enemy ? `<span class="muted">Next turn</span>` : `<span role="img" aria-label="At ${sel.hex}" style="display:inline-flex;align-items:center;gap:4px">${ic("hex", 14, "var(--muted)")}${sel.hex}</span>`}
+        <span role="img" aria-label="Can move ${mv} hex${mv === 1 ? "" : "es"}">→ ${mv}</span>`;
+    const pct = s.maxHp ? Math.max(0, Math.min(100, (100 * s.hp) / s.maxHp)) : 0;
+    el.innerHTML = `<button type="button" class="ub-handle" data-act="key-open" aria-controls="fieldkey" aria-label="Show the key"><span></span></button>
+      <div class="ub-grid">
+        <div class="ub-r1${side === null ? " wide" : ""}"><button type="button" class="ub-id" data-act="info" aria-label="Unit information">${tokenInline(iconKey(st.rs, sel.card), sel.team, 24, sel.fk)}<span class="ub-name">${esc(UI.unitName(st, sel))}</span>${ic("info", 16, "var(--muted)")}</button>${after}</div>
+        ${side === null ? "" : `<div class="ub-side">${side}</div>`}
+        <div class="ub-hp" role="img" aria-label="HP ${fmt(s.hp)} of ${fmt(s.maxHp)}"><i style="width:${pct.toFixed(0)}%;background:${teamColor(sel.team)}"></i></div>
+        <div class="ub-r2"><span class="num">${fmt(s.hp)}/${fmt(s.maxHp)}</span>${stamSquares(sel, now, cost)}</div>
+      </div>`;
+    fitChips(el);
+    const nt = el.querySelector(".ub-note");   // a note never clips: two lines if one won't fit (review of #47, fix 1)
+    if (nt && nt.scrollWidth > nt.clientWidth + 0.5) nt.classList.add("two");
+  }
+  /** §3: chips never cover the name or the (i). If they would not fit, they stop 8 px short of the (i) and the rest
+      show as a last chip "+N". */
+  function fitChips(el) {
+    const box = el.querySelector(".ub-chips");
+    if (!box || !box.children.length || box.scrollWidth <= box.clientWidth + 0.5) return;
+    const all = [...box.children];
+    let hidden = 0;
+    const more = document.createElement("span"); more.className = "uchip"; box.appendChild(more);
+    while (hidden < all.length && box.scrollWidth > box.clientWidth + 0.5) { all[all.length - 1 - hidden].remove(); hidden++; more.textContent = "+" + hidden; }
+    App.ui.chipOverflow = (App.ui.chipOverflow || 0) + 1;
+  }
+
   // ---------- Drawing: action bar ----------
+  const PICK = "Pick one of your own units";
   function renderActions() {
     const st = App.st, ui = App.ui, el = $("actions");
     // A greyed-out button stays tappable when it has a reason: the tap shows why (Brief 005). Reasons come from the engine.
-    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span></button>`;
+    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}${opt.bar ? " hasbar" : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}${opt.flex ? ` style="flex:${opt.flex} 1 0"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span>${opt.bar ? `<i class="spbar ${opt.bar}"></i>` : ""}</button>`;
     if (st.phase === "deploy") {
       const t = deployTeam(), mine = st.units.filter((u) => u.team === t);
       const placed = mine.filter((u) => ui.placements[u.uid]).length;
@@ -921,39 +1267,87 @@
       return;
     }
     const human = st.phase === "play" && !isBot(st.toMove);
-    const o = selOptions(), sel = o && E.unitByUid(st, ui.sel);
+    const o = selOptions(), sel = o && E.unitByUid(st, ui.sel), enemy = enemyTapped();
     const turnRow = `<div class="arow"><span class="alabel">TURN</span>
         ${b("undo", "undo", "Undo", { dis: !canUndo(), why: human ? undoWhy() : null })}
-        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done), why: ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel).done : human ? "Select one of your units first" : null })}
+        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done), why: enemy ? PICK : ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel).done : human ? PICK : null })}
         ${b("end", "endturn", ui.confirmEnd ? "Confirm" : "End turn", { dis: !human, cls: ui.confirmEnd ? "confirm" : "primary" })}</div>`;
-    // Attack preview open: the UNIT row is Attack (3 parts) and Cancel (1).
+    // Confirms (section 7) take the three attack slots; Cancel takes Brace's slot.
+    const cancel = `<button type="button" class="act" data-act="sheet-close" style="flex:1 1 0">${ic("close", 22)}<span>Cancel</span></button>`;
+    const go = (act, cls, icon, label, cost, u, sq) => `<div class="arow"><span class="alabel">UNIT</span>
+          <button type="button" class="act go${cls}" data-act="${act}" style="flex:3 1 0">${ic(icon, 22)}
+            <span class="go-text"><span class="go-1">${label}</span><span class="go-2">−${fmt(cost)} Stamina ${stamSquares(u, u.stam, cost, sq)}</span></span></button>${cancel}</div>`;
+    const rt = previewRoute();
+    if (rt && sel) { el.innerHTML = go("move-confirm", " blue", "move", "Move", rt.cost, sel, "white") + turnRow; return; }
     const sh = ui.sheet;
     if (sh && sh.kind === "attack" && o && o.attacks.some((x) => x.target === sh.target)) {
-      const u = E.unitByUid(st, ui.sel), t = E.unitByUid(st, sh.target), cost = st.rs.game.attackCost;
-      el.innerHTML = `<div class="arow"><span class="alabel">UNIT</span>
-          <button type="button" class="act go" data-act="attack-confirm" style="flex:3 1 0">${ic(isReachShot(st, u, t) ? "spear" : "sword", 22)}
-            <span class="go-text"><span class="go-1">${isReachShot(st, u, t) ? "Reach" : "Attack"}</span><span class="go-2">−${fmt(cost)} Stamina ${stamSquares(u, u.stam, cost, "white")}</span></span></button>
-          <button type="button" class="act" data-act="sheet-close" style="flex:1 1 0">${ic("close", 22)}<span>Cancel</span></button></div>${turnRow}`;
+      const u = E.unitByUid(st, ui.sel), t = E.unitByUid(st, sh.target), reach = isReachShot(st, u, t);
+      el.innerHTML = go("attack-confirm", "", reach ? "spear" : "sword", reach ? "Reach" : "Attack", st.rs.game.attackCost, u, "white") + turnRow;
+      return;
+    }
+    // Specials (Brief 011, 5b): warming up opens a line and Warm up (3 parts) / Cancel (1) in the UNIT row.
+    if (sh && sh.kind === "warm" && o && o.special && o.special.warmup) {
+      const u = E.unitByUid(st, ui.sel);
+      // Phone (Brief 025 §5): no line above the buttons (the note is in the unit bar); the button names the special.
+      // A charged special with no target warms up again: "Warm up <name> again" (review of #47, fix 4).
+      if (!wide()) { const again = o.special.state === "Charged"; el.innerHTML = go("warm-confirm", " gold", "special", `Warm up ${esc(o.special.name)}${again ? " again" : ""}`, o.special.warmupCost, u, "ink") + turnRow; fitWarm(el, again); return; }
+      el.innerHTML = `<div class="warmline">${ic("special", 16, "var(--gold)")}<span>Warm up ${esc(o.special.name)}${o.special.state === "Charged" ? " again" : ""}: fire it next turn. No attack or brace this turn.</span></div>` +
+        go("warm-confirm", " gold", "special", "Warm up", o.special.warmupCost, u, "ink") + turnRow;
+      return;
+    }
+    // Firing (section 7): the preview is open on a target; the button carries the special's name.
+    if (sh && sh.kind === "special" && o && o.special && o.special.targets.some((x) => x.target === sh.target)) {
+      el.innerHTML = go("special-confirm", " gold", "special", esc(o.special.name), st.rs.game.attackCost, E.unitByUid(st, ui.sel), "ink") + turnRow;
+      return;
+    }
+    // Phone (Brief 025 §6.6): the flag pull's sheet leaves its buttons to the panel, as an attack does.
+    if (sh && sh.kind === "pull" && o && o.pull && !wide()) {
+      el.innerHTML = go("pull-confirm", "", "flag", "Pull", st.rs.game.attackCost, E.unitByUid(st, ui.sel), "white") + turnRow;
       return;
     }
     const nAtt = o ? targetsFor(o, "attack").length : 0, nReach = o ? targetsFor(o, "reach").length : 0;
-    const why = ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel) : null;
-    const pick = human ? "Select one of your units first" : null;
+    const why = enemy ? null : ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel) : null;
+    const pick = human || enemy ? PICK : null;
     const su = ui.sel && E.unitByUid(st, ui.sel), ss = su && su.hp > 0 ? E.status(st, su) : null;
     const hasReach = su && su.hp > 0 && E.card(st, su).trait === "reach";
     const reloading = !!(ss && ss.reloading && su.team === st.toMove);
+    const W = (r) => (enemy ? PICK : r);
+    // Order (section 7): Attack, Reach (Anti-Cavalry only), Special, Brace: attack, attack, attack, defend.
     el.innerHTML = `<div class="arow"><span class="alabel">UNIT</span>
-        ${b("arm-attack", "attack", "Attack", { dis: !nAtt, why: why ? why.attack : pick, cls: (ui.armed === "attack" ? "on" : "") + (reloading ? " reloading" : ""), pressed: ui.armed === "attack", dot: reloading ? "red" : "", aria: reloading ? "Attack, reloading" : "" })}
-        ${hasReach ? b("arm-reach", "reach", "Reach", { dis: !nReach, why: why ? why.reach : pick, cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" }) : ""}
-        ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: why ? why.brace : pick, cls: ss && ss.braced ? "braced" : "", dot: ss && ss.braced ? "blue" : ss && ss.bracedLast ? "ring" : "", aria: ss && ss.braced ? "Brace, braced" : ss && ss.bracedLast ? "Brace, braced last turn" : "" })}
-        ${b("special", "special", "Special", { dis: true, why: why ? why.special : "No special actions in this rule set yet" })}</div>${turnRow}`;
+        ${b("arm-attack", "attack", "Attack", { dis: !nAtt, why: W(why ? why.attack : pick), cls: (ui.armed === "attack" ? "on" : "") + (reloading ? " reloading" : ""), pressed: ui.armed === "attack", dot: reloading ? "red" : "", aria: reloading ? "Attack, reloading" : "", flex: hasReach ? 1 : 2 })}
+        ${hasReach ? b("arm-reach", "reach", "Reach", { dis: !nReach, why: W(why ? why.reach : pick), cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" }) : ""}
+        ${specialButton(st, su, enemy ? null : o, why, pick, b, enemy)}
+        ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: W(why ? why.brace : pick), cls: ss && ss.braced ? "braced" : "", dot: ss && ss.braced ? "blue" : ss && ss.bracedLast ? "ring" : "", aria: ss && ss.braced ? "Brace, braced" : ss && ss.bracedLast ? "Brace, braced last turn" : "" })}</div>${turnRow}`;
+  }
+  /** §5: "Warm up <name>" (or "Warm up <name> again") on one line; if too long, "Warm up" (or "Warm up again"). */
+  function fitWarm(el, again) {
+    const t = el.querySelector('[data-act="warm-confirm"] .go-1'), b = t && t.closest("button");
+    if (t && b && b.scrollWidth > b.clientWidth + 0.5) t.textContent = again ? "Warm up again" : "Warm up";
+  }
+  /** The Special button (Brief 011, 5a): the unit's special by name, in its state. Older rule sets keep the greyed-out
+      "Special" button. Every reason comes from the engine (blockReasons). */
+  function specialButton(st, su, o, why, pick, b, enemy) {
+    const ss = su && su.hp > 0 ? E.status(st, su) : null;
+    if (enemy && ss && ss.special) return b("special", "special", E.specialName(E.specialOf(st, su)), { dis: true, why: PICK });
+    if (!ss || !ss.special) return b("special", "special", "Special", { dis: true, why: why ? why.special : pick || "No special actions in this rule set yet" });
+    const name = E.specialName(E.specialOf(st, su)), mine = st.phase === "play" && su.team === st.toMove;
+    const sp = o && o.special, armed = App.ui.armed === "special";
+    if (ss.special === "Used") return b("special", "special", name, { dis: true, why: "Used", cls: "sp-used", aria: `${name}, used` });
+    if (ss.special === "Warming up") return b("special", "special", name, { dis: true, why: mine ? (why && why.special) || "Fire it next turn" : "Warming up: it can fire on its next turn", cls: "sp-warm", bar: "half", aria: `${name}, warming up` });
+    if (ss.special === "Charged") {
+      const can = sp && (sp.fire || sp.warmup);   // no target but it may warm up again
+      return b("special", "special", name, { dis: !can, why: why ? why.special : pick, cls: "sp-charged" + (armed ? " on" : ""), bar: "full", pressed: armed, aria: `${name}, charged` });
+    }
+    return b("special", "special", name, { dis: !(sp && sp.warmup), why: why ? why.special : pick, aria: `${name}, unused` });
   }
 
+  /** A special's preview on `target` (the key behaves as the attack preview's). */
+  function specialSheet(target) { const sh = attackSheet(target); sh.kind = "special"; return sh; }
   /** A new attack preview on `target`. The key starts closed; the first two previews a player opens show
       "Pull up for the key" (counted in this board's local settings). Switching target keeps the key as it was. */
   function attackSheet(target) {
     const prev = App.ui.sheet;
-    if (prev && prev.kind === "attack") return { kind: "attack", target, hint: prev.hint };
+    if (prev && (prev.kind === "attack" || prev.kind === "special")) return { kind: "attack", target, hint: prev.hint };
     App.ui.keyOpen = false;
     let seen = 0;
     try { seen = +Store.local("keyHintSeen") || 0; Store.local("keyHintSeen", seen + 1); } catch (e) { seen = 2; }
@@ -980,6 +1374,14 @@
       <div class="fo-row" role="img" aria-label="HP ${fmt(side.hp)} of ${fmt(side.maxHp)}"><span class="fo-hp">${fmt(side.hp)}/${fmt(side.maxHp)}</span><div class="fo-bar"><i style="width:${pct.toFixed(0)}%;background:${teamColor(side.team)};${right ? "margin-left:auto" : ""}"></i></div></div>
       <div class="fo-row fo-stats">${side.stats.map((x) => statHtml(x, right)).join("")}</div></div>`;
   }
+  /** Kill consequences (section 5): under the kill outcomes, one pill per event the engine says a kill brings. */
+  function killPills(st, u, t, segs, n) {
+    const kc = E.killConsequences(st, u.uid, t.uid);
+    if (!kc || !kc.length || !segs.some((sg) => sg.kills)) return "";
+    const pills = kc.map((e) => e.type === "spear" ? `<span class="kpill hurt">${ic("setspear", 11, "#fff", "", 2.4)}${fmt(e.amount)}</span>` : `<span class="kpill">${ic("mark", 11, "#fff", "", 2.4)}</span>`).join("");
+    const first = segs.findIndex((sg) => sg.kills), before = segs.slice(0, first).reduce((s2, sg) => s2 + sg.slots, 0), span = n - before;
+    return `<div class="ob-row ob-k" style="grid-template-columns:repeat(${n}, minmax(0, 1fr))">${before ? `<div style="grid-column:span ${before}"></div>` : ""}<div style="grid-column:span ${span}">${pills}</div></div>`;
+  }
   function renderPreview(st, u, t, a) {
     const ui = App.ui, pv = UI.attackPreview(st, u, t, a);
     const left = pv.attacker.team === "N" ? pv.attacker : pv.target, right = left === pv.attacker ? pv.target : pv.attacker;
@@ -991,7 +1393,7 @@
     const outcome = `<div class="ob" role="img" aria-label="Outcomes: ${segs.map((sg) => `${UI.pct1(sg.p)} −${fmt(sg.dmg)}${sg.kills ? (pv.pooled ? " brings the flag down" : " kills") : ""}`).join(", ")}">
       ${row("ob-p", (sg) => cell(sg, "", "", UI.pct1(sg.p)))}
       ${row("ob-bar", (sg, i) => cell(sg, (i === 0 ? "first " : "") + (i === segs.length - 1 ? "last" : ""), `background:${sg.kills ? "var(--attack)" : `rgba(31,36,33,${sg.opacity.toFixed(3)})`}`, ""))}
-      ${row("ob-d", (sg) => cell(sg, sg.kills ? "kill" : "", "", `−${fmt(sg.dmg)}`))}</div>`;
+      ${row("ob-d", (sg) => cell(sg, sg.kills ? "kill" : "", "", `−${fmt(sg.dmg)}`))}${killPills(st, u, t, segs, n)}</div>`;
     const keyOpen = !!ui.keyOpen;
     const key = keyOpen ? `<div class="key" id="attackkey"><div class="key-h">IN THIS ATTACK</div>${pv.rows.map((r) => `<div class="key-row">${ic(r.icon, 18, r.red || r.icon === "parry" ? "var(--attack)" : "var(--ink)")}<div>
         <div class="key-1${r.red ? " hurt" : ""}">${esc(r.name)}</div><div class="key-2">${esc(r.means)}</div><div class="key-3">${esc(r.why)}</div></div></div>`).join("") || `<div class="key-3">Nothing changes the numbers in this attack.</div>`}</div>` : "";
@@ -1002,6 +1404,113 @@
         ${faceSide(st, right, true)}</div>
       ${outcome}`;
   }
+  /** The special's preview (Brief 011, 5c): the attack preview's face-off and key, one exact outcome, and a row per
+      extra target (Arc Hit's others, Skewer's second). Every number from the engine (E.options().special). */
+  function renderSpecialPreview(st, u, t, p) {
+    const ui = App.ui, pv = UI.specialPreview(st, u, t, p);
+    const left = pv.attacker.team === "N" ? pv.attacker : pv.target, right = left === pv.attacker ? pv.target : pv.attacker;
+    const pointsLeft = pv.attacker.team === "S", sg = pv.segments[0];
+    const outcome = `<div class="ob" role="img" aria-label="Exactly −${fmt(sg.dmg)}${sg.kills ? " kills" : ""}, no dice">
+      <div class="ob-row ob-p" style="grid-template-columns:1fr"><div>100% · no dice</div></div>
+      <div class="ob-row ob-bar" style="grid-template-columns:1fr"><div class="first last" style="background:${sg.kills ? "var(--attack)" : "var(--ink)"}"></div></div>
+      <div class="ob-row ob-d" style="grid-template-columns:1fr"><div class="${sg.kills ? "kill" : ""}">−${fmt(sg.dmg)}</div></div></div>`;
+    const extra = pv.special.extra.map((x) => { const pct = x.maxHp ? Math.max(0, Math.min(100, (100 * x.hp) / x.maxHp)) : 0, xu = E.unitByUid(st, x.uid);
+      return `<div class="sp-extra">${tokenInline(iconKey(st.rs, xu.card), x.team, 24, xu.fk)}<span class="fo-name">${esc(x.name)}</span>
+        <div class="fo-bar" role="img" aria-label="HP ${fmt(x.hp)} of ${fmt(x.maxHp)}"><i style="width:${pct.toFixed(0)}%;background:${teamColor(x.team)}"></i></div><span class="fo-hp">${fmt(x.hp)}/${fmt(x.maxHp)}</span>
+        <b class="${x.kills ? "kill" : ""}">−${fmt(x.dmg)}</b></div>`; }).join("");
+    const keyOpen = !!ui.keyOpen;
+    const key = keyOpen ? `<div class="key" id="attackkey"><div class="key-h">IN THIS SPECIAL</div>${pv.rows.map((r) => `<div class="key-row">${ic(r.icon, 18, r.special ? "var(--gold)" : r.red || r.icon === "parry" ? "var(--attack)" : "var(--ink)")}<div>
+        <div class="key-1${r.red ? " hurt" : ""}">${esc(r.name)}</div><div class="key-2">${esc(r.means)}</div><div class="key-3">${esc(r.why)}</div></div></div>`).join("")}</div>` : "";
+    const hint = !keyOpen && ui.sheet.hint ? `<div class="key-hint">Pull up for the key</div>` : "";
+    return `<button type="button" class="handle" data-act="key-toggle" aria-expanded="${keyOpen}" aria-controls="attackkey" aria-label="${keyOpen ? "Hide" : "Show"} the key"><span></span></button>${hint}${key}
+      <div class="fo">${faceSide(st, left, false)}
+        <div class="fo-mid"><span>${esc(left === pv.attacker ? pv.from : pv.to)}</span>${ic("arrow", 16, "var(--gold)", pointsLeft ? ' style="transform:scaleX(-1)"' : "", 2.2)}<span>${esc(left === pv.attacker ? pv.to : pv.from)}</span></div>
+        ${faceSide(st, right, true)}</div>${extra ? `<div class="sp-extras">${extra}</div>` : ""}
+      ${outcome}`;
+  }
+  // ---------- The phone's sheet (Brief 025 §6, Approved UI v5) ----------
+  /* One layout for the attack preview, the special preview and the flag pull: a name strip with the handle dead
+     centre, the HP row with the hexes between the bars, the modifiers under the bars, the outcomes, then what a kill or
+     a fallen flag brings. Every number from the engine (ui.js reads it), exactly as the desktop sheet shows it. */
+  function nameBlock5(st, side, right) {
+    const nm = `<span class="nm">${esc(side.name)}</span>`;
+    if (side.flag) {
+      const tok = `<span class="ftoken">${ic("flag", 12, "#fff", side.team === "S" ? ' style="transform:scaleX(-1)"' : "", 2.2)}</span>`;
+      return `<div class="nb${right ? " right" : ""}" role="img" aria-label="${esc(side.name)}">${right ? nm + tok : tok + nm}</div>`;
+    }
+    const u = E.unitByUid(st, side.uid), tok = tokenInline(iconKey(st.rs, u.card), side.team, 22, u.fk), i = ic("info", 15, "var(--muted)");
+    return `<button type="button" class="nb${right ? " right" : ""}" data-act="card" data-uid="${side.uid}" aria-label="${esc(side.name)}: unit information">${right ? i + nm + tok : tok + nm + i}</button>`;
+  }
+  function hpSide5(side, right) {
+    const pct = side.maxHp ? Math.max(0, Math.min(100, (100 * side.hp) / side.maxHp)) : 0, col = side.flag ? "var(--flag)" : teamColor(side.team);
+    const num = `<span class="fo-hp"${side.flag ? ' style="color:var(--flag)"' : ""}>${fmt(side.hp)}/${fmt(side.maxHp)}</span>`;
+    const bar = `<div class="fo-bar"><i style="width:${pct.toFixed(0)}%;background:${col};${right ? "margin-left:auto" : ""}"></i></div>`;
+    return `<div class="hpside" role="img" aria-label="HP ${fmt(side.hp)} of ${fmt(side.maxHp)}">${right ? bar + num : num + bar}</div>`;
+  }
+  const statHtml5 = (s, right) => {
+    const icon = ic(s.key, 14, s.red ? "var(--attack)" : "var(--muted)");
+    let num = s.old !== undefined
+      ? `<span class="fo-old">${esc(s.old)}</span><span class="fo-new${s.tone === "hurt" ? " hurt" : ""}">${esc(s.val)}</span>`
+      : `<span class="fo-num${s.red ? " hurt" : ""}">${esc(s.val)}</span>`;
+    if (s.mult) num += `<span class="fo-mult">${esc(s.mult)}</span>`;
+    return `<span class="fo-stat" role="img" aria-label="${esc(s.label)} ${s.old !== undefined ? esc(s.old) + " now " : ""}${esc(s.val)}${s.mult ? " " + esc(s.mult) : ""}">${right ? num + icon : icon + num}</span>`;
+  };
+  /** Strip, HP row and modifier row. `pv` has attacker, target, from, to; `col` is the arrow's colour. */
+  function face5(st, pv, col, aStats) {
+    const left = pv.attacker.team === "N" ? pv.attacker : pv.target, right = left === pv.attacker ? pv.target : pv.attacker;
+    const pointsLeft = left !== pv.attacker, keyOpen = !!App.ui.keyOpen;
+    const stats = (side) => (side === pv.attacker && aStats ? aStats : side.stats);
+    const mid = `<span class="mid">${esc(pointsLeft ? pv.to : pv.from)}${ic("arrow", 12, col, pointsLeft ? ' style="transform:scaleX(-1)"' : "", 2.2)}${esc(pointsLeft ? pv.from : pv.to)}</span>`;
+    return `<div class="strip" data-act="key-toggle">${nameBlock5(st, left, false)}<button type="button" class="handle" data-act="key-toggle" aria-expanded="${keyOpen}" aria-controls="attackkey" aria-label="${keyOpen ? "Hide" : "Show"} the key"><span></span></button>${nameBlock5(st, right, true)}</div>
+      <div class="face">${hpSide5(left, false)}${mid}${hpSide5(right, true)}
+        <div class="mods left">${stats(left).map((x) => statHtml5(x, false)).join("")}</div><span></span><div class="mods right">${stats(right).map((x) => statHtml5(x, true)).join("")}</div></div>`;
+  }
+  function outcomes5(segs, n, aria) {
+    const cell = (sg, cls, style, html) => `<div class="${cls}" style="grid-column:span ${sg.slots};${style}">${html}</div>`;
+    const row = (rowCls, fn) => `<div class="ob-row ${rowCls}" style="grid-template-columns:repeat(${n}, minmax(0, 1fr))">${segs.map(fn).join("")}</div>`;
+    return `<div class="ob" role="img" aria-label="${esc(aria)}">
+      ${row("ob-p", (sg) => cell(sg, "", "", UI.pct1(sg.p)))}
+      ${row("ob-bar", (sg, i) => cell(sg, (i === 0 ? "first " : "") + (i === segs.length - 1 ? "last" : ""), `background:${sg.kills ? "var(--attack)" : `rgba(31,36,33,${sg.opacity.toFixed(3)})`}`, ""))}
+      ${row("ob-d", (sg) => cell(sg, sg.kills ? "kill" : "", "", `−${fmt(sg.dmg)}`))}</div>`;
+  }
+  /** §6.5: the results under the outcomes they apply to: a bracket over a range, or a line up to a single outcome. */
+  function results5(segs, n, pills) {
+    const ks = segs.map((sg, i) => (sg.kills ? i : -1)).filter((i) => i >= 0);
+    if (!ks.length || !pills) return "";
+    const slots = (a, b) => segs.slice(a, b).reduce((s2, sg) => s2 + sg.slots, 0);
+    const before = slots(0, ks[0]), span = slots(ks[0], ks[ks.length - 1] + 1), after = n - before - span;
+    const one = ks.length === 1 && before > 0;
+    return `<div class="res" style="grid-template-columns:repeat(${n}, minmax(0, 1fr))">${before ? `<div style="grid-column:span ${before}"></div>` : ""}<div class="span" style="grid-column:span ${span}"><div class="${one ? "one" : "brk"}"></div><div class="pills">${pills}</div></div>${after ? `<div style="grid-column:span ${after}"></div>` : ""}</div>`;
+  }
+  function keyRows5(head, rows, special) {
+    if (!App.ui.keyOpen) return "";
+    return `<div class="key" id="attackkey"><div class="key-h">${head}</div>${rows.map((r) => `<div class="key-row">${ic(r.icon, 18, special && r.special ? "var(--gold)" : r.red || r.icon === "parry" ? "var(--attack)" : "var(--ink)")}<div>
+        <div class="key-1${r.red ? " hurt" : ""}">${esc(r.name)}</div><div class="key-2">${esc(r.means)}</div><div class="key-3">${esc(r.why)}</div></div></div>`).join("") || `<div class="key-3">Nothing changes the numbers in this attack.</div>`}</div>`;
+  }
+  function renderPreviewPhone(st, u, t, a) {
+    const pv = UI.attackPreview(st, u, t, a), segs = pv.segments, n = a.cases.length;
+    const kc = E.killConsequences(st, u.uid, t.uid);
+    const pills = kc && kc.length ? kc.map((e) => e.type === "spear" ? `<span class="kpill hurt">${ic("setspear", 11, "#fff", "", 2.4)}${fmt(e.amount)}</span>` : `<span class="kpill">${ic("mark", 11, "#fff", "", 2.4)}</span>`).join("") : "";
+    return face5(st, pv, "var(--attack)") + outcomes5(segs, n, `Outcomes: ${segs.map((sg) => `${UI.pct1(sg.p)} −${fmt(sg.dmg)}${sg.kills ? (pv.pooled ? " brings the flag down" : " kills") : ""}`).join(", ")}`) +
+      results5(segs, n, pills) + keyRows5("IN THIS ATTACK", pv.rows);
+  }
+  function renderSpecialPhone(st, u, t, p) {
+    const pv = UI.specialPreview(st, u, t, p), sg = pv.segments[0];
+    const extra = pv.special.extra.map((x) => { const pct = x.maxHp ? Math.max(0, Math.min(100, (100 * x.hp) / x.maxHp)) : 0, xu = E.unitByUid(st, x.uid);
+      return `<div class="sp-extra">${tokenInline(iconKey(st.rs, xu.card), x.team, 24, xu.fk)}<span class="fo-name">${esc(x.name)}</span>
+        <div class="fo-bar" role="img" aria-label="HP ${fmt(x.hp)} of ${fmt(x.maxHp)}"><i style="width:${pct.toFixed(0)}%;background:${teamColor(x.team)}"></i></div><span class="fo-hp">${fmt(x.hp)}/${fmt(x.maxHp)}</span>
+        <b class="${x.kills ? "kill" : ""}">−${fmt(x.dmg)}</b></div>`; }).join("");
+    const outcome = `<div class="ob" role="img" aria-label="Exactly −${fmt(sg.dmg)}${sg.kills ? " kills" : ""}, no dice">
+      <div class="ob-row ob-p" style="grid-template-columns:1fr"><div>100% · no dice</div></div>
+      <div class="ob-row ob-bar" style="grid-template-columns:1fr"><div class="first last" style="background:${sg.kills ? "var(--attack)" : "var(--ink)"}"></div></div>
+      <div class="ob-row ob-d" style="grid-template-columns:1fr"><div class="${sg.kills ? "kill" : ""}">−${fmt(sg.dmg)}</div></div></div>`;
+    return face5(st, pv, "var(--gold)", UI.phoneSpecialStats(pv)) + (extra ? `<div class="sp-extras">${extra}</div>` : "") + outcome + keyRows5("IN THIS SPECIAL", pv.rows, true);
+  }
+  function renderPullPhone(st, u, pull) {
+    const pv = UI.pullPreview(st, u, pull), segs = pv.segments, n = pull.cases.length;
+    const pills = `<span class="kpill hurt">${ic("flag", 11, "#fff", "", 2.4)}Flag falls</span>`;
+    return face5(st, pv, "var(--attack)") + outcomes5(segs, n, `Pull outcomes: ${segs.map((sg) => `${UI.pct1(sg.p)} −${fmt(sg.dmg)}${sg.kills ? " brings the flag down" : ""}`).join(", ")}`) + results5(segs, n, pills);
+  }
   function chip(label, color, dot) { return `<span class="chip" style="color:${color};border-color:${color}"><i style="${dot === "hollow" ? `border:2px solid ${color}` : `background:${color}`}"></i>${esc(label)}</span>`; }
   /** The full unit card (in a match, or on the Lineup screen when `lineup` is given). Text from ui.js, numbers from the engine or the card. */
   function unitCardHtml(rs, code, opt) {
@@ -1010,15 +1519,68 @@
         ${opt.side ? `<div class="uc-side" style="color:${col}">${esc(opt.side)}</div>` : ""}<div class="uc-name">${esc(opt.name || c.name)}</div><div class="uc-type">${esc(UI.cardTypeLine(c))}</div></div>
         <button type="button" class="iconbtn" data-act="${opt.closeAct || "sheet-close"}" aria-label="Close unit card">${ic("close", 22)}</button></div>`;
     const stats = opt.stats.map(([label, v]) => `<div><b class="num">${esc(String(v))}</b><span>${esc(label)}</span></div>`).join("");
+    // Special (Brief 011, 5e): in a match the name carries a status chip; the Lineup card shows none.
+    const spChip = (st) => (st === "Warming up" ? `<span class="spchip warm"><i></i>Warming up</span>` : st === "Used" ? `<span class="spchip used">Used</span>` : st ? `<span class="spchip">${st === "Charged" ? "Charged" : "Unused"}</span>` : "");
     const secs = UI.cardSections(rs, code).map((s) => `<div class="uc-sec"><div class="uc-sh">${esc(s.head.toUpperCase())}<span>${esc(s.sub)}</span></div>
-      ${s.items.map((i) => `<div class="uc-ab"><div class="uc-an">${esc(i.name)}${i.cost ? `<span class="cost">Cost</span>` : ""}</div><div class="uc-at">${esc(i.text)}</div></div>`).join("")}</div>`).join("");
+      ${s.items.map((i) => `<div class="uc-ab"><div class="uc-an${i.special ? " sp" : ""}">${esc(i.name)}${i.cost ? `<span class="cost">Cost</span>` : ""}${i.special ? spChip(opt.special) : ""}</div><div class="uc-at">${esc(i.text)}</div></div>`).join("")}${s.note ? `<div class="uc-note">${esc(s.note)}</div>` : ""}</div>`).join("");
     return `<div class="grab" aria-hidden="true"></div>${head}${opt.status || ""}<div class="uc-stats">${stats}</div>${secs}`;
   }
-  function renderSheet() {
-    const st = App.st, ui = App.ui, el = $("sheet"), sc = $("scrim"), sh = ui.sheet;
+  /* The key (section 10): only what is on the field now, each row drawn like its mark, one line saying why it is there. */
+  const KEY_NAMES = { moves: "Move hexes", evade: "Evade", enemyMoves: "Enemy moves", range: "Range", enemyRange: "Enemy range", special: "Special range",
+    enemySpecial: "Enemy special", route: "Route", short: "Stops short", mark: "Mark", spear: "Set spear", noattack: "No attack after", tackle: "Tackle",
+    hatch: "Set spear", braced: "Braced", bracedLast: "Braced last turn", spReady: "Special ready", spWarm: "Special warming up",
+    enemySpReady: "Enemy special ready", enemySpWarm: "Enemy special warming up", canHit: "It can hit you" };
+  const KEY_ORDER = Object.keys(KEY_NAMES);
+  function keySwatch(kind) {
+    const hx = (r, extra) => `<polygon points="${hexPts(14, 14, r)}" ${extra}/>`, c = 14;
+    const tok = `<circle cx="14" cy="14" r="6" fill="var(--muted)"/>`;
+    let g = "";
+    switch (kind) {
+      case "moves": case "evade": g = hx(12, `fill="var(--move)" fill-opacity="${kind === "evade" ? 0.18 : 0.16}"`); break;
+      case "enemyMoves": g = hx(12, `fill="var(--threat)" fill-opacity="0.16"`); break;
+      case "range": case "enemyRange": g = hx(12, `fill="none" stroke="var(--${kind === "range" ? "move" : "threat"})" stroke-width="1.6"`); break;
+      case "special": case "enemySpecial": { const col = kind === "special" ? "var(--specialRange)" : "var(--plum)"; g = hx(12, `fill="none" stroke="${col}" stroke-width="3"`) + hx(8, `fill="none" stroke="${col}" stroke-width="1.2"`); break; }
+      case "route": g = `<path d="M3 14H25" stroke="#fff" stroke-width="7" stroke-linecap="round"/><path d="M3 14H25" stroke="var(--move)" stroke-width="3.5" stroke-linecap="round"/><polygon points="19,14 9,7.5 9,20.5" fill="var(--move)" stroke="#fff" stroke-width="1.6"/>`; break;
+      case "short": g = `<path d="M3 14H25" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4 4"/>`; break;
+      case "hatch": g = hx(11, `fill="url(#keyhatch)" stroke="var(--attack)" stroke-opacity=".4" stroke-dasharray="3 3"`); break;
+      case "braced": g = tok + `<circle cx="14" cy="14" r="9.6" fill="none" stroke="var(--brace)" stroke-width="3.2"/>`; break;
+      case "bracedLast": g = tok + `<circle cx="14" cy="14" r="9.6" fill="none" stroke="var(--brace)" stroke-width="3.2" stroke-dasharray="4 3"/>`; break;
+      case "spReady": case "enemySpReady": g = tok + `<circle cx="14" cy="14" r="9.8" fill="none" stroke="var(--${kind === "spReady" ? "keeper" : "plum"})" stroke-width="4.2"/>`; break;
+      case "spWarm": case "enemySpWarm": g = tok + `<circle cx="14" cy="14" r="9.5" fill="none" stroke="var(--${kind === "spWarm" ? "keeper" : "plum"})" stroke-width="2.6" stroke-dasharray="4 3"/>`; break;
+      case "canHit": { let m = ""; for (const deg of [45, 135, 225, 315]) { const a = (deg * Math.PI) / 180; m += `M${(c + Math.cos(a) * 7).toFixed(1)} ${(c + Math.sin(a) * 7).toFixed(1)}L${(c + Math.cos(a) * 12.5).toFixed(1)} ${(c + Math.sin(a) * 12.5).toFixed(1)}`; } g = `<circle cx="14" cy="14" r="5" fill="var(--muted)"/><path d="${m}" stroke="var(--threat)" stroke-width="3.2" stroke-linecap="round"/>`; break; }
+      case "mark": case "spear": case "noattack": case "tackle": g = pill(14, 14, kind, 0.5); break;
+    }
+    return `<svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true" style="flex-shrink:0"><defs><pattern id="keyhatch" patternUnits="userSpaceOnUse" width="5" height="5" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#c62828" stroke-width="1.5" stroke-opacity="0.55"/></pattern></defs>${g}</svg>`;
+  }
+  function keyHtml(rows) {
+    const sorted = rows.slice().sort((a, b) => KEY_ORDER.indexOf(a.kind) - KEY_ORDER.indexOf(b.kind));
+    return `<div class="key" id="fieldkey"><div class="key-h">ON THE FIELD</div>${sorted.map((r) => `<div class="key-row mk">${keySwatch(r.kind)}<div><div class="key-1">${esc(KEY_NAMES[r.kind] || r.kind)}</div><div class="key-2">${esc(r.line)}</div></div></div>`).join("")}</div>`;
+  }
+  function renderSheet() { renderSheetBody(); fieldRoom(); }
+  /** Phone (review of #47, fixes 2 and 5): while a sheet or the key drawer is over the field, the field buttons hide
+      (they are never covered) and the field gets scroll room below its last row as tall as the sheet, so every unit
+      in a preview can scroll above it. Nothing covers the top of the field, so it needs no room there. */
+  function fieldRoom() {
+    const el = $("sheet"), sc = $("fieldscroll");
+    const open = !wide() && !el.hidden && el.parentNode === $("fieldwrap");
+    $("view-play").classList.toggle("sheet-open", open);
+    sc.style.paddingBottom = open ? Math.ceil(el.getBoundingClientRect().height) + "px" : "";
+  }
+  function renderSheetBody() {
+    const st = App.st, ui = App.ui, el = $("sheet"), sc = $("scrim");
+    let sh = ui.sheet;
     placeSheet();
     el.className = "";
+    // Desktop: while a move is previewed or an enemy is tapped, the key sits in the right-hand column (section 13).
+    if (!sh && wide() && st.phase === "play" && (previewRoute() || enemyTapped()) && (ui.keyRows || []).length) sh = { kind: "key", auto: true };
+    const phone = !wide();
+    $("view-play").classList.toggle("sheet-up", !!(phone && sh && !App.ui.cover && ["attack", "special", "pull"].includes(sh.kind)));   // §6: the sheet takes the unit bar's place
     if (!sh || App.ui.cover) { el.hidden = true; sc.hidden = true; return; }
+    if (sh.kind === "key") {
+      el.hidden = false; sc.hidden = true; el.className = "preview keysheet";
+      el.innerHTML = (sh.auto ? "" : `<button type="button" class="handle" data-act="key-close" aria-expanded="true" aria-controls="fieldkey" aria-label="Hide the key"><span></span></button>`) + keyHtml(ui.keyRows || []);
+      return;
+    }
     el.hidden = false; sc.hidden = sh.kind === "over" || wide();
     const g = st.rs.game, grab = `<div class="grab" aria-hidden="true"></div>`;
     const two = !!(st.rs.switches && st.rs.switches.dice2d6);
@@ -1028,8 +1590,17 @@
       const a = o.attacks.find((x) => x.target === sh.target);
       if (!a) { ui.sheet = null; el.hidden = true; sc.hidden = true; return; }
       const t = E.unitByUid(st, a.target);
-      el.className = "preview"; sc.hidden = true;   // the field stays live under the preview: tap another red ring to switch target
-      el.innerHTML = renderPreview(st, u, t, a);
+      el.className = phone ? "preview v5" : "preview"; sc.hidden = true;   // the field stays live under the preview: tap another red ring to switch target
+      el.innerHTML = phone ? renderPreviewPhone(st, u, t, a) : renderPreview(st, u, t, a);
+    } else if (sh.kind === "special" && o && o.special) {
+      const p = o.special.targets.find((x) => x.target === sh.target);
+      if (!p) { ui.sheet = null; el.hidden = true; sc.hidden = true; return; }
+      el.className = phone ? "preview v5" : "preview"; sc.hidden = true;
+      el.innerHTML = phone ? renderSpecialPhone(st, u, E.unitByUid(st, p.target), p) : renderSpecialPreview(st, u, E.unitByUid(st, p.target), p);
+    } else if (sh.kind === "warm") { el.hidden = true; sc.hidden = true;
+    } else if (sh.kind === "pull" && o && o.pull && phone) {
+      el.className = "preview v5"; sc.hidden = true;
+      el.innerHTML = renderPullPhone(st, u, o.pull);
     } else if (sh.kind === "pull" && o && o.pull) {
       const left = g.poleHP - st.pole[E.foeOf(u.team)];
       el.innerHTML = `${grab}<div style="font:700 20px/1.1 var(--display);letter-spacing:.02em">${esc(u.id)} pulls the ${sideName(E.foeOf(u.team))} flag <span class="muted" style="font:500 13px/1 var(--body)">flag HP ${left}</span></div>
@@ -1048,7 +1619,7 @@
       }
       const status = `<div class="uc-status">${hpLine(s.hp, s.maxHp, x.team, 90)}${x.hp > 0 ? stamSquares(x, mine ? s.stamNow : s.stamNext, 0) : ""}${chips.join("")}</div>`;
       el.className = "card-sheet";
-      el.innerHTML = unitCardHtml(st.rs, x.card, { team: x.team, fk: x.fk, side: `${st.names[x.team]}${x.fk ? " · Flagkeeper" : ""}`, name: UI.unitName(st, x), status,
+      el.innerHTML = unitCardHtml(st.rs, x.card, { team: x.team, fk: x.fk, side: `${st.names[x.team]}${x.fk ? " · Flagkeeper" : ""}`, name: UI.unitName(st, x), status, special: x.hp > 0 ? s.special : null,
         stats: [["Str", fmt(c.str)], [r.label, fmt(r.val)], ["Move", fmt(E.capOf(st, x))]] });
     } else if (sh.kind === "over") {
       const r = st.result;
@@ -1067,7 +1638,7 @@
       for (const u of st.units.filter((x) => x.team === t)) {
         if (u.hp <= 0) { h += `<tr class="gone"><td>${esc(u.id)}</td><td></td><td>0</td><td></td></tr>`; continue; }
         const s = E.status(st, u);
-        h += `<tr data-uid="${u.uid}" style="cursor:pointer"><td style="display:flex;align-items:center;gap:6px">${iconInline(iconKey(st.rs, u.card), teamColor(t), 16)}<b>${esc(u.id)}</b></td><td class="num">${u.hex}</td><td class="num">${fmt(s.hp)}/${s.maxHp}${s.dodge !== null && s.dodge !== undefined ? ` · ${s.dodge}%` : ""}</td><td>${[s.braced ? ic("brace", 14, "var(--brace)") : "", s.reloading ? ic("reload", 14, "var(--attack)") : "", s.done ? ic("endunit", 14, "var(--muted)") : ""].join("")}</td></tr>`;
+        h += `<tr data-uid="${u.uid}" style="cursor:pointer"><td style="display:flex;align-items:center;gap:6px">${iconInline(iconKey(st.rs, u.card), teamColor(t), 16)}<b>${esc(u.id)}</b></td><td class="num">${u.hex}</td><td class="num">${fmt(s.hp)}/${s.maxHp}${s.dodge !== null && s.dodge !== undefined ? ` · ${s.dodge}%` : ""}</td><td>${[s.braced ? ic("brace", 14, "var(--brace)") : "", s.reloading ? ic("reload", 14, "var(--attack)") : "", s.warming ? ic("special", 14, "var(--gold)") : "", s.done ? ic("endunit", 14, "var(--muted)") : ""].join("")}</td></tr>`;
       }
     }
     el.innerHTML = h + `</tbody></table>`;
@@ -1080,12 +1651,27 @@
   function renderHint() {
     const st = App.st, ui = App.ui, el = $("hint"), o = st && st.phase === "play" ? selOptions() : null;
     let t = "";
-    if (o && ui.ghost && o.moves[ui.ghost] && !(ui.drag && ui.drag.active)) {
-      const m = o.moves[ui.ghost];
-      t = `Tap ${ui.ghost} again to move · ${fmt(m.cost)} Stamina${m.mode !== "free" ? " · stops in a zone" : ""}${m.tackle ? " · tackle" : ""}`;
+    if (o && ui.ghost && o.moves[ui.ghost]) {
+      t = "";   // Brief 017: the route, its badges and the Move button say it all
     } else if (o && ui.armed) t = "Tap a red ring";
     else if (o && o.evading) { const tg = E.unitByUid(st, o.evading); t = Object.keys(o.moves).length ? `Evade: step further from ${tg ? tg.id : "the target"}, or End unit` : `Can't evade: ${E.whyNoMove(st, E.unitByUid(st, ui.sel))} · End unit`; }
     el.hidden = !t || !!ui.sheet; el.textContent = t;
+  }
+
+  // ---------- The hot-seat snap (Brief 014) ----------
+  /* When both sides are human, each time the side to move changes during play (the first turn after the start cover
+     included) the field scrolls so that side's own end is at the edge of the view nearest it: North to the very top,
+     South to the very bottom. Not against the bot, not during deployment (its covers scroll on their own), not while a
+     cover is up. The player can scroll freely after it. */
+  function snapDue() {
+    const st = App.st;
+    return !!(st && st.phase === "play" && bothHuman() && !App.ui.cover && App.ui.snapped !== st.turn + st.toMove);
+  }
+  function hotSeatSnap() {
+    const st = App.st, sc = $("fieldscroll");
+    App.ui.snapped = st.turn + st.toMove;
+    if (!sc || sc.scrollHeight <= sc.clientHeight + 2) return;   // the whole field already fits (desktop)
+    sc.scrollTo({ top: st.toMove === "N" ? 0 : sc.scrollHeight - sc.clientHeight, behavior: "smooth" });
   }
 
   // ---------- Covers ----------
@@ -1101,7 +1687,8 @@
     if (App.view !== "play" || !App.st) return;
     renderTopbar(); renderBoard(); renderUnitbar(); renderActions(); renderSheet(); renderSide(); renderCover(); renderHint(); renderMenu();
     $("namesbtn").setAttribute("aria-pressed", App.ui.names ? "true" : "false");
-    if (App.ui.scrollTo) { const h = App.ui.scrollTo; App.ui.scrollTo = null; requestAnimationFrame(() => { revealHex(h, true); updateEdges(); }); }
+    if (snapDue()) { App.ui.scrollTo = null; requestAnimationFrame(() => { hotSeatSnap(); updateEdges(); }); }
+    else if (App.ui.scrollTo) { const h = App.ui.scrollTo; App.ui.scrollTo = null; requestAnimationFrame(() => { revealHex(h, true); updateEdges(); }); }
     else requestAnimationFrame(updateEdges);
     botTick();
   }
@@ -1130,11 +1717,14 @@
     const sel = ui.sel && E.unitByUid(st, ui.sel);
     const o = selOptions();
     if (o) {
-      if (here && here.team !== sel.team) {
+      if (here && here.team !== sel.team && ui.armed === "special" && o.special) {   // Brief 011: fire at a ringed target
+        if (o.special.targets.some((x) => x.target === here.uid)) { ui.sheet = specialSheet(here.uid); ui.ghost = null; render(); revealAbove(sel.hex); return; }
+      }
+      if (here && here.team !== sel.team && ui.armed !== "special") {
         const a = targetsFor(o, ui.armed).find((x) => x.target === here.uid);
         if (a) { ui.sheet = attackSheet(here.uid); ui.ghost = null; render(); revealAbove(sel.hex); return; }
       }
-      if (hex === E.FLAG[E.foeOf(sel.team)] && o.pull) { ui.sheet = { kind: "pull" }; ui.ghost = null; ui.armed = null; render(); revealAbove(sel.hex); return; }
+      if (hex === fld().FLAG[E.foeOf(sel.team)] && o.pull) { ui.sheet = { kind: "pull" }; ui.ghost = null; ui.armed = null; render(); revealAbove(sel.hex); return; }
       if (!here && !ui.armed && o.moves[hex]) {
         if (ui.ghost === hex) { act({ type: "move", uid: sel.uid, to: hex }); return; }
         ui.ghost = hex; ui.sheet = null; render(); return;
@@ -1161,7 +1751,20 @@
   }
   function hexAt(x, y) { const el = document.elementFromPoint(x, y), g = el && el.closest("#board [data-hex]"); return g ? g.dataset.hex : null; }
   function onPointerMove(e) {
-    const d = App.ui.drag; if (!d) return;
+    const d = App.ui.drag;
+    // Brief 017 §13 (desktop, a mouse): pointing at a move hex shows the full first-tap preview; one click moves.
+    if (!d && e.pointerType === "mouse" && wide() && App.st && App.view === "play" && !App.ui.armed && !(App.ui.sheet && App.ui.sheet.kind !== "info")) {
+      const o = selOptions(), h = hexAt(e.clientX, e.clientY);
+      const g = o && h && o.moves[h] && !E.alive(App.st).some((u) => u.hex === h) ? h : null;
+      if (g !== App.ui.ghost && (g || App.ui.hoverGhost)) { App.ui.ghost = g; App.ui.hoverGhost = !!g; renderBoard(); renderUnitbar(); renderActions(); renderSheet(); renderHint(); }
+      return;
+    }
+    if (!d) {   // Brief 011: while a special is armed, hovering a target outlines Arc Hit's arc
+      if (App.ui.armed !== "special" || !App.st) return;
+      const h = hexAt(e.clientX, e.clientY), x = h && E.alive(App.st).find((u) => u.hex === h), id = x ? x.uid : null;
+      if (id !== App.ui.spHover) { App.ui.spHover = id; renderBoard(); }
+      return;
+    }
     if (!d.active && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 12) {
       const o0 = selOptions(); if (o0 && o0.evading && App.ui.sel !== d.uid) endEvade(App.ui.sel);   // v3.3
       d.active = true; App.ui.sel = d.uid; App.ui.ghost = null; App.ui.armed = null; App.ui.sheet = null; render();
@@ -1213,7 +1816,7 @@
       case "go-opponent": show("opponent"); break;
       case "go-match": loadMatches(); show("match"); break;
       case "continue": {
-        if (App.live && (!App.match || App.match.id !== App.live.id)) { App.match = E.clone(App.live); rebuild(); resetUi(); if (App.st.phase === "deploy") beginDeploy(); else App.ui.scrollTo = "E10"; }
+        if (App.live && (!App.match || App.match.id !== App.live.id)) { App.match = E.clone(App.live); rebuild(); resetUi(); if (App.st.phase === "deploy") beginDeploy(); else App.ui.scrollTo = fld().centre; }
         show("play"); break;
       }
       case "new": {
@@ -1251,7 +1854,7 @@
       case "deploy-fill": {
         const t = deployTeam(), auto = Bot.deploy(st, t, BR.DEFAULT_BRAINS.standard, () => 0.5);
         const taken = new Set(Object.values(ui.placements));
-        const free = E.deployZone(st, t).filter((h) => !taken.has(h)).sort((a, b) => E.dist(a, "E10") - E.dist(b, "E10"));
+        const free = E.deployZone(st, t).filter((h) => !taken.has(h)).sort((a, b) => fld().dist(a, fld().centre) - fld().dist(b, fld().centre));
         for (const u of st.units.filter((x) => x.team === t && !ui.placements[x.uid])) {
           let h = auto[u.uid]; if (!h || taken.has(h)) h = free.find((x) => !taken.has(x));
           ui.placements[u.uid] = h; taken.add(h);
@@ -1275,6 +1878,19 @@
         if (ui.armed && list.length === 1) ui.sheet = attackSheet(list[0].target);
         render(); if (ui.sheet) revealAbove(E.unitByUid(st, ui.sel).hex); break;
       }
+      case "special": {   // Brief 011: Unused → the warm-up line; Charged → targets (or warm up again when none)
+        const o = selOptions(); if (!o || !o.special) break;
+        if (o.special.state === "Charged" && o.special.fire) {
+          ui.armed = ui.armed === "special" ? null : "special"; ui.ghost = null; ui.sheet = null;
+          if (ui.armed && o.special.targets.length === 1) ui.sheet = specialSheet(o.special.targets[0].target);
+          render(); if (ui.sheet) revealAbove(E.unitByUid(st, ui.sel).hex); break;
+        }
+        if (o.special.warmup) { ui.armed = null; ui.ghost = null; ui.sheet = { kind: "warm" }; render(); }
+        break;
+      }
+      case "warm-confirm": act({ type: "warmup", uid: ui.sel }); break;
+      case "special-confirm": if (ui.sheet && ui.sheet.kind === "special") act({ type: "special", uid: ui.sel, target: ui.sheet.target }); break;
+      case "move-confirm": { const r = previewRoute(); if (r) act({ type: "move", uid: ui.sel, to: ui.ghost }); break; }
       case "attack-confirm": if (ui.sheet && ui.sheet.kind === "attack") act({ type: "attack", uid: ui.sel, target: ui.sheet.target }); break;
       case "pull-confirm": act({ type: "pull", uid: ui.sel }); break;
       case "brace": act({ type: "brace", uid: ui.sel }); break;
@@ -1285,7 +1901,10 @@
         if (!ui.confirmEnd) { ui.confirmEnd = true; renderActions(); break; }
         act({ type: "end" }); break;
       case "info": if (ui.sel) { ui.sheet = { kind: "info", uid: ui.sel }; render(); } break;
-      case "sheet-close": ui.sheet = null; ui.armed = null; render(); break;
+      case "sheet-close":
+        if (ui.sheet && ui.sheet.kind === "info" && ui.sheet.back) { ui.sheet = ui.sheet.back; render(); break; }   // back to the preview it was opened from
+        ui.sheet = null; ui.armed = null; ui.ghost = null; render(); break;
+      case "card": if (a && el && el.dataset.uid) { ui.sheet = { kind: "info", uid: el.dataset.uid, back: ui.sheet }; render(); } break;   // Brief 025 §6.1: a name in the sheet opens that unit's card
       // Options menu (Brief 009)
       case "options": if (ui.menu) closeMenu(); else openMenu(); break;
       case "menu-close": closeMenu(); break;
@@ -1297,6 +1916,8 @@
         if (st.phase === "play" && !isBot(st.toMove) && (await confirmBox(`${sideName(st.toMove)} surrenders?`, "The match ends and is saved.", "Surrender", "danger"))) act({ type: "surrender", team: st.toMove });
         break;
       }
+      case "key-open": ui.sheet = { kind: "key" }; render(); break;   // Brief 025: from the unit bar's handle
+      case "key-close": ui.sheet = null; render(); break;
       case "key-toggle": if (!App.ui.keySwiped) { ui.keyOpen = !ui.keyOpen; renderSheet(); } App.ui.keySwiped = false; break;
       // Lineup unit card (Brief 009)
       case "lineup-card": App.lineupCard = el.dataset.card; renderLineupCard(); break;
@@ -1364,7 +1985,8 @@
     ["turnLimit", "Turn limit", "Turns per player. Then more pull damage wins, then less unit cap lost."],
     ["turnLimit5", "Turn limit, 5v5", "v3.4: turns per player at 5v5 (with the per-format switch on)."],
     ["turnLimit7", "Turn limit, 7v7", "v3.4: turns per player at 7v7 (with the per-format switch on)."],
-    ["deployRadius", "Deployment radius", "Deploy within this many hexes of your own flag."]
+    ["deployRadius", "Deployment radius", "Deploy within this many hexes of your own flag."],
+    ["deployRadius5", "Deployment radius, 5v5", "v3.8: deploy within this many hexes of your own flag at 5v5 (with the fields switch on)."]
   ];
   const SWITCHES = [
     ["tkoNeedsKeeper", "TKO needs the Flagkeeper to fall", "Off: removing every other unit is enough for a TKO."],
@@ -1393,7 +2015,9 @@
     ["tackleHexCost", "Tackle costs a hex", "v3.3: breaking tackle costs the leaving unit its own hex cost (Heavy 1, Light 0.5) instead of the flat tackle cost."],
     ["tackleUsesCap", "Tackle uses a hex of movement", "v3.3: breaking tackle also uses up one hex of the unit's movement cap."],
     ["doubleKoToTiebreak", "A double knockout goes to the tiebreaks", "v3.2: if one action finishes both sides, the turn-limit order decides: more pull damage, then less unit cap lost, then a draw."],
-    ["turnLimitByFormat", "Turn limit per format", "v3.4: 5v5 and 7v7 each have their own turn limit (Turn limit, 5v5 / 7v7); other formats use Turn limit."]
+    ["turnLimitByFormat", "Turn limit per format", "v3.4: 5v5 and 7v7 each have their own turn limit (Turn limit, 5v5 / 7v7); other formats use Turn limit."],
+    ["fields", "One field per format", "v3.8: 5v5 and 7v7 each play on their own field (5v5: 103 hexes, flags D3 and D15, deploy radius 5v5; 7v7: 147 hexes). Off: every format plays on the old 139-hex field."],
+    ["routeRule211", "Routes (2.11)", "v3.9: a move walks the cheapest route to the hex you pick (then one that arrives, then fewer dangers, then toward the centre column, then toward your own flag). It stops where it enters a Mark on the way, and set spear can hit it on the way. Off: the move jumps to the hex."]
   ];
   const CARD_FIELDS = [
     ["icon", "Icon", "icon"],
@@ -1514,6 +2138,7 @@
     if (b.model) {   // Brain 5: one value model (Brief 006)
       h += `<p class="note">${esc(b.name)} plans its whole turn and scores every plan the same way: what it gains, what it risks next turn, and what it leaves for next turn. These weights are that score.</p>`;
       h += table("model", "Weight") + (b.plan5 ? table("plan5", "Planning") : "");
+      if (b.lead) h += `<p class="note">The lead (Brain 7): five behaviours, each switched on with 1 and off with 0, then the numbers they use. With all five off it plays exactly like Brain 5.</p>` + table("lead", "Lead");
     } else h += table("weights", "Weight");
     h += `<div class="tablewrap"><table class="data"><thead><tr><th>Setting</th><th>Value</th><th>What it means</th></tr></thead><tbody>${Object.keys(b.settings).map((k) => row("settings", k)).join("")}</tbody></table></div></div></div>`;
     el.innerHTML = h;
@@ -1594,7 +2219,7 @@
     document.body.addEventListener("click", (e) => {
       const s = e.target.closest("[data-seg]"); if (s && !s.disabled) { onSeg(s.dataset.seg, s.dataset.val); return; }
       const b = e.target.closest("[data-act]");
-      if (b && b.getAttribute("aria-disabled") === "true") { if (b.dataset.why) toast(b.dataset.why); return; }   // Brief 005: say why
+      if (b && b.getAttribute("aria-disabled") === "true") { if (b.dataset.why === PICK) pickNote(); else if (b.dataset.why) toast(b.dataset.why); return; }   // Brief 005: say why
       if (b && !b.disabled) { onAction(b.dataset.act, b); return; }
       const row = e.target.closest("#roster tr[data-uid]");
       if (row && App.st && App.st.phase !== "deploy") { Object.assign(App.ui, { sel: row.dataset.uid, ghost: null, armed: null, sheet: null }); render(); const u = E.unitByUid(App.st, row.dataset.uid); if (u) revealHex(u.hex); }
@@ -1620,14 +2245,15 @@
       if (e.key !== "Escape") return;
       if (App.view === "play" && App.ui.menu) { closeMenu(); return; }
       if (App.view === "lineup" && App.lineupCard) { const code = App.lineupCard; App.lineupCard = null; renderLineupCard(); const b = document.querySelector(`[data-act="lineup-card"][data-card="${code}"]`); if (b) b.focus(); return; }
-      if (App.view === "play" && App.ui.sheet && App.ui.sheet.kind !== "over") { App.ui.sheet = null; App.ui.armed = null; render(); }
+      if (App.view === "play" && App.ui.sheet && App.ui.sheet.kind !== "over") { App.ui.sheet = null; App.ui.armed = null; App.ui.ghost = null; render(); return; }
+      if (App.view === "play" && (App.ui.ghost || App.ui.armed)) { App.ui.ghost = null; App.ui.armed = null; render(); }   // Brief 017 §13: Escape cancels a hover preview
     });
     // Options menu: tapping the dim closes it. Lineup card: tapping the dim closes it.
     $("menudim").addEventListener("click", () => closeMenu());
     $("lscrim").addEventListener("click", () => { App.lineupCard = null; renderLineupCard(); });
     // The attack preview's grab handle: drag up opens the key, drag down closes it; a tap toggles it (Brief 009 §3a).
     let keyDrag = null;
-    document.addEventListener("pointerdown", (e) => { const h = e.target.closest && e.target.closest("#sheet .handle"); keyDrag = h ? { y: e.clientY } : null; });
+    document.addEventListener("pointerdown", (e) => { const h = e.target.closest && !e.target.closest("#sheet .nb") && e.target.closest("#sheet .handle, #sheet .strip"); keyDrag = h ? { y: e.clientY } : null; });
     document.addEventListener("pointerup", (e) => {
       if (!keyDrag) return;
       const dy = e.clientY - keyDrag.y; keyDrag = null;
@@ -1636,7 +2262,7 @@
       const open = dy < 0;
       if (App.ui.keyOpen !== open) { App.ui.keyOpen = open; renderSheet(); }
     });
-    window.addEventListener("resize", () => { if (App.view === "play" && App.st) renderSheet(); });
+    window.addEventListener("resize", () => { if (App.view === "play" && App.st) { renderUnitbar(); renderActions(); renderSheet(); } });   // phone ↔ desktop (Brief 025)
     window.addEventListener("beforeunload", (e) => { if (App.dirty || App.brainDirty) { e.preventDefault(); e.returnValue = ""; } });
   }
 
@@ -1669,5 +2295,7 @@
     const spec = WT.fromQuery(location.search);
     if (spec) startWatch(spec, /[?&]fast=1/.test(location.search));
   }
+  // For the build's screenshots only (a "?shots=1" link): lets a test script set up a position. Nothing reads it in play.
+  if (/[?&]shots=1/.test(location.search)) window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D };
   boot();
 })();

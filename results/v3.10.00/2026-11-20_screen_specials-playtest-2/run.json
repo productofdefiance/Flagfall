@@ -1,0 +1,63 @@
+{
+ "id": "2026-11-20_screen_specials-playtest-2",
+ "kind": "screen",
+ "version": "v3.10.00",
+ "build": 14,
+ "commit": "bb59651ddb0893dcd71b0f469a88c12bed98dec1",
+ "brief": "011",
+ "question": "Playtest round 2 for the Editor (fixed bot, new seeds): how often do bots warm up specials, how often do they fire after warming up, do opponents step out of a warmed special's reach or stay in it, how often is a unit removed while warming up, specials per game, and special damage as a multiple of the normal hit?",
+ "tags": [
+  "specials",
+  "playtest",
+  "brain5",
+  "v3.7"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-20T06:55:48.000Z",
+ "finished": "2026-11-20T07:36:16.963Z",
+ "games": 1200,
+ "seed_from": "tests/rng.js lab:specials-playtest-2:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "balanced-5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 400
+   },
+   {
+    "name": "balanced-7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 400
+   },
+   {
+    "name": "light-7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.7",
+    "format": "std7",
+    "mix": "light",
+    "games": 400
+   }
+  ],
+  "measures": [
+   "play",
+   "specials",
+   "specialsafety"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "balanced-5v5: mirror, 34.8% ended on the turn limit, A/B 209–187; balanced-7v7: mirror, 38.8% ended on the turn limit, A/B 194–201; light-7v7: mirror, 40.8% ended on the turn limit, A/B 190–208."
+}

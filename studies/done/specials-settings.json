@@ -1,0 +1,99 @@
+{
+  "id": "specials-settings",
+  "kind": "screen",
+  "brief": "011",
+  "question": "Settings review of Brain 5's new special settings: each moved up and down (or off) against the default Brain 5, v3.7 balanced 7v7, 200 games each. Which move results by more than the noise?",
+  "tags": [
+    "specials",
+    "settings-review",
+    "brain5",
+    "v3.7"
+  ],
+  "measures": [
+    "play",
+    "specials"
+  ],
+  "matchups": [
+    {
+      "name": "special-0",
+      "a": "brain5:special=0",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 200
+    },
+    {
+      "name": "special-1",
+      "a": "brain5:special=1",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 200
+    },
+    {
+      "name": "warm-slack-0",
+      "a": "brain5:warmSlack=0",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 200
+    },
+    {
+      "name": "warm-slack-2",
+      "a": "brain5:warmSlack=2",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 200
+    },
+    {
+      "name": "warm-cost-0",
+      "a": "brain5:warmCost=0",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 200
+    },
+    {
+      "name": "warm-cost-3",
+      "a": "brain5:warmCost=3",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 200
+    },
+    {
+      "name": "special-margin-3",
+      "a": "brain5:specialMargin=3",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 200
+    },
+    {
+      "name": "warm-moves-1",
+      "a": "brain5:warmMoves=1",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 200
+    },
+    {
+      "name": "warm-moves-8",
+      "a": "brain5:warmMoves=8",
+      "b": "brain5",
+      "rules": "v3.7",
+      "format": "std7",
+      "mix": "mixed",
+      "games": 200
+    }
+  ]
+}

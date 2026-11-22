@@ -1,0 +1,7 @@
+matchup,games,lost_alone_n,lost_alone_s,lost_together_n,lost_together_s,holder_strikes_solo_n,holder_strikes_solo_s,holder_strikes_group_n,holder_strikes_group_s
+b7-v-b5-5v5,1000,1208,1244,2190,2260,687,692,584,489
+b7-v-b5-7v7,1000,1667,1819,3295,3313,633,547,523,425
+b7-v-b5-light-5v5,1000,1521,1593,1923,2028,600,537,457,392
+b7-v-b5-light-7v7,1000,2046,2184,3155,3148,556,492,470,374
+b7-mirror-5v5,1000,1083,1255,2272,2262,615,632,624,425
+b7-mirror-7v7,1000,1605,1706,3380,3399,662,612,535,449

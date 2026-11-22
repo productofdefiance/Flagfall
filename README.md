@@ -8,7 +8,7 @@ This repository holds the browser playtest board (rules engine and computer oppo
 
 | Folder / file | What it is |
 | --- | --- |
-| `board/` | The playtest board. `engine.js` is the rules (no screen code). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1, v3.2, v3.3, v3.4). `bot.js` and `brain.js` are the computer opponent. `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
+| `board/` | The playtest board. `engine.js` is the rules (no screen code). `fields.js` holds the fields, one per format (Brief 014). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1 to v3.9). `bot.js` and `brain.js` are the computer opponent (Brain 5 is the default; Brain 6 knows the clock; Brain 7 keeps its lead). `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
 | `board/tests/` | Automatic pass/fail checks (see below). |
 | `sims/` | Scripts that play games and make results. `sims/lab/` is the lab: it plays job orders on GitHub and files the results (Brief 008). The older scripts (`baseline.js`, `h2h_*.js`, ...) still deal their old seeds, so old studies can be re-run. |
 | `results/` | Every simulation result, one folder per run (`results/README.md` says how). Start at `results/INDEX.md`. The studies from before the lab are in `results/pre-v3.05.00/`. |
@@ -17,6 +17,8 @@ This repository holds the browser playtest board (rules engine and computer oppo
 | `data/` | Records that aren't simulation results: Match 3's move log (used by the replay test) and a summary of recorded human-vs-bot matches. |
 | `briefs/` | **Chat → Code.** One brief per build, numbered. Claude Code adds a `## Report` section to the brief it built. |
 | `FLAGS.md` | **Code → Chat.** Numbered open issues, including questions Claude Code needs answered (`ASK`). |
+| `flags/` | New flags since Brief 021: one file per brief (`flags/NNN.md`, names `FNNN-1`, …) so two builds can't clash on a name. `FLAGS.md` keeps F1 to F48. |
+| `sims/status/` | The status board (Brief 021; page redesign Brief 023): `board.js` builds it, `page.js` draws the page and runs its Refresh button, the `status board` workflow puts it on the `status` branch and at https://productofdefiance.github.io/Flagfall/status/. |
 | `CLAUDE.md` | Standing instructions for Claude Code. |
 | `CHANGELOG.md` | One entry per build, newest first, in plain language. |
 
@@ -49,14 +51,19 @@ node tests/test_v33.js
 node tests/test_v34.js
 node tests/test_v35.js
 node tests/test_v36.js
+node tests/test_v37.js
+node tests/test_fields.js
+node tests/test_route.js
 node tests/test_stamina.js
 node tests/test_reasons.js
 node tests/test_kitd.js
 node tests/test_brain5.js
 node tests/test_brain6.js
+node tests/test_brain7.js
 node tests/test_version.js
 node tests/test_watch.js
 node tests/test_ui.js
+node tests/test_phone.js
 node tests/test_invariants.js
 node tests/test_rng.js
 node tests/test_replay.js ../data/match3_log.txt
@@ -68,10 +75,15 @@ From the repository's top folder:
 ```
 node sims/lab/self_test.js
 node sims/lab/test_stall.js
+node sims/lab/test_lead.js
+node sims/lab/test_capacity.js
+node sims/status/test_board.js
 node sims/lab/board_check.js 10
 ```
 
 `board_check.js` plays 10 simulated games and opens the same 10 on the board in a headless browser; their moves must be identical. It needs Playwright (pre-installed in Claude sessions).
+
+`test_phone.js` opens the board at 393 × 665 (the Editor's phone in its browser) in the same headless browser and checks the phone layout (Brief 025): no title bar or key tab in a match, the 84 px top bar, 63 px unit bar and 116 px action panel in every state, the unit bar hidden under a preview sheet, and that no action button's label wraps. It needs Playwright too; GitHub runs it with `board_check.js`.
 
 ## The lab
 
@@ -83,7 +95,11 @@ Simulations run on GitHub, not in a Claude session (Brief 008). Put a job order 
 
 `test_stamina.js` checks the Stamina model (Brief 013): base Stamina per card, next-turn modifiers, and the floor check, which tries every combination of the shipped modifiers on every card of every preset (add `--worst` to print each card's worst case).
 
+`test_brain7.js` checks Brain 7 (Brief 019): with all five lead behaviours off it plays exactly as Brain 5, the five test positions (each printing the model's reasoning), and legal play. `sims/brainhash.js <board> brain7:lead=0@brain5` hashes a brain with changed settings on another brain's seeds. `sims/lab/test_lead.js` checks the lead and alone measures on five saved games.
+
 For a build that must not change play at all, `node tests/regress_engine.js <board folder> 2 all` also hashes the newest preset and prints one hash per rule set and brain (every brain, Brain 5 included). Run it on the board before and after: every line must match.
+
+`test_route.js` checks routes (Brief 017, Game Laws 2.11, rule set v3.9): each set-up in the brief and its mirror, that older rule sets still jump, that the move hexes offered don't change, the board's preview functions, and that `route()` names exactly where a move ends and what it meets on 1,000 random legal moves.
 
 `test_ui.js` checks UI v2 (Brief 009): the outcome bar merges equal neighbours, changed numbers are red only when they hurt the side to move, the preview's Evade equals the engine's, every unit card's text, and that nothing the board shows says "being" (units are counted in unit cap, UC).
 

@@ -1,0 +1,7 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+b7-v-b5-5v5,1000,1230,0,1230,0,ended_earlier:577 level:12 N:197 S:214,won_tiebreak:410 lost:1,73
+b7-v-b5-7v7,1000,864,0,864,0,ended_earlier:678 S:146 level:34 N:142,won_tiebreak:288,87
+b7-v-b5-light-5v5,1000,735,0,735,0,ended_earlier:750 N:137 S:108 level:5,won_tiebreak:245,4
+b7-v-b5-light-7v7,1000,615,0,615,0,ended_earlier:770 N:104 level:25 S:101,won_tiebreak:205,10
+b7-mirror-5v5,1000,777,0,777,0,ended_earlier:734 S:129 N:130 level:7,won_tiebreak:259,65
+b7-mirror-7v7,1000,432,0,432,0,ended_earlier:824 S:77 N:67 level:32,won_tiebreak:144,73

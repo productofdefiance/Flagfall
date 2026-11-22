@@ -1,0 +1,5 @@
+matchup,games,braces,braces_no_threat,attacks,holder_attacks,moves,safety_stops,refused,bot_errors
+storm1-v-b5-5v5,1000,4097,0,24399,3617,46248,0,0,0
+storm1-v-b5-7v7,1000,6509,0,31118,3233,66651,0,0,0
+storm2-v-b5-5v5,1000,4166,0,24425,3646,46359,0,0,0
+storm2-v-b5-7v7,1000,6532,0,31154,3280,66759,0,0,0

@@ -1,0 +1,18 @@
+{
+  "about": "How many GitHub machines a lab run takes (Brief 024). Tune these numbers; the workflow reads them at every start. Shares are of N, the most jobs this account runs at once.",
+  "N": 20,
+  "reserveForChecks": 5,
+  "busyShare": 0.5,
+  "bigBusyShare": 0.25,
+  "minimum": 2,
+  "nightStartHourET": 23,
+  "nightEndHourET": 7,
+  "bigGamesPerMatchup": 1000,
+  "waveParts": 10,
+  "releaseShare": 0.25,
+  "recentPushMinutes": 30,
+  "rushLabel": "lab: rush",
+  "ignoreWorkflows": ["status board", "pages build and deployment"],
+  "queueRunningAfterMinutes": 15,
+  "queueHeadsUpAfterMinutes": 45
+}
