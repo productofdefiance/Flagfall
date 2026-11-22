@@ -51,7 +51,7 @@ What's kept: all of the above, in the repository, for good. Turn-by-turn logs ar
 ## How a run is made
 1. A **job order** (a small JSON file) goes in `studies/queue/`. The design chat writes them in briefs; Code writes them during a build.
 2. The **lab** (`.github/workflows/lab.yml`) plays it on GitHub: every night after `main`'s night checks, on demand ("Run workflow"), or in a pull request that adds a job order. It splits the games over up to 20 machines, merges them, writes the run folder and the INDEX line, and moves the job order to `studies/done/`.
-3. On `main`, the results reach `main` through an automatic pull request that may only change `results/` and `studies/`, and merges itself once the checks pass.
+3. On `main`, the results reach `main` through an automatic pull request that may only change `results/` and `studies/`, and merges itself once the checks pass. Its head branch is `lab/…`: it runs `checks` (once, its own run, when the lab's key is in use) and the status board, and no play link, night checks or lab run (Brief 027).
 
 ### A job order
 ```json

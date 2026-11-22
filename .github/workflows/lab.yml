@@ -50,7 +50,9 @@ jobs:
   plan:
     name: plan
     # After night checks: only the scheduled (or hand-started) run on main, not a labelled pull request's.
-    if: github.event_name != 'workflow_run' || (github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.head_branch == 'main')
+    # Brief 027: never on a results-only pull request (head branch lab/**): its moved job orders touch studies/queue/,
+    # but there is nothing to play. Every other job needs this one, so the whole run is skipped.
+    if: (github.event_name != 'workflow_run' || (github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.head_branch == 'main')) && (github.event_name != 'pull_request' || !startsWith(github.event.pull_request.head.ref, 'lab/'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     outputs:
@@ -229,8 +231,10 @@ jobs:
           path: parts/
           retention-days: 90
 
-  # Release runs also run every check in README.md (full counts) and the regression hashes, for the summary. Each check
-  # gets its own machine, so the slowest one (test_v32.js at 400 + 400 games) sets the pace.
+  # Release runs also run every check in README.md (full counts) and the regression hashes, for the summary.
+  # Brief 027 (F024-1): the quick checks share one machine, one after another; only the slow ones get their own
+  # (test_v32.js at 400 + 400, test_invariants.js at 100, the other brains at 30, the hashes): 16 jobs became 5. Each
+  # check still writes its own name=outcome line, so tables/checks.csv lists every check by name as before.
   release-checks:
     name: release check ${{ matrix.check.name }}
     needs: plan
@@ -242,20 +246,9 @@ jobs:
       max-parallel: ${{ fromJSON(needs.plan.outputs.release_parallel) }}
       matrix:
         check:
-          - { name: "test_rules.js", cmd: "node tests/test_rules.js" }
-          - { name: "test_v1.js", cmd: "node tests/test_v1.js" }
-          - { name: "test_v3.js", cmd: "node tests/test_v3.js" }
-          - { name: "test_v31.js", cmd: "node tests/test_v31.js" }
+          - { name: "quick checks", cmd: "quick" }
           - { name: "test_v32.js (400 + 400)", cmd: "node tests/test_v32.js 400" }
-          - { name: "test_v33.js", cmd: "node tests/test_v33.js" }
-          - { name: "test_v34.js", cmd: "node tests/test_v34.js" }
-          - { name: "test_reasons.js", cmd: "node tests/test_reasons.js" }
-          - { name: "test_kitd.js (30)", cmd: "node tests/test_kitd.js 30" }
-          - { name: "test_brain5.js (30)", cmd: "node tests/test_brain5.js 30" }
-          - { name: "test_watch.js", cmd: "node tests/test_watch.js" }
-          - { name: "test_rng.js", cmd: "node tests/test_rng.js" }
           - { name: "test_invariants.js (100)", cmd: "node tests/test_invariants.js 100" }
-          - { name: "test_replay.js", cmd: "node tests/test_replay.js ../data/match3_log.txt" }
           - { name: "other brain tests (30)", cmd: "for t in tests/test_brain*.js; do [ \"$(basename $t)\" = test_brain5.js ] || node $t 30 || exit 1; done" }
           - { name: "regression hashes", cmd: "hashes" }
     steps:
@@ -273,13 +266,26 @@ jobs:
           NAME: ${{ matrix.check.name }}
           CMD: ${{ matrix.check.cmd }}
         run: |
-          mkdir -p ../out; id=$(echo "$NAME" | tr -c 'a-zA-Z0-9' '_')
+          mkdir -p ../out
+          one() {  # one check: its own name=outcome file
+            local id; id=$(echo "$1" | tr -c 'a-zA-Z0-9' '_')
+            if bash -c "$2"; then echo "$1=success" > "../out/check-$id.txt"; else echo "$1=failure" > "../out/check-$id.txt"; fi
+          }
           if [ "$CMD" = "hashes" ]; then
+            id=$(echo "$NAME" | tr -c 'a-zA-Z0-9' '_')
             : > ../out/hashes.txt
             if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then mkdir -p /tmp/base && git -C .. archive "$BASE" board | tar -x -C /tmp/base; echo "Earlier board ($BASE):" >> ../out/hashes.txt; node tests/regress_engine.js /tmp/base/board 3 >> ../out/hashes.txt; fi
             echo "This board:" >> ../out/hashes.txt; node tests/regress_engine.js . 3 >> ../out/hashes.txt && echo "$NAME=success" > "../out/check-$id.txt" || echo "$NAME=failure" > "../out/check-$id.txt"
+          elif [ "$CMD" = "quick" ]; then
+            # name|command, one per line, the same names as the 16-job runs before Brief 027
+            [ -f ../sims/lab/release_quick.txt ] || { echo "$NAME (list missing)=failure" > ../out/check-quick_missing.txt; exit 0; }
+            while IFS='|' read -r n c; do
+              [ -n "$n" ] || continue
+              echo "::group::$n"; one "$n" "$c" < /dev/null; echo "::endgroup::"
+            done < ../sims/lab/release_quick.txt
+            cat ../out/check-*.txt
           else
-            if bash -c "$CMD"; then echo "$NAME=success" > "../out/check-$id.txt"; else echo "$NAME=failure" > "../out/check-$id.txt"; fi
+            one "$NAME" "$CMD"
           fi
       - uses: actions/upload-artifact@v4
         with:

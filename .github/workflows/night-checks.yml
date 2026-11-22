@@ -24,7 +24,8 @@ permissions:
 jobs:
   full:
     name: full checks
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full checks')
+    # Brief 027: never on a results-only pull request (head branch lab/**), even with the label.
+    if: github.event_name != 'pull_request' || (contains(github.event.pull_request.labels.*.name, 'full checks') && !startsWith(github.event.pull_request.head.ref, 'lab/'))
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
