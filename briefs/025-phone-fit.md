@@ -1,0 +1,179 @@
+# Brief 025 — Phone fit: more field on a phone, Approved UI v5
+
+| | |
+|---|---|
+| Game version | **YY** (new screens: a real change), ZZ = 00. Code takes the number at its last sync before Ready for review. |
+| Lane | UI |
+| Rule set | none. No preset, no engine rule. |
+| Date | 20 Nov 2026 |
+| Goal | On a phone the field gets too little of the screen (293 px of 665 with a unit tapped, about 106 px under an attack preview). Give it 402 px in play and about 308 px under a preview, by removing the title bar in a match, slimming the panel, rebuilding the unit bar, and using one compact sheet for attack, special and flag pull. |
+| Branch | Any branch your session may push to, started from `brief/025-phone-fit` |
+| Flags | F017-4 (this build fixes it). Also mark F017-1 and F017-2 closed in `flags/017.md`: the Editor accepted both on 20 Nov (the two F017-2 readings are now in Game Laws 2.11). |
+| Waits on | 017 |
+| Order | **After brief 017 merges, and before brief 018** (the Editor, 20 Nov: this goes first in the build order). 018's turn tag, field buttons and match log are placed against this layout. Run `sync` first. |
+
+## Context
+The Editor's phone shows the game in **393 × 665** inside the browser (the phone is 393 × 852; the browser's bars take the rest). Earlier briefs assumed 390 × 844, so every phone screen so far was designed about 180 px too tall. From now on, phone screens are designed and checked at 393 × 665.
+
+The design was worked out on the UI Brainstorm canvas, page **Phone fit**, Rounds 1 to 11, and approved by the Editor on 20 Nov as the 14 frames titled **Final 01 to Final 14** (they go onto the Approved UI canvas as page **v5** with this brief). Pictures of those 14 frames are in `briefs/img/025/` so you never need to open a canvas. **Where a picture and this brief differ, the brief wins.** The pictures also show two things that are brief 018's, drawn only to check positions: the match log button (top right) and the zoom button (bottom right). Do not build those here, and do not build 018's turn tag.
+
+Where the height goes today on 017's build, unit tapped, 393 × 665: title bar 61, scoreboard 89, field 293, unit bar 81, buttons 141.
+
+Rules that apply: Game Laws 1.13 (what is shown is the true state), 1.16 (nothing empty is offered), 7.9 (symmetrical, elegant, clean). **Every number, hex, route and outcome on screen still comes from the engine functions brief 017 added; this brief moves and restyles them, it computes nothing new** (CLAUDE.md pitfall 1).
+
+## Scope
+In, **phone layout only** (under 900 px wide): the in-match top bar, the field buttons, the unit bar, the action panel's sizes, the warm-up note, and one sheet for the attack preview, the special preview and the flag pull.
+Out: every desktop screen (900 px and wider keeps 017's layout untouched); the turn tag, hot-seat views, zoom and match log (brief 018); the Options menu; the info card's own layout; deployment's own layout (only the panel sizes in section 4 reach it); any rule, any preset, the bot; opening the game from the home screen as an app (not approved, not in this build).
+
+## What to build
+
+### 1. Top bar in a match
+- **No title bar during a match.** The "FLAGFALL: Arena" name, its rule line and the menu button leave the dark top bar on the play screen. Every other screen (Home, set-up, lineup, sheets) keeps its title as today.
+- **Scoreboard:** padding 9 px top, 16 px sides, 11 px bottom; 8 px between its three rows. Nothing in it moves or changes size. With the 3 px side-to-move underline the whole top bar is **84 px** (was 150).
+
+### 2. Field buttons
+One look for every button that floats on the field: 44 × 44, radius 10, background ink `#1f2421`, icon `#f8f9f5` 20 px, 1.5 px white border, shadow `0 2px 6px rgba(0,0,0,0.25)`. (This is brief 018's field-button look, section 7 there; use it now so 018 changes nothing.)
+- **Menu** (the same Options button, same icon, same menu): on the field, **left 8 px, its top 38 px below the bottom of the scoreboard**. It mirrors where 018 will put the match log button on the right, so both top corners of the field stay free for 018's turn tag.
+- **Hex names:** the board's own hex-name icon, unchanged (the Editor, 20 Nov: keep the old icon). Position: **where brief 018's section 7 puts it** (the Editor approved those positions on 19 Nov): right 8 px, its bottom edge 116 px above the bottom of the visible field. 018 adds the zoom button under it; until then that slot is empty. (The approved pictures draw both buttons 56 px lower; 018's positions win.) Its pressed state is 018's: light `#f8f9f5` button with an ink edge and ink icon.
+- **The "Pull up for the key" tab on the field is removed.** The key opens from the handle on the unit bar (section 3) and from the handle on the sheet (section 6). The key drawer itself is unchanged.
+- The top and bottom edge pills (off-screen units and the flag) stay where they are.
+
+### 3. Unit bar
+**63 px tall in every play state** (nothing tapped, unit tapped, move previewed, enemy tapped, warming up, Evade step), so the field never jumps when a unit is tapped. Background and top line as today. Padding 0 top, 14 px sides, 9 px bottom.
+
+- **Handle:** a bar 36 × 4, radius 2, `#b8beb6`, centred, 5 px above and 5 px below it. It opens the key (the same action the field tab had). The whole top 24 px of the bar is its touch area. Not shown when nothing is tapped.
+- **Two rows, 6 px apart, in two columns 10 px apart:** a left column that takes all spare width and a right column as wide as its content.
+  - **Row 1, left (22 px tall):** the unit's token 24 px; the unit's **full name** (Barlow Condensed 700, 17 px, letter-spacing 0.02em, one line); the **(i)** mark 16 px, `#5f6762`; then the **chips**, right-aligned so they end at the left column's right edge (which is the HP bar's right end) and grow leftward toward the (i). 8 px between items, 5 px between chips.
+  - **Row 1, right (22 px tall):** the hex icon and the unit's hex, then the arrow and moves left (as today: IBM Plex Sans 600, 13 px, 8 px apart). Enemy tapped: `Next turn` and its moves, as today.
+  - **Row 2, left:** the HP bar, 6 px tall, across the whole left column.
+  - **Row 2, right:** the HP number (`12/12`, 600 13 px), then the Stamina squares, 8 px apart.
+- **Chips** (the dangers and costs of a previewed move, from `route().events`, in walking order, filling from the right): pill 17 px tall, radius 8.5, padding 0 7 px, white text IBM Plex Sans 700 11 px, icon 12 px; ink `#1f2421` for a stop or a cost (Mark icon; `+0.5` for tackle), red `#c62828` for damage (Set Spear icon and its number).
+- **Move previewed:** row 1 right shows the route in place of hex and moves: from-hex in `#5f6762`, the arrow icon, to-hex in ink (600 13 px). The Stamina squares show the cost as today. There is **no separate route row any more**: the bar does not grow.
+- **Nothing tapped:** one line, left-aligned, in today's muted style: **`Tap a unit`** (was "Tap one of your units": an enemy can be tapped too).
+- **Tap area for the card:** the (i) mark alone is too small to tap. The token, name and (i) together are one button that opens the unit card (`aria-label` "Unit information"), at least 44 px tall.
+- **The name and the (i) are never moved, shrunk, truncated or covered** by chips or anything else. If chips would not fit beside the longest name, the chips stop at the (i) with 8 px to spare and the overflow shows as a last chip `+N`; say so in the Report if it ever happens in play.
+
+### 4. Action panel
+- Padding 6 px top, 10 px sides, 8 px bottom; 5 px between the two rows. **Every action button is 48 px tall** (was 56). The panel is **116 px** (was 141). Widths, order, icons, colours and states are unchanged.
+- **A button's label never wraps.** One line always, in every state and for every unit (`white-space: nowrap`).
+- **A special's name must fit its idle button on one line at 393 px.** Today's six fit (Arrow Storm, the longest, is 65 px of the button's 85 px inside width; about 14 characters is the limit). Add a check (section "Checks") so a longer name fails the build rather than wraps. The Special button keeps the special's name in every state, as brief 011 built it.
+- Deployment and the Options sheets use the same button height and paddings; nothing else about them changes.
+
+### 5. Warming up
+- The line of text above the buttons is removed, so the panel keeps its 116 px.
+- The note moves into the unit bar, row 1, in the chips' place (right-aligned, ending above the HP bar's end): **`Fires next turn · no attack or brace`**, IBM Plex Sans 500, 11.5 px, `#5f6762`, one line. Row 1's right side (hex and moves) is hidden while it shows.
+- The confirm button reads **`Warm up <name>`** (`Warm up Arrow Storm`), with `−1 Stamina` and the squares under it as today. One line; if a name is too long for it, the button reads `Warm up` and the name stays on the Special button's label rule above.
+- Warming up again on a firing turn (brief 011's re-warm) uses the same note and button.
+
+### 6. One sheet for attack, special and flag pull
+The three previews share one layout. **While the sheet is open it takes the unit bar's place** (the unit bar is hidden; the sheet names both units and shows their HP). The sheet sits directly above the action panel, full width, with today's rounded top corners and shadow. Side padding 14 px, top padding 9 px, bottom padding 12 px. Blocks from top to bottom:
+
+**6.1 Name strip.** Three columns: left unit, handle, right unit; the two outer columns are equal, the handle is always dead centre whatever the names' lengths.
+- Left: token 22 px, the unit's **full name** (Barlow Condensed 700, 14 px, one line), the (i) mark 15 px `#5f6762`; 6 px apart; starting at the left edge.
+- Right: mirrored: (i), name, token, ending at the right edge (the token outermost).
+- Handle: 36 × 4, radius 2, `#b8beb6`. It opens the key, as the old handle did. The whole strip is its touch area except the two name blocks. The words "Pull up for the key" are not shown.
+- Each name block (token, name, (i)) opens that unit's card. Never moved, shrunk, truncated or covered.
+- The strip sits 3 px lower than the sheet's top padding alone would put it.
+
+**6.2 HP row**, 5 px under the strip. Left: HP number at the outer edge, then the bar. Right: the bar, then the HP number at the outer edge. Bars and numbers as today. **Between the two bars, on one line, vertically centred on the bars: the two hexes and the arrow** (`G9 → G10`): IBM Plex Sans 500, 10 px, `#5f6762`; arrow 12 px in the action's colour as today (red for an attack or a pull, gold for a special); 3 px apart. The two bars are always level with each other.
+
+**6.3 Modifier row**, 5 px under the HP row. Left side: the attacker's modifiers, **right-aligned, ending at the left bar's right end**. Right side: the target's, **left-aligned, starting at the right bar's left end**. 8 px between modifiers. Each: icon 14 px, then the number IBM Plex Sans 600, 12.5 px, in the icons' grey `#5f6762`, 3 px apart. On the right side the number comes before its icon, as today. Parry sits in this row with the target's other modifiers, in red as today (the Editor, 20 Nov). When a side's modifiers do not fit on one row, the extra ones go on a **second row below, 4 px lower**, aligned the same way; the HP bars do not move. The row is 14 px tall even when a side has none.
+- **A changed number** keeps brief 009's rule (the old number struck with a diagonal, the new one beside it, red only when the change hurts you), at 12.5 px.
+- **A special's multiplier** is the exception: show the base Strength, then the multiplier beside it, 4 px apart, nothing struck and no second icon: **`9 ×1.75`** (was `9` struck, `15.75`, and a separate `×1.75`).
+
+**6.4 Outcomes**, 13 px under the modifier row: percentages, bar and damage numbers exactly as today (a special keeps its single segment and `100% · no dice`).
+
+**6.5 Results under the outcomes** (what brief 017 calls kill consequences), 4 px under the damage numbers, pills as today (15 px tall, icon 11 px, number 700 10 px).
+- **Over a range of outcomes:** a thin bracket spans exactly the outcome columns the results apply to: a 1.3 px `#5f6762` line with a 6 px tick up at each end, the pills centred on it in a gap of 5 px each side.
+- **Over one outcome only:** no bracket. The pills sit to the left of that outcome's column, 5 px from it; one 1.3 px `#5f6762` line runs from them to the middle of the column and turns up 9 px to it.
+- Either way the row is 15 px tall, with 4 px above it and the sheet's 12 px below.
+
+**6.6 Flag pull.** The same sheet (the old pull sheet with its grid of dice results is removed).
+- Left: the pulling unit, as an attacker (its Strength and any Support as modifiers).
+- Right: the flag: a round token 22 px, `#b07a33`, with the white flag glyph 12 px; the name `South flag` or `North flag` (in full); no (i); its own HP number and bar in `#b07a33`. The hexes between the bars are the puller's hex and the flag's.
+- Outcomes: the engine's pull outcomes (the same seven as the old sheet), as percentages, bar and damage, without the dice roll numbers, like an attack. An outcome that brings the flag down is a red segment; the others grey.
+- Result: one red pill, flag glyph and **`Flag falls`**, bracketed over the outcomes that bring it down (section 6.5).
+- Buttons: **Pull** takes the three attack slots (red, the attack colour, the flag icon 22 px, `Pull`, `−1 Stamina` and the squares, from the engine), **Cancel** takes Brace's slot, as an attack does.
+- A held flag is not pulled; it is attacked through its holder with the ordinary attack preview (unchanged).
+
+Sheet heights at 393 px for reference (field left in view in brackets): attack with results 157 (308); attack without 138 (327); special 138 (327); flag pull 155 (310).
+
+### 7. Not drawn, use these readings and flag them
+These states exist in play but were not drawn or approved. Build them as below, list each in the Report with a screenshot, and raise an `ASK` in `flags/025.md` if any reading does not work.
+- **Evade step:** the unit bar as in section 3; the Evade chip (icon and total hexes) sits in the chips' place; previewing an Evade hex shows the route in row 1 right, as a move does.
+- **A unit that can't move:** `No movement available this turn` sits in the chips' place in the warm-up note's style (500, 11.5 px, `#5f6762`); row 1 right stays.
+- **A special with several targets** (Arc Hit's extra target rows): keep the rows as built, between the modifier row and the outcomes, names in full.
+- **The key drawer** opens from either handle and is unchanged inside.
+
+## Rules it touches
+None in the engine. On screen: 1.13 and 1.16 (every value shown is the engine's; nothing empty is offered). Tests in `test_ui.js`: the play screen under 900 px has no title bar and no key tab; the unit bar is the same height with nothing tapped, a unit tapped, a move previewed, an enemy tapped and a warm-up open; with a preview sheet open the unit bar is hidden; no action button's label wraps for any unit or state at 393 px; every special's name in the newest preset fits its idle button at 393 px.
+
+## Bot minimum
+n/a: nothing the bot can do changes.
+
+## Must not change
+Every preset plays and replays identically (`regress_engine.js` hashes). The engine. Every desktop screen. What any button does. The attack maths and every number shown. Brief 017's field marks.
+
+## Checks before opening the pull request
+- Every check in `README.md` passes; `regress_engine.js` hashes match the board before this change.
+- The new `test_ui.js` checks above pass.
+- Screenshots **at 393 × 665** (and one set at 390 × 844 to show nothing breaks on a taller phone) of the 14 approved states, named as the pictures in `briefs/img/025/`, plus the four states in section 7. Put them beside the approved pictures in the Report.
+- A table in the Report: at 393 × 665, the height of the top bar, field, unit bar and panel, and the field left in view, for each of the 14 states. Expected: top bar 84; unit bar 63; panel 116 (deployment's bench may be taller); field 402 in play, about 308 to 327 under a sheet.
+- Desktop at 1280 × 800: one screenshot of a unit tapped and one of an attack preview, identical to 017's.
+
+## The Editor's hands-on check
+On your phone, in the browser, one 7v7 against the bot:
+1. Before tapping anything: no title bar, the menu button at the field's top left, the bar reads "Tap a unit".
+2. Tap one of your units, then an enemy: the bar stays the same height and the field doesn't jump.
+3. Preview a move next to an enemy Melee unit: the chips end above the end of the HP bar.
+4. Preview an attack: both full names and both (i) show, the HP bars sit under the names, the modifiers under the bars, and you can still see about five rows of field.
+5. Warm up a special, then fire it next turn: the note sits in the unit bar; the button label is on one line.
+6. Pull a flag (move a unit next to an empty enemy flag and tap the flag): the new sheet, a red Pull button, "Flag falls" bracketed.
+7. Open the menu from its new place.
+
+## Report
+*Filled in by Claude Code. Branch `claude/fervent-cori-z3hc7y`, started from `brief/025-phone-fit`, synced with `main` after brief 017 merged.*
+
+- **What's in:** everything in sections 1 to 7, phone only (under 900 px). No title bar in a match; menu button on the field (left 8, 38 px below the scoreboard); hex-names button at brief 018's position with 018's look and pressed state; the key tab removed (the key opens from the unit bar's handle and the sheet's handle); a 63 px unit bar in every play state with chips, the route in row 1, `+N` overflow and a 44 px card tap area; a 116 px action panel with 48 px buttons and labels that never wrap; the warm-up note in the unit bar and `Warm up <name>` (falls back to `Warm up` if it would not fit); one sheet for attack, special and flag pull (name strip with a centred handle, hexes between the HP bars, modifiers under the bars with wrapping, `9 ×1.75`, outcomes, bracket or single-outcome line for results); the flag pull with `Flag falls` and the red Pull button in the panel. A name in the sheet opens that unit's card; closing the card brings the preview back.
+- **Height table, 393 × 665** (top bar / field / unit bar / panel / sheet / field left in view, px):
+
+  | State | Top | Field | Unit bar | Panel | Sheet | In view |
+  |---|---|---|---|---|---|---|
+  | 01 Nothing tapped | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 02 Unit tapped | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 03 Move previewed | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 04 Enemy tapped | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 05 Attack preview (no results) | 84 | 465 | hidden | 116 | 137 | 328 |
+  | 06 Attack, longest names | 84 | 465 | hidden | 116 | 137 | 328 |
+  | 07 Attack, one kill outcome (results) | 84 | 465 | hidden | 116 | 156 | 309 |
+  | 08 Attack, most modifiers | 84 | 465 | hidden | 116 | 137 | 328 |
+  | 09 Special fired | 84 | 465 | hidden | 116 | 137 | 328 |
+  | 10 Pulling the flag | 84 | 465 | hidden | 116 | 156 | 309 |
+  | 11 Warming up | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 12 Info card | 84 | 402 | 63 | 116 | 322 | 80 |
+  | 13 End turn confirm | 84 | 402 | 63 | 116 | 0 | 402 |
+  | 14 Deployment | 84 | 411 | 107 (bench) | 63 (one row) | 0 | 411 |
+
+  Expected: 84 / 402 / 63 / 116; sheets 157, 138, 138, 155. Built: 156, 137, 137, 156 (within 1 px). The info card is its own layout (out of scope) and still covers most of the field.
+- **Screenshots:** approved pictures in `briefs/img/025/`; this build's beside them in `briefs/img/025/build-393x665/` (same file names, plus `s7-evade-step`, `s7-cannot-move`, `s7-special-several-targets`, `s7-key-drawer` for section 7), the taller phone in `briefs/img/025/build-390x844/` (nothing breaks: field 581 in play, 488 to 507 under a sheet), and desktop in `briefs/img/025/build-desktop/`. Desktop 1280 × 800: all 18 states compared pixel by pixel with Build 17 (017's board) and **identical**.
+- **Section 7 readings (built as the brief says):** Evade step: the Evade chip in the chips' place, the route on the right when an Evade hex is previewed. Can't move: the note in the chips' place, but it doesn't fit beside a normal name while the hex stays (F025-2). Special with several targets: the extra rows as built, names in full. Key drawer: opens from either handle, unchanged inside.
+- **Anything beyond the brief, and why:** closing a unit card opened from a sheet's name returns to that preview (otherwise checking a name would throw the preview away). The menu opens from the field's top left on a phone (its button moved).
+- **Where the build differs from the approved pictures:** the hex-names button sits 56 px higher (018's position, as the brief says); no match log or zoom button (018's); the unit bar's tap area for the card overlaps the handle's touch area over the name (F025-4). Chips overflowing to `+N` never happened in the test states, including the longest names (`Light Anti-Cavalry 2`, `Heavy Anti-Cavalry 2`).
+- **Checks run and results (paste regression hashes):** all run in this session and passing: every check in `README.md` (test_rules, test_v1, test_v3, test_v31, test_v32 40 games, test_v33, test_v34, test_v35 6, test_v36 4, test_v37 2, test_fields 2, test_route, test_stamina, test_reasons, test_kitd 6, test_brain5/6/7 2, test_version, test_watch, test_ui 112/112, test_invariants 30, test_rng, test_replay, test_phone 32/32, lab self_test, test_stall, test_lead, test_capacity, status test_board, board_check 10 games 0 different). `regress_engine.js` against a copy of the board from before this change, 3 games per set: every rule set prints the same hash before and after: `match3 37397ef2bd3ed86b` `v1 7b25bca651c0cb31` `v2 ddbe5fc437ff4e9d` `v3 26371927b53d4413` `v3.1 c71e4cd12fc984b0` `v3.2 f62a061d2c147d83` `v3.3 e6151bf463d6c9f8` `v3.4 ee6ce003ac760250` `v3.5 fca989aecfaf21c9` `v3.6 a6bf327b54f7d5a1` `v3.7 dd3c27d9dc9aafbb` `v3.8 022a298c49a02540` . The `all` mode (every preset including v3.9, every brain) was stopped at 61 of about 100 combinations, all 61 identical; it isn't needed here because `engine.js`, `data.js`, `bot.js`, `brain.js`, `fields.js` and `watch.js` are byte-for-byte unchanged (the Editor agreed to skip the rest, 21 Nov).
+- **Where the new checks live:** the brief asks for the layout checks in `test_ui.js`. GitHub runs `test_ui.js` before any browser is installed, so the layout checks are in a new `test_phone.js` (headless browser at 393 × 665, 32 checks), run on GitHub right after `board_check.js` installs Playwright. `test_ui.js` gets the checks that need no browser (pull sheet numbers, `9 ×1.75`, special names 14 characters or fewer, `nowrap` on labels, no key tab). `test_phone.js` fails on Build 17's board (26 of 32 fail) and passes on this one. Special names measured at 393 px: Arrow Storm 65 of 85 px (the longest), Bullseye 44, Pick Off 40, Skewer 38, Javelin 37, Arc Hit 35.
+- **Baseline table (rule changes only):** n/a
+- **Bot minimum (met / not met, with numbers):** n/a
+- **Settings review (brain builds only):** n/a
+- **Known gaps:** the pull sheet's modifiers are read from the engine's own wording of the pull (`pullValue().parts`); if that wording changes, `test_ui.js` fails rather than the sheet going wrong silently. Desktop still says "Tap one of your units" (desktop is out of scope).
+- **Review of #47 (five fixes), done:**
+  1. **Notes never clip.** While a note shows (warm-up, re-warm, can't move), it takes all of row 1: no hex or moves. Beside Light Ranged it fits on one line. Beside Heavy Anti-Cavalry 2 one line still won't fit (the name, token and (i) leave about 150 px; the notes need about 185), so there it goes onto two 11 px lines inside the same 22 px row. The bar stays 63 px. Nothing clips; "No movement available this turn" shows in full. Screenshots: `build-393x665/r1-*.png`.
+  2. **Field buttons are never covered.** The menu and hex-names buttons hide while any sheet or the key drawer is open (attack, special, pull, unit card, key). Otherwise the hex-names button's bottom sits 116 px above whatever is under the field, so it moves up when that grows (checked with deployment's taller bench).
+  3. **The Special button's state bar clears its label.** On 48 px buttons with a state bar: the bar is 4 px (was 5), with a 1 px gap under the icon and 9 px padding below. The bar now sits 2 px or more below the label's text box in Warming up and Charged. Screenshots: `r3-special-warming-up.png`, `r3-special-charged.png`.
+  4. **Re-warm wording.** A charged special with no target: the button reads "Warm up <name> again" ("Warm up again" if too long) and the note reads "No target in range · fires next turn". The first warm-up is unchanged. Screenshot: `r4-rewarm.png`.
+  5. **Every unit in a preview can come above the sheet.** While a sheet is open the field gets scroll room below its last row as tall as the sheet. The preview then scrolls so the attacker and every target (a special's other targets, the flag it pulls) sit above it. Screenshot: `r5-arc-hit-from-e17.png` (South Heavy Melee holding on E17, Arc Hit on E16 with D16 and F16: all four above the sheet). No room was added above the first row. Nothing covers the top of the field now that the buttons hide under a sheet, and room there would make the field jump when a sheet opens. Ask if 018's turn tag needs it.
+  - F025-4 checked with Heavy Anti-Cavalry 2: the visible handle bar is outside the card's tap area, so nothing to change.
+  - New `test_phone.js` checks (64 in all, was 32): notes in full with both units, re-warm wording, field buttons hidden under all five sheets and placed right in three states, the state bar clear in both states, the handle bar opens the key, the E17 Arc Hit. 18 of the new checks fail on the reviewed build (`bacad98`) and all pass now. Desktop re-compared at 1280 × 800: identical, apart from the old harness artifact on the key drawer. The game files are untouched, so the hashes above still stand. Rerun here: `test_ui` 112/112, `test_version`, `test_phone` 64/64, `board_check` 4 games, 0 different.
+  - Not in this build, as asked: the several-targets rows stay as built.
+- **Flags closed / opened:** closed F017-1, F017-2 (the Editor, 20 Nov) and F017-4 (this build) in `flags/017.md`. Opened in `flags/025.md`: F025-1, F025-3, F025-4 (ASK); F025-2 and F025-5 opened and closed in this build (review of #47, fixes 1 and 2).
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/47
+- **Follow-up (v3.14.01 · Build 19, after the merge):** the Editor's answers of 21 Nov. F025-1: a special's Strength is never struck: the Strength the hit uses, then the multiplier (Javelin from 2 hexes `7 ×2`). F025-3 and F025-4 were accepted as built. All three are closed. Engine, rules and bot are untouched; `test_ui.js` has a new check that fails on Build 18.
