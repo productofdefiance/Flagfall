@@ -55,9 +55,9 @@ Tapping a **Charged** Special button (with or without a target) turns the UNIT r
 - **Moving from the special row** (item 6): tapping a move hex previews the move as usual (the row becomes Move and Cancel). After the move, tap the special again to reopen the row.
 
 ### 4. The big button (item 4)
-- **Several targets:** tap the big button: its targets ring red as Attack's do, and the dark pill (`#hint`) reads **`Tap a red ring`** (picture 10). Tap a ringed unit: the special sheet opens on it and the big button's second line becomes `−1 Stamina` and the squares; tap it to fire (picture 14).
+- **Several targets:** tap the big button: its targets ring red as Attack's do, and the dark pill (`#hint`) reads **`Tap a target`** (picture 10 says `Tap a red ring`: the Editor, 21 Nov, 7:38 pm ET: words name the thing, not the UI that marks it; the same change for Attack and Reach, which share this pill in `renderHint()`). Tap a ringed unit: the special sheet opens on it and the big button's second line becomes `−1 Stamina` and the squares; tap it to fire (picture 14).
 - **One target:** tapping the charged Special button opens the sheet on that target at once and the big button fires (picture 15). Warm up stays beside it, so nothing forces a fire.
-- **No target:** the big button stays gold with `No targets` (picture 12). Tapping it shows the reason in the dark pill: **`No targets available`** for every special, adjacent, ranged, Reach or Javelin alike (the Editor, 21 Nov, 7:31 pm ET: this replaces picture 13's `No enemy adjacent`, which is wrong for any special that doesn't need an adjacent target). The engine says `No target in reach` (section 5's wording table).
+- **No target:** the big button stays gold with `No targets` (picture 12). Tapping it shows the reason in the dark pill: **`No targets available · move`** when the unit has moves left, **`No targets available`** when it has none (moving is the only thing that can bring a target; warm-up, brace and the rest are other actions, so the pill doesn't offer them), for every special, adjacent, ranged, Reach or Javelin alike (the Editor, 21 Nov, 7:31 pm ET: this replaces picture 13's `No enemy adjacent`, which is wrong for any special that doesn't need an adjacent target). The engine says `No target in reach` (section 5's wording table).
 
 ### 5. Notes and reasons (item 5)
 - No charged note in the unit bar: it keeps hex and moves.
@@ -68,7 +68,12 @@ Tapping a **Charged** Special button (with or without a target) turns the UNIT r
   |---|---|---|
   | `Used` | `<special> used · once a match` (`Arrow Storm used · once a match`) | picture 05 |
   | `Braced this turn` | `Braced this turn · warm up next turn` | picture 06 |
-  | `No target in reach` | `No targets available` (section 4) | the Editor, 21 Nov (replaces picture 13) |
+  | `No target in reach` | `No targets available · move`, or `No targets available` with no moves left (section 4) | the Editor, 21 Nov (replaces picture 13) |
+  | `<id> has ended its turn` | `Ended its turn` | the Editor, 21 Nov: no unit codes on screen |
+  | `<id> attacked this turn and may only evade or end` | `Attacked this turn · may only evade or end its turn` | the Editor, 21 Nov. The engine sets this only for a unit whose card can Evade (`card.evade`, the Light units; `doAttack` and `doSpecial` both check it), so a Heavy unit never sees it; add a test that a Heavy unit after an adjacent attack never gets it |
+  | `<id> is reloading this turn` | `Reloading this turn` | the Editor, 21 Nov |
+
+  **Words name the thing, not the UI that marks it** (the Editor, 21 Nov: `Tap a target`, not `Tap a red ring`), and **no unit codes** (`HM2`) on screen: where a message names a unit, use its full name (`UI.unitName`). The same applies to the Evade hint in `renderHint()`, which today says `step further from HM2`.
 
   Put the table in one place in `board/app.js` with a test that every engine reason string it maps still exists in `engine.js` (so an engine rewording fails the build, not the screen). List every reason and its shown words in the Report.
 - Not drawn, reading: tapping a **Warming up** button shows `Fires next turn` in the dark pill. List it in the Report.
@@ -120,7 +125,7 @@ The engine appears to deal it: `doSpecial` steps a killing Pick Off into the hex
 
 ## Rules it touches
 None in the engine. On screen: 6.16 (warm-up, fire, re-warm), 6.17 (targets), 3.6 and 3.13 (the kill pill), 1.13 and 1.16. Each becomes a test:
-- `test_ui.js` / `test_phone.js` (wherever 025 put browser checks): the five button looks; one tap from Unused warms up with no confirm and shows the note; no state bar on the Special button; tapping Charged opens the row with `N targets` / `No targets` / `−1 Stamina`; Warm up in the row warms up, greys the big button with `Warming up instead`, and Cancel keeps the warm-up; several targets ring with `Tap a red ring`; one target opens the sheet at once; no target gives the reason pill; Used and Can't warm up give their pill; every special opens the row sheet, one target included; the multiplier shows `×1`; a kill's spear pill shows on Pick Off's row; Brace's two looks; no special name or `Warm up` label wraps.
+- `test_ui.js` / `test_phone.js` (wherever 025 put browser checks): the five button looks; one tap from Unused warms up with no confirm and shows the note; no state bar on the Special button; tapping Charged opens the row with `N targets` / `No targets` / `−1 Stamina`; Warm up in the row warms up, greys the big button with `Warming up instead`, and Cancel keeps the warm-up; several targets ring with `Tap a target`; one target opens the sheet at once; no target gives the reason pill; Used and Can't warm up give their pill; every special opens the row sheet, one target included; the multiplier shows `×1`; a kill's spear pill shows on Pick Off's row; Brace's two looks; no special name or `Warm up` label wraps.
 - Undo: undoing a warm-up from Unused and from Charged restores the special state, Stamina and Command exactly; undoing a brace still works; Undo still refuses after a fired special.
 - The wording table's engine strings all exist in `engine.js`.
 - Section 10's two engine checks.
@@ -141,7 +146,7 @@ Every preset plays and replays identically (`regress_engine.js` hashes). The eng
 ## The Editor's hands-on check
 On your phone, one 7v7 against the bot:
 1. Tap Light Ranged's Arrow Storm once: it warms up (dashed gold), the note shows. Tap Undo: it's back to white, Stamina back.
-2. Warm it again, end turn, come back: the button is gold. Tap it: Arrow Storm big with "2 targets" (or however many), Warm up, Cancel. Tap the big button, tap a red ring, fire.
+2. Warm it again, end turn, come back: the button is gold. Tap it: Arrow Storm big with "2 targets" (or however many), Warm up, Cancel. Tap the big button ("Tap a target"), tap one, fire.
 3. With a charged special and no target: "No targets"; tap it for the reason. Tap Warm up: the big button greys "Warming up instead"; Cancel keeps it.
 4. Line up a Pick Off that kills next to a braced Heavy Anti-Cavalry: the red spear pill on the row; fire, and see the spear land.
 5. Brace a unit: the Brace button turns solid charcoal; tap Undo, it's unbraced. Brace again; next turn, dashed.
