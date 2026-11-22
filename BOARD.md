@@ -1,12 +1,12 @@
-STATUS · updated 21 Nov 2026, 9:44 pm ET
+STATUS · updated 21 Nov 2026, 9:45 pm ET
 
 VERSION
   On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5
-  Building: 018 → v3.15.00 · 022 → v3.15.00
+  Building: 018 → v3.15.00 · 022 → v3.15.00 · 027 → none
 
 RESULTS (last 24 hours)
   Nightly checks: pass (21 Nov, 11:05 am ET)
-  Queue: 19 jobs waiting, oldest 57 min · lab using 6 of 20
+  Queue: 19 jobs waiting, oldest 58 min · lab using 6 of 20
   nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
 FLAGS (open, newest first)
@@ -28,8 +28,9 @@ BUILDS
   Building
     018 Turn cue zoom · PR #54 · needs sync · checks running · not reviewed
     022 Safe approach · PR #41 · needs sync · checks pass · not reviewed
+    027 Lab plumbing · PR #55 · Draft · checks running · not reviewed
   Ready to start
-    027 Lab plumbing
+    none
   Waiting
     012 Cavalry ← 018, 026
     020 Victory values ← 022
