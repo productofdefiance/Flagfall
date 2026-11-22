@@ -176,3 +176,4 @@ On your phone, in the browser, one 7v7 against the bot:
   - Not in this build, as asked: the several-targets rows stay as built.
 - **Flags closed / opened:** closed F017-1, F017-2 (the Editor, 20 Nov) and F017-4 (this build) in `flags/017.md`. Opened in `flags/025.md`: F025-1, F025-3, F025-4 (ASK); F025-2 and F025-5 opened and closed in this build (review of #47, fixes 1 and 2).
 - **Pull request:** https://github.com/productofdefiance/Flagfall/pull/47
+- **Follow-up (v3.14.01 · Build 19, after the merge):** the Editor's answers of 21 Nov. F025-1: a special's Strength is never struck: the Strength the hit uses, then the multiplier (Javelin from 2 hexes `7 ×2`). F025-3 and F025-4 were accepted as built. All three are closed. Engine, rules and bot are untouched; `test_ui.js` has a new check that fails on Build 18.
