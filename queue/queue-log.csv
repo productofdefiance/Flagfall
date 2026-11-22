@@ -11,3 +11,4 @@ date,time_et,run,event,games,share,why,first_job_wait_min,run_min,checks_waiting
 2026-11-20,23:34,44866734071,pull_request,2000,20,"Night: 20 of 20 machines (15 playing, 5 for the release checks)",7.5,51.8,8
 2026-11-20,23:17,44865413369,push,2000,20,"Night: 20 of 20 machines (15 playing, 5 for the release checks)",10.6,69.9,8
 2026-11-21,21:05,44974424673,pull_request,16000,5,"Day, busy, big run (11 checks waiting, 16 other jobs running, 1 other lab run, 3 pull requests pushed in 30 min): 5 of 20 machines, in waves",2.2,13.3,11
+2026-11-21,21:28,44976249811,pull_request,2000,5,"Day, busy, big run (13 other jobs running, 1 other lab run, 3 pull requests pushed in 30 min): 5 of 20 machines (4 playing, 1 for the release checks), in waves",6,55.7,0
