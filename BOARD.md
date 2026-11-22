@@ -1,4 +1,4 @@
-STATUS · updated 21 Nov 2026, 10:52 pm ET
+STATUS · updated 21 Nov 2026, 11:56 pm ET
 
 VERSION
   On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5
@@ -6,11 +6,12 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (21 Nov, 11:05 am ET)
-  Queue: clear
+  Queue: clear · lab using 1 of 20
   release v3.14.01 · 5v5 59.0% · 7v7 44.9% on the turn limit · 21 Nov
   nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
 FLAGS (open, newest first)
+  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…
   ! F018-5 · ASK · 22 Nov · §10.5 has no row for a swap. Built as: one move row for the unit that started the swap…
   ! F018-4 · ASK · 22 Nov · §9 (scale the flag pill by hex height ÷ 46.26): 017's pill is drawn in field units, like…
   ! F018-3 · ASK · 22 Nov · §6 hides the zoom button when far and close are "within 10% of each other". On the…
@@ -22,13 +23,12 @@ FLAGS (open, newest first)
     F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…
     F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…
     F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…
-    F024-4 · OPEN · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…
-  +13 older in FLAGS.md
+  +14 older in FLAGS.md
 
 BUILDS
   Building
     018 Turn cue zoom · PR #54 · Ready · checks pass · not reviewed
-    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed
+    022 Safe approach · PR #41 · Draft · checks running · not reviewed
     027 Lab plumbing · PR #55 · Ready · checks pass · not reviewed
   Ready to start
     none
