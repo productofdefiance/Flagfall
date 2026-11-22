@@ -1,0 +1,222 @@
+{
+ "id": "2026-11-21_study_command-storm-v39",
+ "kind": "study",
+ "version": "v3.15.00",
+ "build": 20,
+ "commit": "ad4541dfe8ec9f01187094de908b1f992a56b88d",
+ "brief": "022",
+ "question": "FD49-3 (the Editor, 21 Nov), sim-only on v3.9, Brain 8 mirrors, 1,000 games each, balanced: 7v7 with Command 10 and a first turn of 6 or 10; 5v5 with Command 8 and a first turn of 5 or 8; each with Arrow Storm x2, x1.75 and x1.5. Which mix brings the first mover's share of decisive games to 45-55% in both formats, and what happens to stalls? Same deals for every matchup of a format.",
+ "tags": [
+  "brain8",
+  "study",
+  "v3.9",
+  "fd49-3",
+  "f39",
+  "f12",
+  "command",
+  "arrow-storm"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-22T02:07:14.000Z",
+ "finished": "2026-11-22T02:18:27.904Z",
+ "games": 0,
+ "seed_from": "tests/rng.js lab:command-storm-v39:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "cmd10-first6-storm200-7v7",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7",
+    "set": {
+     "game.command": 10,
+     "game.firstTurnCommand": 6,
+     "specials.arrowStorm.mult": 2
+    }
+   },
+   {
+    "name": "cmd10-first6-storm175-7v7",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7",
+    "set": {
+     "game.command": 10,
+     "game.firstTurnCommand": 6,
+     "specials.arrowStorm.mult": 1.75
+    }
+   },
+   {
+    "name": "cmd10-first6-storm150-7v7",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7",
+    "set": {
+     "game.command": 10,
+     "game.firstTurnCommand": 6,
+     "specials.arrowStorm.mult": 1.5
+    }
+   },
+   {
+    "name": "cmd10-first10-storm200-7v7",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7",
+    "set": {
+     "game.command": 10,
+     "game.firstTurnCommand": 10,
+     "specials.arrowStorm.mult": 2
+    }
+   },
+   {
+    "name": "cmd10-first10-storm175-7v7",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7",
+    "set": {
+     "game.command": 10,
+     "game.firstTurnCommand": 10,
+     "specials.arrowStorm.mult": 1.75
+    }
+   },
+   {
+    "name": "cmd10-first10-storm150-7v7",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7",
+    "set": {
+     "game.command": 10,
+     "game.firstTurnCommand": 10,
+     "specials.arrowStorm.mult": 1.5
+    }
+   },
+   {
+    "name": "cmd8-first5-storm200-5v5",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5",
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 5,
+     "specials.arrowStorm.mult": 2
+    }
+   },
+   {
+    "name": "cmd8-first5-storm175-5v5",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5",
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 5,
+     "specials.arrowStorm.mult": 1.75
+    }
+   },
+   {
+    "name": "cmd8-first5-storm150-5v5",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5",
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 5,
+     "specials.arrowStorm.mult": 1.5
+    }
+   },
+   {
+    "name": "cmd8-first8-storm200-5v5",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5",
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 8,
+     "specials.arrowStorm.mult": 2
+    }
+   },
+   {
+    "name": "cmd8-first8-storm175-5v5",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5",
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 8,
+     "specials.arrowStorm.mult": 1.75
+    }
+   },
+   {
+    "name": "cmd8-first8-storm150-5v5",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5",
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 8,
+     "specials.arrowStorm.mult": 1.5
+    }
+   }
+  ],
+  "measures": [
+   "play",
+   "specials",
+   "specialsafety",
+   "firstloss",
+   "brain8"
+  ]
+ },
+ "failed": "some machines failed while playing (play: cancelled/cancelled); the totals cover only the parts that finished",
+ "extra": {},
+ "answer": "Failed: some machines failed while playing (play: cancelled/cancelled); the totals cover only the parts that finished."
+}

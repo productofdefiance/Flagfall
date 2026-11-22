@@ -2,6 +2,8 @@
 
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
+- 2026-11-21 · study · v3.15.00 · brief 022 · [2026-11-21_study_command-storm-v39](v3.15.00/2026-11-21_study_command-storm-v39/SUMMARY.md): Failed: some machines failed while playing (play: cancelled/cancelled); the totals cover only the parts that finished.
+- 2026-11-21 · study · v3.15.00 · brief 022 · [2026-11-21_study_brain8-v39](v3.15.00/2026-11-21_study_brain8-v39/SUMMARY.md): Failed: some machines failed while playing (play: cancelled/cancelled); the totals cover only the parts that finished.
 - 2026-11-20 · release · v3.14.00 · [2026-11-20_release_release-v3-14-00](v3.14.00/2026-11-20_release_release-v3-14-00/SUMMARY.md): 5v5: mirror, 65.3% ended on the turn limit, A/B 466–451; 7v7: mirror, 43.3% ended on the turn limit, A/B 493–486.
 - 2026-11-20 · study · v3.13.00 · [2026-11-20_study_move-order-command-storm](v3.13.00/2026-11-20_study_move-order-command-storm/SUMMARY.md): 10 matchups, 10000 games (per-matchup numbers in tables/outcomes.csv). Mirrors ended on the turn limit in 50.2% of games.
 - 2026-11-20 · study · v3.14.00 · brief 022 · [2026-11-20_study_brain8-tempo-confirm](v3.14.00/2026-11-20_study_brain8-tempo-confirm/SUMMARY.md): tempo-even-push-mirror-5v5: mirror, 46.5% ended on the turn limit, A/B 466–465; tempo-back-push-mirror-5v5: mirror, 11.6% ended on the turn limit, A/B 500–495; tempo-even-push-mirror-7v7: mirror, 12.1% ended on the turn limit, A/B 508–474; tempo-back-push-mirror-7v7: mirror, 12.2% ended on the turn limit, A/B 509–487.
