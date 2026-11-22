@@ -112,7 +112,7 @@ Say whether each cause is isolated or only likely.
 - **Does B4 cut 5v5's turn-limit games?** Yes. Confirmed at 1,000 games on the same deals: Brain 8 mirrors ended on the turn limit in **46.5%** of 5v5 games against **64.2%** for Brain 5 mirrors (F50's 61.9% was a different seed set), and **12.5%** against **40.3%** in 7v7. Isolated: B4 is the only behaviour on, and it changes nothing until one side has only its holder left (the first-loss and specials columns are identical in both arms).
 - **Does B4 alone keep Brain 7's stall cut without its losses?** Yes, but it doesn't make the bot stronger. At 1,000 games against Brain 5 it is **even**: 5v5 469 won (256 by KO or TKO, 213 on tiebreak), 462 lost (195, 267), 69 drawn; 7v7 475 won (417, 58), 511 lost (315, 196), 14 drawn (a 3.6-point gap: noise, F23). It finishes games instead of winning them on the clock: more KO wins, more tiebreak losses. The screen's 106 to 80 in 5v5 didn't hold up at 1,000. All-Light against Brain 5: 5v5 479 to 509, 7v7 483 to 503 (even).
 - **An opening for each side?** One for the second mover, none for the first. Confirmed at 1,000: **first mover even (0), second mover push (+1)** moves 7v7's first mover from 34.7% to **43.7%** of decisive games (F12's target is 45–55%) and leaves 5v5 (57.9%) and stalls unchanged. Brain 8 ships with it. Every pair where the first mover sits back or pushes breaks 5v5 (first mover 64–99%, or 90% draws). Likely, not isolated.
-- **Should Brain 8 become the default?** Recommended: **yes**, because it plays as well as Brain 5 (even at 1,000 games in both formats and both lineups) and finishes far more games: a third fewer turn-limit games in 5v5 and two-thirds fewer in 7v7. It isn't a harder opponent, so it doesn't replace a difficulty step. The Editor decides (F022-5).
+- **Should Brain 8 become the default?** The Editor said yes (21 Nov, F022-5); it is the default in this build. **New evidence since (v3.9 re-measure): it loses to Brain 5 by 5–7.5 points in three of four matchups**, so F022-8 asks again. Original recommendation: because it plays as well as Brain 5 (even at 1,000 games in both formats and both lineups) and finishes far more games: a third fewer turn-limit games in 5v5 and two-thirds fewer in 7v7. It isn't a harder opponent, so it doesn't replace a difficulty step. The Editor decides (F022-5).
 
 ### Traces (Brief 022 "first, find out why"; `sims/trace022.js`, Brain 5 mirrors, v3.8)
 Finding the brief's case was itself a result: on the new 5v5 field the first mover's archer is the first lost in only 6 of 40 games (34 are the second mover's), and all 6 were trades (it had just fired). So the 10 archer traces are from 7v7, where it happens about half the time, plus the 10 warmed-special traces from 5v5. "Chosen − safe" compares Brain 5's value for the position it chose with the best position the unit could have taken out of every enemy's reach (or out of the warmed special's reach, or braced), scored at the same moment; the terms are the parts of Brain 5's value that made the difference.
@@ -208,6 +208,41 @@ Reading: a smaller Arrow Storm swings 5v5 towards the second mover (×1.5 oversh
 
 **Speed** (GitHub machines). Average ms per side-turn, Brain 5 mirror against Brain 8 mirror: 5v5 43 against 46; 7v7 117 against 158. Worst side-turn: 5v5 504 and 411 ms; 7v7 2,497 and 2,544 ms. The worst side-turn in the whole build was **5,634 ms** in all-Light 7v7 (Brain 8 against Brain 5; the measure doesn't say which side's turn it was), above the 4.6 s mark (F022-6). Positions examined, worst side-turn: 4,676 in balanced 7v7 for both brains (Brain 8 adds no plan steps; it scores each position a little more slowly).
 
+### v3.9 re-measure (the Editor, 21 Nov; `brain8-v39`, 1,000 games each, Brain 8 as shipped: B4, tempoFirst 0, tempoSecond +1)
+On v3.9 (routes) Brain 8 does **worse than Brain 5 in three of the four matchups**, mostly by losing on the tiebreak; it still wins more often by KO or TKO.
+
+| Matchup | Won KO / tiebreak | Lost KO / tiebreak | Draw | Holder KO | Pull KO | TKO | Turn limit | Games with a pull | Avg turn | First mover: of all / of decisive | Overall won – lost |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Balanced 5v5 | 263 / 204 | 206 / 248 | 79 | 4.6% | 33.3% | 9.0% | 53.1% | 33.3% | 19.6 | 47.9% / 60.3% | 467 – 454 (even) |
+| All-Light 5v5 | 372 / 85 | 189 / 330 | 24 | 12.8% | 28.3% | 15.0% | 43.9% | 28.7% | 15.4 | 39.6% / 43.7% | 457 – 519 (−6.2 points) |
+| Balanced 7v7 | 384 / 71 | 316 / 214 | 15 | 4.0% | 50.1% | 15.9% | 30.0% | 50.2% | 19.4 | 36.8% / 34.4% | 455 – 530 (−7.5 points) |
+| All-Light 7v7 | 420 / 45 | 350 / 169 | 16 | 19.8% | 40.1% | 17.1% | 23.0% | 40.3% | 15.4 | 42.6% / 40.9% | 465 – 519 (−5.4 points) |
+
+On v3.8 (tempo 0 and 0) the same matchups were even or within 4 points. Two things changed at once, the rule set (v3.9) and the shipped tempoSecond +1, so the cause is **not isolated**. Likely: Brain 8 trades into games that end on the clock without the flag lead (it loses 2–3 tiebreaks for every one it wins). F022-8 asks the Editor whether Brain 8 stays the default.
+
+### FD49-3 Command × Arrow Storm (the Editor, 21 Nov; `command-storm-v39`, sim-only, v3.9, Brain 8 mirrors, 1,000 games each, same deals per format)
+
+| Format, Command, first turn | Arrow Storm | First mover of decisive | Turn limit | Draws | Arrow Storm kills per firing |
+|---|---|---|---|---|---|
+| 7v7, 10, 6 (as now) | ×2 | 43.5% | 14.5% | 11 | 0.80 |
+| 7v7, 10, 6 | ×1.75 | 46.2% | 13.0% | 17 | 0.72 |
+| 7v7, 10, 6 | ×1.5 | **49.4%** | 14.6% | 13 | 0.45 |
+| 7v7, 10, 10 (equal) | ×2 | **49.8%** | 12.4% | 13 | 0.79 |
+| 7v7, 10, 10 | ×1.75 | 60.1% | 10.2% | 9 | 0.71 |
+| 7v7, 10, 10 | ×1.5 | 64.6% | 8.6% | 14 | 0.36 |
+| 5v5, 8, 5 | ×2 | 76.2% | 21.9% | 59 | 0.94 |
+| 5v5, 8, 5 | ×1.75 | 73.5% | 39.6% | 152 | 1.00 |
+| 5v5, 8, 5 | ×1.5 | 56.5% | 37.7% | 78 | 0.03 |
+| 5v5, 8, 8 (equal) | ×2 | 72.7% | 21.5% | 27 | 0.75 |
+| 5v5, 8, 8 | ×1.75 | 64.1% | 46.3% | 118 | 1.00 |
+| 5v5, 8, 8 | ×1.5 | 56.5% | 37.7% | 78 | 0.03 |
+
+Reading:
+- **7v7: equal Command and ×1.5 does not hold.** It gives the first mover 64.6%. Two mixes land inside F12's 45–55%: **equal Command (10 and 10) with Arrow Storm ×2** (49.8%, the fewest stalls of the two) and **first turn 6 with Arrow Storm ×1.5** (49.4%). Equal first-turn Command and a smaller Arrow Storm each help the first mover; together they overshoot.
+- **5v5 at Command 8: nothing lands in range.** Best is ×1.5 (56.5%), where Arrow Storm almost never kills (0.03 per firing) and 38% of games hit the turn limit.
+- **FD49-4 holds for Brain 8.** At ×1.5 the first-turn 5 and 8 games are identical, all 1,000, move for move: the bot doesn't spend the extra first-turn Command. At ×2 and ×1.75 they differ in 30.5% of games (it spends it when a warm-up pays). So 5v5 equal first-turn Command still can't be judged until a brain spends it (FD49-4's next brain build).
+- Likely, not isolated: each row changes only the numbers named, on the same deals, but one brain plays both sides.
+
 ### Bot minimum (met)
 All six positions pass (`board/tests/test_brain8.js`, 38 checks, on v3.8 and again on v3.9 after the sync): 1 Brain 5 walks its archer into reach, Brain 8 with A1 stops short; 2 with a kill on, Brain 8 goes in and strikes; 3a steps out of a warmed storm, 3b braces where the brace saves it, 3c strikes the archer first when nothing else saves it (A2 on); 4 the holder joins when the race check passes (reads exactly as Brain 7's: 5 / 5) and stays when it fails; 5 tempo −1 holds inside the deploy area on turns 1–2 (0.00 hexes beyond), +1 closes faster (7.67 from the enemy flag against 9.33 at 0), and the slider stops once a unit is hurt; 6 all four off plays Brain 5's actions. Legal play: 30 seeded games per format and lineup on the newest preset, 0 refused, 0 errors, 0 unfinished (2 per format in `checks`, 30 in night checks). 3,000+ lab games per arm with no refused actions or bot errors in the `play` measure.
 
@@ -238,8 +273,8 @@ All six positions pass (`board/tests/test_brain8.js`, 38 checks, on v3.8 and aga
 - `reach_contact_turn` instead of `first_contact_turn` (F022-3). Brain 8's settings travel in watch links (`n=brain8:tempoSecond=1`), negative values included (`test_watch.js`).
 
 ### Known gaps
-- **Measured on v3.8, not v3.9.** Brief 017 (routes, rule set v3.9) merged while the runs were playing. Brain 8 passes all its checks and plays legally on v3.9, but its numbers haven't been re-measured there. The next release run (v3.15.00, Brain 5 mirrors) will show v3.9's baseline.
-- The head-to-head against Brain 5 (confirm table) was played at tempo 0 and 0, before the sweep picked tempoSecond +1. With +1 Brain 8 only changes its first turn when moving second; I didn't re-run the head-to-head at the shipped setting.
+- **Most numbers are on v3.8.** The screen, sweep, confirm and tempo confirm ran on v3.8; brief 017's v3.9 merged during them. The head-to-head against Brain 5 was re-measured on v3.9 at the shipped settings (above), and it is worse than on v3.8. The v3.9 mirror baseline comes from this version's release run (Brain 8 mirrors, the new default).
+- The v3.8 head-to-head (confirm table) was played at tempo 0 and 0; the v3.9 re-measure is at the shipped setting. Which of the two (v3.9 or tempoSecond +1) cost Brain 8 its points against Brain 5 isn't isolated.
 - The "no warm-up on the first turn" F39 arm wasn't played (F022-2).
 - The 10 "first mover's archer dies first" traces are 7v7, not 5v5: on the new 5v5 field it happened in only 6 of 40 games, all trades.
 - I didn't play the Editor's hands-on checks; links: an even-push mirror game is in the sweep's `games.csv` (`replay` column).

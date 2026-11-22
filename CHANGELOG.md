@@ -38,7 +38,9 @@ Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). De
 - Lab: new measures `firstloss` (first unit and first archer lost, first strike) and `brain8`; `sims/trace022.js`; `sims/lab/report022.js`. Runs: `brain8-screen`, `brain8-sweep`, `brain8-confirm`, `brain8-tempo-confirm`.
 - `test_brain8.js` (38 checks) in the checks and night checks.
 
-**Flags:** closed F47, F021-3 (F48 recorded). Opened F022-1 to F022-6. F41 stays open (next step F022-1).
+**Measured:** on v3.9 at the shipped settings Brain 8 loses to Brain 5 by 5 to 7.5 points in three of four matchups (mostly tiebreaks; F022-8). FD49-3's Command and Arrow Storm grid is in the brief's Report (F022-9).
+
+**Flags:** closed F47, F022-5, F021-3 (F48 recorded). Opened F022-1 to F022-9. F41 stays open (next step F022-1).
 
 ## v3.14.01 · Build 19 — Brief 025 follow-up, no rule change: a special's Strength never struck (21 Nov 2026)
 Rule set: none changed. Default brain: Brain 5. UI: v5. Game version **v3.14.01** (ZZ: a screen fix).
