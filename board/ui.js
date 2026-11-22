@@ -199,17 +199,15 @@
   }
 
   // ---------- Phone sheet (Brief 025, Approved UI v5) ----------
-  /** The attacker's modifiers as the phone's sheet shows a special (§6.3): the base Strength, then the multiplier beside
-      it ("9 ×1.75"), nothing struck and no second icon. If something changed the Strength before the multiplier (Half
-      Strength, Reach), that change keeps Brief 009's rule; the multiplier itself is never struck (flag F025-1). */
+  /** The attacker's modifiers as the phone's sheet shows a special (§6.3): Strength, then the multiplier beside it
+      ("9 ×1.75"), nothing struck and no second icon. */
   function phoneSpecialStats(pv) {
     const sp = pv.special;
     if (!sp || !sp.mult) return pv.attacker.stats;
     const rest = pv.attacker.stats.filter((x) => x.key !== "maul" && x.key !== "special");
-    const changed = Math.abs(sp.str - sp.strAfter) > 1e-9;
-    const strength = changed ? { key: "maul", label: "Strength", old: fmt(sp.str), val: fmt(sp.strAfter), tone: sp.strAfter < sp.str ? "hurt" : "help", mult: multText(sp.mult) }
-      : { key: "maul", label: "Strength", val: fmt(sp.str), mult: multText(sp.mult) };
-    return [strength, ...rest];
+    // F025-1 (the Editor, 21 Nov): never struck. The Strength this hit uses (after Reach or Half Strength), then the
+    // multiplier, so the numbers add up to the damage shown; the key says why the Strength changed.
+    return [{ key: "maul", label: "Strength", val: fmt(sp.strAfter), mult: multText(sp.mult) }, ...rest];
   }
   /** Everything the phone's flag-pull sheet shows (§6.6), from the engine's pull option (E.options().pull): the puller
       as an attacker (Strength, Support), the flag with its own HP, and the outcome bar over the engine's pull cases.
