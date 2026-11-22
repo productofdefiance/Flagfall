@@ -11,7 +11,7 @@
 | Flags | none to close |
 | Status | **Ready to build** (the UI chat, 20 Nov): the mobile match log is designed, approved by the Editor (UI Brainstorm, Match log page, Round 8) and added as section 10. Wait for the Order below. |
 | Waits on | 017, 025 |
-| Order | **After brief 025 merges** (the Editor, 20 Nov: 017, then 025 Phone fit, then this; 025 changes the phone layout this brief places its tag, buttons and log against). Originally: **After brief 017 merges** (017 adds the flag pill, the token HP position, the badges and Plex Sans numbers that this brief scales; same drawing code) and **before brief 012** (012 makes 9v9 and 13v13 playable; their hexes are too small to use on a phone without zoom). 014 (fields and the hot-seat snap) is already in by then. Run `sync` first. |
+| Order | **After brief 025 merges, and before briefs 026 (specials flow) and 012** (the Editor, 21 Nov: 018, then 026, then 012 Cavalry; 026 rebuilds the special row and sheet on this brief's panel and drawing code). Earlier: (the Editor, 20 Nov: 017, then 025 Phone fit, then this; 025 changes the phone layout this brief places its tag, buttons and log against). Originally: **After brief 017 merges** (017 adds the flag pill, the token HP position, the badges and Plex Sans numbers that this brief scales; same drawing code) and **before brief 012** (012 makes 9v9 and 13v13 playable; their hexes are too small to use on a phone without zoom). 014 (fields and the hot-seat snap) is already in by then. Run `sync` first. |
 
 ## Context
 **Built on brief 025's phone layout (added 20 Nov).** Read brief 025 first. What it changes for this brief, on phones (under 900 px):
