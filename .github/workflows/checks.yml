@@ -7,8 +7,9 @@ on:
   pull_request:
   push:
     branches: [main]
-  # Brief 008: the lab starts the checks on its own results pull requests (a pull request opened by the workflow's own
-  # token starts no workflows by itself).
+  # Brief 008: the lab starts the checks on its own results pull requests when it has only the workflow's own token (a
+  # pull request opened by that token starts no workflows by itself). Brief 027: with the Editor's key (LAB_TOKEN) the
+  # pull request's own run is the only one (sims/lab/lab_key.sh).
   workflow_dispatch:
 
 permissions:
@@ -146,6 +147,14 @@ jobs:
         id: capacity
         continue-on-error: true
         run: node sims/lab/test_capacity.js
+      - name: test_deliver.js (Brief 027 - one checks run per results pull request with the lab's key; no network)
+        id: deliver
+        continue-on-error: true
+        run: node sims/lab/test_deliver.js
+      - name: test_workflows.js (Brief 027 - results pull requests skip play links, night checks and the lab; 5 release jobs)
+        id: workflows
+        continue-on-error: true
+        run: node sims/lab/test_workflows.js
       - name: test_board.js (status board, fixture data, no network)
         id: statusboard
         continue-on-error: true
@@ -163,7 +172,7 @@ jobs:
       - name: Summary
         if: always()
         env:
-          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_v35.js(6-games)=${{ steps.v35.outcome }} test_v36.js=${{ steps.v36.outcome }} test_v37.js=${{ steps.v37.outcome }} test_fields.js=${{ steps.fields.outcome }} test_route.js=${{ steps.route.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_version.js=${{ steps.version.outcome }} test_brain6.js(2-games)=${{ steps.brain6.outcome }} test_brain7.js(2-games)=${{ steps.brain7.outcome }} test_watch.js=${{ steps.watch.outcome }} test_ui.js=${{ steps.ui.outcome }} lab-self-test=${{ steps.lab.outcome }} test_stall.js=${{ steps.stall.outcome }} test_board.js=${{ steps.statusboard.outcome }} test_capacity.js=${{ steps.capacity.outcome }} test_lead.js=${{ steps.lead.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
+          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_v35.js(6-games)=${{ steps.v35.outcome }} test_v36.js=${{ steps.v36.outcome }} test_v37.js=${{ steps.v37.outcome }} test_fields.js=${{ steps.fields.outcome }} test_route.js=${{ steps.route.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_version.js=${{ steps.version.outcome }} test_brain6.js(2-games)=${{ steps.brain6.outcome }} test_brain7.js(2-games)=${{ steps.brain7.outcome }} test_watch.js=${{ steps.watch.outcome }} test_ui.js=${{ steps.ui.outcome }} lab-self-test=${{ steps.lab.outcome }} test_stall.js=${{ steps.stall.outcome }} test_board.js=${{ steps.statusboard.outcome }} test_capacity.js=${{ steps.capacity.outcome }} test_deliver.js=${{ steps.deliver.outcome }} test_workflows.js=${{ steps.workflows.outcome }} test_lead.js=${{ steps.lead.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
         run: |
           { echo "## Rule tests"; echo; echo "| Check | Result |"; echo "| --- | --- |"
             for kv in $R; do o="${kv#*=}"; echo "| ${kv%%=*} | $( [ "$o" = success ] && echo pass || echo "**FAIL** ($o)" ) |"; done
