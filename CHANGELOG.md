@@ -6,7 +6,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
-| v3.15.00 | v3.9 | Brain 8 | v5 | 19 |
+| v3.15.00 | v3.9 | Brain 8 | v5 | 20 |
+| v3.14.01 | v3.9 | Brain 5 | v5 | 19 |
 | v3.14.00 | v3.9 | Brain 5 | v5 | 18 |
 | v3.13.00 | v3.9 | Brain 5 | v3 | 17 |
 | v3.12.00 | v3.8 | Brain 5 | v2 | 16 |
@@ -22,8 +23,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
-## v3.15.00 · Build 19 — Brief 022, Brain 8: holder joins, safe approach, warmed-special respect, opening tempo (22 Nov 2026)
-Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). Default brain: **Brain 8** (the Editor, 21 Nov, F022-5). Game version **v3.15.00** (YY: a new brain; briefs 017 and 025 took v3.13.00 and v3.14.00 first).
+## v3.15.00 · Build 20 — Brief 022, Brain 8: holder joins, safe approach, warmed-special respect, opening tempo (22 Nov 2026)
+Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). Default brain: **Brain 8** (the Editor, 21 Nov, F022-5). Game version **v3.15.00** (YY: a new brain; briefs 017 and 025 took v3.13.00, v3.14.00 and v3.14.01 first).
 
 **What a player will notice**
 - **The computer opponent is now Brain 8** in a new match (it was Brain 5; Brain 5 stays in the list).
@@ -38,6 +39,16 @@ Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). De
 - `test_brain8.js` (38 checks) in the checks and night checks.
 
 **Flags:** closed F47, F021-3 (F48 recorded). Opened F022-1 to F022-6. F41 stays open (next step F022-1).
+
+## v3.14.01 · Build 19 — Brief 025 follow-up, no rule change: a special's Strength never struck (21 Nov 2026)
+Rule set: none changed. Default brain: Brain 5. UI: v5. Game version **v3.14.01** (ZZ: a screen fix).
+
+**What a player will notice (phone)**
+- A special's preview shows Strength × multiplier with nothing struck through, even when Reach or Half Strength changed the Strength first: Javelin from 2 hexes reads `7 ×2` (was `8` struck, `7 ×2`). The numbers add up to the damage shown; the key still says why the Strength changed.
+
+**Under the hood:** `ui.js` `phoneSpecialStats()`; a new `test_ui.js` check (fails on Build 18). Desktop unchanged.
+
+**Flags closed:** F025-1, F025-3, F025-4 (the Editor, 21 Nov).
 
 ## v3.14.00 · Build 18 — Brief 025, no rule change: phone fit, Approved UI v5 (21 Nov 2026)
 Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 5, unchanged. UI: **v5** (Approved UI v5, phone only). Game version **v3.14.00** (YY: new screens).

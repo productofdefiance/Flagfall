@@ -6,7 +6,7 @@ let fails = 0, n = 0;
 const ok = (c, m) => { n++; if (!c) { fails++; console.log("FAIL:", m); } else console.log("  ok:", m); };
 
 ok(/^v\d+\.\d{2}\.\d{2}$/.test(V.game), `game version is written vX.YY.ZZ (${V.game})`);
-ok(V.game === "v3.15.00", "game version is v3.15.00 (Brief 022, Brain 8: the next YY after brief 025's v3.14.00)");
+ok(V.game === "v3.15.00", "game version is v3.15.00 (Brief 022, Brain 8: the next YY after v3.15.00)");
 ok(Number.isInteger(V.build) && V.build >= 10, `build number is kept beside it (${V.build})`);
 ok(V.preview === null, "preview stays null in the repository");
 
