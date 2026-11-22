@@ -9,8 +9,8 @@
 | Goal | Heavy and Light Cavalry join the game with their traits, brace benefits and specials; 9v9 and 13v13 become playable; the fort rule, the rewritten Mark and the new Command numbers go in (Game Laws 2.1, 2.7, 2.9, 3.4, 3.8, 4.2, 4.5, 4.6, 4.8, 6.4, 6.5, 6.7, 6.9–6.12, 6.14–6.17) |
 | Branch | Any branch your session may push to, started from `brief/012-cavalry` |
 | Flags | F37 (set spear on a unit that leaves contact and comes back in one move): close it. Open new ones as found. F20 gets its double-knockout check again (Trample and Breakaway can hurt both sides) |
-| Waits on | 011, 014, 017, 018 |
-| Order | **After 011, 014 and the move-preview brief are all merged.** It builds on 011's special system (warm-up, fire, previews, Special button), on 014's fields (9v9 and 13v13 exist there as data only), and on the move-preview brief's two-tap confirm and danger markers (the Editor, 19 Nov; not written yet, its number is taken when it is pushed) |
+| Waits on | 011, 014, 017, 025, 018, 026 |
+| Order | **After 011, 014, 017, 025, 018 and 026 (specials flow) are all merged** (the Editor, 21 Nov: 018, then 026, then this, so Charge and Breakaway land on 026's special row and gold row sheet; build their warm-up, row, sheet and reasons the way 026 does). Earlier: **After 011, 014 and the move-preview brief are all merged.** It builds on 011's special system (warm-up, fire, previews, Special button), on 014's fields (9v9 and 13v13 exist there as data only), and on the move-preview brief's two-tap confirm and danger markers (the Editor, 19 Nov; not written yet, its number is taken when it is pushed) |
 
 ## Context
 Cavalry is the first new unit type since the board was built. Its cards were locked on 18 Nov (Unit Stats sheet, Test units rows 15–16). On 19 Nov the Editor settled the gaps the Laws left: Mark stops a unit only where it comes to stand (3.8, rewritten), set spear still fires on hexes ridden over (6.14), the fort (4.5), Pursuit's damage (6.12), Cavalry only at 9v9 and 13v13 (2.1), and Command and turn limits per format (2.7, 2.9).
