@@ -1,0 +1,167 @@
+{
+ "id": "2026-11-20_study_move-order-command-storm",
+ "kind": "study",
+ "version": "v3.13.00",
+ "build": 17,
+ "commit": "f18ecd0c367faf0e9ce0644dffe0a06ddf8fa935",
+ "brief": null,
+ "question": "Does equal Command on turn 1 bring the first mover's share of decisive games to 45-55% at 5v5 and 7v7, alone and with Arrow Storm at x1.5?",
+ "tags": [
+  "F12",
+  "F39",
+  "brain5",
+  "v3.8",
+  "move-order"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-21T04:06:59.000Z",
+ "finished": "2026-11-21T04:55:45.907Z",
+ "games": 10000,
+ "seed_from": "tests/rng.js lab:move-order-command-storm:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "7v7-ftc6",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000
+   },
+   {
+    "name": "7v7-ftc8",
+    "seed_as": "7v7-ftc6",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "set": {
+     "game.firstTurnCommand": 8
+    }
+   },
+   {
+    "name": "7v7-ftc10",
+    "seed_as": "7v7-ftc6",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "set": {
+     "game.firstTurnCommand": 10
+    }
+   },
+   {
+    "name": "7v7-ftc6-storm15",
+    "seed_as": "7v7-ftc6",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "set": {
+     "specials.arrowStorm.mult": 1.5
+    }
+   },
+   {
+    "name": "7v7-ftc10-storm15",
+    "seed_as": "7v7-ftc6",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "set": {
+     "game.firstTurnCommand": 10,
+     "specials.arrowStorm.mult": 1.5
+    }
+   },
+   {
+    "name": "5v5-c10-ftc6",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000
+   },
+   {
+    "name": "5v5-c8-ftc5",
+    "seed_as": "5v5-c10-ftc6",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 5
+    }
+   },
+   {
+    "name": "5v5-c8-ftc8",
+    "seed_as": "5v5-c10-ftc6",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 8
+    }
+   },
+   {
+    "name": "5v5-c8-ftc5-storm15",
+    "seed_as": "5v5-c10-ftc6",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 5,
+     "specials.arrowStorm.mult": 1.5
+    }
+   },
+   {
+    "name": "5v5-c8-ftc8-storm15",
+    "seed_as": "5v5-c10-ftc6",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.8",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 8,
+     "specials.arrowStorm.mult": 1.5
+    }
+   }
+  ],
+  "measures": [
+   "play",
+   "clock",
+   "specials",
+   "specialsafety"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "10 matchups, 10000 games (per-matchup numbers in tables/outcomes.csv). Mirrors ended on the turn limit in 50.2% of games."
+}
