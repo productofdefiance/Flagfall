@@ -1,0 +1,57 @@
+{
+ "id": "2026-11-21_nightly_health",
+ "kind": "nightly",
+ "version": "v3.14.00",
+ "build": 18,
+ "commit": "1212b6442f2cd2f4be0f2c70f9662548e25e6e07",
+ "brief": null,
+ "question": "Do main's full checks still pass, and how do 20 games per format of the default brain against itself end?",
+ "tags": [
+  "nightly"
+ ],
+ "trigger": "night",
+ "started": "2026-11-21T17:36:13.687Z",
+ "finished": "2026-11-21T17:36:13.687Z",
+ "games": 40,
+ "seed_from": "tests/rng.js lab:health:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "5v5",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 20
+   },
+   {
+    "name": "7v7",
+    "a": "brain5",
+    "b": "brain5",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 20
+   }
+  ],
+  "measures": [
+   "play",
+   "evade",
+   "light",
+   "clock"
+  ]
+ },
+ "failed": null,
+ "extra": {
+  "extra": {
+   "previous_version": null
+  },
+  "previous_version": null
+ },
+ "answer": "passed: all 4 night checks"
+}
