@@ -3,8 +3,11 @@
 # For every open pull request from a lab/* branch: merge main into it. If the only conflicts are results/INDEX.md and
 # results/index.csv, rebuild both from the run folders (sims/lab/index.js --rebuild), commit, push, restart its checks and
 # keep auto-merge on. Any other conflict, or a change outside results/ and studies/: leave it and warn.
+# Brief 027 (F024-2): with the Editor's key the push itself restarts the pull request's checks, so they are only
+# started from here when the workflow's own token is in use (lab_key.sh).
 # Needs GH_TOKEN and a full clone (fetch-depth 0).
 set -euo pipefail
+. "$(dirname "$0")/lab_key.sh"
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 git fetch -q origin main
@@ -36,7 +39,7 @@ while read -r num branch; do
   fi
   git commit -q -m "Merge main into lab results; index rebuilt from the run folders (Brief 016)"
   git push -q origin "HEAD:$branch"
-  gh workflow run checks.yml --ref "$branch" || echo "::warning::Could not start the checks on $branch."
+  start_checks_unless_key "$branch"
   gh pr merge "$num" --auto --squash --delete-branch || echo "::warning::Could not turn on auto-merge for #$num."
   echo "refreshed #$num"
 done <<< "$prs"

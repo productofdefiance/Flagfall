@@ -22,6 +22,23 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
+## No game version — Brief 027, tooling: lab plumbing, fewer jobs (22 Nov 2026)
+Nothing in the game changes (`board/` untouched). Every game the lab plays is the same.
+
+**What the Editor will notice**
+- A results pull request runs `checks` once (was twice), and no play link, night checks or lab run. It still merges itself.
+- A release run's checks take 5 machines instead of 16; every check is still listed by name in `tables/checks.csv`.
+- The status board no longer starts after every finished checks, night-checks or lab run (about 40 short runs an evening). It still updates hourly, on pull request events, on pushes and from Refresh.
+- Main's play link is only republished when a merge changes the board.
+
+**Under the hood**
+- New `sims/lab/lab_key.sh`: the delivery and the refresh start `checks.yml` themselves only when the workflow's own token is in use (the Editor's key can read `GET /user`, the workflow token can't).
+- `lab.yml` release checks: the 12 quick checks run in one job from `sims/lab/release_quick.txt`.
+- `play-links`, `night-checks` and `lab` skip pull requests from `lab/**` branches (a job condition); `play-links`' queue moved onto its job so a skipped run can't cancel a waiting publish.
+- New checks `sims/lab/test_deliver.js` and `sims/lab/test_workflows.js`, run in `checks`.
+
+**Flags closed:** F024-1, F024-2, F024-3, F024-4. **Opened:** F027-1 (ASK).
+
 ## v3.14.01 · Build 19 — Brief 025 follow-up, no rule change: a special's Strength never struck (21 Nov 2026)
 Rule set: none changed. Default brain: Brain 5. UI: v5. Game version **v3.14.01** (ZZ: a screen fix).
 

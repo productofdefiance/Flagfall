@@ -49,4 +49,29 @@ None needed. Code confirms on GitHub after merge (next item).
 - Anything that still runs twice.
 
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code, 22 Nov 2026. Branch: `claude/trusting-davinci-lufnu6`, started from `brief/027-lab-plumbing`.*
+
+**Game files:** none touched (`board/`, `data/`, brains, presets, measures, results folders unchanged). No build number or game version change. Per `CLAUDE.md`, the replay hashes and slow game checks were not rerun here: nothing they cover changed. `capacity.json` unchanged (the release checks still get the same quarter of a run's share; they just need fewer slots).
+
+**1. F024-1, release checks: 16 jobs → 5.** `quick checks` (12 checks one after another, listed in `sims/lab/release_quick.txt`), `test_v32.js (400 + 400)`, `test_invariants.js (100)`, `other brain tests (30)`, `regression hashes`. Each check still writes its own `name=outcome` line, so `tables/checks.csv` still has the same 16 names. `test_kitd.js 30` and `test_brain5.js 30` are not really quick (here: about 5 and 10 minutes when run side by side with the others), but the brief put only v32, invariants, the other brains and the hashes on their own machines, so they sit in the quick job. Dry run of the job's real script in this session: all 12 passed, 12 lines written, 14.7 minutes. Machine-minutes: about the same work, minus 11 machine start-ups (about 30 to 60 seconds each) and 11 checkouts; not measured on GitHub yet. With the daytime release share (often 1 or 2 slots) the 5 jobs still run largely one after another; the pace is set by v32 and the other brains, not the quick job.
+
+**2. F024-2, one checks run per results pull request.** `deliver.sh` and `refresh.sh` now start `checks.yml` through `sims/lab/lab_key.sh`. **How the script tells the two apart:** it calls `gh api user`. The Editor's personal key can read it; the workflow's own token is refused (403), and an expired key gets 401. Key works → no second run (the pull request's own run, or the push's, is the one that counts). Anything else → start `checks.yml` as before. `test_deliver.js` runs the real script against a local git remote with a stand-in `gh`: with the key no dispatch, without it the dispatch on the right branch, auto-merge still on, the results commit still lands. It fails 7 checks on the old scripts.
+
+**3. Results-only pull requests.** A **branch condition** on the job (`!startsWith(github.event.pull_request.head.ref, 'lab/')`) in `play-links` (publish), `night-checks` (full) and `lab` (plan; every other lab job needs it). Not `on:` filters: GitHub's `pull_request` branch filter only matches the target branch, and a path filter would also drop play links from build pull requests that only add a job order. The runs appear on GitHub as "skipped" and take no machine. `play-links`' queue moved from the workflow onto its job, so a skipped results run can never join the queue and cancel a build's waiting publish. `checks` and the status board still run on results pull requests.
+- **One addition, in the spirit of item 3:** `play-links` on `main` now only publishes when a push changes `board/`. With the key, auto-merge merges as the Editor, so a merged results pull request now starts push workflows on `main`; without this it would republish an unchanged board every time.
+
+**4. F024-3.** The status board's `workflow_run` trigger is gone; hourly, pull request events, pushes to `main`/`brief/**` and `workflow_dispatch` (Refresh) stay.
+
+**5. F024-4.** No change to shares. `CLAUDE.md`, lab section: a build waiting on its release run may take the `lab: rush` label.
+
+**Checks run here:** `test_capacity.js` 33/33, `test_board.js` all pass, `test_deliver.js` 13/13, `test_workflows.js` 23/23 (evaluates each changed `if:` from the workflow files on sample results, build, night, push and by-hand events; fails 9 checks on the old workflows). Both new tests run in `checks` (rule tests job). Skipped: the game checks and hashes (no game file touched).
+
+**Jobs per release run:** before 16 check jobs (+ plan, play parts, merge); after 5. Per results pull request before: 2 full `checks` runs (about 6 jobs each, 25 to 40 minutes) + play-links + night-checks + lab plan + status board. After: 1 `checks` run + status board (the other three show as skipped, no machine).
+
+**Anything that still runs twice or more than needed**
+- When a results pull request merges itself (with the key), the push to `main` starts `checks` on `main`, a `lab` plan job that finds nothing to play (the moved job orders touch `studies/queue/`), the status board and the results refresh. One short run each; not doubled. Left as is: `checks` on `main` is main's health check, and changing the lab's push trigger is outside this brief.
+- A lab delivery to a **build** pull request (branch mode) now pushes with the key, so it starts that pull request's own workflows (checks once, play link, status board, a lab plan that finds nothing). That replaces the old separate checks dispatch; the play link republish is new but cheap.
+
+**The proof on GitHub:** not seen yet; it needs the first results pull request after this merges. **The next design chat should check** that pull request (branch `lab/…`, opened by the Editor's account): exactly one `checks` run (event `pull_request`, none `workflow_dispatch`), `play-links`, `night-checks` and `lab` shown as skipped, the status board run, and that it merged itself with no click. The delivery's log line says "The lab's key is in use: … (no second run started)".
+
+**Open:** F027-1 (ASK, `flags/027.md`): an expired key breaks the delivery entirely, not just the checks switch.
