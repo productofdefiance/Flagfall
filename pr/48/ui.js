@@ -194,8 +194,39 @@
     }
     const why = h0.why || (kind === "arcHit" ? `${plural(p.hits.length, "enemy", "enemies")} in the arc.` : kind === "skewer" ? (p.hits.length > 1 ? `${unitName(st, E.unitByUid(st, p.hits[1].uid))} is behind ${unitName(st, t)}.` : `Nobody behind ${unitName(st, t)}: a single hit.`) : "No dice: exactly this much.");
     pv.rows.unshift({ icon: "special", name: `${p.name} ${mults.map(multText).join(" / ")}`, means: specialAbout(st.rs, kind), why, special: true });
-    pv.special = { kind, name: p.name, arc: p.arc, extra: p.hits.slice(1).map((h) => { const x = E.unitByUid(st, h.uid); return { uid: x.uid, team: x.team, name: unitName(st, x), hp: E.hpShown(st, x), maxHp: x.maxHp, dmg: h.dmg, kills: h.kills }; }) };
+    pv.special = { kind, name: p.name, arc: p.arc, mult: mults.length === 1 && h0.mult !== 1 ? h0.mult : null, str: h0.detail.str, strAfter: h0.detail.strAfter, extra: p.hits.slice(1).map((h) => { const x = E.unitByUid(st, h.uid); return { uid: x.uid, team: x.team, name: unitName(st, x), hp: E.hpShown(st, x), maxHp: x.maxHp, dmg: h.dmg, kills: h.kills }; }) };
     return pv;
+  }
+
+  // ---------- Phone sheet (Brief 025, Approved UI v5) ----------
+  /** The attacker's modifiers as the phone's sheet shows a special (§6.3): Strength, then the multiplier beside it
+      ("9 ×1.75"), nothing struck and no second icon. */
+  function phoneSpecialStats(pv) {
+    const sp = pv.special;
+    if (!sp || !sp.mult) return pv.attacker.stats;
+    const rest = pv.attacker.stats.filter((x) => x.key !== "maul" && x.key !== "special");
+    // F025-1 (the Editor, 21 Nov): never struck. The Strength this hit uses (after Reach or Half Strength), then the
+    // multiplier, so the numbers add up to the damage shown; the key says why the Strength changed.
+    return [{ key: "maul", label: "Strength", val: fmt(sp.strAfter), mult: multText(sp.mult) }, ...rest];
+  }
+  /** Everything the phone's flag-pull sheet shows (§6.6), from the engine's pull option (E.options().pull): the puller
+      as an attacker (Strength, Support), the flag with its own HP, and the outcome bar over the engine's pull cases.
+      The modifiers are read from the engine's own wording of the pull (pullValue().parts), never worked out here. */
+  function pullPreview(st, u, pull) {
+    const foe = E.foeOf(u.team), left = E.flagShown(st, foe), max = st.rs.game.poleHP;
+    const aStats = [], fStats = [];
+    for (const part of pull.parts) {
+      let m;
+      if ((m = /^Strength (.+)$/.exec(part))) aStats.push({ key: "maul", label: "Strength", val: m[1] });
+      else if ((m = /^\+(.+) Support$/.exec(part))) aStats.push({ key: "support", label: "Support", val: "+" + m[1] });
+      else if ((m = /^[−-](.+) keeper at home$/.exec(part))) fStats.push({ key: "hex", label: "Keeper at home", val: "−" + m[1] });
+    }
+    return {
+      from: u.hex, to: E.fieldOf(st).FLAG[foe], cost: st.rs.game.attackCost,
+      attacker: { uid: u.uid, team: u.team, name: unitName(st, u), hp: E.hpShown(st, u), maxHp: u.maxHp, stats: aStats },
+      target: { flag: true, team: foe, name: `${sideName(foe)} flag`, hp: left, maxHp: max, stats: fStats },
+      segments: outcomeSegments(pull.cases, left)
+    };
   }
 
   // ---------- Unit card ----------
@@ -254,6 +285,6 @@
   /** The Lineup row's numbers: "HP 20 · Str 10 · Range 1 · Move 3" (Anti-Cavalry: "Reach 2"). */
   const lineupStats = (c) => { const r = rangeStat(c); return `HP ${fmt(c.hp)} · Str ${fmt(c.str)} · ${r.label} ${fmt(r.val)} · Move ${fmt(c.cap)}`; };
 
-  const api = { specialAbout, specialNote, specialPreview, say, BANNED, unitName, whose, outcomeSegments, pct1, changeTone, attackPreview, typeOf, classOf, rangeStat, cardSections, cardTypeLine, lineupStats };
+  const api = { phoneSpecialStats, pullPreview, specialAbout, specialNote, specialPreview, say, BANNED, unitName, whose, outcomeSegments, pct1, changeTone, attackPreview, typeOf, classOf, rangeStat, cardSections, cardTypeLine, lineupStats };
   if (typeof module !== "undefined") module.exports = api; else root.GGUi = api;
 })(this);
