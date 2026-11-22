@@ -1,4 +1,4 @@
-STATUS · updated 22 Nov 2026, 2:27 am ET
+STATUS · updated 22 Nov 2026, 2:41 am ET
 
 VERSION
   On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5
@@ -6,11 +6,13 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (21 Nov, 11:05 am ET)
-  Queue: clear
+  Queue: clear · lab using 1 of 20
   release v3.14.01 · 5v5 59.0% · 7v7 44.9% on the turn limit · 21 Nov
   nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
 FLAGS (open, newest first)
+  ! F022-9 · ASK · 22 Nov · FD49-3 results (v3.9, Brain 8 mirrors, sim-only, 1,000 each): 7v7 equal Command with…
+  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…
   ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…
   ! F018-6 · ASK · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…
   ! F018-5 · ASK · 22 Nov · §10.5 has no row for a swap. Built as: one move row for the unit that started the swap…
@@ -21,14 +23,12 @@ FLAGS (open, newest first)
     FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…
     F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…
     F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…
-    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…
-    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…
-  +14 older in FLAGS.md
+  +16 older in FLAGS.md
 
 BUILDS
   Building
     018 Turn cue zoom · PR #54 · Ready · checks pass · not reviewed
-    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed
+    022 Safe approach · PR #41 · Draft · checks running · not reviewed
   Ready to start
     none
   Waiting
