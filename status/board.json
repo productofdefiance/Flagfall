@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-22T02:16:45.493Z",
- "board": "STATUS · updated 21 Nov 2026, 9:16 pm ET\n\nVERSION\n  On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5\n  Building: 022 → v3.15.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (21 Nov, 11:05 am ET)\n  Queue: 29 jobs waiting, oldest 29 min · lab using 6 of 20\n  nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov\n\nFLAGS (open, newest first)\n    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n    FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n  ! FD49-2 · ASK · 21 Nov · Brief 012 names its preset \"v3.8\", but v3.8 is already on main (fields, brief 014). The…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  ! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…\n  ! F024-3 · ASK · 20 Nov · The status board starts on every pull request event and every finished checks…\n  ! F024-2 · ASK · 20 Nov · Every results pull request runs the full checks twice: once started by the lab's delivery…\n  +12 older in FLAGS.md\n\nBUILDS\n  Building\n    022 Safe approach · PR #41 · Draft · checks running · not reviewed\n  Ready to start\n    018 Turn cue zoom\n  Waiting\n    012 Cavalry ← 018, 026\n    020 Victory values ← 022\n    026 Specials flow ← 018\n  Merged (last 3)\n    025 Phone fit · v3.14.01 · 21 Nov\n    017 Move preview · v3.13.00 · 20 Nov\n    024 Lab capacity · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n    FF UI v3.14.00 - · Specials brief 026 (write and push) · opened 21 Nov\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n  Closed (last 5)\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-22T02:23:57.596Z",
+ "board": "STATUS · updated 21 Nov 2026, 9:23 pm ET\n\nVERSION\n  On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5\n  Building: 022 → v3.15.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (21 Nov, 11:05 am ET)\n  Queue: 42 jobs waiting, oldest 36 min · lab using 3 of 20\n  nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov\n\nFLAGS (open, newest first)\n    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n    FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n    F024-4 · OPEN · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…\n    F024-3 · OPEN · 20 Nov · The status board starts on every pull request event and every finished checks…\n    F024-2 · OPEN · 20 Nov · Every results pull request runs the full checks twice: once started by the lab's delivery…\n    F024-1 · OPEN · 20 Nov · A release run puts each check in README.md on its own machine: 16 jobs, most of which…\n    F022-4 · OPEN · 20 Nov · On the new 5v5 field (v3.8) the brief's premise has turned round: the second mover's…\n    F022-3 · OPEN · 20 Nov · Brief 016's stall measure already has a column first_contact_turn (first adjacency)…\n  +8 older in FLAGS.md\n\nBUILDS\n  Building\n    022 Safe approach · PR #41 · Draft · checks running · not reviewed\n  Ready to start\n    018 Turn cue zoom\n    027 Lab plumbing\n  Waiting\n    012 Cavalry ← 018, 026\n    020 Victory values ← 022\n    026 Specials flow ← 018\n  Merged (last 3)\n    025 Phone fit · v3.14.01 · 21 Nov\n    017 Move preview · v3.13.00 · 20 Nov\n    024 Lab capacity · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n    FF UI v3.14.00 - · Specials brief 026 (write and push) · opened 21 Nov\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n  Closed (last 5)\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -26,7 +26,7 @@
      "mark": null
     },
     {
-     "text": "Queue: 29 jobs waiting, oldest 29 min · lab using 6 of 20",
+     "text": "Queue: 42 jobs waiting, oldest 36 min · lab using 3 of 20",
      "indent": 1,
      "mark": null
     },
@@ -51,24 +51,9 @@
      "mark": null
     },
     {
-     "text": "! FD49-2 · ASK · 21 Nov · Brief 012 names its preset \"v3.8\", but v3.8 is already on main (fields, brief 014). The…",
-     "indent": 1,
-     "mark": "ask"
-    },
-    {
      "text": "  F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…",
      "indent": 1,
      "mark": null
-    },
-    {
-     "text": "! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…",
-     "indent": 1,
-     "mark": "ask"
-    },
-    {
-     "text": "! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…",
-     "indent": 1,
-     "mark": "ask"
     },
     {
      "text": "  F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…",
@@ -86,22 +71,37 @@
      "mark": null
     },
     {
-     "text": "! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…",
+     "text": "  F024-4 · OPEN · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…",
      "indent": 1,
-     "mark": "ask"
+     "mark": null
     },
     {
-     "text": "! F024-3 · ASK · 20 Nov · The status board starts on every pull request event and every finished checks…",
+     "text": "  F024-3 · OPEN · 20 Nov · The status board starts on every pull request event and every finished checks…",
      "indent": 1,
-     "mark": "ask"
+     "mark": null
     },
     {
-     "text": "! F024-2 · ASK · 20 Nov · Every results pull request runs the full checks twice: once started by the lab's delivery…",
+     "text": "  F024-2 · OPEN · 20 Nov · Every results pull request runs the full checks twice: once started by the lab's delivery…",
      "indent": 1,
-     "mark": "ask"
+     "mark": null
     },
     {
-     "text": "+12 older in FLAGS.md",
+     "text": "  F024-1 · OPEN · 20 Nov · A release run puts each check in README.md on its own machine: 16 jobs, most of which…",
+     "indent": 1,
+     "mark": null
+    },
+    {
+     "text": "  F022-4 · OPEN · 20 Nov · On the new 5v5 field (v3.8) the brief's premise has turned round: the second mover's…",
+     "indent": 1,
+     "mark": null
+    },
+    {
+     "text": "  F022-3 · OPEN · 20 Nov · Brief 016's stall measure already has a column first_contact_turn (first adjacency)…",
+     "indent": 1,
+     "mark": null
+    },
+    {
+     "text": "+8 older in FLAGS.md",
      "indent": 1,
      "mark": null
     }
@@ -127,6 +127,11 @@
     },
     {
      "text": "018 Turn cue zoom",
+     "indent": 2,
+     "mark": null
+    },
+    {
+     "text": "027 Lab plumbing",
      "indent": 2,
      "mark": null
     },
@@ -228,7 +233,7 @@
   }
  },
  "schema": 2,
- "updatedText": "21 Nov 2026, 9:16 pm ET",
+ "updatedText": "21 Nov 2026, 9:23 pm ET",
  "main": {
   "game": "v3.14.01",
   "build": 19,
@@ -236,11 +241,11 @@
   "brain": "Brain 5"
  },
  "queue": {
-  "text": "Queue: 29 jobs waiting, oldest 29 min · lab using 6 of 20",
+  "text": "Queue: 42 jobs waiting, oldest 36 min · lab using 3 of 20",
   "mark": "running",
-  "jobsWaiting": 29,
-  "oldestWaitMin": 29,
-  "labUsing": 6
+  "jobsWaiting": 42,
+  "oldestWaitMin": 36,
+  "labUsing": 3
  },
  "nightly": {
   "state": "pass",
@@ -298,6 +303,13 @@
     "waitsOn": null,
     "ready": true,
     "stated": true
+   },
+   {
+    "brief": "027",
+    "name": "Lab plumbing",
+    "waitsOn": null,
+    "ready": true,
+    "stated": true
    }
   ],
   "merged": [
@@ -345,7 +357,7 @@
    "date": "21 Nov",
    "issue": "At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same 1,000 games move for move: Brain 5 spends 4 to 5 Command on the first mover's first turn whatever it has (checked here on 6 seeds at × 1, × 1.5, × 2: 4 to 5.5 used). Without Storm, 297 of 1,000 games differ. So…",
    "issueFull": "At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same 1,000 games move for move: Brain 5 spends 4 to 5 Command on the first mover's first turn whatever it has (checked here on 6 seeds at × 1, × 1.5, × 2: 4 to 5.5 used). Without Storm, 297 of 1,000 games differ. So at 5v5 the study can't show what equal first-turn Command does: the bot doesn't use the extra (Bot minimum). Example: seed of 5v5-c8-ftc8-storm15 game 0, turn 1",
-   "next": "The Editor, 21 Nov: the bot may play differently by format (5 units against 13). Next brain build: a behaviour that spends spare first-turn Command (advance or warm up), behind its own switch; 5v5 is not ruled until the bot uses the Command it has"
+   "next": "The Editor, 21 Nov: the bot may play differently by format (5 units against 13); yes to building it in brief 020 as its own switch (spendOpening), written into brief/020-victory-values. Brief 020 closes this row; 5v5 move order is not ruled until then"
   },
   {
    "name": "FD49-3",
@@ -356,36 +368,12 @@
    "next": "The Editor, 21 Nov: yes, and test combinations. The confirm runs on v3.9 with Brain 8 (the new default, F022-5) from brief 022 after its sync: 7v7 Command 10 at first turn 6 and 10, 5v5 Command 8 at first turn 5 and 8, each with Arrow Storm x2, x1.75 and x1.5. If 7v7 at equal Command and x1.5 holds, the Editor intends equal full Command from turn 1 and Arrow Storm x1.5 in every format (not locked; the 5v5 number, 7, 8 or 10, stays open, tested at 8)"
   },
   {
-   "name": "FD49-2",
-   "status": "ASK",
-   "date": "21 Nov",
-   "issue": "Brief 012 names its preset \"v3.8\", but v3.8 is already on main (fields, brief 014). The Editor approved v3.9 on 20 Nov, but brief 017 merged the same night as rule set v3.9 (routes), so v3.9 is taken too",
-   "issueFull": "Brief 012 names its preset \"v3.8\", but v3.8 is already on main (fields, brief 014). The Editor approved v3.9 on 20 Nov, but brief 017 merged the same night as rule set v3.9 (routes), so v3.9 is taken too",
-   "next": "Recommended: v3.10, a copy of v3.9 (fields and routes on). The brief's comparisons move up with it: the foot-identity check compares v3.10 (cavalry, fort, 5v5 Command change off) with v3.9, not v3.7, and Measurements item 1's columns become v3.9, v3.10 without the fort, v3.10"
-  },
-  {
    "name": "F022-6",
    "status": "OPEN",
    "date": "21 Nov",
    "issue": "Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8 against Brain 5; the timing measure doesn't say whose turn), above the brief's 4.6 s mark. Balanced 7v7 worst: Brain 5 mirror 2,497 ms, Brain 8 mirror 2,544 ms; average 117 against 158 ms. Positions examined are the…",
    "issueFull": "Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8 against Brain 5; the timing measure doesn't say whose turn), above the brief's 4.6 s mark. Balanced 7v7 worst: Brain 5 mirror 2,497 ms, Brain 8 mirror 2,544 ms; average 117 against 158 ms. Positions examined are the same (Brain 8 scores each position more slowly, it doesn't look at more)",
    "next": "Next step: split the timing measure per side, then decide whether all-Light 7v7 needs a cap on plans examined (F24)"
-  },
-  {
-   "name": "F50",
-   "status": "ASK",
-   "date": "20 Nov",
-   "issue": "Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7): 5v5 changed a lot, 7v7 didn't. At 5v5 the first mover's share of decisive games went from 3.2% to 58.0% (F39's collapse is gone), but games ending on the turn limit went from 35.1% to 61.9%, pull KOs from 44.0%…",
-   "issueFull": "Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7): 5v5 changed a lot, 7v7 didn't. At 5v5 the first mover's share of decisive games went from 3.2% to 58.0% (F39's collapse is gone), but games ending on the turn limit went from 35.1% to 61.9%, pull KOs from 44.0% to 23.5%, draws from 1.1% to 6.4%, and the first attack comes on turn 4.4 instead of 2.9. 7v7: every measure within 4 points. Likely the 2-ring deploy area and the 8-hex gap keep Arrow Storm out of early reach, but field and deploy radius changed together: likely, not isolated",
-   "next": "Recommended: merge v3.8 as the Editor locked it, then fold 5v5 v3.8 into the stall study (brief 016's follow-up) instead of tuning now. If the Editor wants the cause isolated first, one sim-only screen: v3.8 at 5v5 with deployRadius5 = 3 against v3.8, same seeds, 200 games per side. F39 can close if the Editor accepts the field as its fix"
-  },
-  {
-   "name": "F49",
-   "status": "ASK",
-   "date": "20 Nov",
-   "issue": "Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and the action panel is 487 px, not the ~590 px the design estimated. The 5v5 field is drawn 1,014 px tall (it fills the width, so its hexes are bigger than 7v7's: 68 px against 54 px), and a side's half (own edge…",
-   "issueFull": "Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and the action panel is 487 px, not the ~590 px the design estimated. The 5v5 field is drawn 1,014 px tall (it fills the width, so its hexes are bigger than 7v7's: 68 px against 54 px), and a side's half (own edge to the middle of the centre row, D9) is 507 px, so after the snap the centre row sits 20 px out of view (49 px to its far edge). 7v7 (449 px), 9v9 (449) and 13v13 (416) fit. Measured in a headless phone browser on this build",
-   "next": "Recommended: draw the 5v5 field at 7v7's hex size (centred, a margin each side) instead of filling the width; its half becomes about 400 px and fits with room. It changes the 5v5 look, so it needs the Editor's go-ahead. Not built"
   },
   {
    "name": "F41",
@@ -402,6 +390,30 @@
    "issue": "Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before the bot fix, 0 after. Its second hit needs an enemy directly behind its target, which almost never happens; without one, Skewer is exactly a normal hit (no dice), so the bot rightly attacks normally and lets it…",
    "issueFull": "Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before the bot fix, 0 after. Its second hit needs an enemy directly behind its target, which almost never happens; without one, Skewer is exactly a normal hit (no dice), so the bot rightly attacks normally and lets it lapse. A stricter line-up check still gave 0 in 60 local 7v7 games",
    "next": "Has a home, no answer needed now (the Editor, 20 Nov): decide after Cavalry (brief 012), when Anti-Cavalry has its real targets. Count Skewer firings in brief 012's runs, then choose. Code's options: Not a bot problem. Recommended: in a later preset, give Skewer a reason to fire alone: for example ×1.5 on the first hit (as Bullseye), or a second hit on any enemy next to the first target, not only one directly behind. The Editor picks"
+  },
+  {
+   "name": "F39",
+   "status": "TEST",
+   "date": "20 Nov",
+   "issue": "Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light Ranged a side, and at × 2 Arrow Storm (7 × 2 = 14, no Dodge) kills a full-health Light Ranged (12 HP) from about 7 hexes away (4 of movement, range 3): 1,001 fired, 946 kills in 1,000 Brain 5 mirror games. The…",
+   "issueFull": "Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light Ranged a side, and at × 2 Arrow Storm (7 × 2 = 14, no Dodge) kills a full-health Light Ranged (12 HP) from about 7 hexes away (4 of movement, range 3): 1,001 fired, 946 kills in 1,000 Brain 5 mirror games. The second mover, with full Command on turn 1, warms up first and wins the duel: the first mover won 35 of 657 decisive games (5.3%; 38.6% on v3.6). With the older sizes (× 1.5, no kill) it flips: the first mover won 85.3%. 7v7 is far less affected (31.6% vs 46.9%). Fixed bot, same seeds, 1,000 games per format. Likely, not isolated",
+   "next": "Has a home, no answer needed now (the Editor, 20 Nov): brief 022 runs a sim-only screen (Arrow Storm × 2, × 1.75, × 1.5, and no warm-up on the first turn) with Brain 8 on brief 014's fields, and the sizes are judged there. The design chat's sim check (20 Nov) reads this as mostly the bot walking into the first strike, not Arrow Storm's size (likely, not isolated). Brief 014's baseline (F50) reports the first mover at 58.0% of decisive 5v5 games on v3.8. Code's first recommendation was: Sizes are the Editor's call (brief 011: \"not now\"). Neither size set fixes it, so the size alone isn't the lever. Recommended: merge v3.7, then run a sim-only screen before choosing a v3.8: Arrow Storm × 1.75 (12.5: kills only a hurt Light Ranged), and the first mover's turn-1 Command at 10 instead of 6 under specials, each against v3.7 on the same seeds"
+  },
+  {
+   "name": "F024-4",
+   "status": "OPEN",
+   "date": "20 Nov",
+   "issue": "A pull request that changes the game version gets a release run (2,000 games, 20 parts). In the daytime with the repository busy it now takes a quarter of N (5 machines, in two waves): at about 50 minutes a part, roughly 3 to 4 hours instead of about 1. The policy says so; it may not be what the…",
+   "issueFull": "A pull request that changes the game version gets a release run (2,000 games, 20 parts). In the daytime with the repository busy it now takes a quarter of N (5 machines, in two waves): at about 50 minutes a part, roughly 3 to 4 hours instead of about 1. The policy says so; it may not be what the Editor wants for a release a build is waiting on",
+   "next": "The Editor, 21 Nov: yes (keep the shares; use lab: rush on a waiting build). Built in brief 027 (brief/027-lab-plumbing), which closes this row"
+  },
+  {
+   "name": "F024-3",
+   "status": "OPEN",
+   "date": "20 Nov",
+   "issue": "The status board starts on every pull request event and every finished checks, night-checks and lab run: about 40 runs between 6:15 and 8:00 pm ET on 20 Nov, most cancelled after a few seconds, some waiting 45 minutes for a machine. Each holds a machine while it starts",
+   "issueFull": "The status board starts on every pull request event and every finished checks, night-checks and lab run: about 40 runs between 6:15 and 8:00 pm ET on 20 Nov, most cancelled after a few seconds, some waiting 45 minutes for a machine. Each holds a machine while it starts",
+   "next": "The Editor, 21 Nov: yes (drop the status board's workflow_run start). Built in brief 027 (brief/027-lab-plumbing), which closes this row"
   }
  ],
  "chats": {
@@ -441,9 +453,9 @@
  },
  "tiles": {
   "building": 1,
-  "flagsAsk": 9,
-  "flagsNewest": "FD49-2",
-  "flagsMoreAsk": 6,
+  "flagsAsk": 2,
+  "flagsNewest": "F022-2",
+  "flagsMoreAsk": 2,
   "flagsMoreOpen": 10
  }
 }
