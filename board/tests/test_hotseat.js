@@ -173,7 +173,9 @@ const state = () => {
   }
 
   // ---- Gestures ----
-  await go({ view: "handoff", turns: 2 }, () => { const G = window.GGShots; G.App.ui.zoom = 1.3; G.render(); });
+  // Against the bot (North human): no hot-seat snap scrolling the field while the gestures run.
+  await go({ view: "handoff", turns: 2, bot: true }, () => { const G = window.GGShots; G.App.ui.zoom = 1.3; G.render(); });
+  await page.waitForTimeout(700);
   const p0 = await page.evaluate((uid) => { const r = document.querySelector(`#board [data-uid="${uid}"]`).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, own);
   const cdp = await page.context().newCDPSession(page);
   const touch = async (type, pts) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: pts.map(([x, y], id) => ({ x, y, id })) });
@@ -192,10 +194,19 @@ const state = () => {
   ok(Math.abs(sc1[1] - sc0[1]) > 20 && !s.sel, `a 30 px drag pans the field and selects nothing (scroll ${sc0[1]} → ${sc1[1]}, sel ${s.sel})`);
   // a drag on your own unit with a second finger landing: cancelled, no move
   const before = await page.evaluate(() => window.GGShots.App.match.actions.length);
-  const p1 = await page.evaluate((uid) => { const r = document.querySelector(`#board [data-uid="${uid}"]`).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, own);
+  // An own unit that can still act, brought into the middle of the view first.
+  const pick = await page.evaluate(async () => {
+    const G = window.GGShots, { App, E } = G, u = E.alive(App.st).find((x) => x.team === App.st.toMove && !x.done);
+    G.revealHex(u.hex, true); await new Promise((r) => setTimeout(r, 200));
+    const r = document.querySelector(`#board [data-uid="${u.uid}"]`).getBoundingClientRect(), w = document.getElementById("fieldwrap").getBoundingClientRect();
+    return { p: [r.left + r.width / 2, r.top + r.height / 2], inView: r.top > w.top + 50 && r.bottom < w.bottom - 70 };
+  });
+  ok(pick.inView, "the drag test's unit is in view");
+  const p1 = pick.p;
   await touch("touchStart", [[p1[0], p1[1]]]);
   await touch("touchMove", [[p1[0], p1[1] - 20]]);
-  await touch("touchMove", [[p1[0], p1[1] - 40], [p1[0] + 60, p1[1] + 40]]);
+  await touch("touchStart", [[p1[0], p1[1] - 20], [p1[0] + 60, p1[1] + 40]]);   // the second finger lands
+  await touch("touchMove", [[p1[0], p1[1] - 40], [p1[0] + 70, p1[1] + 50]]);
   await touch("touchMove", [[p1[0], p1[1] - 50], [p1[0] + 80, p1[1] + 60]]);
   await touch("touchEnd", []); await page.waitForTimeout(450);
   const after = await page.evaluate(() => ({ n: window.GGShots.App.match.actions.length, drag: window.GGShots.App.ui.drag, ghost: window.GGShots.App.ui.ghost }));
