@@ -1,4 +1,4 @@
-STATUS · updated 21 Nov 2026, 8:45 pm ET
+STATUS · updated 21 Nov 2026, 8:47 pm ET
 
 VERSION
   On main: v3.14.00 · Build 18 · Rules v3.9 · Brain 5
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (21 Nov, 11:05 am ET)
-  Queue: 2 jobs waiting, oldest 0 min
+  Queue: clear
   nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
 FLAGS (open, newest first)
@@ -27,7 +27,7 @@ FLAGS (open, newest first)
 BUILDS
   Building
     022 Safe approach · PR #41 · needs sync · checks pass · not reviewed
-    025 Phone fit · PR #50 · Ready · checks pass · not reviewed
+    025 Phone fit · PR #50 · Ready · checks pass · reviewed: merge
   Ready to start
     018 Turn cue zoom
   Waiting
