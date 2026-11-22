@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-22T05:06:18.257Z",
- "board": "STATUS · updated 22 Nov 2026, 12:06 am ET\n\nVERSION\n  On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5\n  Building: 018 → v3.15.00 · 022 → v3.15.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (21 Nov, 11:05 am ET)\n  Queue: 10 jobs waiting, oldest 10 min · lab using 18 of 20\n  release v3.14.01 · 5v5 59.0% · 7v7 44.9% on the turn limit · 21 Nov\n  nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov\n\nFLAGS (open, newest first)\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n  ! F018-5 · ASK · 22 Nov · §10.5 has no row for a swap. Built as: one move row for the unit that started the swap…\n  ! F018-4 · ASK · 22 Nov · §9 (scale the flag pill by hex height ÷ 46.26): 017's pill is drawn in field units, like…\n  ! F018-3 · ASK · 22 Nov · §6 hides the zoom button when far and close are \"within 10% of each other\". On the…\n  ! F018-2 · ASK · 22 Nov · §6 says desktop \"far\" is the whole field in view \"(today)\". Today's desktop field is not…\n  ! F018-1 · ASK · 22 Nov · §10.1/§10.2: on a phone the Options (menu) button sits at the field's top left, exactly…\n    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n    FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  +14 older in FLAGS.md\n\nBUILDS\n  Building\n    018 Turn cue zoom · PR #54 · needs sync · checks pass · not reviewed\n    022 Safe approach · PR #41 · needs sync · checks running · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 018, 026\n    020 Victory values ← 022\n    026 Specials flow ← 018\n  Merged (last 3)\n    027 Lab plumbing · 22 Nov\n    025 Phone fit · v3.14.01 · 21 Nov\n    017 Move preview · v3.13.00 · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n    FF UI v3.14.00 - · Specials brief 026 (write and push) · opened 21 Nov\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n  Closed (last 5)\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-22T05:46:01.255Z",
+ "board": "STATUS · updated 22 Nov 2026, 12:46 am ET\n\nVERSION\n  On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5\n  Building: 018 → v3.15.00 · 022 → v3.15.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (21 Nov, 11:05 am ET)\n  Queue: 10 jobs waiting, oldest 40 min · lab using 14 of 20\n  release v3.14.01 · 5v5 59.0% · 7v7 44.9% on the turn limit · 21 Nov\n  nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov\n\nFLAGS (open, newest first)\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n  ! F018-6 · ASK · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n  ! F018-5 · ASK · 22 Nov · §10.5 has no row for a swap. Built as: one move row for the unit that started the swap…\n  ! F018-4 · ASK · 22 Nov · §9 (scale the flag pill by hex height ÷ 46.26): 017's pill is drawn in field units, like…\n  ! F018-2 · ASK · 22 Nov · §6 says desktop \"far\" is the whole field in view \"(today)\". Today's desktop field is not…\n  ! F018-1 · ASK · 22 Nov · §10.1/§10.2: on a phone the Options (menu) button sits at the field's top left, exactly…\n    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n    FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  +14 older in FLAGS.md\n\nBUILDS\n  Building\n    018 Turn cue zoom · PR #54 · Draft · checks running · not reviewed\n    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 018, 026\n    020 Victory values ← 022\n    026 Specials flow ← 018\n  Merged (last 3)\n    027 Lab plumbing · 22 Nov\n    025 Phone fit · v3.14.01 · 21 Nov\n    017 Move preview · v3.13.00 · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n    FF UI v3.14.00 - · Specials brief 026 (write and push) · opened 21 Nov\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n  Closed (last 5)\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -26,7 +26,7 @@
      "mark": null
     },
     {
-     "text": "Queue: 10 jobs waiting, oldest 10 min · lab using 18 of 20",
+     "text": "Queue: 10 jobs waiting, oldest 40 min · lab using 14 of 20",
      "indent": 1,
      "mark": null
     },
@@ -51,17 +51,17 @@
      "mark": "ask"
     },
     {
+     "text": "! F018-6 · ASK · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
      "text": "! F018-5 · ASK · 22 Nov · §10.5 has no row for a swap. Built as: one move row for the unit that started the swap…",
      "indent": 1,
      "mark": "ask"
     },
     {
      "text": "! F018-4 · ASK · 22 Nov · §9 (scale the flag pill by hex height ÷ 46.26): 017's pill is drawn in field units, like…",
-     "indent": 1,
-     "mark": "ask"
-    },
-    {
-     "text": "! F018-3 · ASK · 22 Nov · §6 hides the zoom button when far and close are \"within 10% of each other\". On the…",
      "indent": 1,
      "mark": "ask"
     },
@@ -121,12 +121,12 @@
      "mark": null
     },
     {
-     "text": "018 Turn cue zoom · PR #54 · needs sync · checks pass · not reviewed",
+     "text": "018 Turn cue zoom · PR #54 · Draft · checks running · not reviewed",
      "indent": 2,
      "mark": null
     },
     {
-     "text": "022 Safe approach · PR #41 · needs sync · checks running · not reviewed",
+     "text": "022 Safe approach · PR #41 · needs sync · checks pass · not reviewed",
      "indent": 2,
      "mark": null
     },
@@ -238,7 +238,7 @@
   }
  },
  "schema": 2,
- "updatedText": "22 Nov 2026, 12:06 am ET",
+ "updatedText": "22 Nov 2026, 12:46 am ET",
  "main": {
   "game": "v3.14.01",
   "build": 19,
@@ -246,11 +246,11 @@
   "brain": "Brain 5"
  },
  "queue": {
-  "text": "Queue: 10 jobs waiting, oldest 10 min · lab using 18 of 20",
-  "mark": null,
+  "text": "Queue: 10 jobs waiting, oldest 40 min · lab using 14 of 20",
+  "mark": "running",
   "jobsWaiting": 10,
-  "oldestWaitMin": 10,
-  "labUsing": 18
+  "oldestWaitMin": 40,
+  "labUsing": 14
  },
  "nightly": {
   "state": "pass",
@@ -263,11 +263,11 @@
     "brief": "018",
     "name": "Turn cue zoom",
     "pr": 54,
-    "draft": false,
-    "checks": "pass",
+    "draft": true,
+    "checks": "running",
     "review": null,
-    "sync": "conflict",
-    "state": "sync",
+    "sync": null,
+    "state": "running",
     "version": "v3.15.00",
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/54/"
@@ -277,7 +277,7 @@
     "name": "Safe approach",
     "pr": 41,
     "draft": true,
-    "checks": "running",
+    "checks": "pass",
     "review": null,
     "sync": "conflict",
     "state": "sync",
@@ -374,6 +374,14 @@
    "next": "Recommended: a lab fix brief: skip filing when every play part was cancelled (and never move an order to done with 0 games). Until then, Code never pushes to a pull request while its lab run plays"
   },
   {
+   "name": "F018-6",
+   "status": "ASK",
+   "date": "22 Nov",
+   "issue": "Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a 360 px panel on the field's left, open beside the field at 1200 px and wider with a Hide button (remembered on this device), collapsed below 1200 px and opening over the field from the field's log button. It…",
+   "issueFull": "Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a 360 px panel on the field's left, open beside the field at 1200 px and wider with a Hide button (remembered on this device), collapsed below 1200 px and opening over the field from the field's log button. It replaces §10.6's rows in the side column's Recent list (removed). Needs a lasting design",
+   "next": "The UI chat, with the Editor: design the desktop match log for good"
+  },
+  {
    "name": "F018-5",
    "status": "ASK",
    "date": "22 Nov",
@@ -390,19 +398,11 @@
    "next": "The Editor: accept (nothing to build)"
   },
   {
-   "name": "F018-3",
-   "status": "ASK",
-   "date": "22 Nov",
-   "issue": "§6 hides the zoom button when far and close are \"within 10% of each other\". On the Editor's 393 px phone, 7v7 far is 54.1 px against close's 60 px: 9.8% apart measured against close, 10.9% against far. Built as: measured against the smaller, so the button shows on 7v7 (the hands-on check uses it…",
-   "issueFull": "§6 hides the zoom button when far and close are \"within 10% of each other\". On the Editor's 393 px phone, 7v7 far is 54.1 px against close's 60 px: 9.8% apart measured against close, 10.9% against far. Built as: measured against the smaller, so the button shows on 7v7 (the hands-on check uses it there)",
-   "next": "The Editor: accept"
-  },
-  {
    "name": "F018-2",
    "status": "ASK",
    "date": "22 Nov",
    "issue": "§6 says desktop \"far\" is the whole field in view \"(today)\". Today's desktop field is not whole: it is 560 px wide and scrolls. Making it fit 1280 × 800 shrinks 7v7 to 34 px hexes, so every token loses its HP number (§8), which changes 017's desktop screen (\"Must not change\"). Built as: far stays…",
-   "issueFull": "§6 says desktop \"far\" is the whole field in view \"(today)\". Today's desktop field is not whole: it is 560 px wide and scrolls. Making it fit 1280 × 800 shrinks 7v7 to 34 px hexes, so every token loses its HP number (§8), which changes 017's desktop screen (\"Must not change\"). Built as: far stays today's size on desktop too; on desktop, where far is nearer than close, the zoom button's \"zoom out\" goes to the whole field; pinch, wheel and +/− reach every zoom. Recommendation: keep it",
+   "issueFull": "§6 says desktop \"far\" is the whole field in view \"(today)\". Today's desktop field is not whole: it is 560 px wide and scrolls. Making it fit 1280 × 800 shrinks 7v7 to 34 px hexes, so every token loses its HP number (§8), which changes 017's desktop screen (\"Must not change\"). Built as: far stays today's size on desktop too; pinch, wheel and +/− reach every zoom down to the whole field. Recommendation: keep it",
    "next": "The Editor: keep, or take the brief literally (whole field, icons only on desktop at far)"
   },
   {
