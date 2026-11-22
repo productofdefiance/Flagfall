@@ -235,6 +235,31 @@ const state = () => {
   });
   ok(/20 → 16\.5/.test(hold) && /10 → 8\.5/.test(hold) && !/16\.67/.test(hold), `a holder row shows the display split: "${hold.trim()}"`);
 
+  // ---- Desktop (1304 × 800): zoom out shows the whole field; the log panel opens and closes without moving the field ----
+  {
+    const dp = await browser.newPage({ viewport: { width: 1304, height: 800 } });
+    dp.on("pageerror", (e) => errors.push(e.message));
+    await dp.goto("file://" + path.join(boardDir, "index.html") + "?shots=1");
+    await dp.waitForFunction(() => window.GGShots && window.GGShots.App);
+    await dp.evaluate(() => { try { localStorage.removeItem("gg.logPanel"); } catch (e) { /* none */ } });
+    await dp.evaluate(setup, { view: "handoff", turns: 2, bot: true }); await dp.waitForTimeout(400);
+    const d = await dp.evaluate(async () => {
+      const sc = document.getElementById("fieldscroll"), svg = document.getElementById("board"), w = document.getElementById("fieldwrap").getBoundingClientRect(), r = svg.getBoundingClientRect();
+      const whole = r.width <= w.width + 1 && r.height <= w.height + 1;
+      document.getElementById("zoombtn").click(); await new Promise((x) => setTimeout(x, 400));
+      sc.scrollTop += 120;
+      const mid = () => { const b = sc.getBoundingClientRect(), el = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2), g = el && el.closest("[data-hex]"); return g ? g.dataset.hex : null; };
+      const m0 = mid(); document.querySelector("#logside .lg-hide").click(); await new Promise((x) => setTimeout(x, 200));
+      const m1 = mid(), btn = document.getElementById("logbtn").getBoundingClientRect(), fw = document.getElementById("fieldwrap").getBoundingClientRect();
+      document.getElementById("logbtn").click(); await new Promise((x) => setTimeout(x, 200));
+      return { whole, m0, m1, m2: mid(), btnLeft: btn.left - fw.left, panel: !document.getElementById("logside").hidden };
+    });
+    ok(d.whole, "desktop: zoom out (far) shows the whole field");
+    ok(d.m0 && d.m0 === d.m1 && d.m1 === d.m2, `desktop: hiding and showing the log panel keeps the same hex in the middle (${d.m0} → ${d.m1} → ${d.m2})`);
+    ok(d.btnLeft < 20 && d.panel, `desktop: the log button sits at the field's left and opens the panel (${d.btnLeft.toFixed(0)} px from the left)`);
+    await dp.close();
+  }
+
   ok(!errors.length, "no page errors: " + errors.join("; "));
   await browser.close();
   console.log(fails ? `${fails} of ${n} checks FAILED` : `All ${n} checks passed`);
