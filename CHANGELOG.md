@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.15.00 | v3.9 | Brain 5 | v5 + v4 | 20 |
 | v3.14.01 | v3.9 | Brain 5 | v5 | 19 |
 | v3.14.00 | v3.9 | Brain 5 | v5 | 18 |
 | v3.13.00 | v3.9 | Brain 5 | v3 | 17 |
@@ -21,6 +22,24 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.15.00 · Build 20 — Brief 018, no rule change: turn cue, hot-seat views, field zoom, match log (22 Nov 2026)
+Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 5, unchanged. UI: Approved UI v4 screens on top of v5. Game version **v3.15.00** (YY: new screens and a new setting).
+
+**What a player will notice**
+- **Turn cue (hot seat only):** a tag hangs from the scoreboard on the mover's side, "NORTH PLAYS" / "SOUTH PLAYS" (and "… DEPLOYS"). It stays until that player first touches anything, then slides away. That touch still works.
+- **Hot-seat view** (Settings step and the in-match Options menu): **Handoff** (as before), **Flip** (the field spins so the mover's flag is at the bottom), **Face to Face** (phones only: phone flat between you, the screen turns to face whoever is playing; the field never moves).
+- **Field zoom on every format:** pinch, or the new zoom button under hex names (close = 60 px hexes, far = as before). Drag to pan. A touch that moves more than 8 px never taps; a second finger cancels a drag. Desktop: mouse wheel, drag, + and −.
+- **Zoomed out (hexes under 50 px), tokens show icons only**; tap a unit for its HP. 9v9 and 13v13 can be zoomed to fit or to 60 px hexes.
+- **Hex names sit in the middle of the hex**; the hex-names button moved to the right edge, above zoom.
+- **Match log:** on a phone, a new top-right button swaps the field for the log (newest turn on top, each turn in play order, one row per action with Stamina, damage, HP before → after, OUT, Parry, set spear, holder and flag; tap an attack to see its sum). On desktop the Recent list and Options → Match log show the same rows.
+
+**Under the hood**
+- `engine.js`: a display-only list `st.events` beside `st.log`, one entry per log line, with the facts the log rows need. Not enumerable, so it is never copied, saved, hashed or read by the rules, brains or lab. `st.log` is word for word unchanged; every preset and brain replays with identical hashes.
+- `app.js`, `index.html`, `skin.js`: zoom, gestures, the three views, the tag (text colour picked by contrast in the skin), the log. The view is kept on the match (`match.view`), never in the options the engine reads.
+- New checks `test_events.js` and `test_hotseat.js` (headless browser); `sims/shots_018.js` makes the screenshots.
+
+**Flags opened:** F018-1 to F018-5 (`flags/018.md`).
 
 ## v3.14.01 · Build 19 — Brief 025 follow-up, no rule change: a special's Strength never struck (21 Nov 2026)
 Rule set: none changed. Default brain: Brain 5. UI: v5. Game version **v3.14.01** (ZZ: a screen fix).

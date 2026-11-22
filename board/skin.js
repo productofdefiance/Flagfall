@@ -48,4 +48,15 @@
     },
     board: { hexRadius: 30, pad: 8, tokenScale: 0.6, showHexNames: true }
   };
+  // Brief 018 §2: the turn cue's colours. The tag is the side's light colour; its text is ink unless white reads better,
+  // picked by contrast so a later jersey colour still reads (4.5:1 needed).
+  const S = root.GGSkin;
+  S.colors.northLight = "#8fd0b4"; S.colors.southLight = "#f0a48f";
+  S.tagColor = (t) => (t === "N" ? S.colors.northLight : S.colors.southLight);
+  const lum = (hex) => {
+    const n = parseInt(hex.replace("#", ""), 16), c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  S.contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  S.tagInk = (bg) => (S.contrast("#ffffff", bg) > S.contrast(S.colors.ink, bg) ? "#ffffff" : S.colors.ink);
 })(this);

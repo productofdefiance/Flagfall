@@ -212,20 +212,27 @@ Every preset plays and replays identically (`regress_engine.js` hashes). The eng
 ## The Editor's hands-on check
 Play a few turns on a phone in each hot-seat view: check the tag appears on each turn change and goes on your first tap; in view 2, watch the spin; in view 3, lay the phone flat and check the panel always faces the player moving. Pinch in and out on 7v7, tap the zoom button both ways, and check a tap after a pinch doesn't move a unit. Open the match log from the top-right button, check the newest turn is on top and reads in play order, tap an attack open, and go back to the field.
 
-## Report back
-The standard items, plus: the measured visible field height between top bar and panel on a 390 × 844 layout; any place a gesture still leaked into a tap; any screen that didn't turn in view 3. Also: any log row whose numbers differ from the attack preview or the field; how desktop's Recent was adapted.
-
----
-
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code, 22 Nov 2026. Branch `claude/affectionate-rubin-y8sb7p`, started from `brief/018-turn-cue-zoom` with `main` (v3.14.01, Build 19) merged in. Game version **v3.15.00**, Build 20.*
 
 - **What's in:**
-- **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
-- **Baseline table (rule changes only):** n/a
-- **Bot minimum (met / not met, with numbers):**
+  - §2 Turn cue: the edge tag in hot seat, play ("NORTH PLAYS") and deployment ("SOUTH DEPLOYS"), names from `st.names`, at the outer edge of the mover's half, hidden by the first touch, click or key (which still acts), no timer, `role="status"`. Text colour picked by contrast in `skin.js` (`tagInk`): North 8.9:1, South 7.8:1, ink text on both.
+  - §3 Hot-seat view on the Settings step (both Human only) and in the Options menu; Face to Face hidden at 900 px and wider (a saved one falls back to Handoff). Kept as `match.view` beside the options, never in `opts`, so the engine never sees it.
+  - §4 Views: Handoff; Flip (400 ms spin about the middle of the view, then everything redrawn upright, badges by screen corner, then the snap, then the tag); Face to Face (North at the bottom all match; on South's turn the whole screen except the field turns 180°: top bar, tag, field buttons, panel, sheets, key, menu, dialogs, toasts, covers; field labels redrawn for the mover). Reduced motion: no animation. Bot, watch and replay games: always view 1, no tag.
+  - §5 Hex names centred. §6 Zoom: pinch, one-finger pan with a little glide, the zoom button (close 60 px, far as today, 250 ms), minimum = whole field, maximum 90 px, wheel/drag/+/− on desktop; the zoom stays through turns, the snap also centres across when the field is wider than the view. §7 Field buttons on the right edge (zoom 64 px, hex names 116 px above the field's bottom), dark look, labels and `aria-pressed`; desktop too. §8 Icons only under 50 px. §9 see F018-4.
+  - §10 Match log: phone button (top right, 38 px below the scoreboard), Show field swaps back keeping zoom and scroll; settings bar; dividers (Command used/available, out, own losses, enemy flag change; South mirrored); rows as §10.5 (move, Evade, Mark stop, swap, attack, Reach, brace, warm-up, special with several hits, pull, Parry, set spear, take the hex, holder mark, OUT, roll change only, tap-open sum). Desktop Recent and Options → Match log use the same rows.
+  - §10.8 `st.events` in `engine.js`: one entry per log line, filled in for each action from a before/after snapshot plus what the action noted. Not enumerable: never in JSON, a match record, a clone or a look-ahead copy; a failed action leaves no entries.
+- **Anything beyond the brief, and why:** zoom-out on desktop goes to the whole field when far is nearer than close (otherwise the button did nothing there; F018-2). A drag on your own unit now starts at 8 px, not 12, so a press that moves more than 8 px is never a tap (§6).
+- **Checks run and results (paste regression hashes):** every README check run in this session. test_rules, v1, v3, v31, v33, v34, fields (127), route (59), stamina (833), reasons (19), version (22), ui (114), rng (20), replay (386 checks, 0 mismatches), phone (64/64), new test_hotseat (31/31), new test_events (1,307 checks at 2 games per set). REGRESS_LINE
+- **Baseline table (rule changes only):** n/a (no rule change).
+- **Bot minimum (met / not met, with numbers):** BOT_LINE
 - **Settings review (brain builds only):** n/a
-- **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+- **Measured:** visible field between top bar and unit bar: **581 px** at 390 × 844, **402 px** at 393 × 665 (in play, nothing tapped; unchanged from Build 19). 7v7 far = 54.1 px hexes at 393 px (53.7 at 390), 13v13 far = 38 px, minimum about 25 px.
+- **Gestures:** none found leaking into a tap in the tests (30 px pan selects nothing; second finger cancels a drag and makes no move). Tested with synthetic touches in a headless browser, not a real phone: the Editor's hands-on check is the real test.
+- **View 3:** every screen listed turns (they all sit inside the page, which turns). The Matches and Rules screens reached from Options are not play screens and stay upright (the turn is dropped when you leave the play screen).
+- **Log vs preview/field:** no differences found; the log reads the engine's own before/after numbers (a holder's HP and flag from the display split). The log shows the roll's change only, never the roll.
+- **Desktop Recent:** the same rows, columns narrowed to 82/26/1fr/32/56 px for the 390 px panel, settings bar on top (not sticky), newest first; the side column scrolls.
+- **Screenshots:** `briefs/img/018/` (390 × 844, 393 × 665, 1280 × 800), made by `sims/shots_018.js`. Set spear on a move is rare in bot games, so its shot uses hand-placed units.
+- **Known gaps:** In Face to Face, the turn animation briefly slides the field about 95 px while the rest of the screen turns (the two turn about different centres), then it settles and the snap runs. 9v9/13v13 zoom shots use 014's field data in a test position (not playable until 012).
+- **Flags closed / opened:** none closed. Opened `flags/018.md`: F018-1 (menu button hidden in the log), F018-2 (desktop far), F018-3 (the 10% rule), F018-4 (pill already scales), F018-5 (swap row), all ASK.
+- **Pull request:** PR_LINE

@@ -64,6 +64,8 @@ node tests/test_version.js
 node tests/test_watch.js
 node tests/test_ui.js
 node tests/test_phone.js
+node tests/test_hotseat.js
+node tests/test_events.js
 node tests/test_invariants.js
 node tests/test_rng.js
 node tests/test_replay.js ../data/match3_log.txt
@@ -102,6 +104,8 @@ For a build that must not change play at all, `node tests/regress_engine.js <boa
 `test_route.js` checks routes (Brief 017, Game Laws 2.11, rule set v3.9): each set-up in the brief and its mirror, that older rule sets still jump, that the move hexes offered don't change, the board's preview functions, and that `route()` names exactly where a move ends and what it meets on 1,000 random legal moves.
 
 `test_ui.js` checks UI v2 (Brief 009): the outcome bar merges equal neighbours, changed numbers are red only when they hurt the side to move, the preview's Evade equals the engine's, every unit card's text, and that nothing the board shows says "being" (units are counted in unit cap, UC).
+
+`test_events.js` checks the match log's facts (Brief 018): one entry per log line, rebuilt the same on replay, never in a saved record, a holder's HP from the display split. `test_hotseat.js` opens the board at 393 × 665 and checks the turn cue, the three hot-seat views, zoom, gestures (a touch that moves more than 8 px never taps) and the match log; it needs Playwright. `sims/shots_018.js` makes Brief 018's screenshots.
 
 `test_invariants.js` plays 30 bot games on the newest preset and fails on any impossible state.
 
