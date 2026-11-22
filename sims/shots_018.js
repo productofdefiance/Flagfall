@@ -63,12 +63,11 @@ const logTo = async (page, pred) => page.evaluate((src) => {
     // Zoom: far, close, minimum; hex names off and on
     for (const size of [7, 13]) for (const names of [false, true]) for (const z of ["far", "close", "min"]) {
       await go({ view: "handoff", size, turns: size === 7 ? 3 : 1 });
-      await page.evaluate(([names, z]) => { const G = window.GGShots; G.App.ui.names = names; G.App.ui.zoom = z === "far" ? null : z === "close" ? 1 : 0.01; G.App.ui.tagSeen = "P" + G.App.st.turn + G.App.st.toMove; G.render(); }, [names, z]);
+      await page.evaluate(([names, z]) => { const G = window.GGShots; G.App.ui.names = names; G.App.ui.zoom = z === "far" ? null : z === "close" ? 1 : 0.01; G.render(); }, [names, z]);
       await shot(page, `${sz}-zoom-${size}v${size}-${z}-names-${names ? "on" : "off"}`);
     }
     // The match log: a game with Parry, a holder hit, units out and a special that hits two units (seed hunt15)
     await go({ view: "handoff", seed: "hunt15", turns: 8, toS: true });
-    await page.evaluate(() => { const G = window.GGShots; G.App.ui.tagSeen = null; G.render(); });
     await shot(page, `${sz}-log-button-north`);
     await page.evaluate(() => window.GGShots.act({ type: "end" }));
     await page.waitForTimeout(300);

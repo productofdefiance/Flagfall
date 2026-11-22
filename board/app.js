@@ -995,11 +995,15 @@
     return st.units.some((o) => o !== u && o.team === u.team && !o.fk && o.card === u.card);
   }
 
+  /** Where the field's drawing sits inside its scroll area (its centring margins). An <svg> has no offsetLeft/offsetTop,
+      so they are read from the margins applyZoom sets (Build 20 fix: reading offsetTop gave NaN and every scroll jumped
+      to the top of the field). */
+  const svgOff = (svg) => [parseFloat(svg.style.marginLeft) || 0, parseFloat(svg.style.marginTop) || 0];
   /** Scroll the field so a hex is in view (smoothly), and keep edge markers and fades up to date. */
   function revealHex(h, center) {
     const sc = $("fieldscroll"), svg = $("board");
     if (!sc || !svg.clientHeight) return;
-    const k = svg.clientHeight / boardH(), y = pos(h)[1] * k + svg.offsetTop, x = pos(h)[0] * k + svg.offsetLeft;
+    const k = svg.clientHeight / boardH(), y = pos(h)[1] * k + svgOff(svg)[1], x = pos(h)[0] * k + svgOff(svg)[0];
     const top = sc.scrollTop, vis = sc.clientHeight, left = sc.scrollLeft, visW = sc.clientWidth;
     const inY = y > top + 70 && y < top + vis - 70, inX = x > left + 50 && x < left + visW - 50;
     if (!center && inY && inX) return;
@@ -1055,7 +1059,10 @@
   // ---------- Field zoom, gestures, hot-seat views and the turn cue (Brief 018, Approved UI v4) ----------
   /* Zoom is k, screen px per field unit (a hex is 2R = 60 units wide, so k = 1 is "close", 60 px hexes). ui.zoom null
      means "far" (fill the width on a phone, the whole field on desktop) and follows the screen size. */
-  const K_CLOSE = 60 / (2 * R), K_MAX = 90 / (2 * R);
+  // The Editor, 22 Nov (review of #54): "zoom in" goes nearer. Close = 1.5 × far, at least 60 px and at most 120 px
+  // hexes (7v7 on a 393 px phone: 81 px; desktop 7v7: 108 px; 13v13 on a phone: 60 px). Pinch reaches 120 px.
+  const CLOSE_X = 1.5, K_CLOSE_MIN = 60 / (2 * R), K_MAX = 120 / (2 * R);
+  const kClose = () => Math.max(K_CLOSE_MIN, Math.min(K_MAX, CLOSE_X * kFar()));
   const viewBox = () => { const w = $("fieldwrap"); return { w: w.clientWidth, h: w.clientHeight }; };
   function kFar() {
     const v = viewBox();
@@ -1083,22 +1090,22 @@
   /** The board point (field units) under a point of the field view (px from its top left). */
   function boardAt(fx, fy) {
     const sc = $("fieldscroll"), svg = $("board"), k = curK();
-    return [(sc.scrollLeft + fx - svg.offsetLeft) / k, (sc.scrollTop + fy - svg.offsetTop) / k];
+    return [(sc.scrollLeft + fx - svgOff(svg)[0]) / k, (sc.scrollTop + fy - svgOff(svg)[1]) / k];
   }
   /** Zoom to k keeping board point bp at view point (fx, fy). */
   function zoomTo(k, bp, fx, fy) {
     App.ui.zoom = clampK(k);
     applyZoom();
     const sc = $("fieldscroll"), svg = $("board"), kk = curK();
-    sc.scrollLeft = bp[0] * kk + svg.offsetLeft - fx;
-    sc.scrollTop = bp[1] * kk + svg.offsetTop - fy;
+    sc.scrollLeft = bp[0] * kk + svgOff(svg)[0] - fx;
+    sc.scrollTop = bp[1] * kk + svgOff(svg)[1] - fy;
     requestAnimationFrame(updateEdges);
   }
   /** The zoom button (§6): snaps to close (on the selected unit, else the view's centre) or far, 250 ms. */
   function zoomStep(dir) {
-    const v = viewBox(), k0 = curK(), inward = dir ? dir > 0 : k0 < K_CLOSE * 0.98;
+    const v = viewBox(), k0 = curK(), inward = dir ? dir > 0 : k0 < kClose() * 0.98;
     // Zoom out goes to far; where far is nearer than close (desktop, F018-2) it goes to the whole field instead.
-    const toFar = kFar() < k0 * 0.98, k1 = inward ? K_CLOSE : toFar ? kFar() : kMin();
+    const toFar = kFar() < k0 * 0.98, k1 = inward ? kClose() : toFar ? kFar() : kMin();
     const c = [v.w / 2, v.h / 2], from = boardAt(c[0], c[1]);
     const sel = App.ui.sel && E.unitByUid(App.st, App.ui.sel);
     const to = inward && sel && sel.hp > 0 && sel.hex ? pos(sel.hex) : from;
@@ -1119,9 +1126,9 @@
     const b = $("zoombtn"); if (!b) return;
     // "Within 10% of each other": the gap measured against the smaller of the two (7v7 on a 393 px phone: 54 and 60 px
     // hexes, 11% apart, so the button shows).
-    const far = kFar(), hide = Math.abs(far - K_CLOSE) / Math.min(far, K_CLOSE) < 0.1;
+    const far = kFar(), close = kClose(), hide = Math.abs(far - close) / Math.min(far, close) < 0.1;
     b.hidden = hide;
-    const inward = curK() < K_CLOSE * 0.98, want = inward ? "in" : "out";
+    const inward = curK() < kClose() * 0.98, want = inward ? "in" : "out";
     if (b.dataset.dir !== want) { b.dataset.dir = want; b.innerHTML = ic(inward ? "zoomIn" : "zoomOut", 20); b.setAttribute("aria-label", inward ? "Zoom in" : "Zoom out"); }
   }
   const reduced = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -1219,7 +1226,7 @@
     const c = flipChanged && App.st ? boardAt(v.w / 2, v.h / 2) : null;
     ui.flip = w.flip; ui.rot = w.rot;
     document.body.classList.toggle("turned", !!w.rot);
-    if (c) { renderBoard(); const k = curK(), svg = $("board"); sc.scrollLeft = (boardW() - c[0]) * k + svg.offsetLeft - v.w / 2; sc.scrollTop = (boardH() - c[1]) * k + svg.offsetTop - v.h / 2; }
+    if (c) { renderBoard(); const k = curK(), svg = $("board"); sc.scrollLeft = (boardW() - c[0]) * k + svgOff(svg)[0] - v.w / 2; sc.scrollTop = (boardH() - c[1]) * k + svgOff(svg)[1] - v.h / 2; }
   }
   /** The turn animation (§4): view 2 spins the field 180° about the middle of the view; view 3 turns everything but
       the field (the field is turned back the other way meanwhile, so it stays put). 400 ms; at once with reduced motion. */
@@ -1245,7 +1252,7 @@
       sc.style.transform = w.rot ? "rotate(-180deg)" : "rotate(180deg)";
     } else {
       const v = viewBox();
-      svg.style.transformOrigin = `${(sc.scrollLeft + v.w / 2 - svg.offsetLeft).toFixed(1)}px ${(sc.scrollTop + v.h / 2 - svg.offsetTop).toFixed(1)}px`;
+      svg.style.transformOrigin = `${(sc.scrollLeft + v.w / 2 - svgOff(svg)[0]).toFixed(1)}px ${(sc.scrollTop + v.h / 2 - svgOff(svg)[1]).toFixed(1)}px`;
       svg.style.transition = ease; void svg.offsetWidth;
       svg.style.transform = "rotate(180deg)";
     }
@@ -1264,7 +1271,8 @@
   function renderTag() {
     const el = $("edgetag"); if (!el) return;
     const st = App.st, key = tagKey();
-    const show = !!key && App.ui.tagSeen !== key && !App.ui.anim && App.view === "play";
+    // The Editor, 22 Nov (review of #54): the tag stays up for the whole turn; it goes when the turn passes.
+    const show = !!key && !App.ui.anim && App.view === "play";
     if (key && st) {
       const t = st.phase === "play" ? st.toMove : deployTeam(), bg = SK.tagColor ? SK.tagColor(t) : LIGHT[t];
       el.className = "edgetag " + (t === "N" ? "n" : "s");
@@ -1273,11 +1281,6 @@
     }
     el.classList.toggle("up", !show);
     el.setAttribute("aria-hidden", show ? "false" : "true");
-  }
-  /** The first touch or click after the tag appears sends it up (it still does what it would have done). */
-  function tagTouch() {
-    const key = tagKey();
-    if (key && App.ui.tagSeen !== key && !App.ui.anim && App.view === "play") { App.ui.tagSeen = key; renderTag(); }
   }
 
   // ---------- Drawing: top bar (UI v2, Brief 009) ----------
@@ -2026,7 +2029,7 @@
   /** Phone: the field area swaps for the log; the top bar, tag and action panel stay. Desktop: the Recent list. */
   function renderLog() {
     const st = App.st, ui = App.ui, el = $("logview"), b = $("logbtn");
-    const on = !!ui.logOpen && !wide();
+    const on = !!ui.logOpen;   // phone and desktop (the Editor, 22 Nov: the log button on desktop too)
     $("view-play").classList.toggle("log-open", on);
     el.hidden = !on;
     if (b) { const want = on ? "field" : "log"; if (b.dataset.mode !== want) { b.dataset.mode = want; b.innerHTML = ic(on ? "showField" : "list", 20); b.setAttribute("aria-label", on ? "Show field" : "Show match log"); } }
@@ -2081,7 +2084,7 @@
     const k = curK(), [fx, fy] = pos(fld().FLAG[st.toMove]), svg = $("board"), v = viewBox();
     const to = { behavior: "smooth" };
     if (sc.scrollHeight > sc.clientHeight + 2) to.top = fy < boardH() / 2 ? 0 : sc.scrollHeight - sc.clientHeight;
-    if (sc.scrollWidth > sc.clientWidth + 2) to.left = Math.max(0, fx * k + svg.offsetLeft - v.w / 2);
+    if (sc.scrollWidth > sc.clientWidth + 2) to.left = Math.max(0, fx * k + svgOff(svg)[0] - v.w / 2);
     if (to.top !== undefined || to.left !== undefined) sc.scrollTo(to);
   }
 
@@ -2650,8 +2653,6 @@
     $("fieldscroll").addEventListener("touchmove", (e) => { if (GS.mode === "pan" || GS.mode === "pinch") e.preventDefault(); }, { passive: false });
     $("zoombtn").dataset.act = "zoom";
     // §2: the first touch or click anywhere after the tag shows sends it up; the touch still does what it does.
-    document.addEventListener("pointerdown", tagTouch, true);
-    document.addEventListener("keydown", (e) => { if (App.view === "play" && App.st && !/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) tagTouch(); }, true);
     $("namesbtn").innerHTML = ic("grid", 20); $("namesbtn").dataset.act = "names";
     $("edgeTop").dataset.act = "edge-top"; $("edgeBottom").dataset.act = "edge-bottom";
     $("scrim").addEventListener("click", () => { App.ui.sheet = null; App.ui.armed = null; render(); });
@@ -2739,6 +2740,6 @@
     if (spec) startWatch(spec, /[?&]fast=1/.test(location.search));
   }
   // For the build's screenshots only (a "?shots=1" link): lets a test script set up a position. Nothing reads it in play.
-  if (/[?&]shots=1/.test(location.search)) { window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D, revealHex }; window.GGLogRow = logRow; }
+  if (/[?&]shots=1/.test(location.search)) { window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D, revealHex, beginDeploy, startMatch }; window.GGLogRow = logRow; }
   boot();
 })();

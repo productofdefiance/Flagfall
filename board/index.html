@@ -132,7 +132,7 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
 #namesbtn { top: auto; right: 8px; bottom: 116px; }
 #namesbtn[aria-pressed="true"] { background: var(--card); color: var(--ink); border: 2px solid var(--ink); }
 #zoombtn { right: 8px; bottom: 64px; }
-#logbtn { display: none; right: 8px; top: 38px; z-index: 6; }
+#logbtn { right: 8px; top: 38px; z-index: 6; }
 /* Brief 018 §2: the turn cue, hanging from the scoreboard at the outer edge of the mover's half */
 .edgetag { position: absolute; top: 0; z-index: 7; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 12px/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: #1f2421; padding: 6px 12px 7px; box-shadow: 0 3px 8px rgba(0,0,0,.18); pointer-events: none; transition: transform 150ms ease-in, opacity 150ms ease-in; }
 .edgetag:empty { display: none; }
@@ -336,7 +336,6 @@ body.turned { transform: rotate(180deg); }
   #topbar .tb-board { padding: 9px 16px 11px; gap: 8px; }
   /* 2. Field buttons (Brief 018 §7's look) */
   #menubtn { display: inline-flex; left: 8px; top: 38px; }
-  #logbtn { display: inline-flex; }
   /* 3. Unit bar: 63 px in every play state */
   #unitbar.ub5 { position: relative; display: block; height: 63px; min-height: 0; padding: 0 14px 9px; }
   .ub5 .ub-handle { position: absolute; left: 0; right: 0; top: 0; height: 24px; border: 0; background: none; padding: 5px 0 0; display: flex; justify-content: center; align-items: flex-start; }
@@ -401,6 +400,7 @@ body.turned { transform: rotate(180deg); }
 /* Brief 018 §10: the match log (phone: in place of the field; desktop: the Recent list; Options: Match log) */
 #logview { position: absolute; inset: 0; z-index: 5; overflow-y: auto; background: var(--paper); overscroll-behavior: contain; }
 #logview[hidden] { display: none; }
+@media (min-width: 900px) { #logview .lg { max-width: 640px; margin: 0 auto; } }
 .lg { font: 500 12px/1.2 var(--body); color: var(--ink); font-variant-numeric: tabular-nums; }
 .lg-bar { position: sticky; top: 0; z-index: 2; height: 90px; background: var(--paper); border-bottom: 1px solid var(--line); padding: 33px 66px 0 14px; }
 .lg-b1 { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }

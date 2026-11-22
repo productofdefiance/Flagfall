@@ -2,10 +2,11 @@
 // - the hot-seat view never reaches the engine: one seeded human-vs-human action list replays to the same state in all
 //   three views;
 // - the edge tag: shown on each turn change in hot seat ("NORTH PLAYS" / "SOUTH PLAYS"), never against the bot; it goes
-//   on the first touch and that touch still selects the unit; its text reaches 4.5:1 on both sides' colours;
+//   for the whole turn (the Editor, 22 Nov) and a touch on the field works under it; its text reaches 4.5:1 on both sides;
 // - view 2 draws the side to move's flag at the bottom; view 3 turns the interface on South's turn, never the field;
 //   bot games always use view 1;
-// - zoom: the button snaps to close (60 px hexes) and back to far; icons only below 50 px; a 13v13 field at minimum fits;
+// - zoom: the button snaps to close (1.5 × far, 60 to 120 px hexes) and back to far; scroll then zoom keeps the spot;
+// - deployment opens on the deploying side's own flag; icons only below 50 px; a 13v13 field at minimum fits;
 // - gestures: a touch that moves more than 8 px pans and never selects; a second finger cancels a drag;
 // - the match log: one row per action, newest turn first, a flag holder's HP from the display split.
 // node tests/test_hotseat.js   (needs Playwright with Chromium)
@@ -70,12 +71,13 @@ const state = () => {
   ok(SK.tagInk("#1f2421") === "#ffffff", "on a dark jersey the tag text turns white");
   let s = await go({ view: "handoff", turns: 2 });
   ok(!s.tagUp && /^North plays$/i.test(s.tag) && s.tagSide === "N", `hot seat: the tag shows "NORTH PLAYS" at the left (${s.tag}, up ${s.tagUp})`);
+  await page.waitForTimeout(800);   // let the hot-seat snap finish scrolling before aiming the tap
   const own = await page.evaluate(() => { const { App, E } = window.GGShots; const u = E.alive(App.st).find((x) => x.team === App.st.toMove && !x.done); return u.uid; });
   const box = await page.evaluate((uid) => { const r = document.querySelector(`#board [data-uid="${uid}"]`).getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }, own);
   await page.evaluate(([uid]) => window.GGShots.revealHex && 0, [own]);
   await page.touchscreen.tap(box[0], box[1]); await page.waitForTimeout(400);
   s = await page.evaluate(state);
-  ok(s.tagUp, "the first touch sends the tag up");
+  ok(!s.tagUp, "the tag stays up after the first touch (whole turn)");
   ok(s.sel === own, `that touch still selects the unit (sel ${s.sel}, wanted ${own})`);
   s = await go({ view: "handoff", turns: 2 }, () => window.GGShots.act({ type: "end" }));
   ok(!s.tagUp && /^South plays$/i.test(s.tag) && s.tagSide === "S", `after End turn: "SOUTH PLAYS" at the right (${s.tag})`);
@@ -104,7 +106,7 @@ const state = () => {
   ok(Math.abs(s.hexPx - 54.1) < 1 && s.hp > 0 && s.zoomLabel === "Zoom in" && !s.zoomHidden, `7v7 far: about 54 px hexes with numbers, "Zoom in" (${s.hexPx.toFixed(1)} px, ${s.zoomLabel})`);
   await page.evaluate(() => document.getElementById("zoombtn").click()); await page.waitForTimeout(150);
   s = await page.evaluate(state);
-  ok(Math.abs(s.hexPx - 60) < 0.5 && s.zoomLabel === "Zoom out", `zoom in: 60 px hexes, "Zoom out" (${s.hexPx.toFixed(1)})`);
+  ok(Math.abs(s.hexPx - 1.5 * 54.1) < 1.5 && s.zoomLabel === "Zoom out", `zoom in: 1.5 × far, about 81 px hexes, "Zoom out" (${s.hexPx.toFixed(1)})`);
   await page.evaluate(() => document.getElementById("zoombtn").click()); await page.waitForTimeout(150);
   s = await page.evaluate(state);
   ok(Math.abs(s.hexPx - 54.1) < 1, `zoom out: back to far (${s.hexPx.toFixed(1)})`);
@@ -113,7 +115,30 @@ const state = () => {
   s = await page.evaluate(() => { const G = window.GGShots; G.App.ui.zoom = 0.01; G.render(); return null; }).then(() => page.waitForTimeout(80)).then(() => page.evaluate(state));
   ok(s.svgW <= s.wrapW + 1 && s.svgH <= s.wrapH + 1, `13v13 minimum: the whole field in view (${s.svgW.toFixed(0)} × ${s.svgH.toFixed(0)} in ${s.wrapW.toFixed(0)} × ${s.wrapH.toFixed(0)}, ${s.hexPx.toFixed(1)} px hexes)`);
   s = await page.evaluate(() => { const G = window.GGShots; G.App.ui.zoom = 9; G.render(); return null; }).then(() => page.waitForTimeout(80)).then(() => page.evaluate(state));
-  ok(Math.abs(s.hexPx - 90) < 0.5, `maximum: 90 px hexes (${s.hexPx.toFixed(1)})`);
+  ok(Math.abs(s.hexPx - 120) < 0.5, `maximum: 120 px hexes (${s.hexPx.toFixed(1)})`);
+  // Scroll, then zoom: the hex in the middle of the view stays in the middle (Build 20 review: it jumped to the top).
+  const keep = await page.evaluate(async () => {
+    const G = window.GGShots; G.App.ui.zoom = null; G.render();
+    await new Promise((r) => setTimeout(r, 50));
+    const sc = document.getElementById("fieldscroll"); sc.scrollTop = 300;
+    const mid = () => { const r = sc.getBoundingClientRect(), el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2), g = el && el.closest("[data-hex]"); return g ? g.dataset.hex : null; };
+    const before = mid(); document.getElementById("zoombtn").click();
+    await new Promise((r) => setTimeout(r, 400));
+    return { before, after: mid(), top: sc.scrollTop };
+  });
+  ok(keep.before && keep.before === keep.after && keep.top > 0, `scroll then zoom keeps the spot (${keep.before} → ${keep.after}, scroll ${keep.top})`);
+
+  // ---- Deployment opens on the deploying side's own flag (Build 20 review: it always opened on North's) ----
+  for (const human of ["N", "S"]) {
+    const top = await page.evaluate(async (human) => {
+      const G = window.GGShots, A = G.App;
+      A.setup = { format: "std7", rulesetId: G.D.PRESETS[G.D.PRESETS.length - 1].id, first: "N", seed: "DEP", players: { N: human === "N" ? { type: "human", name: "North", mix: "open" } : { type: "bot", brainId: "brain5", mix: "open" }, S: human === "S" ? { type: "human", name: "South", mix: "open" } : { type: "bot", brainId: "brain5", mix: "open" } } };
+      A.picks = { [human]: { keeper: null, counts: { HM: 2, LM: 1, HR: 1, LR: 1, HA: 1, LA: 1 } } };
+      G.startMatch(); await new Promise((r) => setTimeout(r, 400));
+      const sc = document.getElementById("fieldscroll"); return { top: sc.scrollTop, max: sc.scrollHeight - sc.clientHeight };
+    }, human);
+    ok(human === "N" ? top.top === 0 : top.top >= top.max - 2, `${human} deploys: the field opens on its own flag (scroll ${top.top} of ${top.max})`);
+  }
 
   // ---- Gestures ----
   await go({ view: "handoff", turns: 2 }, () => { const G = window.GGShots; G.App.ui.zoom = 1.3; G.render(); });
