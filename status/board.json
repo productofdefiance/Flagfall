@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-21T23:58:36.585Z",
- "board": "STATUS · updated 21 Nov 2026, 6:58 pm ET\n\nVERSION\n  On main: v3.14.00 · Build 18 · Rules v3.9 · Brain 5\n  Building: 022 → YY · 025 → v3.14.01\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (21 Nov, 11:05 am ET)\n  Queue: clear\n  nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov\n  study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov\n  study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov\n  study v3.10.00 · 52 matchups, 52,000 games · 20 Nov\n  screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov\n  screen v3.13.00 · 5v5 65.0% · 7v7 45.5% on the turn limit · 20 Nov\n  release v3.14.00 · 5v5 65.3% · 7v7 43.3% on the turn limit · 20 Nov\n  release v3.13.00 · 5v5 63.2% · 7v7 44.4% on the turn limit · 20 Nov\n  +5 more in results/INDEX.md\n\nFLAGS (open, newest first)\n  ! FD49-4 · ASK · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n  ! FD49-3 · ASK · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n  ! FD49-2 · ASK · 21 Nov · Brief 012 names its preset \"v3.8\", but v3.8 is already on main (fields, brief 014). The…\n  ! FD49-1 · ASK · 21 Nov · Brief 012 Measurements item 4 (Command and turn limits) screens 9v9 at Command 10, 12, 14…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n  ! F022-5 · DECIDE · 21 Nov · Brain 8 as shipped (B4 only) plays Brain 5 even at 1,000 games (5v5 469 won, 462 lost…\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  ! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…\n  +14 older in FLAGS.md\n\nBUILDS\n  Building\n    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed\n    025 Phone fit · PR #50 · Ready · checks pass · not reviewed\n  Ready to start\n    018 Turn cue zoom\n  Waiting\n    012 Cavalry ← 018\n    020 Victory values ← 022\n  Merged (last 3)\n    025 Phone fit · v3.14.00 · 20 Nov\n    017 Move preview · v3.13.00 · 20 Nov\n    024 Lab capacity · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n  Closed (last 5)\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-22T00:26:15.186Z",
+ "board": "STATUS · updated 21 Nov 2026, 7:26 pm ET\n\nVERSION\n  On main: v3.14.00 · Build 18 · Rules v3.9 · Brain 5\n  Building: 022 → YY · 025 → v3.14.01\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (21 Nov, 11:05 am ET)\n  Queue: clear\n  nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov\n\nFLAGS (open, newest first)\n  ! FD49-4 · ASK · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n  ! FD49-3 · ASK · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n  ! FD49-2 · ASK · 21 Nov · Brief 012 names its preset \"v3.8\", but v3.8 is already on main (fields, brief 014). The…\n  ! FD49-1 · ASK · 21 Nov · Brief 012 Measurements item 4 (Command and turn limits) screens 9v9 at Command 10, 12, 14…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n  ! F022-5 · DECIDE · 21 Nov · Brain 8 as shipped (B4 only) plays Brain 5 even at 1,000 games (5v5 469 won, 462 lost…\n  ! F50 · ASK · 20 Nov · Brief 014, v3.8 baseline (Brain 5 mirror, 1,000 games per format, same seeds as v3.7)…\n  ! F49 · ASK · 20 Nov · Brief 014, the hot-seat snap: on a 390 × 844 phone the field view between the top bar and…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n  ! F024-4 · ASK · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…\n  +14 older in FLAGS.md\n\nBUILDS\n  Building\n    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed\n    025 Phone fit · PR #50 · Ready · checks pass · not reviewed\n  Ready to start\n    018 Turn cue zoom\n  Waiting\n    012 Cavalry ← 018, 026\n    020 Victory values ← 022\n    026 Specials flow ← 018\n  Merged (last 3)\n    025 Phone fit · v3.14.00 · 20 Nov\n    017 Move preview · v3.13.00 · 20 Nov\n    024 Lab capacity · 20 Nov\n\nCHATS\n  Open\n    FF Flags v3.11.00 - · clearing the open flag list · opened 20 Nov\n  Closed (last 5)\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -32,46 +32,6 @@
     },
     {
      "text": "nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "study v3.11.00 · 5v5 61.9% · 7v7 44.2% on the turn limit · 20 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "study v3.11.00 · 5v5 35.1% · 7v7 42.7% on the turn limit · 20 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "study v3.10.00 · 52 matchups, 52,000 games · 20 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "screen v3.10.00 · 5v5 34.8% · 7v7 38.8% on the turn limit · 20 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "screen v3.13.00 · 5v5 65.0% · 7v7 45.5% on the turn limit · 20 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "release v3.14.00 · 5v5 65.3% · 7v7 43.3% on the turn limit · 20 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "release v3.13.00 · 5v5 63.2% · 7v7 44.4% on the turn limit · 20 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "+5 more in results/INDEX.md",
      "indent": 1,
      "mark": null
     }
@@ -181,12 +141,17 @@
      "mark": null
     },
     {
-     "text": "012 Cavalry ← 018",
+     "text": "012 Cavalry ← 018, 026",
      "indent": 2,
      "mark": null
     },
     {
      "text": "020 Victory values ← 022",
+     "indent": 2,
+     "mark": null
+    },
+    {
+     "text": "026 Specials flow ← 018",
      "indent": 2,
      "mark": null
     },
@@ -256,7 +221,7 @@
   }
  },
  "schema": 2,
- "updatedText": "21 Nov 2026, 6:58 pm ET",
+ "updatedText": "21 Nov 2026, 7:26 pm ET",
  "main": {
   "game": "v3.14.00",
   "build": 18,
@@ -309,7 +274,8 @@
     "brief": "012",
     "name": "Cavalry",
     "waitsOn": [
-     "018"
+     "018",
+     "026"
     ],
     "ready": false,
     "stated": true
@@ -319,6 +285,15 @@
     "name": "Victory values",
     "waitsOn": [
      "022"
+    ],
+    "ready": false,
+    "stated": true
+   },
+   {
+    "brief": "026",
+    "name": "Specials flow",
+    "waitsOn": [
+     "018"
     ],
     "ready": false,
     "stated": true
@@ -366,79 +341,9 @@
    "share5": 0.8,
    "share7": 0.45,
    "line": "2 matchups, 40 games"
-  },
-  {
-   "id": "2026-11-20_study_fields-v38",
-   "kind": "study",
-   "version": "v3.11.00",
-   "date": "2026-11-20",
-   "dateText": "20 Nov",
-   "share5": 0.619,
-   "share7": 0.442,
-   "line": "2 matchups, 2,000 games"
-  },
-  {
-   "id": "2026-11-20_study_fields-v37",
-   "kind": "study",
-   "version": "v3.11.00",
-   "date": "2026-11-20",
-   "dateText": "20 Nov",
-   "share5": 0.351,
-   "share7": 0.427,
-   "line": "2 matchups, 2,000 games"
-  },
-  {
-   "id": "2026-11-20_study_brain7-settings",
-   "kind": "study",
-   "version": "v3.10.00",
-   "date": "2026-11-20",
-   "dateText": "20 Nov",
-   "share5": null,
-   "share7": null,
-   "line": "52 matchups, 52,000 games"
-  },
-  {
-   "id": "2026-11-20_screen_specials-playtest-2",
-   "kind": "screen",
-   "version": "v3.10.00",
-   "date": "2026-11-20",
-   "dateText": "20 Nov",
-   "share5": 0.3475,
-   "share7": 0.3875,
-   "line": "3 matchups, 1,200 games"
-  },
-  {
-   "id": "2026-11-20_screen_routes-v39",
-   "kind": "screen",
-   "version": "v3.13.00",
-   "date": "2026-11-20",
-   "dateText": "20 Nov",
-   "share5": 0.65,
-   "share7": 0.455,
-   "line": "4 matchups, 800 games"
-  },
-  {
-   "id": "2026-11-20_release_release-v3-14-00",
-   "kind": "release",
-   "version": "v3.14.00",
-   "date": "2026-11-20",
-   "dateText": "20 Nov",
-   "share5": 0.653,
-   "share7": 0.433,
-   "line": "2 matchups, 2,000 games"
-  },
-  {
-   "id": "2026-11-20_release_release-v3-13-00",
-   "kind": "release",
-   "version": "v3.13.00",
-   "date": "2026-11-20",
-   "dateText": "20 Nov",
-   "share5": 0.632,
-   "share7": 0.444,
-   "line": "2 matchups, 2,000 games"
   }
  ],
- "resultsMore": 5,
+ "resultsMore": 0,
  "flags": [
   {
    "name": "FD49-4",
