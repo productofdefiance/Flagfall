@@ -3,6 +3,7 @@
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
 - 2026-11-22 · nightly · v3.14.01 · [2026-11-22_nightly_health](v3.14.01/2026-11-22_nightly_health/SUMMARY.md): passed: all 4 night checks
+- 2026-11-21 · release · v3.14.01 · [2026-11-21_release_release-v3-14-01](v3.14.01/2026-11-21_release_release-v3-14-01/SUMMARY.md): 5v5: mirror, 59.0% ended on the turn limit, A/B 465–446; 7v7: mirror, 44.9% ended on the turn limit, A/B 464–520.
 - 2026-11-21 · nightly · v3.14.00 · [2026-11-21_nightly_health](v3.14.00/2026-11-21_nightly_health/SUMMARY.md): passed: all 4 night checks
 - 2026-11-20 · release · v3.14.00 · [2026-11-20_release_release-v3-14-00](v3.14.00/2026-11-20_release_release-v3-14-00/SUMMARY.md): 5v5: mirror, 65.3% ended on the turn limit, A/B 466–451; 7v7: mirror, 43.3% ended on the turn limit, A/B 493–486.
 - 2026-11-20 · study · v3.13.00 · [2026-11-20_study_move-order-command-storm](v3.13.00/2026-11-20_study_move-order-command-storm/SUMMARY.md): 10 matchups, 10000 games (per-matchup numbers in tables/outcomes.csv). Mirrors ended on the turn limit in 50.2% of games.
