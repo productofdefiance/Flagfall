@@ -29,19 +29,19 @@ Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 5
 **What a player will notice**
 - **Turn cue (hot seat only):** a tag hangs from the scoreboard on the mover's side, "NORTH PLAYS" / "SOUTH PLAYS" (and "… DEPLOYS"), for the whole turn; it slides away when the turn passes.
 - **Hot-seat view** (Settings step and the in-match Options menu): **Handoff** (as before), **Flip** (the field spins so the mover's flag is at the bottom), **Face to Face** (phones only: phone flat between you, the screen turns to face whoever is playing; the field never moves).
-- **Field zoom on every format:** pinch, or the new zoom button under hex names (close = 1.5 × far, 60 to 120 px hexes: 81 px on a 393 px phone at 7v7, 108 px on desktop; far = as before). Drag to pan. A touch that moves more than 8 px never taps; a second finger cancels a drag. Desktop: mouse wheel, drag, + and −.
+- **Field zoom on every format:** pinch, or the new zoom button under hex names (close = 100 px hexes on every format; far = as before; pinch to 120 px). Drag to pan. A touch that moves more than 8 px never taps; a second finger cancels a drag. Desktop: mouse wheel, drag, + and −.
 - **Zoomed out (hexes under 50 px), tokens show icons only**; tap a unit for its HP. 9v9 and 13v13 can be zoomed to fit or to 60 px hexes.
 - **Hex names sit in the middle of the hex**; the hex-names button moved to the right edge, above zoom.
-- **Match log:** a new top-right button on the field (phone and desktop) swaps the field for the log (newest turn on top, each turn in play order, one row per action with Stamina, damage, HP before → after, OUT, Parry, set spear, holder and flag; tap an attack to see its sum). On desktop the Recent list and Options → Match log show the same rows.
+- **Match log:** on a phone, a new top-right button swaps the field for the log; on desktop it is a panel on the field's left (beside the field at 1200 px and wider, with a Hide button; over the field on narrower windows) (newest turn on top, each turn in play order, one row per action with Stamina, damage, HP before → after, OUT, Parry, set spear, holder and flag; tap an attack to see its sum). Options → Match log shows the same rows; the side column's Recent list is gone.
 
 **Under the hood**
 - `engine.js`: a display-only list `st.events` beside `st.log`, one entry per log line, with the facts the log rows need. Not enumerable, so it is never copied, saved, hashed or read by the rules, brains or lab. `st.log` is word for word unchanged; every preset and brain replays with identical hashes.
 - `app.js`, `index.html`, `skin.js`: zoom, gestures, the three views, the tag (text colour picked by contrast in the skin), the log. The view is kept on the match (`match.view`), never in the options the engine reads.
 - New checks `test_events.js` and `test_hotseat.js` (headless browser); `sims/shots_018.js` makes the screenshots.
 
-**Fixed in review (the Editor, 22 Nov):** the field could jump to North's end (deployment always opened on North; zooming after scrolling lost your place; some turns jumped to the top): the field's position inside its scroll area was read as "not a number". The tag now stays all turn; "zoom in" goes nearer; the log button is on desktop too.
+**Fixed in review (the Editor, 22 Nov):** the field could jump to North's end (deployment always opened on North; zooming after scrolling lost your place; some turns jumped to the top): the field's position inside its scroll area was read as "not a number". The tag now stays all turn; "zoom in" goes to 100 px hexes; the desktop log is a left-side panel (F018-6).
 
-**Flags opened:** F018-1 to F018-5 (`flags/018.md`; F018-3 closed in review).
+**Flags opened:** F018-1 to F018-5 (`flags/018.md`; F018-3 closed in review; F018-6 opened in review).
 
 ## No game version — Brief 027, tooling: lab plumbing, fewer jobs (22 Nov 2026)
 Nothing in the game changes (`board/` untouched). Every game the lab plays is the same.

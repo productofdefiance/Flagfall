@@ -315,16 +315,24 @@ body.turned { transform: rotate(180deg); }
 #sheet.keysheet { max-height: 60%; }
 #sheet.keysheet > .key { overflow-y: auto; }
 @media (min-width: 900px) {
-  #view-play { grid-template-columns: minmax(0, 1fr) 390px; grid-template-rows: auto auto auto minmax(0, 1fr); }
-  #topbar { grid-column: 1 / 3; }
+  #view-play { grid-template-columns: auto minmax(0, 1fr) 390px; grid-template-rows: auto auto auto minmax(0, 1fr); }
+  #topbar { grid-column: 1 / 4; }
+  /* The match log panel (the Editor, 22 Nov; F018-6): docked on the field's left at 1200 px and wider, over the field below */
+  .logside { grid-column: 1; grid-row: 2 / 5; width: 360px; position: relative; overflow: hidden; background: var(--paper); border-right: 1px solid var(--line); min-height: 0; }
+  .logside[hidden] { display: none; }
+  #view-play.log-over .logside { grid-column: 2; justify-self: start; z-index: 6; box-shadow: 6px 0 18px rgba(0,0,0,.18); max-width: 100%; }
+  .logside .ls-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .logside .lg-hide { position: absolute; top: 38px; right: 8px; z-index: 3; }
+  .logside .lg-main, .logside .lg-l2 { grid-template-columns: 84px 28px minmax(0, 1fr) 34px 60px; column-gap: 6px; }
+  .logside .lg-row { padding: 10px 8px 10px 12px; }
   #topbar .tb-title, #topbar .tb-board { padding-left: max(16px, calc(50% - 360px)); padding-right: max(16px, calc(50% - 360px)); }
   #topbar .tb-rule { margin-left: max(16px, calc(50% - 360px)); margin-right: max(16px, calc(50% - 360px)); }
-  #fieldwrap { grid-column: 1; grid-row: 2 / 5; }
-  #unitbar { grid-column: 2; grid-row: 2; border-left: 1px solid var(--line); }
-  #actions { grid-column: 2; grid-row: 3; border-left: 1px solid var(--line); }
-  #side { display: flex; flex-direction: column; gap: 12px; grid-column: 2; grid-row: 4; overflow-y: auto; padding: 12px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+  #fieldwrap { grid-column: 2; grid-row: 2 / 5; }
+  #unitbar { grid-column: 3; grid-row: 2; border-left: 1px solid var(--line); }
+  #actions { grid-column: 3; grid-row: 3; border-left: 1px solid var(--line); }
+  #side { display: flex; flex-direction: column; gap: 12px; grid-column: 3; grid-row: 4; overflow-y: auto; padding: 12px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
   /* Desktop (Brief 009 §7): the attack preview and the unit card sit in the right-hand column, 390 wide, over the roster. */
-  #view-play > #sheet { position: relative; left: auto; right: auto; bottom: auto; grid-column: 2; grid-row: 4; z-index: 3; max-height: none; height: 100%; min-height: 0; overflow-y: auto; border-radius: 0; border-left: 1px solid var(--line); border-top: 1px solid var(--line); box-shadow: none; }
+  #view-play > #sheet { position: relative; left: auto; right: auto; bottom: auto; grid-column: 3; grid-row: 4; z-index: 3; max-height: none; height: 100%; min-height: 0; overflow-y: auto; border-radius: 0; border-left: 1px solid var(--line); border-top: 1px solid var(--line); box-shadow: none; }
   #view-play > #sheet.preview { border-radius: 0; }
 }
 /* Approved UI v5 (Brief 025): phone fit. Everything below 900 px wide; desktop keeps Brief 017's layout. */
@@ -400,7 +408,6 @@ body.turned { transform: rotate(180deg); }
 /* Brief 018 §10: the match log (phone: in place of the field; desktop: the Recent list; Options: Match log) */
 #logview { position: absolute; inset: 0; z-index: 5; overflow-y: auto; background: var(--paper); overscroll-behavior: contain; }
 #logview[hidden] { display: none; }
-@media (min-width: 900px) { #logview .lg { max-width: 640px; margin: 0 auto; } }
 .lg { font: 500 12px/1.2 var(--body); color: var(--ink); font-variant-numeric: tabular-nums; }
 .lg-bar { position: sticky; top: 0; z-index: 2; height: 90px; background: var(--paper); border-bottom: 1px solid var(--line); padding: 33px 66px 0 14px; }
 .lg-b1 { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
@@ -515,11 +522,11 @@ table.data td.desc { white-space: normal; color: var(--muted); font-size: 13px; 
     <div id="scrim" hidden></div>
     <section id="sheet" hidden aria-live="polite"></section>
   </div>
+  <aside id="logside" class="logside" aria-label="Match log" hidden></aside>
   <section id="unitbar"></section>
   <nav id="actions" aria-label="Actions"></nav>
   <aside id="side">
     <div class="card roster" id="roster"></div>
-    <div class="card"><h3>Recent</h3><div class="recent" id="recent"></div></div>
   </aside>
 </section>
 <section class="view" id="view-units" hidden></section>

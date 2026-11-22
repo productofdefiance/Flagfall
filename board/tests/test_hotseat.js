@@ -106,7 +106,7 @@ const state = () => {
   ok(Math.abs(s.hexPx - 54.1) < 1 && s.hp > 0 && s.zoomLabel === "Zoom in" && !s.zoomHidden, `7v7 far: about 54 px hexes with numbers, "Zoom in" (${s.hexPx.toFixed(1)} px, ${s.zoomLabel})`);
   await page.evaluate(() => document.getElementById("zoombtn").click()); await page.waitForTimeout(150);
   s = await page.evaluate(state);
-  ok(Math.abs(s.hexPx - 1.5 * 54.1) < 1.5 && s.zoomLabel === "Zoom out", `zoom in: 1.5 × far, about 81 px hexes, "Zoom out" (${s.hexPx.toFixed(1)})`);
+  ok(Math.abs(s.hexPx - 100) < 0.5 && s.zoomLabel === "Zoom out", `zoom in: 100 px hexes, "Zoom out" (${s.hexPx.toFixed(1)})`);
   await page.evaluate(() => document.getElementById("zoombtn").click()); await page.waitForTimeout(150);
   s = await page.evaluate(state);
   ok(Math.abs(s.hexPx - 54.1) < 1, `zoom out: back to far (${s.hexPx.toFixed(1)})`);
@@ -138,6 +138,38 @@ const state = () => {
       const sc = document.getElementById("fieldscroll"); return { top: sc.scrollTop, max: sc.scrollHeight - sc.clientHeight };
     }, human);
     ok(human === "N" ? top.top === 0 : top.top >= top.max - 2, `${human} deploys: the field opens on its own flag (scroll ${top.top} of ${top.max})`);
+  }
+
+  // Hot seat: after North deploys, South's deployment opens on South's flag (review of #54).
+  {
+    const r = await page.evaluate(async () => {
+      const G = window.GGShots, A = G.App;
+      A.setup = { format: "std7", rulesetId: G.D.PRESETS[G.D.PRESETS.length - 1].id, first: "N", seed: "DEP2", players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "human", name: "South", mix: "open" } } };
+      A.picks = { N: { keeper: null, counts: { HM: 2, LM: 1, HR: 1, LR: 1, HA: 1, LA: 1 } }, S: { keeper: null, counts: { HM: 2, LM: 1, HR: 1, LR: 1, HA: 1, LA: 1 } } };
+      G.startMatch(); document.querySelector('[data-act="cover-ok"]').click();
+      await new Promise((r) => setTimeout(r, 300));
+      document.querySelector('[data-act="deploy-fill"]').click(); await new Promise((r) => setTimeout(r, 100));
+      document.querySelector('[data-act="deploy-done"]').click(); await new Promise((r) => setTimeout(r, 100));
+      document.querySelector('[data-act="cover-ok"]').click(); await new Promise((r) => setTimeout(r, 500));
+      const sc = document.getElementById("fieldscroll"), tag = document.getElementById("edgetag");
+      return { team: A.ui.cover, top: sc.scrollTop, max: sc.scrollHeight - sc.clientHeight, tag: tag.textContent, up: tag.classList.contains("up") };
+    });
+    ok(r.top >= r.max - 2, `hot seat: South's deployment opens on South's flag (scroll ${r.top} of ${r.max})`);
+    ok(/South deploys/i.test(r.tag) && !r.up, `hot seat: "SOUTH DEPLOYS" shows (${r.tag})`);
+  }
+  // Scroll, then zoom with the wheel: the hex under the pointer stays under it.
+  {
+    await go({ view: "handoff", turns: 1, bot: true }); await page.waitForTimeout(600);   // no hot-seat snap moving the view
+    const r = await page.evaluate(async () => {
+      const sc = document.getElementById("fieldscroll"); sc.scrollTop = 250;
+      const rc = sc.getBoundingClientRect(), x = rc.left + rc.width / 2, y = rc.top + rc.height / 2;
+      const at = () => { const el = document.elementFromPoint(x, y), g = el && el.closest("[data-hex]"); return g ? g.dataset.hex : null; };
+      const before = at();
+      sc.dispatchEvent(new WheelEvent("wheel", { deltaY: -200, clientX: x, clientY: y, bubbles: true, cancelable: true }));
+      await new Promise((r) => setTimeout(r, 100));
+      return { before, after: at(), top: sc.scrollTop };
+    });
+    ok(r.before && r.before === r.after && r.top > 100, `scroll then wheel-zoom keeps the hex under the pointer (${r.before} → ${r.after}, scroll ${r.top})`);
   }
 
   // ---- Gestures ----

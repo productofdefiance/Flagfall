@@ -1059,10 +1059,9 @@
   // ---------- Field zoom, gestures, hot-seat views and the turn cue (Brief 018, Approved UI v4) ----------
   /* Zoom is k, screen px per field unit (a hex is 2R = 60 units wide, so k = 1 is "close", 60 px hexes). ui.zoom null
      means "far" (fill the width on a phone, the whole field on desktop) and follows the screen size. */
-  // The Editor, 22 Nov (review of #54): "zoom in" goes nearer. Close = 1.5 × far, at least 60 px and at most 120 px
-  // hexes (7v7 on a 393 px phone: 81 px; desktop 7v7: 108 px; 13v13 on a phone: 60 px). Pinch reaches 120 px.
-  const CLOSE_X = 1.5, K_CLOSE_MIN = 60 / (2 * R), K_MAX = 120 / (2 * R);
-  const kClose = () => Math.max(K_CLOSE_MIN, Math.min(K_MAX, CLOSE_X * kFar()));
+  // The Editor, 22 Nov (second review of #54): "zoom in" goes to 100 px hexes on every format and screen. Pinch reaches 120 px.
+  const K_CLOSE = 100 / (2 * R), K_MAX = 120 / (2 * R);
+  const kClose = () => K_CLOSE;
   const viewBox = () => { const w = $("fieldwrap"); return { w: w.clientWidth, h: w.clientHeight }; };
   function kFar() {
     const v = viewBox();
@@ -2027,19 +2026,41 @@
   }
   function logHtml(st) { return `<div class="lg">${logBar(st)}<div class="lg-rows">${logRowsHtml(st)}</div></div>`; }
   /** Phone: the field area swaps for the log; the top bar, tag and action panel stay. Desktop: the Recent list. */
+  /* Desktop (the Editor, 22 Nov, review of #54; F018-6 for a lasting design): the log is a panel on the field's left.
+     1200 px and wider it sits beside the field, open unless the player collapsed it (remembered on this device);
+     narrower it starts collapsed and opens over the field. Phone (under 900 px): the field area swaps for the log. */
+  const LOG_DOCK = 1200;
+  const logDocked = () => window.innerWidth >= LOG_DOCK;
+  function logPanelOpen() { return logDocked() ? Store.local("logPanel") !== false : !!App.ui.logOverlay; }
+  function toggleLog() {
+    if (!wide()) { App.ui.logOpen = !App.ui.logOpen; renderLog(); if (App.ui.logOpen) $("logview").scrollTop = 0; else requestAnimationFrame(updateEdges); return; }
+    if (logDocked()) Store.local("logPanel", !logPanelOpen()); else App.ui.logOverlay = !App.ui.logOverlay;
+    render();
+  }
   function renderLog() {
-    const st = App.st, ui = App.ui, el = $("logview"), b = $("logbtn");
-    const on = !!ui.logOpen;   // phone and desktop (the Editor, 22 Nov: the log button on desktop too)
-    $("view-play").classList.toggle("log-open", on);
-    el.hidden = !on;
-    if (b) { const want = on ? "field" : "log"; if (b.dataset.mode !== want) { b.dataset.mode = want; b.innerHTML = ic(on ? "showField" : "list", 20); b.setAttribute("aria-label", on ? "Show field" : "Show match log"); } }
+    const st = App.st, ui = App.ui, el = $("logview"), side = $("logside"), b = $("logbtn"), vp = $("view-play");
+    const desk = wide(), on = !desk && !!ui.logOpen, panel = desk && logPanelOpen();
+    vp.classList.toggle("log-open", on);
+    vp.classList.toggle("log-docked", panel && logDocked());
+    vp.classList.toggle("log-over", panel && !logDocked());
+    el.hidden = !on; side.hidden = !panel;
+    if (b) {
+      const fieldMode = on || (panel && !logDocked()), want = fieldMode ? "field" : "log";
+      b.hidden = desk && panel && logDocked();   // docked: the panel has its own Hide button
+      if (b.dataset.mode !== want) { b.dataset.mode = want; b.innerHTML = ic(fieldMode ? "showField" : "list", 20); b.setAttribute("aria-label", fieldMode ? (desk ? "Hide match log" : "Show field") : "Show match log"); }
+    }
     if (on) el.innerHTML = logHtml(st);
+    if (panel) {
+      const old = side.querySelector(".ls-scroll"), keep = old ? old.scrollTop : 0;
+      side.innerHTML = `<button type="button" class="fbtn lg-hide" data-act="log" aria-label="Hide match log">${ic("back", 20)}</button><div class="ls-scroll">${logHtml(st)}</div>`;
+      side.querySelector(".ls-scroll").scrollTop = keep;
+    }
   }
 
   // ---------- Drawing: side column (desktop) ----------
   function renderSide() {
     const st = App.st, el = $("roster");
-    if (st.phase === "deploy") { el.innerHTML = `<h3>Units</h3><p class="note">Shown once both sides have deployed.</p>`; $("recent").innerHTML = wide() ? logHtml(st) : ""; return; }
+    if (st.phase === "deploy") { el.innerHTML = `<h3>Units</h3><p class="note">Shown once both sides have deployed.</p>`; return; }
     let h = `<h3>Units</h3><table><tbody>`;
     for (const t of ["N", "S"]) {
       h += `<tr class="teamhead" style="color:${teamColor(t)}"><td colspan="4">${esc(st.names[t])}</td></tr>`;
@@ -2050,9 +2071,7 @@
       }
     }
     el.innerHTML = h + `</tbody></table>`;
-    // Brief 018 §10.6: the same rows and dividers as the phone's match log, settings bar on top, newest turn first.
-    const rc = $("recent");
-    if (wide()) { const keep = rc.scrollTop; rc.innerHTML = logHtml(st); rc.scrollTop = keep; }
+    // The match log's rows now live in the left panel (the Editor, 22 Nov), not a Recent list here.
   }
 
   // ---------- Hint over the field ----------
@@ -2272,11 +2291,11 @@
       case "lineup-next": lineupNext(); break;
       case "cover-ok": $("cover").hidden = true; if (App.view === "play") { ui.cover = null; render(); } break;
       case "zoom": zoomStep(); break;
-      case "log": ui.logOpen = !ui.logOpen; renderLog(); if (ui.logOpen) $("logview").scrollTop = 0; else requestAnimationFrame(updateEdges); break;
+      case "log": toggleLog(); break;
       case "logrow": {
         const i = +el.dataset.i; if (!el.hasAttribute("aria-expanded")) break;
         ui.logRows = ui.logRows || {}; ui.logRows[i] = !ui.logRows[i];
-        if (App.view === "match") renderMatchView(); else { renderLog(); renderSide(); }
+        if (App.view === "match") renderMatchView(); else renderLog();
         break;
       }
       case "names": ui.names = !ui.names; Store.local("names", ui.names); renderBoard(); $("namesbtn").setAttribute("aria-pressed", ui.names ? "true" : "false"); break;
@@ -2706,7 +2725,11 @@
       const open = dy < 0;
       if (App.ui.keyOpen !== open) { App.ui.keyOpen = open; renderSheet(); }
     });
-    window.addEventListener("resize", () => { if (App.view === "play" && App.st) { renderUnitbar(); renderActions(); renderSheet(); } });   // phone ↔ desktop (Brief 025)
+    window.addEventListener("resize", () => {
+      if (App.view !== "play" || !App.st) return;
+      const dk = wide() + ":" + logDocked();
+      if (App.ui.dockKey !== dk) { App.ui.dockKey = dk; App.ui.logOverlay = false; render(); } else { renderUnitbar(); renderActions(); renderSheet(); }
+    });   // phone ↔ desktop (Brief 025)
     window.addEventListener("beforeunload", (e) => { if (App.dirty || App.brainDirty) { e.preventDefault(); e.returnValue = ""; } });
   }
 
