@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (21 Nov, 11:05 am ET)
-  Queue: 12 jobs waiting, oldest 46 min · lab using 5 of 20
+  Queue: 32 jobs waiting, oldest 47 min · lab using 6 of 20
   nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
 FLAGS (open, newest first)
@@ -27,7 +27,7 @@ FLAGS (open, newest first)
 BUILDS
   Building
     018 Turn cue zoom · PR #54 · needs sync · checks running · not reviewed
-    022 Safe approach · PR #41 · needs sync · checks running · not reviewed
+    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed
   Ready to start
     027 Lab plumbing
   Waiting
