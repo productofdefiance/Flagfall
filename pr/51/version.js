@@ -1,0 +1,31 @@
+/* Flagfall Arena — version numbers. The only place they are kept (Brief 003, Brief 007, Brief 021).
+   `game` is the one global version (vX.YY.ZZ) for rules, brains, screens and board. A brief states only the size of
+   its bump (X, YY, ZZ or none); Code sets the number here at its last `sync` before Ready for review: the next free
+   number of that size after `main`. `build` is the internal counter the checks workflow uses. Every build that changes
+   board/ raises `build` by one and changes `game`; the checks workflow fails a pull request that doesn't. `preview`
+   stays null here; the play-link workflow sets it (for example "PR #6") on preview copies only. */
+(function (root) {
+  const VERSION = { game: "v3.14.00", build: 18, date: "2026-11-21", preview: "PR #51" };
+  /** "Playtest board · v3.09.01 · Build 13 · Rules v3.6" (CLAUDE.md: the version, with the build in small type); a
+      preview copy also says which pull request it is. */
+  VERSION.line = function (newestRules, V) {
+    V = V || VERSION;
+    return ["Playtest board", V.game || null, V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null, newestRules ? `Rules ${newestRules}` : null].filter(Boolean).join(" · ");
+  };
+  /** What a saved match was started on: its game version, or its build number for matches saved before Build 7
+      (never a guessed version). Null when it recorded neither. */
+  VERSION.startedOn = function (m) {
+    if (!m) return null;
+    if (m.game) return m.game;
+    return m.build ? `Build ${m.build}` : null;
+  };
+  /** " · v3.09.01 · Build 13", plus what a match was started on when that differs ("started on Build 6"). */
+  VERSION.note = function (m, V) {
+    V = V || VERSION;
+    const now = [V.game, V.build ? `Build ${V.build}` : null].filter(Boolean).join(" · ");
+    if (!now) return "";
+    const was = VERSION.startedOn(m);
+    return ` · ${now}` + (was && was !== (V.game || `Build ${V.build}`) ? ` (started on ${was})` : "");
+  };
+  if (typeof module !== "undefined") module.exports = VERSION; else root.GGVersion = VERSION;
+})(this);
