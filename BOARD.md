@@ -1,4 +1,4 @@
-STATUS · updated 22 Nov 2026, 2:41 am ET
+STATUS · updated 22 Nov 2026, 3:02 am ET
 
 VERSION
   On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (21 Nov, 11:05 am ET)
-  Queue: clear · lab using 1 of 20
+  Queue: clear
   release v3.14.01 · 5v5 59.0% · 7v7 44.9% on the turn limit · 21 Nov
   nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
@@ -28,7 +28,7 @@ FLAGS (open, newest first)
 BUILDS
   Building
     018 Turn cue zoom · PR #54 · Ready · checks pass · not reviewed
-    022 Safe approach · PR #41 · Draft · checks running · not reviewed
+    022 Safe approach · PR #41 · Ready · checks pass · not reviewed
   Ready to start
     none
   Waiting
