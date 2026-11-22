@@ -1066,9 +1066,9 @@
   function kFar() {
     const v = viewBox();
     if (!v.w) return 1;
-    // Far is today's size on both phone and desktop: the field's width, up to 560 px (F018-2: the brief's "desktop: the
-    // whole field fits" would shrink 7v7 to 34 px hexes on a 1280 × 800 screen, icons only).
-    return Math.min(v.w, 560) / boardW();
+    // Phone: the field's width, up to 560 px (today's size). Desktop: the whole field in view (§6; the Editor, 22 Nov,
+    // third review of #54, closing F018-2: zoom out shows the whole field, icons only when hexes are under 50 px).
+    return wide() ? Math.min(v.w / boardW(), v.h / boardH()) : Math.min(v.w, 560) / boardW();
   }
   function kMin() { const v = viewBox(); return Math.min(kFar(), v.w / boardW(), v.h / boardH()); }
   const clampK = (k) => Math.max(kMin(), Math.min(K_MAX, k));
@@ -1283,6 +1283,15 @@
       el.className = "edgetag " + (t === "N" ? "n" : "s");
       el.style.background = bg; el.style.color = SK.tagInk ? SK.tagInk(bg) : "#1f2421";
       el.textContent = `${st.names[t]} ${st.phase === "play" ? "plays" : "deploys"}`;
+      // Desktop (third review): the tag hangs under its side's name in the scoreboard, never off at the field's far edge.
+      const names = document.querySelectorAll("#topbar .tb-row .tb-name"), nm = names[t === "N" ? 0 : 1], fw = $("fieldwrap");
+      el.style.left = el.style.right = "";
+      el.classList.toggle("float", wide() && !!nm);
+      if (wide() && nm) {
+        const r = nm.getBoundingClientRect(), f = fw.getBoundingClientRect(), pad = 12;
+        if (t === "N") el.style.left = Math.max(0, r.left - f.left - pad) + "px";
+        else el.style.right = Math.max(0, f.right - r.right - pad) + "px";
+      }
     }
     el.classList.toggle("up", !show);
     el.setAttribute("aria-hidden", show ? "false" : "true");
@@ -2040,8 +2049,14 @@
   function logPanelOpen() { return logDocked() ? Store.local("logPanel") !== false : !!App.ui.logOverlay; }
   function toggleLog() {
     if (!wide()) { App.ui.logOpen = !App.ui.logOpen; renderLog(); if (App.ui.logOpen) $("logview").scrollTop = 0; else requestAnimationFrame(updateEdges); return; }
+    // Keep the same hex in the middle of the field while the field's width changes (third review: the field jumped).
+    const v0 = viewBox(), mid = boardAt(v0.w / 2, v0.h / 2), wasFar = App.ui.zoom == null, k0 = curK();
     if (logDocked()) Store.local("logPanel", !logPanelOpen()); else App.ui.logOverlay = !App.ui.logOverlay;
+    if (!wasFar && logDocked()) App.ui.zoom = k0;
     render();
+    const v1 = viewBox(), sc = $("fieldscroll"), svg = $("board"), k = curK(), off = svgOff(svg);
+    sc.scrollLeft = mid[0] * k + off[0] - v1.w / 2; sc.scrollTop = mid[1] * k + off[1] - v1.h / 2;
+    requestAnimationFrame(updateEdges);
   }
   function renderLog() {
     const st = App.st, ui = App.ui, el = $("logview"), side = $("logside"), b = $("logbtn"), vp = $("view-play");
@@ -2133,7 +2148,7 @@
     ui.orientSet = true;
     if (App.st.phase !== "over") ui.lastMover = moverNow();
     renderTopbar(); renderBoard(); renderUnitbar(); renderActions(); renderSheet(); renderSide(); renderCover(); renderHint(); renderMenu();
-    applyZoom(); renderTag(); renderLog();
+    renderLog(); applyZoom(); renderTag();   // the log panel first: it changes the field's width
     $("namesbtn").setAttribute("aria-pressed", ui.names ? "true" : "false");
     if (anim) { turnAnim(w, () => render()); return; }
     if (ui.anim) return;

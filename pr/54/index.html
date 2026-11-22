@@ -133,11 +133,13 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
 #namesbtn[aria-pressed="true"] { background: var(--card); color: var(--ink); border: 2px solid var(--ink); }
 #zoombtn { right: 8px; bottom: 64px; }
 #logbtn { right: 8px; top: 38px; z-index: 6; }
+@media (min-width: 900px) { #logbtn { right: auto; left: 8px; } }
 /* Brief 018 §2: the turn cue, hanging from the scoreboard at the outer edge of the mover's half */
 .edgetag { position: absolute; top: 0; z-index: 7; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 12px/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: #1f2421; padding: 6px 12px 7px; box-shadow: 0 3px 8px rgba(0,0,0,.18); pointer-events: none; transition: transform 150ms ease-in, opacity 150ms ease-in; }
 .edgetag:empty { display: none; }
 .edgetag.n { left: 0; padding-left: 16px; border-radius: 0 0 9px 0; }
 .edgetag.s { right: 0; padding-right: 16px; border-radius: 0 0 0 9px; }
+.edgetag.float { border-radius: 0 0 9px 9px; padding-left: 12px; padding-right: 12px; }
 .edgetag.up { transform: translateY(-100%); opacity: 0; box-shadow: none; }
 body.turned { transform: rotate(180deg); }
 #fieldscroll.panx { }
