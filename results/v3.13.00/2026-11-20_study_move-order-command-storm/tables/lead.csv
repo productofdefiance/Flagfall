@@ -1,0 +1,11 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+7v7-ftc6,1000,20,S:10 N:10,33,129,241,N:120 S:121
+7v7-ftc8,1000,11,N:3 S:8,15,76,257,S:116 N:141
+7v7-ftc10,1000,16,N:9 S:7,28,110,263,S:133 N:130
+7v7-ftc6-storm15,1000,21,N:11 S:9 both:1,32,139,275,N:132 S:143
+7v7-ftc10-storm15,1000,16,N:11 S:5,25,117,273,N:141 S:132
+5v5-c10-ftc6,1000,64,S:30 N:33 both:1,84,780,367,S:197 N:170
+5v5-c8-ftc5,1000,13,S:8 N:5,13,55,180,N:90 S:90
+5v5-c8-ftc8,1000,43,S:40 N:2 both:1,43,147,235,S:123 N:112
+5v5-c8-ftc5-storm15,1000,20,N:10 S:10,20,113,249,S:142 N:107
+5v5-c8-ftc8-storm15,1000,20,N:10 S:10,20,113,249,S:142 N:107
