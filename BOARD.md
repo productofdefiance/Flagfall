@@ -1,4 +1,4 @@
-STATUS · updated 22 Nov 2026, 11:40 am ET
+STATUS · updated 22 Nov 2026, 12:24 pm ET
 
 VERSION
   On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5
@@ -28,7 +28,7 @@ FLAGS (open, newest first)
 BUILDS
   Building
     018 Turn cue zoom · PR #54 · Ready · checks pass · not reviewed
-    022 Safe approach · PR #41 · Ready · checks pass · not reviewed
+    022 Safe approach · PR #41 · Ready · checks running · not reviewed
   Ready to start
     none
   Waiting
