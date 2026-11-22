@@ -2,8 +2,10 @@
 # - BOARD.md and board.json go to the `status` branch (with the design chats' log in chats/). Nothing on main is ever
 #   written by this workflow.
 # - The same board is published as a page: https://productofdefiance.github.io/Flagfall/status/ (gh-pages, status/).
-# Runs on pull request events, pushes to main and brief/**, when checks / night-checks / lab finish, every hour (a
-# results pull request merged by auto-merge starts no workflows), and on demand (Actions tab → status board → Run).
+# Runs on pull request events, pushes to main and brief/**, every hour (a results pull request merged by auto-merge
+# without the lab's key starts no workflows), and on demand (Actions tab → status board → Run, or the page's Refresh).
+# Brief 027 (F024-3): it no longer starts when checks / night-checks / lab finish (about 40 short runs an evening, each
+# holding a machine); the hourly run and the pull request events cover those.
 # A push to `status` (a chat writing its log file) can't start it: GitHub reads a push's workflows from the pushed
 # branch, and `status` holds no workflows. The hourly run picks chat files up; a chat can also start a run itself
 # (chats/README.md on the status branch says how).
@@ -14,9 +16,6 @@ on:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft, labeled, unlabeled, closed]
   push:
     branches: [main, "brief/**"]
-  workflow_run:
-    workflows: [checks, night-checks, lab]
-    types: [completed]
   schedule:
     - cron: "41 * * * *"
   workflow_dispatch:

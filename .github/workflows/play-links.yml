@@ -5,9 +5,14 @@
 # as its last line. Pages has to be switched on once: Settings → Pages → Deploy from a branch → gh-pages / root.
 name: play-links
 
+# Brief 027: a results-only pull request (head branch lab/**, the lab's delivery) has no game change, so it gets no
+# play link: the job is skipped by a branch condition (GitHub's pull_request branch filter only matches the target
+# branch, so it can't be done in `on:`). For the same reason main is only republished when a push to it changes board/
+# (a merged results pull request changes only results/ and studies/).
 on:
   push:
     branches: [main]
+    paths: ["board/**"]
   pull_request:
     types: [opened, synchronize, reopened, closed]
 
@@ -15,13 +20,15 @@ permissions:
   contents: write        # push the gh-pages branch
   pull-requests: write   # add the play link to the description
 
-concurrency:
-  group: play-links      # one publish at a time, in order, so two pushes never overwrite each other
-  cancel-in-progress: false
-
 jobs:
   publish:
     name: publish play link
+    if: github.event_name != 'pull_request' || !startsWith(github.event.pull_request.head.ref, 'lab/')
+    # On the job, not the workflow (Brief 027): a skipped results run must never join the queue and cancel a build's
+    # waiting publish (GitHub keeps only one waiting run per group).
+    concurrency:
+      group: play-links    # one publish at a time, in order, so two pushes never overwrite each other
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
