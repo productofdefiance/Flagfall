@@ -1,4 +1,4 @@
-STATUS · updated 22 Nov 2026, 12:06 am ET
+STATUS · updated 22 Nov 2026, 12:43 am ET
 
 VERSION
   On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5
@@ -6,15 +6,15 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (21 Nov, 11:05 am ET)
-  Queue: 10 jobs waiting, oldest 10 min · lab using 18 of 20
+  Queue: 11 jobs waiting, oldest 37 min · lab using 16 of 20
   release v3.14.01 · 5v5 59.0% · 7v7 44.9% on the turn limit · 21 Nov
   nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
 FLAGS (open, newest first)
   ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…
+  ! F018-6 · ASK · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…
   ! F018-5 · ASK · 22 Nov · §10.5 has no row for a swap. Built as: one move row for the unit that started the swap…
   ! F018-4 · ASK · 22 Nov · §9 (scale the flag pill by hex height ÷ 46.26): 017's pill is drawn in field units, like…
-  ! F018-3 · ASK · 22 Nov · §6 hides the zoom button when far and close are "within 10% of each other". On the…
   ! F018-2 · ASK · 22 Nov · §6 says desktop "far" is the whole field in view "(today)". Today's desktop field is not…
   ! F018-1 · ASK · 22 Nov · §10.1/§10.2: on a phone the Options (menu) button sits at the field's top left, exactly…
     FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…
@@ -27,8 +27,8 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    018 Turn cue zoom · PR #54 · needs sync · checks pass · not reviewed
-    022 Safe approach · PR #41 · needs sync · checks running · not reviewed
+    018 Turn cue zoom · PR #54 · Draft · checks running · not reviewed
+    022 Safe approach · PR #41 · needs sync · checks pass · not reviewed
   Ready to start
     none
   Waiting
