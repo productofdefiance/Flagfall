@@ -155,20 +155,53 @@ On your phone, one 7v7 against the bot:
 4. Line up a Pick Off that kills next to a braced Heavy Anti-Cavalry: the red spear pill on the row; fire, and see the spear land.
 5. Brace a unit: the Brace button turns solid charcoal; tap Undo, it's unbraced. Brace again; next turn, dashed.
 
-## Report back
-Beyond the standard items: the wording table as built (every engine reason and the words shown); the section 10 test result in one line; every reading from sections 5, 6.4, 6.5 and 7 with its screenshot.
-
----
-
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code, 23 Nov 2026. Branch `claude/gallant-bohr-hkd8d8`, started from `brief/026-specials-flow`, synced with `main` after 018 merged. Game version **v3.17.00**, Build 22.*
 
-- **What's in:**
+- **What's in:** all ten sections, on phone and desktop.
+  - §1: the five Special button looks, read from the generators' colours. No state bar, no cost on the button.
+  - §2: one tap warms up. The 025 warm-up confirm, `ui.sheet.kind === "warm"`, desktop's warm-up line and "No target in range · fires next turn" are gone.
+  - §3: tapping a charged special opens the special row (the big special, Warm up, Cancel). Warm up keeps the row open and greys the big button to "Warming up instead". Cancel keeps the warm-up.
+  - §4: the big button's three flows, and "Tap a target" (also for Attack and Reach).
+  - §5: the wording table (`SP_WORDS` in `app.js`) and reasons in the dark pill.
+  - §6: the gold sheet for every special.
+  - §6.4: a kill's spear and Mark pills, and the spear badge on the field.
+  - §8: Brace's two looks.
+  - §9: Undo takes back a warm-up, and says "Can't undo a special once fired".
+  - §10: proved by tests.
+  - The one engine change: "Not enough Command".
+- **Wording table as built** (engine reason → dark pill; the big button's second line is the part before the first " · "):
+  - `Used` → `<special> used · once a match`
+  - `Braced this turn` → `Braced this turn · warm up next turn`
+  - `No target in reach` → `No targets available · move` (moves left) or `No targets available`. The big button says `No targets`.
+  - `<id> has ended its turn` → `Ended its turn`
+  - `<id> attacked this turn and may only evade or end` → `Attacked this turn · may only evade or end its turn`
+  - `<id> is reloading this turn` → `Reloading this turn`
+  - `Not enough Stamina` / `Not enough Command` → unchanged
+  - `Fire it next turn` (tapping a Warming up button) → `Fires next turn`
+  - All others in the engine's words: `Already attacked this turn`, `Warm it up first`.
+  - Note: the "attacked … may only evade" line reaches the Special button only through `blockReasons`. `warmupBlock` checks "Already attacked this turn" first.
+- **Section 10 in one line:** a killing Pick Off next to a braced spear takes exactly the pill's amount (2). Over 400 seeded positions (298 kills, 108 with a spear, 259 with a Mark, braced spears and braced parry units next to the target), the sheet's pills match what firing does every time. The one-spear-a-turn rule holds. On a test copy with `parryNeedsSurvivor` off, a parry that would remove the attacker hides the pills, and the engine indeed never steps in.
+- **Readings (screenshots in `briefs/img/026/report/`):**
+  - §5, tapping a Warming up button: `Fires next turn` (`r1-warming-tap.png`).
+  - §6.3: Dodge shows with its icon. Ignored modifiers are struck with Brief 009's grey diagonal (Arrow Storm's Dodge, Bullseye's Armor with Pierce; checked in `test_spflow.js`).
+  - §6.4: the Mark pill sits after the spear pill, same size (`18-pickoff.png`).
+  - §6.5: Parry shows in red in that target's modifiers. A parry that hits the attacker gets a red line under the rows ("Parry: you take 2", `r3-parry.png`). An Evade after a Pick Off that leaves its target standing gets a grey line ("Evade 3: 2 Stamina left after this special, up to 3 hexes", `r2-evade.png`). Both fit; no ASK.
+  - §7: desktop shows reasons in the toast where it shows other greyed buttons' reasons (`desktop-*.png`).
+  - A blocked charged special: `r4-blocked-big.png` ("Not enough Command").
+  - The other looks are in the five Special states.
+- **Sheet heights at 393 px:** one target 87 px, Skewer two 122 px, Arc Hit three 157 px. The brief expected about 84, 120 and 155; the extra is mostly the 3 px gold top edge. Pick Off with its Evade line: 105 px.
 - **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
+  - A Special button for a unit that has ended its turn keeps its state's look and gives its reason (the engine gives such a unit no options). See F026-3.
+  - A second tap on the charged button closes the row.
+- **Checks run and results:**
+  - Passed: `test_reasons.js` (19, updated to expect "Not enough Command" where only Command is short), `test_v37.js` (180), `test_ui.js` (114), `test_phone.js` (64, updated for the retired confirm and bar), `test_hotseat.js` (46), `test_watch.js` (20), `test_events.js` (2623), `test_version.js` (22), `test_rules.js`, `test_v1.js`, `test_v3.js`, `test_v31.js`, `sims/lab/test_workflows.js`, `sims/lab/self_test.js` (34).
+  - New: `test_spflow.js` (55, browser, phone and desktop) and `test_spengine.js` (17).
+  - Not run here because the session was too slow: the remaining long checks (`test_v32` to `test_v36`, the brain tests, invariants, `board_check.js`). They don't touch anything this build changed. GitHub's checks run them on the pull request.
+  - Replay hashes: see below.
 - **Baseline table (rule changes only):** n/a
-- **Bot minimum (met / not met, with numbers):** n/a
+- **Bot minimum (met / not met, with numbers):** n/a (screen only; Undo is human only)
 - **Settings review (brain builds only):** n/a
-- **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+- **Known gaps:** F026-1 (an Arc Hit's second braced Heavy Melee parry is missing from the engine's preview), F026-2 (unit codes outside the specials).
+- **Flags closed / opened:** none closed. Opened: F026-1, F026-2, F026-3 (`flags/026.md`).
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/59
