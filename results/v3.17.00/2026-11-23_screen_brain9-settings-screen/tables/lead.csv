@@ -1,0 +1,65 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+tempofirst-m1-mirror-5v5,60,1,S:1,2,16,0,
+tempofirst-m1-vs-b8-5v5,60,0,,,,1,S:1
+tempofirst-1-mirror-5v5,60,4,S:3 N:1,6,28,11,N:8 S:3
+tempofirst-1-vs-b8-5v5,60,0,,,,9,S:3 N:6
+temposecond-0-mirror-5v5,60,9,N:7 S:2,13,53,5,N:4 S:1
+temposecond-0-vs-b8-5v5,60,1,S:1,1,2,10,S:4 N:6
+spendopening-0-mirror-5v5,60,3,N:2 S:1,5,37,16,S:10 N:6
+spendopening-0-vs-b8-5v5,60,3,N:2 S:1,5,37,18,S:12 N:6
+playtofinish-0-mirror-5v5,60,1,S:1,1,5,17,N:12 S:5
+playtofinish-0-vs-b8-5v5,60,0,,,,12,N:8 S:4
+finish-5-mirror-5v5,60,3,S:1 N:2,5,22,3,S:1 N:2
+finish-5-vs-b8-5v5,60,2,S:1 N:1,4,14,7,S:3 N:4
+clockloss-m2-mirror-5v5,60,1,S:1,1,5,5,S:1 N:4
+clockloss-m2-vs-b8-5v5,60,0,,,,8,S:3 N:5
+endweight-10-mirror-5v5,60,1,S:1,1,5,6,N:5 S:1
+endweight-10-vs-b8-5v5,60,0,,,,7,S:3 N:4
+endweight-40-mirror-5v5,60,3,S:1 N:2,5,22,3,S:1 N:2
+endweight-40-vs-b8-5v5,60,2,S:1 N:1,4,14,7,S:3 N:4
+endturns-3-mirror-5v5,60,1,S:1,1,5,17,N:12 S:5
+endturns-3-vs-b8-5v5,60,0,,,,12,N:8 S:4
+endturns-8-mirror-5v5,60,4,S:1 N:3,7,43,3,S:1 N:2
+endturns-8-vs-b8-5v5,60,0,,,,6,S:3 N:3
+guardblocks-0-mirror-5v5,60,1,S:1,1,5,6,N:5 S:1
+guardblocks-0-vs-b8-5v5,60,0,,,,8,S:3 N:5
+guardblocks-2-mirror-5v5,60,1,S:1,1,5,6,N:5 S:1
+guardblocks-2-vs-b8-5v5,60,0,,,,8,S:3 N:5
+sparecommand-0p8-mirror-5v5,60,1,S:1,2,11,10,N:3 S:7
+sparecommand-0p8-vs-b8-5v5,60,0,,,,11,S:7 N:4
+holderjoins-0-mirror-5v5,60,2,S:2,2,15,23,N:14 S:9
+holderjoins-0-vs-b8-5v5,60,1,N:1,1,8,13,N:8 S:5
+tempo-0-mirror-5v5,60,9,N:7 S:2,13,53,5,N:4 S:1
+tempo-0-vs-b8-5v5,60,1,S:1,1,2,10,S:4 N:6
+tempofirst-m1-mirror-7v7,60,7,S:4 N:3,13,71,4,N:2 S:2
+tempofirst-m1-vs-b8-7v7,60,4,N:2 S:2,8,16,7,S:4 N:3
+tempofirst-1-mirror-7v7,60,6,N:6,12,63,4,S:2 N:2
+tempofirst-1-vs-b8-7v7,60,1,S:1,2,3,6,S:4 N:2
+temposecond-0-mirror-7v7,60,5,S:4 N:1,10,41,8,N:3 S:5
+temposecond-0-vs-b8-7v7,60,0,,,,4,N:2 S:2
+spendopening-0-mirror-7v7,60,2,N:1 S:1,4,6,6,S:3 N:3
+spendopening-0-vs-b8-7v7,60,2,N:1 S:1,4,6,7,S:3 N:4
+playtofinish-0-mirror-7v7,60,3,S:2 N:1,6,16,4,S:2 N:2
+playtofinish-0-vs-b8-7v7,60,1,S:1,2,3,8,N:5 S:3
+finish-5-mirror-7v7,60,3,S:2 N:1,6,16,3,S:2 N:1
+finish-5-vs-b8-7v7,60,1,S:1,2,3,6,N:3 S:3
+clockloss-m2-mirror-7v7,60,3,S:2 N:1,6,16,3,S:2 N:1
+clockloss-m2-vs-b8-7v7,60,1,S:1,2,3,6,N:3 S:3
+endweight-10-mirror-7v7,60,3,S:2 N:1,6,16,3,S:2 N:1
+endweight-10-vs-b8-7v7,60,1,S:1,2,3,6,N:3 S:3
+endweight-40-mirror-7v7,60,3,S:2 N:1,6,16,2,N:1 S:1
+endweight-40-vs-b8-7v7,60,1,S:1,2,3,6,N:3 S:3
+endturns-3-mirror-7v7,60,3,S:2 N:1,6,16,4,S:2 N:2
+endturns-3-vs-b8-7v7,60,1,S:1,2,3,8,N:5 S:3
+endturns-8-mirror-7v7,60,3,S:3,6,32,2,N:1 S:1
+endturns-8-vs-b8-7v7,60,1,S:1,2,3,6,N:3 S:3
+guardblocks-0-mirror-7v7,60,3,S:2 N:1,6,16,3,S:2 N:1
+guardblocks-0-vs-b8-7v7,60,1,S:1,2,3,6,N:3 S:3
+guardblocks-2-mirror-7v7,60,3,S:2 N:1,6,16,2,N:1 S:1
+guardblocks-2-vs-b8-7v7,60,2,S:1 N:1,4,6,5,N:3 S:2
+sparecommand-0p8-mirror-7v7,60,5,S:3 N:2,9,32,2,S:1 N:1
+sparecommand-0p8-vs-b8-7v7,60,1,S:1,2,3,6,N:3 S:3
+holderjoins-0-mirror-7v7,60,4,S:2 both:1 N:1,7,24,10,S:4 N:6
+holderjoins-0-vs-b8-7v7,60,2,N:1 S:1,3,19,12,N:7 S:5
+tempo-0-mirror-7v7,60,5,S:4 N:1,10,41,8,N:3 S:5
+tempo-0-vs-b8-7v7,60,0,,,,4,N:2 S:2

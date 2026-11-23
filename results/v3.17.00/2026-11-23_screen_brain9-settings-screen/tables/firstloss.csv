@@ -1,0 +1,65 @@
+matchup,games,first_lost_side,first_lost_turn,first_lost_card,first_lost_by,first_lr_lost_side,first_lr_lost_turn,reach_contact_turn,reach_contact_side,first_strike_side
+tempofirst-m1-mirror-5v5,60,second:59 first:1,203,LR:53 LM:7,LR special:52 HA attack:8,second:56 first:4,213,60,second:60,first:60
+tempofirst-m1-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:49 second:11
+tempofirst-1-mirror-5v5,60,first:7 second:53,141,LM:7 LR:41 HA:12,HA attack:4 LM attack:24 LM special:7 LR special:15 LR attack:9 HM attack:1,second:48 first:12,152,60,second:60,first:58 second:2
+tempofirst-1-vs-b8-5v5,60,second:59 first:1,127,LM:18 LR:42,LR special:50 HA attack:8 LR attack:1 LM attack:1,second:56 first:4,151,60,second:60,second:51 first:9
+temposecond-0-mirror-5v5,60,second:60,142,LR:60,LR special:41 LM attack:19,second:60,142,60,second:60,first:60
+temposecond-0-vs-b8-5v5,60,second:60,128,LR:60,LR special:54 LM attack:6,second:60,128,60,second:60,first:34 second:26
+spendopening-0-mirror-5v5,60,first:13 second:47,120,LR:60,LR special:60,first:13 second:47,120,60,second:60,first:60
+spendopening-0-vs-b8-5v5,60,first:13 second:47,120,LR:60,LR special:60,first:13 second:47,120,60,second:60,first:60
+playtofinish-0-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+playtofinish-0-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+finish-5-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+finish-5-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+clockloss-m2-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+clockloss-m2-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+endweight-10-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+endweight-10-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+endweight-40-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+endweight-40-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+endturns-3-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+endturns-3-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+endturns-8-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+endturns-8-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+guardblocks-0-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+guardblocks-0-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+guardblocks-2-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+guardblocks-2-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+sparecommand-0p8-mirror-5v5,60,second:48 first:12,154,LR:60,LR special:37 HA attack:17 LR attack:6,second:48 first:12,154,60,second:60,first:60
+sparecommand-0p8-vs-b8-5v5,60,second:60,128,LR:60,LR special:59 LM attack:1,second:60,128,60,second:60,first:37 second:23
+holderjoins-0-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+holderjoins-0-vs-b8-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+tempo-0-mirror-5v5,60,second:60,142,LR:60,LR special:41 LM attack:19,second:60,142,60,second:60,first:60
+tempo-0-vs-b8-5v5,60,second:60,128,LR:60,LR special:54 LM attack:6,second:60,128,60,second:60,first:34 second:26
+tempofirst-m1-mirror-7v7,60,second:31 first:29,153,LA:26 LR:16 LM:18,LR special:21 LM special:22 LA special:12 LR attack:1 HR attack:1 LM attack:3,first:35 second:25,202,102,first:42 second:18,second:15 first:45
+tempofirst-m1-vs-b8-7v7,60,second:26 first:34,147,LR:17 LA:19 LM:24,LR special:23 LM special:11 LA special:6 LM attack:10 HR attack:8 HM attack:1 LA attack:1,second:27 first:33,198,96,first:35 second:25,second:15 first:45
+tempofirst-1-mirror-7v7,60,first:33 second:27,146,LA:24 LR:18 LM:18,HR attack:14 LR special:16 LA attack:8 LM attack:6 LM special:4 HM attack:7 LR attack:5,second:29 first:31,200,60,second:60,first:60
+tempofirst-1-vs-b8-7v7,60,second:41 first:19,134,LR:12 LM:35 LA:13,LA special:10 LR attack:10 LR special:17 LM special:3 LM attack:12 HR attack:6 HM attack:1 LA attack:1,second:40 first:20,180,68,second:53 first:7,second:30 first:30
+temposecond-0-mirror-7v7,60,second:39 first:21,198,LR:35 LM:10 LA:12 HM:2 HR:1,LR special:37 HR attack:8 LM attack:2 LA attack:4 LA special:4 LR attack:4 LM special:1,second:45 first:15,228,81,second:59 first:1,second:27 first:33
+temposecond-0-vs-b8-7v7,60,second:31 first:29,147,LM:12 LA:24 LR:23 HM:1,LR special:20 LA special:11 LM special:18 HR attack:5 LR attack:5 HM attack:1,first:18 second:42,197,81,first:14 second:46,first:40 second:20
+spendopening-0-mirror-7v7,60,first:32 second:28,126,LA:49 LR:8 LM:2 HR:1,LR special:15 LM special:16 HR attack:20 LM attack:4 LR attack:4 HM attack:1,second:22 first:38,174,81,first:15 second:45,first:45 second:15
+spendopening-0-vs-b8-7v7,60,first:32 second:28,126,LA:49 LR:8 LM:2 HR:1,LR special:15 LM special:16 HR attack:20 LM attack:4 LR attack:4 HM attack:1,second:22 first:38,174,81,first:15 second:45,first:45 second:15
+playtofinish-0-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+playtofinish-0-vs-b8-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+finish-5-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+finish-5-vs-b8-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+clockloss-m2-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+clockloss-m2-vs-b8-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+endweight-10-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+endweight-10-vs-b8-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+endweight-40-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+endweight-40-vs-b8-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+endturns-3-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+endturns-3-vs-b8-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+endturns-8-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+endturns-8-vs-b8-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+guardblocks-0-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+guardblocks-0-vs-b8-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+guardblocks-2-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+guardblocks-2-vs-b8-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+sparecommand-0p8-mirror-7v7,60,first:11 second:49,170,LM:14 LR:30 LA:13 HM:2 HR:1,LR special:45 HM attack:1 LM special:3 LA special:3 HA attack:1 HR attack:3 LR attack:3 LM attack:1,second:47 first:13,200,81,first:13 second:47,first:46 second:14
+sparecommand-0p8-vs-b8-7v7,60,second:32 first:28,143,LM:21 LA:24 LR:14 HM:1,LR special:23 LA special:7 LM special:18 HR attack:6 LM attack:3 LR attack:2 HM attack:1,first:22 second:38,198,81,first:16 second:44,first:45 second:15
+holderjoins-0-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+holderjoins-0-vs-b8-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+tempo-0-mirror-7v7,60,second:39 first:21,198,LR:35 LM:10 LA:12 HM:2 HR:1,LR special:37 HR attack:8 LM attack:2 LA attack:4 LA special:4 LR attack:4 LM special:1,second:45 first:15,228,81,second:59 first:1,second:27 first:33
+tempo-0-vs-b8-7v7,60,second:31 first:29,147,LM:12 LA:24 LR:23 HM:1,LR special:20 LA special:11 LM special:18 HR attack:5 LR attack:5 HM attack:1,first:18 second:42,197,81,first:14 second:46,first:40 second:20

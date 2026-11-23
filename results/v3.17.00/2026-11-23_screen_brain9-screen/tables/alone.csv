@@ -1,0 +1,11 @@
+matchup,games,lost_alone_n,lost_alone_s,lost_together_n,lost_together_s,holder_strikes_solo_n,holder_strikes_solo_s,holder_strikes_group_n,holder_strikes_group_s
+a-brain8-mirror-5v5,60,89,72,103,123,25,31,33,33
+b-brain9-mirror-5v5,60,89,76,121,137,46,28,36,43
+c-brain9-m2-mirror-5v5,60,89,76,121,137,46,28,36,43
+b-vs-a-5v5,60,63,72,118,129,38,8,46,32
+c-vs-a-5v5,60,63,72,118,129,38,8,46,32
+a-brain8-mirror-7v7,60,125,108,177,187,41,20,32,39
+b-brain9-mirror-7v7,60,95,146,176,168,39,14,52,24
+c-brain9-m2-mirror-7v7,60,95,146,176,168,38,14,52,24
+b-vs-a-7v7,60,123,126,175,191,32,26,42,39
+c-vs-a-7v7,60,123,126,175,191,32,26,42,39

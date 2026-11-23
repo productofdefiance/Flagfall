@@ -1,0 +1,11 @@
+matchup,games,late_behind_side,late_behind_finished,late_behind_comeback,late_guard_behind_n,late_guard_behind_s,late_guard_behind_turns_n,late_guard_behind_turns_s,late_guard_level_n,late_guard_level_s,late_guard_level_turns_n,late_guard_level_turns_s,late_guard_ahead_n,late_guard_ahead_s,late_guard_ahead_turns_n,late_guard_ahead_turns_s,late_ahead_side,late_ahead_attacks,late_ahead_turns,late_ahead_result,points_n,points_s,points2_n,points2_s,finish_win,turn1_cmd_first,turn1_cmd_second
+a-brain8-mirror-5v5,60,ended_earlier:36 level:19 S:1 N:4,2,0,0,0,10,7,0,0,95,95,0,0,6,11,ended_earlier:36 level:19 N:1 S:4,4,57,clock_win:3 finished:2,45,31,28,10,38,274,497.5
+b-brain9-mirror-5v5,60,level:15 ended_earlier:41 S:3 N:1,2,0,2,0,15,43,0,0,34,26,0,0,39,16,level:15 ended_earlier:41 N:3 S:1,8,50,clock_win:2 finished:2,53,51,26,26,52,320,540
+c-brain9-m2-mirror-5v5,60,level:15 ended_earlier:41 S:3 N:1,2,0,2,0,15,43,0,0,34,26,0,0,39,16,level:15 ended_earlier:41 N:3 S:1,8,50,clock_win:2 finished:2,53,51,26,26,52,320,540
+b-vs-a-5v5,60,ended_earlier:44 level:12 S:3 N:1,0,0,0,0,7,32,1,0,41,37,0,0,30,7,ended_earlier:44 level:12 N:3 S:1,0,41,clock_win:4,75,23,56,-7,49,307,555.5
+c-vs-a-5v5,60,ended_earlier:44 level:12 S:3 N:1,0,0,0,0,7,32,1,0,41,37,0,0,30,7,ended_earlier:44 level:12 N:3 S:1,0,41,clock_win:4,75,23,56,-7,49,307,555.5
+a-brain8-mirror-7v7,60,level:6 ended_earlier:48 S:6,0,0,0,0,0,30,2,5,30,30,0,0,30,0,level:6 ended_earlier:48 N:6,0,33,clock_win:6,50,46,25,23,48,355.5,573.5
+b-brain9-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,1,1,0,0,6,10,0,0,5,4,0,0,9,6,ended_earlier:55 level:1 N:3 S:1,5,10,lost:1 clock_win:2 finished:1,100,14,82,-25,57,360,589.5
+c-brain9-m2-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,1,1,0,0,6,9,0,0,4,3,0,0,9,6,ended_earlier:55 level:1 N:3 S:1,5,9,lost:1 clock_win:2 finished:1,102,14,84,-26,58,360,589.5
+b-vs-a-7v7,60,ended_earlier:52 level:4 N:2 S:2,0,0,0,0,10,16,0,0,14,12,0,0,16,10,ended_earlier:52 level:4 S:2 N:2,1,24,clock_win:4,58,50,32,22,54,358.5,583
+c-vs-a-7v7,60,ended_earlier:52 level:4 N:2 S:2,0,0,0,0,10,16,0,0,14,12,0,0,16,10,ended_earlier:52 level:4 S:2 N:2,1,24,clock_win:4,58,50,32,22,54,358.5,583

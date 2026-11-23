@@ -1,0 +1,19 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+5v5-c7-ft7-storm1p5,60,42,0,45,21,ended_earlier:37 level:9 S:6 N:8,won_decisive:6 won_tiebreak:7 draw:1,4
+5v5-c7-ft7-storm2,60,29,0,32,9,ended_earlier:47 S:4 N:6 level:3,won_tiebreak:5 won_decisive:3 lost:1 draw:1,2
+5v5-c7-ft4-storm1p5,60,35,2,35,12,S:9 ended_earlier:44 N:3 level:4,won_tiebreak:7 won_decisive:4 lost:1,2
+5v5-c7-ft4-storm2,60,18,3,23,12,N:8 ended_earlier:46 S:4 level:2,lost:2 won_decisive:6 draw:2 won_tiebreak:2,3
+5v5-c8-ft8-storm1p5,60,42,3,43,23,N:5 ended_earlier:38 level:8 S:9,won_tiebreak:5 won_decisive:7 lost:2,3
+5v5-c8-ft8-storm2,60,24,2,24,9,ended_earlier:47 S:3 N:5 level:5,won_tiebreak:4 won_decisive:4,2
+5v5-c8-ft5-storm1p5,60,41,3,45,26,S:5 N:12 ended_earlier:38 level:5,won_decisive:11 draw:1 lost:2 won_tiebreak:3,10
+5v5-c8-ft5-storm2,60,17,0,18,8,ended_earlier:52 S:3 N:4 level:1,won_tiebreak:2 won_decisive:2 lost:2 draw:1,6
+5v5-c10-ft10-storm1p5,60,33,1,36,15,ended_earlier:43 S:7 N:9 level:1,won_decisive:6 draw:2 lost:2 won_tiebreak:6,6
+5v5-c10-ft10-storm2,60,12,0,14,7,ended_earlier:54 N:6,won_decisive:3 lost:1 won_tiebreak:2,2
+5v5-c10-ft6-storm1p5,60,44,1,46,21,ended_earlier:39 level:3 N:10 S:8,won_tiebreak:9 won_decisive:7 draw:2,6
+5v5-c10-ft6-storm2,60,38,0,50,40,ended_earlier:38 N:11 S:10 level:1,won_decisive:16 won_tiebreak:4 draw:1,0
+7v7-c10-ft6-storm1p5,60,22,2,21,11,level:3 ended_earlier:51 S:3 N:3,won_tiebreak:3 won_decisive:1 lost:2,4
+7v7-c10-ft6-storm2,60,9,0,9,2,ended_earlier:56 level:1 N:2 S:1,won_decisive:1 won_tiebreak:2,1
+7v7-c10-ft10-storm1p5,60,20,2,18,6,ended_earlier:53 S:3 level:2 N:2,won_decisive:2 won_tiebreak:1 lost:2,3
+7v7-c10-ft10-storm2,60,23,4,25,12,ended_earlier:51 N:6 S:3,lost:4 won_decisive:3 won_tiebreak:2,6
+brain8-5v5-c8-ft5-storm2,60,24,0,24,0,N:8 ended_earlier:49 level:3,won_tiebreak:8,3
+brain8-5v5-c8-ft8-storm2,60,24,0,24,0,ended_earlier:50 N:7 level:2 S:1,won_tiebreak:8,6

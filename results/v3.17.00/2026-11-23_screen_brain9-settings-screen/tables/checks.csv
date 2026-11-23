@@ -1,0 +1,17 @@
+check,outcome
+other brain tests (30),success
+regression hashes,success
+test_brain5.js (30),success
+test_invariants.js (100),success
+test_kitd.js (30),success
+test_reasons.js,success
+test_replay.js,success
+test_rng.js,success
+test_rules.js,success
+test_v1.js,success
+test_v31.js,success
+test_v32.js (400 + 400),success
+test_v33.js,success
+test_v34.js,success
+test_v3.js,success
+test_watch.js,success
