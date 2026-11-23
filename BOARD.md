@@ -1,4 +1,4 @@
-STATUS · updated 22 Nov 2026, 11:49 pm ET
+STATUS · updated 22 Nov 2026, 11:58 pm ET
 
 VERSION
   On main: v3.15.00 · Build 20 · Rules v3.9 · Brain 8
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (22 Nov, 11:11 am ET)
-  Queue: clear · lab using 3 of 20
+  Queue: clear · lab using 2 of 20
   nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov
 
 FLAGS (open, newest first)
@@ -26,7 +26,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    018 Turn cue zoom · PR #54 · Draft · checks running · not reviewed
+    018 Turn cue zoom · PR #54 · Ready · checks pass · not reviewed
   Ready to start
     020 Victory values
   Waiting
@@ -39,10 +39,10 @@ BUILDS
 
 CHATS
   Open
-    FF UI v3.14.00 - · Specials brief 026 (write and push) · opened 21 Nov
     FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov
     FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov
   Closed (last 5)
+    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…
     FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…
     FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…
     FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…
