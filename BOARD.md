@@ -1,12 +1,12 @@
-STATUS · updated 22 Nov 2026, 11:24 pm ET
+STATUS · updated 22 Nov 2026, 11:30 pm ET
 
 VERSION
   On main: v3.15.00 · Build 20 · Rules v3.9 · Brain 8
-  Building: 018 → YY
+  Building: 018 → v3.16.00
 
 RESULTS (last 24 hours)
   Nightly checks: pass (22 Nov, 11:11 am ET)
-  Queue: 13 jobs waiting, oldest 3 min · lab using 14 of 20
+  Queue: 4 jobs waiting, oldest 1 min · lab using 15 of 20
   nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov
 
 FLAGS (open, newest first)
@@ -26,7 +26,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    018 Turn cue zoom · PR #54 · needs sync · checks running · not reviewed
+    018 Turn cue zoom · PR #54 · Draft · checks running · not reviewed
   Ready to start
     020 Victory values
   Waiting
