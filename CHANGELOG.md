@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.17.00 | v3.9 | Brain 8 | v6 + v5 + v4 | 22 |
 | v3.16.00 | v3.9 | Brain 8 | v5 + v4 | 21 |
 | v3.15.00 | v3.9 | Brain 8 | v5 | 20 |
 | v3.14.01 | v3.9 | Brain 5 | v5 | 19 |
@@ -23,6 +24,26 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.17.00 · Build 22 — Brief 026, no rule change: the specials flow, Approved UI v6 (23 Nov 2026)
+Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8, unchanged. UI: **Approved UI v6** (the specials) on top of v5 and v4. Game version **v3.17.00** (YY: new screens).
+
+**What a player will notice (phone and desktop)**
+- **One tap warms up a special**, like Brace: no confirm step. The button turns dashed gold and the unit bar says "Fires next turn · no attack or brace". **Undo takes a warm-up back** (Stamina and Command too).
+- **The Special button has five looks** and no state bar: white (unused), dashed gold (warming up), gold (charged), grey (used), yellow-grey (can't warm up this turn). A used, warming or blocked special can be tapped for its reason.
+- **Tapping a charged special opens the special row:** the special big and gold where Attack sits ("2 targets", "No targets", the reason it can't fire, or "−1 Stamina" once the next tap fires), **Warm up** beside it (warm up again instead of firing; the big button then greys "Warming up instead"), and **Cancel**. One target opens its sheet at once.
+- **"Tap a target"** replaces "Tap a red ring". No target: "No targets available · move" (or just "No targets available" with no moves left). Reasons never show unit codes ("Ended its turn", not "LM has ended its turn"); the Evade hint names the unit in full.
+- **A new gold special sheet** for every special, one target included: the attacker with its Strength and the multiplier (always, ×1 too) and "Sure hit", then one short row per target with its damage, HP, its own modifiers and its HP bar. A modifier the special ignores is struck through (Arrow Storm's Dodge, Bullseye's Armor with Pierce). It is shorter: about 87 px for one target (was 137).
+- **A killing Pick Off now warns of a set spear** (the red spear pill on its row and the badge on the field), and of a Mark. The engine deals exactly that amount (checked).
+- **Brace button:** solid charcoal when braced this turn, dashed when braced last turn (the dots are gone).
+- **Not enough Command:** when only the side's Command is short, a special now says "Not enough Command" instead of "Not enough Stamina".
+
+**Under the hood**
+- `engine.js`: `warmupBlock` and `fireBlock` return "Not enough Command" when the unit has the Stamina but the side lacks the Command. A returned message only: every preset and brain replays with identical hashes.
+- `app.js`: the special row, one-tap warm-up, `"warmup"` added to Undo, the wording table (`SP_WORDS`), the reason pill, the new sheet. Retired: the warm-up confirm (`ui.sheet.kind === "warm"`), the state bar, desktop's warm-up line and the "No target in range · fires next turn" note. `ui.js`: `specialSheet()` reads the rows, struck modifiers, kill pills and parry from the engine.
+- New checks: `test_spflow.js` (the flow in a browser, phone and desktop), `test_spengine.js` (the message split; only Evade cards are told they may only evade; a killing Pick Off's spear against the sheet over 400 seeded positions). `test_phone.js` updated for the retired confirm and bar; `test_reasons.js` now expects "Not enough Command" where only Command is short.
+
+Flags closed: none. Flags opened: see `flags/026.md`.
 
 ## v3.16.00 · Build 21 — Brief 018, no rule change: turn cue, hot-seat views, field zoom, match log (23 Nov 2026)
 Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8, unchanged (Brief 022). UI: Approved UI v4 screens on top of v5. Game version **v3.16.00** (YY: new screens and a new setting; Brief 022 took v3.15.00 first).
