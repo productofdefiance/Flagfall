@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-23T07:37:09.703Z",
- "board": "STATUS · updated 23 Nov 2026, 2:37 am ET\n\nVERSION\n  On main: v3.16.00 · Build 21 · Rules v3.9 · Brain 8\n  Building: 020 → v3.17.00 · 026 → v3.17.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (22 Nov, 11:11 am ET)\n  Queue: 8 jobs waiting, oldest 11 min · lab using 16 of 20\n  release v3.16.00 · 5v5 42.5% · 7v7 11.6% on the turn limit · 23 Nov\n  release v3.16.00 · 5v5 42.4% · 7v7 12.4% on the turn limit · 22 Nov\n  nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov\n\nFLAGS (open, newest first)\n  ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…\n  ! F026-2 · ASK · 23 Nov · Unit codes are still shown outside the specials. The brief's \"no unit codes on screen\"…\n  ! F026-1 · ASK · 23 Nov · The special sheet can miss a parry in an Arc Hit. The engine's specialPreview names only…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n    FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n  +18 older in FLAGS.md\n\nBUILDS\n  Building\n    020 Victory values · PR #60 · Draft · checks pass · not reviewed\n    026 Specials flow · PR #59 · Draft · checks running · not reviewed\n  Ready to start\n    028 Arrow storm\n  Waiting\n    012 Cavalry ← 026, 028\n  Merged (last 3)\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n    027 Lab plumbing · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov\n  Closed (last 5)\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-23T08:01:21.621Z",
+ "board": "STATUS · updated 23 Nov 2026, 3:01 am ET\n\nVERSION\n  On main: v3.16.00 · Build 21 · Rules v3.9 · Brain 8\n  Building: 020 → v3.17.00 · 026 → v3.17.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (22 Nov, 11:11 am ET)\n  Queue: clear · lab using 7 of 20\n  release v3.16.00 · 5v5 42.5% · 7v7 11.6% on the turn limit · 23 Nov\n  release v3.16.00 · 5v5 42.4% · 7v7 12.4% on the turn limit · 22 Nov\n  nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov\n\nFLAGS (open, newest first)\n  ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…\n  ! F026-2 · ASK · 23 Nov · Unit codes are still shown outside the specials. The brief's \"no unit codes on screen\"…\n  ! F026-1 · ASK · 23 Nov · The special sheet can miss a parry in an Arc Hit. The engine's specialPreview names only…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n    FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n  +18 older in FLAGS.md\n\nBUILDS\n  Building\n    020 Victory values · PR #60 · Draft · checks pass · not reviewed\n    026 Specials flow · PR #59 · Ready · checks pass · not reviewed\n  Ready to start\n    028 Arrow storm\n  Waiting\n    012 Cavalry ← 026, 028\n  Merged (last 3)\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n    027 Lab plumbing · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov\n  Closed (last 5)\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -26,7 +26,7 @@
      "mark": null
     },
     {
-     "text": "Queue: 8 jobs waiting, oldest 11 min · lab using 16 of 20",
+     "text": "Queue: clear · lab using 7 of 20",
      "indent": 1,
      "mark": null
     },
@@ -131,7 +131,7 @@
      "mark": null
     },
     {
-     "text": "026 Specials flow · PR #59 · Draft · checks running · not reviewed",
+     "text": "026 Specials flow · PR #59 · Ready · checks pass · not reviewed",
      "indent": 2,
      "mark": null
     },
@@ -238,7 +238,7 @@
   }
  },
  "schema": 2,
- "updatedText": "23 Nov 2026, 2:37 am ET",
+ "updatedText": "23 Nov 2026, 3:01 am ET",
  "main": {
   "game": "v3.16.00",
   "build": 21,
@@ -246,11 +246,11 @@
   "brain": "Brain 8"
  },
  "queue": {
-  "text": "Queue: 8 jobs waiting, oldest 11 min · lab using 16 of 20",
+  "text": "Queue: clear · lab using 7 of 20",
   "mark": null,
-  "jobsWaiting": 8,
-  "oldestWaitMin": 11,
-  "labUsing": 16
+  "jobsWaiting": 0,
+  "oldestWaitMin": 0,
+  "labUsing": 7
  },
  "nightly": {
   "state": "pass",
@@ -276,11 +276,11 @@
     "brief": "026",
     "name": "Specials flow",
     "pr": 59,
-    "draft": true,
-    "checks": "running",
+    "draft": false,
+    "checks": "pass",
     "review": null,
     "sync": null,
-    "state": "running",
+    "state": "review",
     "version": "v3.17.00",
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/59/"
