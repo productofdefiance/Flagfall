@@ -1,12 +1,12 @@
-STATUS · updated 23 Nov 2026, 12:35 pm ET
+STATUS · updated 23 Nov 2026, 12:39 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
-  Building: 026 → YY
+  Building: 026 → v3.18.00
 
 RESULTS (last 24 hours)
   Nightly checks: pass (22 Nov, 11:11 am ET)
-  Queue: 10 jobs waiting, oldest 0 min · lab using 5 of 20
+  Queue: 25 jobs waiting, oldest 4 min · lab using 5 of 20
   study v3.17.00 · 16 matchups, 16,000 games · 23 Nov
   study v3.17.00 · 5v5 19.4% · 7v7 6.2% on the turn limit · 23 Nov
   study v3.17.00 · 5v5 41.0% · 7v7 12.9% on the turn limit · 23 Nov
@@ -34,7 +34,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    026 Specials flow · PR #59 · needs sync · checks pass · not reviewed
+    026 Specials flow · PR #59 · Ready · checks running · not reviewed
   Ready to start
     028 Arrow storm
   Waiting
