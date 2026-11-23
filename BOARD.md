@@ -1,4 +1,4 @@
-STATUS · updated 22 Nov 2026, 12:58 pm ET
+STATUS · updated 22 Nov 2026, 8:57 pm ET
 
 VERSION
   On main: v3.14.01 · Build 19 · Rules v3.9 · Brain 5
@@ -8,8 +8,6 @@ RESULTS (last 24 hours)
   Nightly checks: pass (22 Nov, 11:11 am ET)
   Queue: clear
   nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov
-  release v3.14.01 · 5v5 59.0% · 7v7 44.9% on the turn limit · 21 Nov
-  nightly v3.14.00 · 5v5 80.0% · 7v7 45.0% on the turn limit · 21 Nov
 
 FLAGS (open, newest first)
   ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…
