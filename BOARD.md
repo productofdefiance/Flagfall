@@ -1,4 +1,4 @@
-STATUS · updated 23 Nov 2026, 12:01 am ET
+STATUS · updated 23 Nov 2026, 12:06 am ET
 
 VERSION
   On main: v3.16.00 · Build 21 · Rules v3.9 · Brain 8
@@ -7,6 +7,7 @@ VERSION
 RESULTS (last 24 hours)
   Nightly checks: pass (22 Nov, 11:11 am ET)
   Queue: clear · lab using 1 of 20
+  release v3.16.00 · 5v5 42.4% · 7v7 12.4% on the turn limit · 22 Nov
   nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov
 
 FLAGS (open, newest first)
