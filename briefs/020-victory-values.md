@@ -97,27 +97,59 @@ This build is the bot work. It is met when every measurement has a number and th
 2. Watch one Brain 9 mirror at 7v7 for each `finished` value (the Report picks one where a side falls behind late). Does the beaten side still guard its flag?
 3. Play one balanced 7v7 against Brain 9. Get ahead on flag damage and sit: does it come for you? Fall behind: does it press to finish?
 
-## Report back
-The standard Report, every measurement, the hunch table and the test game. In plain words:
-- Does the brain press to finish when it leads, and does it stall less than Brain 8?
-- The hunch: at −1, does a beaten side give up its flag? Does −2 fix it, and what does −2 cost (a more careful leader, more turn-limit games)?
-- Points versus wins: does playing to finish win fewer games but score more by the Editor's table?
-- Does any of Brain 8's behaviours (holder joins, safe approach, warmed-special respect, opening tempo) stop mattering once victory values are on?
-- Why does Brain 8 lose tiebreaks to Brain 5 on v3.9: the tempo, the rule set, or both (F022-8)? Does Brain 9 win them back?
-- Which settings matter differently at 5v5 and 7v7 (the baseline for tuning per format after Cavalry), and does spending the opening Command change the 5v5 move-order picture at Command 7, 8 or 10?
-Say whether each cause is isolated or only likely.
-
----
-
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code. Branch `claude/nice-knuth-scz0hu`, started from `brief/020-victory-values`. In progress: the lab's numbers are added as the runs land.*
 
 - **What's in:**
-- **Anything beyond the brief, and why:**
+  - **Brain 9** (`brain9`, "Brain 9 (plays to finish)"): a copy of Brain 8 as shipped plus two switches. `victory.playToFinish` (victory values) and `spend.spendOpening` (the spent opening). Both off = Brain 8 (same `brainhash`).
+  - **Victory values** in `BRAIN_9.victory` (the brief says `BRAIN_8.victory`; Brain 8 is frozen, F020-1): finish 3, clockWin 1, draw 0, clockLoss −1, finished −1, plus `endWeight` 20, `endTurns` 5 and `guardBlocks` 1.
+  - **Finished games** are scored as the ending's value × 10,000: a finish outranks a clock win, and both outweigh any position. A turn-limit result on "fewer units lost" counts as a draw (0), as the Law reads.
+  - **Before the end** (item 4): in the last `endTurns` turns, value5 adds `endWeight × nearness × expected ending`. The expected ending is made of three parts:
+    - **Our chance to finish them, and theirs to finish us.** Every unit that can walk into the enemy goal zone next turn and still act hits the holder's whole pool (or pulls an empty flag), best first. Each enemy guard (a non-holder unit in or next to its own goal zone) ties up `guardBlocks` attackers. Attackers are capped by free goal hexes and Command. That damage, against the pool, gives one turn's chance, scaled by the material share (×0.5 to ×1.5, Brain 7's material count used only as an input). It is counted over up to 2 turns. The enemy moves next, so its chance comes first.
+    - **The clock outlook:** Brain 6's `tiebreakOutlook` on flag damage alone, with the same guard-aware potential.
+    - **The total:** finish × our chance + finished × theirs + the rest × the clock's value.
+    - **Why guards count:** without them a guard changed nothing in the model, and the hunch (does a beaten side stop guarding?) could not show. Stateless: read when each plan is made.
+  - **Spent opening** (item 6): on its own first turn (the opening, turn 1), each point of Command left unspent costs `spareCommand` (0.4). Units left in reach of a warmed enemy special count its full damage (Brain 8's A2 reading), so spending never means walking in. It reads only Command left and the board, with no per-format number.
+  - **Per-format settings** (item 7): `BRAIN_9.perFormat` = { 5: {}, 7: {} }, empty, so no game changes. A watch link sets one format's own value with `key.5=value` (e.g. `brain9:tempoSecond.5=0`). 9v9 and 13v13 are refused until Cavalry.
+  - **Watchable** (item 5): the watch link and the lab's record carry Brain 9's settings (`brain9:finished=-2`). No `brain9b`.
+  - **Lab:** a new always-on measure `victory`.
+    - Columns as the brief names them. One exception: `late_guard_*` are sums with `late_guard_*_turns_*` beside them (divide for the average; the lab sums columns).
+    - Added: `points2_n/s` (finished −2), `finish_win`, `turn1_cmd_first/second` (Command spent on each side's first side-turn).
+  - **Opponent screen:** Victory and Opening tables (victory values may be −10 to 10).
+- **Anything beyond the brief, and why:** `guardBlocks` (see above); `points2_*` so the −2 table can be read from any run.
 - **Checks run and results (paste regression hashes):**
+  - Session (all pass):
+    - test_rules, v1, v3, v31, v33, v34, v36 and v37.
+    - test_fields, route, stamina, reasons, watch, version, ui and rng.
+    - test_brain5 to 8.
+    - test_brain9: 43 of 43.
+    - test_replay: 386 checks, 0 mismatches.
+    - The lab's self tests.
+  - GitHub checks: all green (release checks included: test_v32 400 + 400, invariants 100, other brain tests at 30, regression hashes).
+  - `regress_engine.js` (3 games per set), old board against new: match3 37397ef2bd3ed86b, v1 7b25bca651c0cb31, v2 ddbe5fc437ff4e9d, v3 26371927b53d4413, v3.1 c71e4cd12fc984b0, v3.2 f62a061d2c147d83, v3.3 e6151bf463d6c9f8, v3.4 ee6ce003ac760250, v3.5 fca989aecfaf21c9, v3.6 a6bf327b54f7d5a1, v3.7 dd3c27d9dc9aafbb, v3.8 022a298c49a02540 (identical).
+  - `sims/brainhash.js`, `main` (after brief 018) against this build, every preset, identical: standard 93fbbf839f2950d7, easy 3aaf555d20cfeab6, kitA 674c62e4bc7f23d0, kitA2 02d2cd3517724aff, kitC ac22522cef7522c1, kitB e441852e79c68cc7, batchC e8f37e4b214342fa, kitD c5487d8eaef8e7ee, brain5 39b3a3235af2e5d6, brain6 5e954847821f9145, brain7 6d4687cfec433e61, brain8 61ba471b57d2bf39.
+  - Brain 9 off (`brain9:playToFinish=0,spendOpening=0@brain8`): 61ba471b57d2bf39, the same as Brain 8. Brain 9 as shipped: 2043d10724a8f649.
 - **Baseline table (rule changes only):** n/a (no rule change); the measurements above instead
-- **Bot minimum (met / not met, with numbers):**
-- **Settings review (brain builds only): settings with no effect found; settings that seem to be missing (with evidence):**
-- **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+- **Bot minimum (session, `test_brain9.js`, 5v5 v3.9, turn 24 of 25):**
+  1. **Press** (ahead 4 to 2, enemy holder alone, pool 12): Brain 9 strikes the holder with two units (expected ending 3.00: finish chance 1.0). Brain 8 does the same here.
+  2. **Hold** (ahead 4 to 2, our holder on 6 HP, one guard; its only attack walks it out to hit the enemy archer):
+     - Brain 8 attacks, leaving no guard. Its own finish-against reading rises to 0.71 and the expected ending drops from +1.00 to −1.00.
+     - Brain 9 braces both and keeps the guard (expected ending stays +1.00).
+  3. **Level** (2 to 2, 5 units against 2): Brain 9 strikes the holder with three units (expected ending 2.40). Brain 8 does the same.
+  4. **Guard** (behind 1 to 4, our holder on 8 HP, three enemies two walks away):
+     - With finished −2, Brain 9 keeps one guard (finished chance after: 0.00).
+     - With −1 it attacks with all three and leaves none (finished chance after: 0.61). Its expected ending is −1.00 either way, which is the hunch: at −1, being finished costs no more than the clock loss it already expects.
+  5. **Off is Brain 8:** the same hash (above), and the same actions in 4 test games.
+  - **Spent opening, 5v5 Command 8:** Brain 8 spends 4 of 5 and 4 of 8 on its first turn; Brain 9 spends 4.5 of 5 and 7.5 of 8 (moves its archer forward, warms it up, moves two more units).
+  - **Legal play:** 0 refused actions (test_brain9 legal-play loop; 30 games per format and lineup in the night checks).
+- **The test game R28X-AJDH-DUP5** (7v7, v3.7, North first):
+  - Brain 5 still replays it as the Editor saw it (South wins the tiebreak, turn 35, 3.83 to 0).
+  - Brain 8: South KO, turn 12 ([watch](https://productofdefiance.github.io/Flagfall/?watch=R28X-AJDH-DUP5&rules=v3.7&format=std7&n=brain8&s=brain8&mixn=mixed&mixs=mixed&first=N)).
+  - Brain 9 at −1: North KO, turn 11 ([watch](https://productofdefiance.github.io/Flagfall/?watch=R28X-AJDH-DUP5&rules=v3.7&format=std7&n=brain9&s=brain9&mixn=mixed&mixs=mixed&first=N)).
+  - Brain 9 at −2: the same game ([watch](https://productofdefiance.github.io/Flagfall/?watch=R28X-AJDH-DUP5&rules=v3.7&format=std7&n=brain9%3Afinished%3D-2&s=brain9%3Afinished%3D-2&mixn=mixed&mixs=mixed&first=N)).
+  - So South doesn't finish with Brain 9: the spent opening changes the game from turn 1. With it off, Brain 9 plays Brain 8's game (South KO, turn 12). The victory values never come into play (the game ends before turn limit − 5). F020-2.
+- **Measurements:** pending (screens `brain9-screen`, `brain9-settings-screen`, `brain9-moveorder-screen` on the lab; confirms at 1,000 and F022-8 to follow).
+- **Settings review (brain builds only):** pending (from `brain9-settings-screen`).
+- **Known gaps:** TKO is left out of the finish chance. The finish chance counts at most 2 turns ahead and ignores blockers other than guards.
+- **Flags closed / opened:** opened F020-1, F020-2 (`flags/020.md`).
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/60
