@@ -1,12 +1,12 @@
-STATUS · updated 22 Nov 2026, 11:58 pm ET
+STATUS · updated 23 Nov 2026, 12:01 am ET
 
 VERSION
-  On main: v3.15.00 · Build 20 · Rules v3.9 · Brain 8
-  Building: 018 → v3.16.00
+  On main: v3.16.00 · Build 21 · Rules v3.9 · Brain 8
+  Building: none
 
 RESULTS (last 24 hours)
   Nightly checks: pass (22 Nov, 11:11 am ET)
-  Queue: clear · lab using 2 of 20
+  Queue: clear · lab using 1 of 20
   nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov
 
 FLAGS (open, newest first)
@@ -26,16 +26,16 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    018 Turn cue zoom · PR #54 · Ready · checks pass · not reviewed
+    none
   Ready to start
     020 Victory values
+    026 Specials flow
   Waiting
-    012 Cavalry ← 018, 026
-    026 Specials flow ← 018
+    012 Cavalry ← 026
   Merged (last 3)
+    018 Turn cue zoom · v3.16.00 · 23 Nov
     022 Safe approach · v3.15.00 · 22 Nov
     027 Lab plumbing · 22 Nov
-    025 Phone fit · v3.14.01 · 21 Nov
 
 CHATS
   Open
