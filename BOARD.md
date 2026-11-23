@@ -1,4 +1,4 @@
-STATUS · updated 23 Nov 2026, 6:51 am ET
+STATUS · updated 23 Nov 2026, 7:13 am ET
 
 VERSION
   On main: v3.16.00 · Build 21 · Rules v3.9 · Brain 8
@@ -28,7 +28,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    020 Victory values · PR #60 · Draft · checks running · not reviewed
+    020 Victory values · PR #60 · Ready · checks pass · not reviewed
     026 Specials flow · PR #59 · Ready · checks pass · not reviewed
   Ready to start
     028 Arrow storm
