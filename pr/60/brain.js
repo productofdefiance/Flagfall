@@ -174,7 +174,7 @@
      is valued by how the game is likely to end. Nothing is remembered between turns. Brains 5 to 8 stay frozen. */
   const BRAIN_9 = JSON.parse(JSON.stringify(BRAIN_8));
   BRAIN_9.id = "brain9"; BRAIN_9.name = "Brain 9 (plays to finish)";
-  BRAIN_9.note = "Brain 8 that values how a game ends: finishing the enemy is worth 3, winning on the clock 1, a draw 0, losing -1. Near the turn limit it presses to finish when the odds favour it and guards its flag when being finished would cost more than losing on the clock. On its first turn it spends spare Command instead of leaving it unused.";
+  BRAIN_9.note = "Brain 8 that values how a game ends: finishing the enemy is worth 3, winning on the clock 1, a draw 0, losing -1. Near the turn limit it presses to finish when the odds favour it and guards its flag when being finished would cost more than losing on the clock. Its 'Spend the opening Command' switch is off by default: switched on it spends spare first-turn Command, but in testing that cost it wins against Brain 8 (brief 020).";
   BRAIN_9.victory = {
     playToFinish: 1,  // 1 = victory values on; 0 = off (Brain 8's ±1e5 for any finished game, no end-of-game term)
     finish: 3,        // value of winning by full pull, holder KO or TKO
@@ -187,7 +187,9 @@
     guardBlocks: 1    // attackers each guard (a unit in or next to its own goal zone, other than the holder) is taken to tie up
   };
   BRAIN_9.spend = {
-    spendOpening: 1,  // 1 = on its own first turn, spare Command is worth spending (advance or warm up); 0 = Brain 8's play
+    spendOpening: 0,  // 1 = on its own first turn, spare Command is worth spending (advance or warm up); 0 = Brain 8's play.
+                      // Ships off: in the brief 020 confirm (1,000 games, v3.9) it cost wins against Brain 8 (7v7 42.5% with it, 49.5%
+                      // without) and gave Brain 9 mirrors' first mover 83% of decisive 7v7 games (46% without). Switch it on for move-order studies
     spareCommand: 0.4 // value points lost per point of first-turn Command left unspent (read from the board: Command left)
   };
   BRAIN_9.perFormat = { 5: {}, 7: {} };   // Brief 020 item 7 (F022-10): any setting may take its own value per format; none yet
