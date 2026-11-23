@@ -113,7 +113,8 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
 #fieldwrap { grid-row: 2; position: relative; background: var(--stands); min-height: 0; overflow: hidden; }
 #fieldscroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; }
 #fieldscroll::-webkit-scrollbar { display: none; }
-#board { display: block; width: 100%; max-width: 560px; margin: 0 auto; height: auto; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+#board { display: block; width: 100%; max-width: none; margin: 0 auto; height: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+#fieldscroll { overflow: auto; touch-action: none; }
 #board .cell { cursor: pointer; }
 #board .unit { touch-action: none; }
 .fade { position: absolute; left: 0; right: 0; height: 120px; pointer-events: none; transition: opacity .2s; }
@@ -124,7 +125,26 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
 .edge[hidden] { display: none; }
 #hint { position: absolute; left: 50%; bottom: 52px; transform: translateX(-50%); z-index: 5; background: var(--ink); color: var(--card); font: 600 13px/1.2 var(--body); padding: 8px 12px; border-radius: 10px; white-space: nowrap; pointer-events: none; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
 #hint[hidden] { display: none; }
-#namesbtn { position: absolute; top: 8px; right: 8px; background: rgba(248,249,245,.92); }
+/* Brief 018 §7: field buttons on the right edge near the thumb (desktop too): zoom 64 px above the field's bottom, hex
+   names 8 px above it; the match log button (phone) at the top right, 38 px below the scoreboard */
+.fbtn, #namesbtn { position: absolute; z-index: 4; width: 44px; height: 44px; border-radius: 10px; background: var(--ink); color: var(--card); border: 1.5px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.25); display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+.fbtn[hidden] { display: none !important; }
+#namesbtn { top: auto; right: 8px; bottom: 116px; }
+#namesbtn[aria-pressed="true"] { background: var(--card); color: var(--ink); border: 2px solid var(--ink); }
+#zoombtn { right: 8px; bottom: 64px; }
+#logbtn { right: 8px; top: 38px; z-index: 6; }
+@media (min-width: 900px) { #logbtn { right: auto; left: 8px; } }
+/* Brief 018 §2: the turn cue, hanging from the scoreboard at the outer edge of the mover's half */
+.edgetag { position: absolute; top: 0; z-index: 7; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 700 12px/1 var(--display); letter-spacing: .12em; text-transform: uppercase; color: #1f2421; padding: 6px 12px 7px; box-shadow: 0 3px 8px rgba(0,0,0,.18); pointer-events: none; transition: transform 150ms ease-in, opacity 150ms ease-in; }
+.edgetag:empty { display: none; }
+.edgetag.n { left: 0; padding-left: 16px; border-radius: 0 0 9px 0; }
+.edgetag.s { right: 0; padding-right: 16px; border-radius: 0 0 0 9px; }
+.edgetag.float { border-radius: 0 0 9px 9px; padding-left: 12px; padding-right: 12px; }
+.edgetag.up { transform: translateY(-100%); opacity: 0; box-shadow: none; }
+body.turned { transform: rotate(180deg); }
+#fieldscroll.panx { }
+#view-play.log-open #namesbtn, #view-play.log-open #zoombtn { display: none; }
+#view-play.log-open #menubtn { z-index: 6; }   /* F018-1: Options stays reachable over the log */
 #unitbar { grid-row: 3; background: var(--card); border-top: 1px solid var(--line); padding: 10px 14px; display: flex; align-items: center; gap: 12px; min-height: 66px; }
 .ub-name { font: 700 18px/1 var(--display); letter-spacing: .02em; }
 .hpbar { width: 70px; height: 6px; border-radius: 3px; background: #dfe3dc; overflow: hidden; }
@@ -250,6 +270,8 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
 .mi:hover { background: var(--paper); }
 .mi.danger { color: var(--attack); }
 .msep { height: 1px; background: var(--line); margin: 4px 0; }
+.mview { padding: 6px 16px 10px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.mview .seg button { height: 38px; font-size: 12px; }
 /* Lineup rows and card */
 .urows { display: flex; flex-direction: column; gap: 8px; }
 .urow-open { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; border: 0; background: none; padding: 0; text-align: left; min-height: 44px; }
@@ -296,16 +318,24 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
 #sheet.keysheet { max-height: 60%; }
 #sheet.keysheet > .key { overflow-y: auto; }
 @media (min-width: 900px) {
-  #view-play { grid-template-columns: minmax(0, 1fr) 390px; grid-template-rows: auto auto auto minmax(0, 1fr); }
-  #topbar { grid-column: 1 / 3; }
+  #view-play { grid-template-columns: auto minmax(0, 1fr) 390px; grid-template-rows: auto auto auto minmax(0, 1fr); }
+  #topbar { grid-column: 1 / 4; }
+  /* The match log panel (the Editor, 22 Nov; F018-6): docked on the field's left at 1200 px and wider, over the field below */
+  .logside { grid-column: 1; grid-row: 2 / 5; width: 360px; position: relative; overflow: hidden; background: var(--paper); border-right: 1px solid var(--line); min-height: 0; }
+  .logside[hidden] { display: none; }
+  #view-play.log-over .logside { grid-column: 2; justify-self: start; z-index: 6; box-shadow: 6px 0 18px rgba(0,0,0,.18); max-width: 100%; }
+  .logside .ls-scroll { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .logside .lg-hide { position: absolute; top: 38px; right: 8px; z-index: 3; }
+  .logside .lg-main, .logside .lg-l2 { grid-template-columns: 84px 28px minmax(0, 1fr) 34px 60px; column-gap: 6px; }
+  .logside .lg-row { padding: 10px 8px 10px 12px; }
   #topbar .tb-title, #topbar .tb-board { padding-left: max(16px, calc(50% - 360px)); padding-right: max(16px, calc(50% - 360px)); }
   #topbar .tb-rule { margin-left: max(16px, calc(50% - 360px)); margin-right: max(16px, calc(50% - 360px)); }
-  #fieldwrap { grid-column: 1; grid-row: 2 / 5; }
-  #unitbar { grid-column: 2; grid-row: 2; border-left: 1px solid var(--line); }
-  #actions { grid-column: 2; grid-row: 3; border-left: 1px solid var(--line); }
-  #side { display: flex; flex-direction: column; gap: 12px; grid-column: 2; grid-row: 4; overflow-y: auto; padding: 12px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
+  #fieldwrap { grid-column: 2; grid-row: 2 / 5; }
+  #unitbar { grid-column: 3; grid-row: 2; border-left: 1px solid var(--line); }
+  #actions { grid-column: 3; grid-row: 3; border-left: 1px solid var(--line); }
+  #side { display: flex; flex-direction: column; gap: 12px; grid-column: 3; grid-row: 4; overflow-y: auto; padding: 12px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); }
   /* Desktop (Brief 009 §7): the attack preview and the unit card sit in the right-hand column, 390 wide, over the roster. */
-  #view-play > #sheet { position: relative; left: auto; right: auto; bottom: auto; grid-column: 2; grid-row: 4; z-index: 3; max-height: none; height: 100%; min-height: 0; overflow-y: auto; border-radius: 0; border-left: 1px solid var(--line); border-top: 1px solid var(--line); box-shadow: none; }
+  #view-play > #sheet { position: relative; left: auto; right: auto; bottom: auto; grid-column: 3; grid-row: 4; z-index: 3; max-height: none; height: 100%; min-height: 0; overflow-y: auto; border-radius: 0; border-left: 1px solid var(--line); border-top: 1px solid var(--line); box-shadow: none; }
   #view-play > #sheet.preview { border-radius: 0; }
 }
 /* Approved UI v5 (Brief 025): phone fit. Everything below 900 px wide; desktop keeps Brief 017's layout. */
@@ -316,10 +346,7 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
   #topbar .tb-title, #topbar .tb-rule { display: none; }
   #topbar .tb-board { padding: 9px 16px 11px; gap: 8px; }
   /* 2. Field buttons (Brief 018 §7's look) */
-  .fbtn, #namesbtn { position: absolute; z-index: 4; width: 44px; height: 44px; border-radius: 10px; background: var(--ink); color: var(--card); border: 1.5px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,.25); display: inline-flex; align-items: center; justify-content: center; padding: 0; }
   #menubtn { display: inline-flex; left: 8px; top: 38px; }
-  #namesbtn { top: auto; right: 8px; bottom: 116px; }
-  #namesbtn[aria-pressed="true"] { background: var(--card); color: var(--ink); border-color: var(--ink); }
   /* 3. Unit bar: 63 px in every play state */
   #unitbar.ub5 { position: relative; display: block; height: 63px; min-height: 0; padding: 0 14px 9px; }
   .ub5 .ub-handle { position: absolute; left: 0; right: 0; top: 0; height: 24px; border: 0; background: none; padding: 5px 0 0; display: flex; justify-content: center; align-items: flex-start; }
@@ -343,7 +370,7 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
   .uchip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 3px; height: 17px; border-radius: 8.5px; padding: 0 7px; background: var(--ink); color: #fff; font: 700 11px/1 var(--num); }
   .uchip.hurt { background: var(--attack); }
   #view-play.sheet-up #unitbar { display: none; }
-  #view-play.sheet-open .fbtn, #view-play.sheet-open #namesbtn { display: none; }
+  #view-play.sheet-open .fbtn:not(#logbtn), #view-play.sheet-open #namesbtn { display: none; }
   /* 4. Action panel: 116 px, every button 48 px */
   #actions { padding: 6px 10px 8px; gap: 5px; }
   .act { height: 48px; }
@@ -380,6 +407,71 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
   .v5 .ftoken { width: 22px; height: 22px; border-radius: 50%; background: var(--flag); display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .v5 > .key { margin-top: 10px; }
 }
+
+/* Brief 018 §10: the match log (phone: in place of the field; desktop: the Recent list; Options: Match log) */
+#logview { position: absolute; inset: 0; z-index: 5; overflow-y: auto; background: var(--paper); overscroll-behavior: contain; }
+#logview[hidden] { display: none; }
+/* F018-1 (the Editor, 23 Nov): on a phone the header sits in the middle, between the Options button (left) and Show
+   field (right); it stays put while the rows scroll under it. Line 2 wraps under itself if it can't fit. */
+#logview .lg-bar { height: auto; min-height: 90px; padding: 33px 62px 10px; text-align: center; }
+#logview .lg-b1, #logview .lg-b2 { justify-content: center; }
+#logview .lg-b2 { flex-wrap: wrap; row-gap: 6px; column-gap: 12px; white-space: normal; }
+#logview .lg-b2 span { white-space: nowrap; }
+.lg { font: 500 12px/1.2 var(--body); color: var(--ink); font-variant-numeric: tabular-nums; }
+.lg-bar { position: sticky; top: 0; z-index: 2; height: 90px; background: var(--paper); border-bottom: 1px solid var(--line); padding: 33px 66px 0 14px; }
+.lg-b1 { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+.lg-b1 b { font: 700 22px/1 var(--display); }
+.lg-b1 span { font: 700 11px/1 var(--display); letter-spacing: .12em; color: var(--muted); text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; }
+.lg-b2 { display: flex; gap: 14px; margin-top: 8px; white-space: nowrap; overflow: hidden; font: 500 12px/1 var(--body); }
+.lg-b2 span { display: inline-flex; align-items: center; gap: 4px; }
+.lg-b2 i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.lg-div { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 14px; background: var(--ink); color: #f8f9f5; }
+.lg-div.s { flex-direction: row-reverse; }
+.lg-dl { display: inline-flex; align-items: center; gap: 7px; font: 700 13px/1 var(--display); letter-spacing: .12em; }
+.lg-div.s .lg-dl { flex-direction: row-reverse; }
+.lg-dl i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.lg-dr { display: inline-flex; gap: 12px; font: 500 12px/1 var(--body); color: rgba(248,249,245,.85); }
+.lg-div.s .lg-dr { flex-direction: row-reverse; }
+.lg-di { display: inline-flex; align-items: center; gap: 4px; }
+.lg-di > i { width: 9px; height: 9px; border-radius: 2px; background: #f8f9f5; display: inline-block; }
+.lg-row { position: relative; display: block; width: 100%; min-height: 52px; padding: 10px 12px 10px 14px; background: var(--card); border: 0; border-bottom: 1px solid #dfe3dc; text-align: left; color: var(--ink); font: 500 12px/1.2 var(--body); }
+.lg-row.open { background: #fff; }
+.lg-row::before { content: ""; position: absolute; top: 0; bottom: 0; width: 3px; background: var(--sc); }
+.lg-row.n::before { left: 0; } .lg-row.s::before { right: 0; }
+.lg-main, .lg-l2 { display: grid; grid-template-columns: 88px 34px minmax(0, 1fr) 36px 72px; column-gap: 8px; align-items: center; }
+.lg-main { min-height: 30px; }
+.lg-l2 { margin-top: 5px; }
+.lg-l2.lg-x { margin-top: 10px; }
+.lg-u { display: inline-flex; align-items: center; gap: 6px; min-width: 0; white-space: nowrap; }
+.lg-tok { flex-shrink: 0; }
+.lg-slot { width: 30px; height: 30px; flex-shrink: 0; display: inline-block; }
+.lg-hex { font: 600 13px/1 var(--body); }
+.lg-ic { display: flex; justify-content: center; }
+.lg-c { display: flex; justify-content: center; }
+.lg-r { text-align: right; justify-self: end; white-space: nowrap; }
+.lg-st { display: inline-flex; align-items: center; gap: 3px; color: var(--muted); font: 500 12px/1 var(--body); }
+.lg-st i { width: 9px; height: 9px; border-radius: 2px; background: var(--ink); display: inline-block; }
+.lg-dmg { font: 600 17px/1 var(--body); color: var(--ink); } .lg-dmg.k { color: var(--attack); }
+.lg-mv { display: inline-flex; align-items: center; gap: 3px; } .lg-mv b { font: 600 15px/1 var(--body); }
+.lg-in { display: inline-block; padding-left: 36px; white-space: nowrap; }
+.lg-ar, .lg-mu { color: var(--muted); }
+.lg-out { color: var(--attack); font-weight: 600; }
+.lg-str, .lg-mult, .lg-fl, .lg-it, .lg-sp { display: inline-flex; align-items: center; gap: 3px; font-weight: 600; }
+.lg-fl { margin-left: 10px; }
+.lg-mult { color: #b68a0e; }
+.lg-spn { font: 600 13px/1.1 var(--body); color: #9a7408; } .lg-spn.s { font-size: 12px; }
+.lg-fp { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 22px; border-radius: 11px; background: var(--flag); }
+.lg-l3 { display: flex; gap: 8px; margin-top: 6px; padding-left: 36px; }
+.lg-box { display: block; margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: var(--paper); font: 400 12px/1.45 var(--body); }
+.lg-end { padding: 16px; text-align: center; font: 500 12px/1.2 var(--body); color: var(--muted); }
+.recent .lg-bar { position: static; height: auto; padding: 4px 0 10px; }
+.recent { max-height: none; font: inherit; color: inherit; }
+.recent div { padding: 0; border-bottom: 0; }
+.recent .lg-div { padding: 9px 10px; } .recent .lg-bar { padding-left: 10px; padding-right: 10px; }
+.recent .lg-main, .recent .lg-l2 { grid-template-columns: 82px 26px minmax(0, 1fr) 32px 56px; column-gap: 6px; }
+.recent .lg-row { padding: 9px 8px 9px 10px; }
+.lgwrap { padding: 0; white-space: normal; max-height: 70vh; }
+.lgwrap .lg-bar { position: static; height: auto; padding: 10px 14px; }
 /* Data sheets */
 .rsbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .rsbar select, .rsbar input[type=text] { padding: 7px 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; min-height: 40px; }
@@ -430,16 +522,20 @@ table.data td.desc { white-space: normal; color: var(--muted); font-size: 13px; 
     <button type="button" class="edge bottom" id="edgeBottom" hidden></button>
     <button type="button" class="fbtn" id="menubtn" data-act="options" aria-label="Options" aria-haspopup="menu" aria-expanded="false"></button>
     <button type="button" class="iconbtn" id="namesbtn" aria-label="Show hex names" aria-pressed="false"></button>
+    <button type="button" class="fbtn" id="zoombtn" aria-label="Zoom in"></button>
+    <section id="logview" hidden aria-label="Match log"></section>
+    <button type="button" class="fbtn" id="logbtn" data-act="log" aria-label="Show match log"></button>
+    <div id="edgetag" class="edgetag up" role="status" aria-live="polite" aria-hidden="true"></div>
     <div id="hint" role="status" hidden></div>
     <div id="picknote" role="status" hidden></div>
     <div id="scrim" hidden></div>
     <section id="sheet" hidden aria-live="polite"></section>
   </div>
+  <aside id="logside" class="logside" aria-label="Match log" hidden></aside>
   <section id="unitbar"></section>
   <nav id="actions" aria-label="Actions"></nav>
   <aside id="side">
     <div class="card roster" id="roster"></div>
-    <div class="card"><h3>Recent</h3><div class="recent" id="recent"></div></div>
   </aside>
 </section>
 <section class="view" id="view-units" hidden></section>
