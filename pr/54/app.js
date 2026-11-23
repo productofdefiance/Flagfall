@@ -262,10 +262,11 @@
     if (t) {
       App.ui.placements = {}; App.ui.deploySel = nextUnplaced(t);
       App.ui.cover = bothHuman() ? { kind: "deploy", team: t } : null;
-      App.ui.scrollTo = fld().FLAG[t];
+      App.ui.deployView = t;   // drawn by render(): the deploying side's half, phone and desktop alike
     } else {
       App.ui.cover = bothHuman() ? { kind: "start" } : null;
       App.ui.scrollTo = fld().centre;
+      App.ui.zoom = null;   // play starts at the default view
     }
   }
   function startMatch() {
@@ -1061,19 +1062,33 @@
      means "far" (fill the width on a phone, the whole field on desktop) and follows the screen size. */
   // The Editor, 22 Nov (second review of #54): "zoom in" goes to 100 px hexes on every format and screen. Pinch reaches 120 px.
   const K_CLOSE = 100 / (2 * R), K_MAX = 120 / (2 * R);
-  const kClose = () => K_CLOSE;
+  /* The Editor, 23 Nov (fourth review): on a phone "zoom in" is the field's width (the old far view) and "zoom out" is
+     the whole field; a phone starts zoomed in. Desktop: in = 100 px hexes, out = the whole field, starts zoomed out. */
+  const kWidth = () => { const v = viewBox(); return v.w ? Math.min(v.w, 560) / boardW() : 1; };
+  const kClose = () => (wide() ? K_CLOSE : kWidth());
   const viewBox = () => { const w = $("fieldwrap"); return { w: w.clientWidth, h: w.clientHeight }; };
   function kFar() {
     const v = viewBox();
     if (!v.w) return 1;
-    // Phone: the field's width, up to 560 px (today's size). Desktop: the whole field in view (§6; the Editor, 22 Nov,
-    // third review of #54, closing F018-2: zoom out shows the whole field, icons only when hexes are under 50 px).
-    return wide() ? Math.min(v.w / boardW(), v.h / boardH()) : Math.min(v.w, 560) / boardW();
+    // The whole field in view, phone and desktop (the Editor: third and fourth reviews of #54, closing F018-2).
+    return Math.min(v.w / boardW(), v.h / boardH(), kWidth());
   }
+  /** Where a match starts and what "no zoom chosen" means: the whole field on desktop, the field's width on a phone. */
+  const kDefault = () => (wide() ? kFar() : kClose());
   function kMin() { const v = viewBox(); return Math.min(kFar(), v.w / boardW(), v.h / boardH()); }
   const clampK = (k) => Math.max(kMin(), Math.min(K_MAX, k));
-  const curK = () => (App.ui.zoom == null ? kFar() : clampK(App.ui.zoom));
+  const curK = () => (App.ui.zoom == null ? kDefault() : clampK(App.ui.zoom));
   const hexPx = () => 2 * R * curK();
+  /** Deployment (the Editor, 23 Nov): the deploying side's half of the field fills the view, its own end in view, on
+      phone and desktop alike (no nearer than "zoom in", no further than "zoom out"). */
+  function deployFit() {
+    const t = App.ui.deployView, v = viewBox();
+    if (!v.w) return;
+    App.ui.deployView = null;
+    const k = Math.max(kFar(), Math.min(kClose(), v.w / boardW(), v.h / (boardH() / 2)));
+    App.ui.zoom = Math.abs(k - kDefault()) < 1e-6 ? null : k;
+    App.ui.scrollEnd = t;
+  }
   /** Size the field for the current zoom; redraw when icons-only switches (Brief 018 §8). */
   function applyZoom() {
     const svg = $("board"), sc = $("fieldscroll"), k = curK(), v = viewBox();
@@ -1103,8 +1118,7 @@
   /** The zoom button (§6): snaps to close (on the selected unit, else the view's centre) or far, 250 ms. */
   function zoomStep(dir) {
     const v = viewBox(), k0 = curK(), inward = dir ? dir > 0 : k0 < kClose() * 0.98;
-    // Zoom out goes to far; where far is nearer than close (desktop, F018-2) it goes to the whole field instead.
-    const toFar = kFar() < k0 * 0.98, k1 = inward ? kClose() : toFar ? kFar() : kMin();
+    const k1 = inward ? kClose() : kFar();
     const c = [v.w / 2, v.h / 2], from = boardAt(c[0], c[1]);
     const sel = App.ui.sel && E.unitByUid(App.st, App.ui.sel);
     const to = inward && sel && sel.hp > 0 && sel.hex ? pos(sel.hex) : from;
@@ -1113,7 +1127,7 @@
       const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
       const k = k0 * Math.pow(k1 / k0, e), bp = [from[0] + (to[0] - from[0]) * e, from[1] + (to[1] - from[1]) * e];
       zoomTo(k, bp, c[0], c[1]);
-      if (t < 1) requestAnimationFrame(step); else { if (!inward && toFar) App.ui.zoom = null; applyZoom(); }
+      if (t < 1) requestAnimationFrame(step); else { App.ui.zoom = Math.abs(k1 - kDefault()) < 1e-6 ? null : k1; applyZoom(); }
     };
     requestAnimationFrame(step);
   }
@@ -1268,7 +1282,7 @@
   /** The turn the tag is about: play turns, and each side's hot-seat deployment once its cover is down. */
   function tagKey() {
     const st = App.st;
-    if (!st || !bothHuman() || App.ui.cover) return null;
+    if (!st || App.ui.cover) return null;   // every game type (the Editor, 23 Nov: bot games, watch and replay too)
     if (st.phase === "play") return "P" + st.turn + st.toMove;
     if (st.phase === "deploy" && deployTeam()) return "D" + deployTeam();
     return null;
@@ -2115,6 +2129,12 @@
     const st = App.st;
     return !!(st && st.phase === "play" && bothHuman() && !App.ui.cover && !App.ui.anim && App.ui.snapped !== st.turn + st.toMove);
   }
+  /** Scroll so a side's own end of the field is in view (its flag's end as drawn), across onto its flag if wider. */
+  function scrollToEnd(t) {
+    const sc = $("fieldscroll"), k = curK(), [fx, fy] = pos(fld().FLAG[t]), off = svgOff($("board")), v = viewBox();
+    sc.scrollTop = fy < boardH() / 2 ? 0 : sc.scrollHeight - sc.clientHeight;
+    sc.scrollLeft = Math.max(0, fx * k + off[0] - v.w / 2);
+  }
   function hotSeatSnap() {
     const st = App.st, sc = $("fieldscroll");
     App.ui.snapped = st.turn + st.toMove;
@@ -2148,11 +2168,14 @@
     ui.orientSet = true;
     if (App.st.phase !== "over") ui.lastMover = moverNow();
     renderTopbar(); renderBoard(); renderUnitbar(); renderActions(); renderSheet(); renderSide(); renderCover(); renderHint(); renderMenu();
-    renderLog(); applyZoom(); renderTag();   // the log panel first: it changes the field's width
+    renderLog();   // the log panel first: it changes the field's width
+    if (ui.deployView) deployFit();
+    applyZoom(); renderTag();
     $("namesbtn").setAttribute("aria-pressed", ui.names ? "true" : "false");
     if (anim) { turnAnim(w, () => render()); return; }
     if (ui.anim) return;
     if (snapDue()) { App.ui.scrollTo = null; requestAnimationFrame(() => { hotSeatSnap(); updateEdges(); }); }
+    else if (App.ui.scrollEnd) { const t = App.ui.scrollEnd; App.ui.scrollEnd = null; requestAnimationFrame(() => { scrollToEnd(t); updateEdges(); }); }
     else if (App.ui.scrollTo) { const h = App.ui.scrollTo; App.ui.scrollTo = null; requestAnimationFrame(() => { revealHex(h, true); updateEdges(); }); }
     else requestAnimationFrame(updateEdges);
     botTick();
@@ -2677,6 +2700,13 @@
   function wire() {
     $("board").addEventListener("click", (e) => { if (App.ui.suppressClick || tapsBlocked()) return; const g = e.target.closest("[data-hex]"); if (g) onBoardTap(g.dataset.hex); });
     $("board").addEventListener("pointerdown", onPointerDown);
+    // The Editor, 23 Nov: a click on the space around the field (not a hex) lets go of the tapped unit.
+    $("fieldscroll").addEventListener("click", (e) => {
+      if (tapsBlocked() || App.ui.suppressClick || e.target.closest("[data-hex]") || !App.st || App.view !== "play") return;
+      const ui = App.ui;
+      if (App.st.phase === "deploy") { if (ui.deploySel) { ui.deploySel = null; render(); } return; }
+      if (ui.sel || ui.ghost || ui.armed || (ui.sheet && ui.sheet.kind !== "over")) { ui.sel = null; ui.ghost = null; ui.armed = null; if (ui.sheet && ui.sheet.kind !== "over") ui.sheet = null; render(); }
+    });
     // A finger that starts on one of your units drags it instead of scrolling the field.
     $("board").addEventListener("touchstart", (e) => { if (App.ui.drag) e.preventDefault(); }, { passive: false });
     $("board").addEventListener("touchmove", (e) => { if (App.ui.drag) e.preventDefault(); }, { passive: false });
