@@ -42,7 +42,9 @@ Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8
 
 **Fixed in review (the Editor, 22 Nov):** the field could jump to North's end (deployment always opened on North; zooming after scrolling lost your place; some turns jumped to the top): the field's position inside its scroll area was read as "not a number". The tag now stays all turn; "zoom in" goes to 100 px hexes; the desktop log is a left-side panel (F018-6).
 
-**Flags opened:** F018-1 to F018-5 (`flags/018.md`; F018-3 closed in review; F018-6 opened in review).
+On a phone the match log's header sits in the middle, between the Options button and Show field, and stays put while the rows scroll.
+
+**Flags:** opened F018-1 to F018-6 (`flags/018.md`); closed F018-1 to F018-5 (the Editor, 22 and 23 Nov); F018-6 tabled.
 
 ## v3.15.00 · Build 20 — Brief 022, Brain 8: holder joins, safe approach, warmed-special respect, opening tempo (22 Nov 2026)
 Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). Default brain: **Brain 8** (the Editor, 21 Nov, F022-5). Game version **v3.15.00** (YY: a new brain; briefs 017 and 025 took v3.13.00, v3.14.00 and v3.14.01 first).

@@ -143,7 +143,8 @@ h3 { margin: 0 0 8px; font: 700 17px/1.1 var(--display); text-transform: upperca
 .edgetag.up { transform: translateY(-100%); opacity: 0; box-shadow: none; }
 body.turned { transform: rotate(180deg); }
 #fieldscroll.panx { }
-#view-play.log-open #namesbtn, #view-play.log-open #zoombtn, #view-play.log-open #menubtn { display: none; }
+#view-play.log-open #namesbtn, #view-play.log-open #zoombtn { display: none; }
+#view-play.log-open #menubtn { z-index: 6; }   /* F018-1: Options stays reachable over the log */
 #unitbar { grid-row: 3; background: var(--card); border-top: 1px solid var(--line); padding: 10px 14px; display: flex; align-items: center; gap: 12px; min-height: 66px; }
 .ub-name { font: 700 18px/1 var(--display); letter-spacing: .02em; }
 .hpbar { width: 70px; height: 6px; border-radius: 3px; background: #dfe3dc; overflow: hidden; }
@@ -410,6 +411,12 @@ body.turned { transform: rotate(180deg); }
 /* Brief 018 §10: the match log (phone: in place of the field; desktop: the Recent list; Options: Match log) */
 #logview { position: absolute; inset: 0; z-index: 5; overflow-y: auto; background: var(--paper); overscroll-behavior: contain; }
 #logview[hidden] { display: none; }
+/* F018-1 (the Editor, 23 Nov): on a phone the header sits in the middle, between the Options button (left) and Show
+   field (right); it stays put while the rows scroll under it. Line 2 wraps under itself if it can't fit. */
+#logview .lg-bar { height: auto; min-height: 90px; padding: 33px 62px 10px; text-align: center; }
+#logview .lg-b1, #logview .lg-b2 { justify-content: center; }
+#logview .lg-b2 { flex-wrap: wrap; row-gap: 6px; column-gap: 12px; white-space: normal; }
+#logview .lg-b2 span { white-space: nowrap; }
 .lg { font: 500 12px/1.2 var(--body); color: var(--ink); font-variant-numeric: tabular-nums; }
 .lg-bar { position: sticky; top: 0; z-index: 2; height: 90px; background: var(--paper); border-bottom: 1px solid var(--line); padding: 33px 66px 0 14px; }
 .lg-b1 { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
