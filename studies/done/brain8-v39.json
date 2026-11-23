@@ -1,0 +1,63 @@
+{
+ "id": "brain8-v39",
+ "kind": "study",
+ "brief": "022",
+ "seed_name": "brain8-v39",
+ "question": "Re-measure on v3.9 (routes, brief 017): Brain 8 as shipped (B4 on, A1 and A2 off, tempoFirst 0, tempoSecond +1) against Brain 5, 1,000 games per format, balanced and all-Light; sides and move order swapped evenly (the Editor, 21 Nov).",
+ "tags": [
+  "brain8",
+  "study",
+  "v3.9",
+  "head-to-head"
+ ],
+ "measures": [
+  "play",
+  "specials",
+  "specialsafety",
+  "firstloss",
+  "brain8",
+  "routes"
+ ],
+ "matchups": [
+  {
+   "name": "b8-v-b5-5v5",
+   "a": "brain8",
+   "b": "brain5",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "b8-v-b5-light-5v5",
+   "a": "brain8",
+   "b": "brain5",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "light",
+   "games": 1000,
+   "seed_as": "light-5v5"
+  },
+  {
+   "name": "b8-v-b5-7v7",
+   "a": "brain8",
+   "b": "brain5",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "b8-v-b5-light-7v7",
+   "a": "brain8",
+   "b": "brain5",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "light",
+   "games": 1000,
+   "seed_as": "light-7v7"
+  }
+ ]
+}

@@ -1,0 +1,5 @@
+matchup,games,sw_threat_turns,sw_units_start,sw_exposed_start,sw_left,sw_stayed,sw_entered,sw_exposed_end,sw_braced_in_reach,sw_removed_in_reach,sw_stayed_braced,sw_stayed_unbraced,sw_hit_next,sw_hit_next_braced
+tempo-even-push-mirror-5v5,1000,3765,12923,11867,2773,9094,504,9598,1113,0,759,8335,2862,240
+tempo-back-push-mirror-5v5,1000,3548,11491,10240,3174,7066,597,7663,157,0,157,6909,3130,55
+tempo-even-push-mirror-7v7,1000,5491,26428,20424,4556,15868,2191,18059,349,0,339,15529,5022,87
+tempo-back-push-mirror-7v7,1000,5866,28719,21398,4299,17099,2146,19245,364,0,307,16792,5452,106

@@ -1,0 +1,5 @@
+matchup,games,first_lost_side,first_lost_turn,first_lost_card,first_lost_by,first_lr_lost_side,first_lr_lost_turn,reach_contact_turn,reach_contact_side,first_strike_side
+b8-v-b5-5v5,1000,second:835 first:165,2000,LR:1000,LR special:1000,second:835 first:165,2000,1000,second:1000,first:1000
+b8-v-b5-light-5v5,1000,second:498 first:502,2000,LA:462 LR:472 LM:66,LA special:137 LM special:456 LR special:341 LA attack:34 LM attack:28 LR attack:4,first:532 second:465,2547,1000,second:1000,first:954 second:46
+b8-v-b5-7v7,1000,first:696 second:304,2125,LA:627 LR:245 LM:118 HM:2 HR:8,LM special:190 LR special:343 LA special:107 HR attack:169 LM attack:110 LR attack:54 LA attack:7 HR special:6 HM attack:10 HA attack:4,second:444 first:556,3078,1359,second:761 first:239,first:764 second:236
+b8-v-b5-light-7v7,1000,second:417 first:583,2068,LA:576 LR:389 LM:35,LA attack:92 LR special:478 LA special:139 LR attack:133 LM attack:109 LM special:49,first:656 second:344,2552,1323,second:701 first:299,first:791 second:209
