@@ -1,16 +1,16 @@
-# Brief 012 — Cavalry: Heavy and Light Cavalry, 9v9 and 13v13, the fort (rule set v3.10)
+# Brief 012 — Cavalry: Heavy and Light Cavalry, 9v9 and 13v13, the fort (rule set v3.11)
 
 | | |
 |---|---|
 | Game version | **v4.00.00** (X: a big new system). Cavalry is the X change, whatever YY versions merge before it |
 | Lane | Rules (also touches Units, UI, Bot and Lab) |
-| Rule set | New preset: the newest preset at build time plus switch `cavalry`. The newest on `main` is v3.9 (brief 017, routes), so this one is **v3.10**, a copy of v3.9 with fields and routes on (FD49-2, the Editor, 21 Nov). If the order changes, take the next free id and say so in the Report |
+| Rule set | New preset: the newest preset at build time plus switch `cavalry`. The newest on `main` will be **v3.10** (brief 028: v3.9 plus Arrow Storm 1.5 times; the Editor, 23 Nov, built before this one), so this one is **v3.11**, a copy of v3.10 with fields and routes on (FD49-2, the Editor, 21 Nov; renumbered 23 Nov). Every comparison in this brief is against v3.10. If the order changes, take the next free id and say so in the Report |
 | Date | 19 Nov 2026 |
 | Goal | Heavy and Light Cavalry join the game with their traits, brace benefits and specials; 9v9 and 13v13 become playable; the fort rule, the rewritten Mark and the new Command numbers go in (Game Laws 2.1, 2.7, 2.9, 3.4, 3.8, 4.2, 4.5, 4.6, 4.8, 6.4, 6.5, 6.7, 6.9–6.12, 6.14–6.17) |
 | Branch | Any branch your session may push to, started from `brief/012-cavalry` |
 | Flags | F37 (set spear on a unit that leaves contact and comes back in one move): close it. Open new ones as found. F20 gets its double-knockout check again (Trample and Breakaway can hurt both sides) |
-| Waits on | 011, 014, 017, 025, 018, 026 |
-| Order | **After 011, 014, 017, 025, 018 and 026 (specials flow) are all merged** (the Editor, 21 Nov: 018, then 026, then this, so Charge and Breakaway land on 026's special row and gold row sheet; build their warm-up, row, sheet and reasons the way 026 does). Earlier: **After 011, 014 and the move-preview brief are all merged.** It builds on 011's special system (warm-up, fire, previews, Special button), on 014's fields (9v9 and 13v13 exist there as data only), and on the move-preview brief's two-tap confirm and danger markers (the Editor, 19 Nov; not written yet, its number is taken when it is pushed) |
+| Waits on | 011, 014, 017, 025, 018, 026, 028 |
+| Order | **After 011, 014, 017, 025, 018, 026 (specials flow) and 028 (Arrow Storm 1.5 times; the Editor, 23 Nov) are all merged** (the Editor, 21 Nov: 018, then 026, then this, so Charge and Breakaway land on 026's special row and gold row sheet; build their warm-up, row, sheet and reasons the way 026 does). Earlier: **After 011, 014 and the move-preview brief are all merged.** It builds on 011's special system (warm-up, fire, previews, Special button), on 014's fields (9v9 and 13v13 exist there as data only), and on the move-preview brief's two-tap confirm and danger markers (the Editor, 19 Nov; not written yet, its number is taken when it is pushed) |
 
 ## Context
 Cavalry is the first new unit type since the board was built. Its cards were locked on 18 Nov (Unit Stats sheet, Test units rows 15–16). On 19 Nov the Editor settled the gaps the Laws left: Mark stops a unit only where it comes to stand (3.8, rewritten), set spear still fires on hexes ridden over (6.14), the fort (4.5), Pursuit's damage (6.12), Cavalry only at 9v9 and 13v13 (2.1), and Command and turn limits per format (2.7, 2.9).
@@ -18,13 +18,13 @@ Cavalry is the first new unit type since the board was built. Its cards were loc
 Everything below is in the Game Laws. Where this brief and the Laws disagree, the Laws win: say so in the Report. If a case comes up that neither covers, raise an `ASK`; don't decide it.
 
 ## Scope
-In: preset v3.10; the two Cavalry cards; Vault; Cavalry and zones; Trample; Pursuit and the Pursued status; set spear against Cavalry; Anti-Cavalry halving Cavalry Armor; Charge and Breakaway on 011's special system; the rewritten Mark; the fort; mounted units never holding a flag; the last-foot-unit lineup rule; 9v9 and 13v13 playable on 014's fields; Command per format (5v5 changes); screens; the default brain playing all of it; the baseline and the Cavalry measurements.
+In: preset v3.11; the two Cavalry cards; Vault; Cavalry and zones; Trample; Pursuit and the Pursued status; set spear against Cavalry; Anti-Cavalry halving Cavalry Armor; Charge and Breakaway on 011's special system; the rewritten Mark; the fort; mounted units never holding a flag; the last-foot-unit lineup rule; 9v9 and 13v13 playable on 014's fields; Command per format (5v5 changes); screens; the default brain playing all of it; the baseline and the Cavalry measurements.
 
-Out: any change to v3.9 or older presets; Pursuit at 10% or 0% (kept in reserve by the Editor, see Measurements); set spear's fallback (double damage to Heavy Cavalry): measure only; icons for Trample, Pursuit, Charge or Breakaway (text only; the UI chat designs icons later); horse archers or any other new unit; the zone layer (Ideas Log).
+Out: any change to v3.10 or older presets; Pursuit at 10% or 0% (kept in reserve by the Editor, see Measurements); set spear's fallback (double damage to Heavy Cavalry): measure only; icons for Trample, Pursuit, Charge or Breakaway (text only; the UI chat designs icons later); horse archers or any other new unit; the zone layer (Ideas Log).
 
 ## What to build
 
-### 1. Preset v3.10
+### 1. Preset v3.11
 A copy of the newest preset with `cavalry: true` and `fort: true`, plus `markWhereStands: true` (section 6). It becomes the newest preset. Every number below lives in the rule set (`data.js`):
 - **Command per format (2.9):** `game.command5: 8`, `firstTurnCommand5: 5`; 7v7 stays `10` / `6`; `command9: 12`, `firstTurnCommand9: 7`; `command13: 16`, `firstTurnCommand13: 10`. Read the same way as `turnLimit5` / `turnLimit7`. Older presets keep one Command for every format.
 - **Turn limits (2.7):** `turnLimit9: 40`, `turnLimit13: 50`. 5v5 25 and 7v7 35 unchanged.
@@ -50,7 +50,7 @@ A copy of the newest preset with `cavalry: true` and `fort: true`, plus `markWhe
 After a brace, Cavalry starts its next turn 1 Stamina down like every unit (4 → 3), through 013's modifier list. No accuracy penalty for Heavy Ranged against Cavalry.
 
 ### 3. Formats and lineups (2.1, 2.2, 4.8)
-- 9v9 and 13v13 become playable with v3.10 on 014's fields. With an older preset they stay greyed out as today.
+- 9v9 and 13v13 become playable with v3.11 on 014's fields. With an older preset they stay greyed out as today.
 - Cavalry cards may be picked only at 9v9 and 13v13. At 5v5 and 7v7 the lineup screen doesn't offer them (2.1).
 - **Last foot unit (4.8):** every lineup must hold at least one unit that isn't Cavalry. The lineup screen refuses to start otherwise, with the reason `At least one foot unit`.
 - The computer's default lineups: 9v9 one HC, one LC, and HM, HA, HR, LR, LA (9 UC); 13v13 one HC, one LC, and HM, HM, HA, HA, HR, LR, LA, LM, LM (13 UC). Keep 5v5 and 7v7 as they are.
@@ -83,7 +83,7 @@ Build Article 3.8 exactly as the Laws now word it:
 5. Light Cavalry slips through: enemy Marks never stop it (6.9).
 6. A zone never blocks an attack.
 
-For foot units this plays exactly as v3.9 (the Editor's intent; the design chat checked the engine's swap rule against it). Prove it: v3.10 with `cavalry`, `fort` and the 5v5 Command change turned off must hash identically to v3.9 on 5v5 and 7v7 (a sim-only copy, not a preset). If any game differs, stop and raise an `ASK` with the example.
+For foot units this plays exactly as v3.10 (the Editor's intent; the design chat checked the engine's swap rule against it). Prove it: v3.11 with `cavalry`, `fort` and the 5v5 Command change turned off must hash identically to v3.10 on 5v5 and 7v7 (a sim-only copy, not a preset). If any game differs, stop and raise an `ASK` with the example.
 
 ### 7. Trample (6.11, HC brace benefit)
 When a braced HC is hit by an **adjacent melee attack** (normal attack or special), on the **first such attack each enemy turn**:
@@ -149,7 +149,7 @@ Builds on 009 (attack preview, unit card, buttons) and 011 (Special button, warm
 - Desktop: as 009. List any judgement call in the Report.
 
 ## Rules it touches
-Each becomes a test on v3.10 where it applies.
+Each becomes a test on v3.11 where it applies.
 - Vault: over friends and enemies; never over HA, LA, HC, LC or a flag; cost and cap per vaulted hex; can't end on an occupied hex.
 - Mark (3.8): HC stops on the first empty zone hex; never over an occupied hex; LC never stopped; entering by swap, Evade, taking a hex, Trample swap; starting in a zone; warm-up allowed after stopping.
 - Set spear (3.13, 6.14, 6.15): over an occupied hex → turned back, 2, may attack only the spearman; on an empty hex → stops there; not cut by Dodge; first entry per turn; one spear per entry; the fort on stepping onto a flag. Leaving and coming back in one move (`spearOnReturn`): fires on the new preset, not on the preset before it; not when the unit already took a spear this turn; not when that spear already fired; not on a shift that stays in contact.
@@ -161,7 +161,7 @@ Each becomes a test on v3.10 where it applies.
 - Mounted: no deploying, moving or swapping onto its own flag; may pull an empty enemy flag; at least one foot unit in a lineup.
 - The fort: no parry, Trample, Weave or Fend against a holder's attacks from its flag; no spear stepping on; no Pursuit stepping off; tackle and Marks unchanged; the shared 2 less still applies.
 - Command and turn limits per format; tiebreak counts a Cavalry unit as 2 lost.
-- Double knockout (F20): over 400 + 400 seeded v3.10 games at 9v9 and 13v13, count actions that leave both sides with a win condition (Trample and Breakaway can hurt both). Expect 0; report the number.
+- Double knockout (F20): over 400 + 400 seeded v3.11 games at 9v9 and 13v13, count actions that leave both sides with a win condition (Trample and Breakaway can hurt both). Expect 0; report the number.
 - The turn-1 design rule (014's test) passes with the Cavalry cards: LC reaches 7 (6 + 1), under the gaps of 10 and 12.
 
 ## Bot minimum
@@ -171,7 +171,7 @@ The default brain at build time learns Cavalry under the `cavalry` switch only; 
 - Braces HC where enemy melee is likely to hit it (Trample) and LC where enemies will want to leave it (Pursuit); counts both when attacking or leaving braced Cavalry.
 - Counts enemy Cavalry reach (Vault, Charge lines, a warmed special) in its threat estimate, so its backline isn't left open.
 - Knows the fort: a holder attacks braced units without fear of parry or Trample; units step onto their flag past a braced HA.
-- Prove it on v3.10, 400 seeded games per format (balanced 9v9 and 13v13 with the default lineups; plus a Cavalry-heavy 9v9: HC, HC, LC, + HM, HA, HR), both sides the default brain:
+- Prove it on v3.11, 400 seeded games per format (balanced 9v9 and 13v13 with the default lineups; plus a Cavalry-heavy 9v9: HC, HC, LC, + HM, HA, HR), both sides the default brain:
   - Charge and Breakaway each fired at least 50 times in total; Trample at least 30; Pursuit at least 30; vault moves counted;
   - no illegal action, no game that fails to finish;
   - per special: warmed, fired, lapsed, kills, average damage, and for Charge the average multiplier and the share head-on and full;
@@ -180,7 +180,7 @@ The default brain at build time learns Cavalry under the `cavalry` switch only; 
 
 ## Measurements
 On the lab (brief 008), default brain, overnight, same seeds on every rule set; 1,000 games per side unless said. Under F23, call any gap under about 8 points noise.
-1. **What the foot game lost or gained.** The full baseline table (holder KO, pull KO, TKO, tiebreak win, draw, ended on the turn limit, games with a pull, average turn, first mover's share of decisive games) at 5v5 and 7v7, three columns: v3.9, **v3.10 without the fort** (sim-only copy), v3.10. At 7v7 the only change is the fort; at 5v5 the first two columns isolate Command 8, the last two the fort. Also: reactions the fort blocked per game (parry, Weave, Fend, spear on stepping on, Pursuit on stepping off); holder KO rate.
+1. **What the foot game lost or gained.** The full baseline table (holder KO, pull KO, TKO, tiebreak win, draw, ended on the turn limit, games with a pull, average turn, first mover's share of decisive games) at 5v5 and 7v7, three columns: v3.10, **v3.11 without the fort** (sim-only copy), v3.11. At 7v7 the only change is the fort; at 5v5 the first two columns isolate Command 8, the last two the fort. Also: reactions the fort blocked per game (parry, Weave, Fend, spear on stepping on, Pursuit on stepping off); holder KO rate.
 2. **The Cavalry formats.** The same table at 9v9 and 13v13 (no earlier column), plus first contact (the turn of the first attack), the first mover's share, and Light units removed per game. Early look at the Editor's 13v13 tripwire (the real test waits for Cavalry coaching): the 13v13 default lineups also played on the 9v9 field (sim-only), with the share of games ending on the turn limit on each field.
 3. **Is a Cavalry unit worth 2 UC?** Head to head at 9v9 and 13v13: the default lineup against the same lineup with the HC swapped for HM + LM and the LC for LR + LA. Sides swapped half the time. Report the win share. Also all-foot against Cavalry-heavy.
 4. **Command and turn limits** (daytime screens, 200 games per side, sim-only): 9v9 at Command 10, 12, 14; 13v13 at 14, 16, 18. Run each twice: with this brief's first-turn Command, and with first-turn Command equal to full Command for both sides (the Editor, 20 and 21 Nov: if the first mover's Command penalty goes, it goes in every format; FD49-1). The baseline table for each, plus the first mover's share of decisive games. The Editor revises after playtest.
@@ -198,15 +198,15 @@ On the lab (brief 008), default brain, overnight, same seeds on every rule set; 
 - The design chat updates the Unit Stats sheet (rows 15–16: rule set and status) after merge; list in the Report any card number that differs from the sheet.
 
 ## Must not change
-- Every existing preset, v3.9 included, plays and replays identically (paste the hashes).
+- Every existing preset, v3.10 included, plays and replays identically (paste the hashes).
 - Every brain plays every existing preset exactly as before.
 - Saved matches from older rule sets load and replay.
 
 ## Checks before opening the pull request
 - Every check in `README.md` passes.
-- `regress_engine.js` hashes for every preset before v3.10 match main.
-- The foot-identity check (section 6): v3.10 with `cavalry`, `fort` and the 5v5 Command change off hashes the same as v3.9 at 5v5 and 7v7.
-- New `test_v310.js` in `checks`; `test_invariants.js` covers v3.10 with Cavalry in play (no two units on a hex, no unit stopped on an occupied hex, Stamina never below the floor at turn start, HP in half points).
+- `regress_engine.js` hashes for every preset before v3.11 match main.
+- The foot-identity check (section 6): v3.11 with `cavalry`, `fort` and the 5v5 Command change off hashes the same as v3.10 at 5v5 and 7v7.
+- New `test_v311.js` in `checks`; `test_invariants.js` covers v3.11 with Cavalry in play (no two units on a hex, no unit stopped on an occupied hex, Stamina never below the floor at turn start, HP in half points).
 - The Stamina floor check covers both Cavalry cards with Pursued and brace tiredness stacked.
 - The "no 'being' on screen" check covers the new text.
 
