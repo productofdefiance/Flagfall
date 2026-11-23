@@ -1,15 +1,21 @@
-STATUS · updated 23 Nov 2026, 7:13 am ET
+STATUS · updated 23 Nov 2026, 12:35 pm ET
 
 VERSION
-  On main: v3.16.00 · Build 21 · Rules v3.9 · Brain 8
-  Building: 020 → v3.17.00 · 026 → v3.17.00
+  On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
+  Building: 026 → YY
 
 RESULTS (last 24 hours)
   Nightly checks: pass (22 Nov, 11:11 am ET)
-  Queue: clear
-  release v3.16.00 · 5v5 42.5% · 7v7 11.6% on the turn limit · 23 Nov
-  release v3.16.00 · 5v5 42.4% · 7v7 12.4% on the turn limit · 22 Nov
-  nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov
+  Queue: clear · lab using 1 of 20
+  study v3.17.00 · 16 matchups, 16,000 games · 23 Nov
+  study v3.17.00 · 5v5 19.4% · 7v7 6.2% on the turn limit · 23 Nov
+  study v3.17.00 · 5v5 41.0% · 7v7 12.9% on the turn limit · 23 Nov
+  screen v3.17.00 · 5v5 3.5% · 7v7 9.0% on the turn limit · 23 Nov
+  screen v3.17.00 · 5v5 5.0% · 7v7 10.0% on the turn limit · 23 Nov
+  screen v3.17.00 · 5v5 45.0% · 7v7 16.5% on the turn limit · 23 Nov
+  screen v3.17.00 · 5v5 36.7% · 7v7 20.0% on the turn limit · 23 Nov
+  screen v3.17.00 · 5v5 24.5% · 7v7 9.5% on the turn limit · 23 Nov
+  +4 more in results/INDEX.md
 
 FLAGS (open, newest first)
   ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…
@@ -28,16 +34,15 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    020 Victory values · PR #60 · Ready · checks pass · not reviewed
-    026 Specials flow · PR #59 · Ready · checks pass · not reviewed
+    026 Specials flow · PR #59 · needs sync · checks pass · not reviewed
   Ready to start
     028 Arrow storm
   Waiting
     012 Cavalry ← 026, 028
   Merged (last 3)
+    020 Victory values · v3.17.00 · 23 Nov
     018 Turn cue zoom · v3.16.00 · 23 Nov
     022 Safe approach · v3.15.00 · 22 Nov
-    027 Lab plumbing · 22 Nov
 
 CHATS
   Open
