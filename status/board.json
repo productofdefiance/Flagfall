@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-23T08:24:10.562Z",
- "board": "STATUS · updated 23 Nov 2026, 3:24 am ET\n\nVERSION\n  On main: v3.16.00 · Build 21 · Rules v3.9 · Brain 8\n  Building: 020 → v3.17.00 · 026 → v3.17.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (22 Nov, 11:11 am ET)\n  Queue: clear\n  release v3.16.00 · 5v5 42.5% · 7v7 11.6% on the turn limit · 23 Nov\n  release v3.16.00 · 5v5 42.4% · 7v7 12.4% on the turn limit · 22 Nov\n  nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov\n\nFLAGS (open, newest first)\n  ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…\n  ! F026-2 · ASK · 23 Nov · Unit codes are still shown outside the specials. The brief's \"no unit codes on screen\"…\n  ! F026-1 · ASK · 23 Nov · The special sheet can miss a parry in an Arc Hit. The engine's specialPreview names only…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n    FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n  +18 older in FLAGS.md\n\nBUILDS\n  Building\n    020 Victory values · PR #60 · Draft · checks running · not reviewed\n    026 Specials flow · PR #59 · Ready · checks pass · not reviewed\n  Ready to start\n    028 Arrow storm\n  Waiting\n    012 Cavalry ← 026, 028\n  Merged (last 3)\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n    027 Lab plumbing · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov\n  Closed (last 5)\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-23T08:25:40.364Z",
+ "board": "STATUS · updated 23 Nov 2026, 3:25 am ET\n\nVERSION\n  On main: v3.16.00 · Build 21 · Rules v3.9 · Brain 8\n  Building: 020 → v3.17.00 · 026 → v3.17.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (22 Nov, 11:11 am ET)\n  Queue: clear\n  release v3.16.00 · 5v5 42.5% · 7v7 11.6% on the turn limit · 23 Nov\n  release v3.16.00 · 5v5 42.4% · 7v7 12.4% on the turn limit · 22 Nov\n  nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov\n\nFLAGS (open, newest first)\n  ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…\n  ! F026-2 · ASK · 23 Nov · Unit codes are still shown outside the specials. The brief's \"no unit codes on screen\"…\n  ! F026-1 · ASK · 23 Nov · The special sheet can miss a parry in an Arc Hit. The engine's specialPreview names only…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · ASK · 23 Nov · The spent opening (item 6), as built, costs Brain 9 wins and breaks 7v7's move order…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n  +20 older in FLAGS.md\n\nBUILDS\n  Building\n    020 Victory values · PR #60 · Draft · checks running · not reviewed\n    026 Specials flow · PR #59 · Ready · checks pass · not reviewed\n  Ready to start\n    028 Arrow storm\n  Waiting\n    012 Cavalry ← 026, 028\n  Merged (last 3)\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n    027 Lab plumbing · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov\n  Closed (last 5)\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -66,6 +66,16 @@
      "mark": "ask"
     },
     {
+     "text": "! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "! F020-4 · ASK · 23 Nov · The spent opening (item 6), as built, costs Brain 9 wins and breaks 7v7's move order…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
      "text": "! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…",
      "indent": 1,
      "mark": "ask"
@@ -101,17 +111,7 @@
      "mark": null
     },
     {
-     "text": "  FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "  FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "+18 older in FLAGS.md",
+     "text": "+20 older in FLAGS.md",
      "indent": 1,
      "mark": null
     }
@@ -238,7 +238,7 @@
   }
  },
  "schema": 2,
- "updatedText": "23 Nov 2026, 3:24 am ET",
+ "updatedText": "23 Nov 2026, 3:25 am ET",
  "main": {
   "game": "v3.16.00",
   "build": 21,
@@ -389,6 +389,22 @@
    "next": "Recommendation: a ZZ build that makes specialPreview.parry follow doSpecial's own parry loop (the first braced Heavy Melee that survives its hit), with a test on this position and the replay hashes"
   },
   {
+   "name": "F020-5",
+   "status": "ASK",
+   "date": "23 Nov",
+   "issue": "Missing setting (harder to prove than the \"no effect\" list): late in the game neither side guards its flag. Guards (units other than the holder in or next to their own goal zone) average 0.00 to 0.05 per side-turn in the last 5 turns in every arm and setting (screen, 200 games each), so finished −1…",
+   "issueFull": "Missing setting (harder to prove than the \"no effect\" list): late in the game neither side guards its flag. Guards (units other than the holder in or next to their own goal zone) average 0.00 to 0.05 per side-turn in the last 5 turns in every arm and setting (screen, 200 games each), so finished −1 against −2 and guardBlocks can't show an effect: there is no guarding to keep or give up. Brain 9's guard test position passes (−2 keeps a guard, −1 doesn't), but real games rarely reach that position",
+   "next": "Suggested: a \"home guard\" weight (value of a unit standing in its own goal zone while the enemy can reach it), screened after the confirm"
+  },
+  {
+   "name": "F020-4",
+   "status": "ASK",
+   "date": "23 Nov",
+   "issue": "The spent opening (item 6), as built, costs Brain 9 wins and breaks 7v7's move order (screen, 200 games, v3.9). Brain 9 against Brain 8, 7v7: 82 won, 118 lost with it; 111 won, 86 lost without it. Brain 9 mirrors at 7v7: first mover 84.3% of decisive games with it, 37.6% without (Brain 8 mirrors…",
+   "issueFull": "The spent opening (item 6), as built, costs Brain 9 wins and breaks 7v7's move order (screen, 200 games, v3.9). Brain 9 against Brain 8, 7v7: 82 won, 118 lost with it; 111 won, 86 lost without it. Brain 9 mirrors at 7v7: first mover 84.3% of decisive games with it, 37.6% without (Brain 8 mirrors: 39.5%). The confirm at 1,000 games (brain9-confirm, arms B and Bo) is running",
+   "next": "Recommended, if the confirm holds: ship Brain 9 with spendOpening 0, as brief 022 shipped A1 and A2 off. Keep the switch for the move-order study (it does make a first turn of 5 and 8 play differently)"
+  },
+  {
    "name": "F020-3",
    "status": "ASK",
    "date": "23 Nov",
@@ -411,22 +427,6 @@
    "issue": "The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not change). They live in BRAIN_9.victory (and the spent opening in BRAIN_9.spend)",
    "issueFull": "The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not change). They live in BRAIN_9.victory (and the spent opening in BRAIN_9.spend)",
    "next": "Information for the design chat; no action"
-  },
-  {
-   "name": "F022-10",
-   "status": "ASK",
-   "date": "22 Nov",
-   "issue": "5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other levers: format-specific bot behaviour and per-format numbers. Evidence from brief 022: Brain 8 plays identical 5v5 games with first-turn Command 5 or 8 (FD49-4); the second-mover tempo slider moved 7v7 by 9 points…",
-   "issueFull": "5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other levers: format-specific bot behaviour and per-format numbers. Evidence from brief 022: Brain 8 plays identical 5v5 games with first-turn Command 5 or 8 (FD49-4); the second-mover tempo slider moved 7v7 by 9 points and 5v5 not at all; at Arrow Storm ×1.5 the 5v5 first mover still wins 56.5% of decisive games and Storm almost never kills there (0.03 per firing); v3.9 has one Command number for every format",
-   "next": "Recommended next brain brief: (1) a behaviour that spends spare first-turn Command (advance or warm up), behind its own switch (FD49-4); (2) per-format values for Brain 8's settings (5v5 and 7v7 separately); (3) then re-run the FD49-3 grid with Arrow Storm ×1.5 and 5v5 Command 7, 8 and 10, equal and reduced first turn. Only then rule on 5v5 Command; a per-format Arrow Storm number stays the Editor's call after that data"
-  },
-  {
-   "name": "F022-8",
-   "status": "DECIDE",
-   "date": "22 Nov",
-   "issue": "New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped settings (1,000 games each), Brain 8 against Brain 5: balanced 5v5 467 won, 454 lost (even); all-Light 5v5 457, 519; balanced 7v7 455, 530; all-Light 7v7 465, 519. It wins more by KO or TKO but loses 2 to 3 tiebreaks…",
-   "issueFull": "New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped settings (1,000 games each), Brain 8 against Brain 5: balanced 5v5 467 won, 454 lost (even); all-Light 5v5 457, 519; balanced 7v7 455, 530; all-Light 7v7 465, 519. It wins more by KO or TKO but loses 2 to 3 tiebreaks for every one it wins. On v3.8 at tempo 0 and 0 it was even. Not isolated: v3.9 and tempoSecond +1 changed together",
-   "next": "Recommended: keep Brain 8 as the default (it finishes games, which a human opponent notices more than tiebreak margins) and have the next brain brief isolate the tiebreak losses (tempoSecond 0 against +1 on v3.9, 1,000 games). If the Editor wants the strongest default instead, revert to Brain 5: one line in app.js"
   }
  ],
  "chats": {
@@ -470,9 +470,9 @@
  },
  "tiles": {
   "building": 2,
-  "flagsAsk": 9,
+  "flagsAsk": 11,
   "flagsNewest": "F026-3",
-  "flagsMoreAsk": 3,
+  "flagsMoreAsk": 5,
   "flagsMoreOpen": 19
  }
 }
