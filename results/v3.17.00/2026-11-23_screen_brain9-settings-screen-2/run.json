@@ -1,0 +1,680 @@
+{
+ "id": "2026-11-23_screen_brain9-settings-screen-2",
+ "kind": "screen",
+ "version": "v3.17.00",
+ "build": 22,
+ "commit": "4eda86eece91edd84bbf677693bab0e6b17771c0",
+ "brief": "020",
+ "question": "Brief 020 items 7 and the settings review (200 games each, v3.9, balanced, the deals of brain9-screen): each Brain 9 setting moved one at a time, as a mirror and against Brain 8, 5v5 and 7v7 separately. Which settings move a format's first-mover share, turn-limit share or win share by 4+ points, and which move only one format? Baselines: brain9-screen's b-brain9-mirror and b-vs-a rows.",
+ "tags": [
+  "brain9",
+  "screen",
+  "v3.9",
+  "settings-review",
+  "per-format",
+  "f022-10"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-23T06:45:55.000Z",
+ "finished": "2026-11-23T08:22:07.985Z",
+ "games": 12800,
+ "seed_from": "tests/rng.js lab:brain9:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "tempofirst-m1-mirror-5v5",
+    "a": "brain9:tempoFirst=-1",
+    "b": "brain9:tempoFirst=-1",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "tempofirst-m1-vs-b8-5v5",
+    "a": "brain9:tempoFirst=-1",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "tempofirst-1-mirror-5v5",
+    "a": "brain9:tempoFirst=1",
+    "b": "brain9:tempoFirst=1",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "tempofirst-1-vs-b8-5v5",
+    "a": "brain9:tempoFirst=1",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "temposecond-0-mirror-5v5",
+    "a": "brain9:tempoSecond=0",
+    "b": "brain9:tempoSecond=0",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "temposecond-0-vs-b8-5v5",
+    "a": "brain9:tempoSecond=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "spendopening-0-mirror-5v5",
+    "a": "brain9:spendOpening=0",
+    "b": "brain9:spendOpening=0",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "spendopening-0-vs-b8-5v5",
+    "a": "brain9:spendOpening=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "playtofinish-0-mirror-5v5",
+    "a": "brain9:playToFinish=0",
+    "b": "brain9:playToFinish=0",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "playtofinish-0-vs-b8-5v5",
+    "a": "brain9:playToFinish=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "finish-5-mirror-5v5",
+    "a": "brain9:finish=5",
+    "b": "brain9:finish=5",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "finish-5-vs-b8-5v5",
+    "a": "brain9:finish=5",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "clockloss-m2-mirror-5v5",
+    "a": "brain9:clockLoss=-2",
+    "b": "brain9:clockLoss=-2",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "clockloss-m2-vs-b8-5v5",
+    "a": "brain9:clockLoss=-2",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "endweight-10-mirror-5v5",
+    "a": "brain9:endWeight=10",
+    "b": "brain9:endWeight=10",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "endweight-10-vs-b8-5v5",
+    "a": "brain9:endWeight=10",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "endweight-40-mirror-5v5",
+    "a": "brain9:endWeight=40",
+    "b": "brain9:endWeight=40",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "endweight-40-vs-b8-5v5",
+    "a": "brain9:endWeight=40",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "endturns-3-mirror-5v5",
+    "a": "brain9:endTurns=3",
+    "b": "brain9:endTurns=3",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "endturns-3-vs-b8-5v5",
+    "a": "brain9:endTurns=3",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "endturns-8-mirror-5v5",
+    "a": "brain9:endTurns=8",
+    "b": "brain9:endTurns=8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "endturns-8-vs-b8-5v5",
+    "a": "brain9:endTurns=8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "guardblocks-0-mirror-5v5",
+    "a": "brain9:guardBlocks=0",
+    "b": "brain9:guardBlocks=0",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "guardblocks-0-vs-b8-5v5",
+    "a": "brain9:guardBlocks=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "guardblocks-2-mirror-5v5",
+    "a": "brain9:guardBlocks=2",
+    "b": "brain9:guardBlocks=2",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "guardblocks-2-vs-b8-5v5",
+    "a": "brain9:guardBlocks=2",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "sparecommand-0p8-mirror-5v5",
+    "a": "brain9:spareCommand=0.8",
+    "b": "brain9:spareCommand=0.8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "sparecommand-0p8-vs-b8-5v5",
+    "a": "brain9:spareCommand=0.8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "holderjoins-0-mirror-5v5",
+    "a": "brain9:holderJoins=0",
+    "b": "brain9:holderJoins=0",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "holderjoins-0-vs-b8-5v5",
+    "a": "brain9:holderJoins=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "tempo-0-mirror-5v5",
+    "a": "brain9:tempo=0",
+    "b": "brain9:tempo=0",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "tempo-0-vs-b8-5v5",
+    "a": "brain9:tempo=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "tempofirst-m1-mirror-7v7",
+    "a": "brain9:tempoFirst=-1",
+    "b": "brain9:tempoFirst=-1",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "tempofirst-m1-vs-b8-7v7",
+    "a": "brain9:tempoFirst=-1",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "tempofirst-1-mirror-7v7",
+    "a": "brain9:tempoFirst=1",
+    "b": "brain9:tempoFirst=1",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "tempofirst-1-vs-b8-7v7",
+    "a": "brain9:tempoFirst=1",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "temposecond-0-mirror-7v7",
+    "a": "brain9:tempoSecond=0",
+    "b": "brain9:tempoSecond=0",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "temposecond-0-vs-b8-7v7",
+    "a": "brain9:tempoSecond=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "spendopening-0-mirror-7v7",
+    "a": "brain9:spendOpening=0",
+    "b": "brain9:spendOpening=0",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "spendopening-0-vs-b8-7v7",
+    "a": "brain9:spendOpening=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "playtofinish-0-mirror-7v7",
+    "a": "brain9:playToFinish=0",
+    "b": "brain9:playToFinish=0",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "playtofinish-0-vs-b8-7v7",
+    "a": "brain9:playToFinish=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "finish-5-mirror-7v7",
+    "a": "brain9:finish=5",
+    "b": "brain9:finish=5",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "finish-5-vs-b8-7v7",
+    "a": "brain9:finish=5",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "clockloss-m2-mirror-7v7",
+    "a": "brain9:clockLoss=-2",
+    "b": "brain9:clockLoss=-2",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "clockloss-m2-vs-b8-7v7",
+    "a": "brain9:clockLoss=-2",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "endweight-10-mirror-7v7",
+    "a": "brain9:endWeight=10",
+    "b": "brain9:endWeight=10",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "endweight-10-vs-b8-7v7",
+    "a": "brain9:endWeight=10",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "endweight-40-mirror-7v7",
+    "a": "brain9:endWeight=40",
+    "b": "brain9:endWeight=40",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "endweight-40-vs-b8-7v7",
+    "a": "brain9:endWeight=40",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "endturns-3-mirror-7v7",
+    "a": "brain9:endTurns=3",
+    "b": "brain9:endTurns=3",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "endturns-3-vs-b8-7v7",
+    "a": "brain9:endTurns=3",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "endturns-8-mirror-7v7",
+    "a": "brain9:endTurns=8",
+    "b": "brain9:endTurns=8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "endturns-8-vs-b8-7v7",
+    "a": "brain9:endTurns=8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "guardblocks-0-mirror-7v7",
+    "a": "brain9:guardBlocks=0",
+    "b": "brain9:guardBlocks=0",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "guardblocks-0-vs-b8-7v7",
+    "a": "brain9:guardBlocks=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "guardblocks-2-mirror-7v7",
+    "a": "brain9:guardBlocks=2",
+    "b": "brain9:guardBlocks=2",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "guardblocks-2-vs-b8-7v7",
+    "a": "brain9:guardBlocks=2",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "sparecommand-0p8-mirror-7v7",
+    "a": "brain9:spareCommand=0.8",
+    "b": "brain9:spareCommand=0.8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "sparecommand-0p8-vs-b8-7v7",
+    "a": "brain9:spareCommand=0.8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "holderjoins-0-mirror-7v7",
+    "a": "brain9:holderJoins=0",
+    "b": "brain9:holderJoins=0",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "holderjoins-0-vs-b8-7v7",
+    "a": "brain9:holderJoins=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "tempo-0-mirror-7v7",
+    "a": "brain9:tempo=0",
+    "b": "brain9:tempo=0",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "tempo-0-vs-b8-7v7",
+    "a": "brain9:tempo=0",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   }
+  ],
+  "measures": [
+   "play",
+   "clock",
+   "specials",
+   "firstloss",
+   "brain8"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "64 matchups, 12800 games (per-matchup numbers in tables/outcomes.csv). A's share of games ranged from 39.5% (tempofirst-m1-vs-b8-7v7) to 56.3% (spendopening-0-vs-b8-7v7). Mirrors ended on the turn limit in 11.9% of games."
+}

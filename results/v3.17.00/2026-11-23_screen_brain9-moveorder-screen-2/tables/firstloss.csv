@@ -1,0 +1,19 @@
+matchup,games,first_lost_side,first_lost_turn,first_lost_card,first_lost_by,first_lr_lost_side,first_lr_lost_turn,reach_contact_turn,reach_contact_side,first_strike_side
+5v5-c7-ft7-storm1p5,200,first:80 second:120,410,LR:144 LM:56,LM special:36 LM attack:60 LR attack:29 LR special:71 HA attack:4,first:97 second:103,445,267,first:67 second:133,first:177 second:23
+5v5-c7-ft7-storm2,200,second:174 first:26,482,LR:161 LM:39,LR special:159 LR attack:40 HA attack:1,second:192 first:8,516,200,second:200,first:177 second:23
+5v5-c7-ft4-storm1p5,200,first:143 second:57,535,LR:170 LM:30,LM special:133 LM attack:9 LR attack:17 LR special:36 HA attack:4 HM attack:1,first:146 second:54,568,267,first:67 second:133,first:159 second:41
+5v5-c7-ft4-storm2,200,second:200,467,LR:200,LR special:67 LM attack:133,second:200,467,200,second:200,first:200
+5v5-c8-ft8-storm1p5,200,first:73 second:127,402,LM:105 LR:95,HA attack:22 LM attack:55 LM special:29 LR attack:29 LR special:64 HM attack:1,first:81 second:119,538,267,first:67 second:133,first:131 second:69
+5v5-c8-ft8-storm2,200,second:188 first:12,478,LR:178 LM:22,LR special:177 LR attack:14 LM attack:9,second:195 first:5,496,200,second:200,first:159 second:41
+5v5-c8-ft5-storm1p5,200,first:86 second:114,403,LR:195 LM:5,LM special:63 LR special:115 HA attack:12 LM attack:4 LR attack:5 HM attack:1,first:85 second:115,412,267,first:67 second:133,second:41 first:159
+5v5-c8-ft5-storm2,200,second:189 first:11,520,LR:143 LM:57,LR special:136 LM attack:41 LR attack:21 HA attack:2,second:183 first:17,543,200,second:200,first:200
+5v5-c10-ft10-storm1p5,200,first:58 second:142,417,LM:114 LR:86,HA attack:56 LR special:77 LR attack:13 HM attack:10 LM attack:44,second:136 first:64,559,267,first:67 second:133,first:159 second:41
+5v5-c10-ft10-storm2,200,second:200,467,LM:67 LR:133,HA attack:67 LR special:133,second:184 first:16,593,200,second:200,first:159 second:41
+5v5-c10-ft6-storm1p5,200,first:69 second:131,417,LR:171 LM:29,LM special:51 LM attack:66 HM attack:11 HA attack:12 LR special:51 LR attack:9,first:75 second:125,436,267,first:67 second:133,second:31 first:169
+5v5-c10-ft6-storm2,200,second:198 first:2,483,LM:56 LR:144,HA attack:58 LR special:126 LR attack:16,first:58 second:142,483,200,second:200,first:200
+7v7-c10-ft6-storm1p5,200,second:146 first:54,552,LM:132 HR:4 LR:21 LA:32 HM:11,HR attack:28 LM special:96 LR special:31 LA attack:3 LA special:23 LR attack:8 HA attack:4 LM attack:4 HM attack:3,first:103 second:97,763,274,second:144 first:56,first:150 second:50
+7v7-c10-ft6-storm2,200,second:155 first:45,574,LR:105 HR:5 LM:39 LA:39 HM:12,LR special:130 LM special:31 HR attack:17 LA special:13 LM attack:5 LA attack:2 LR attack:1 HM attack:1,second:152 first:48,681,274,second:144 first:56,first:145 second:55
+7v7-c10-ft10-storm1p5,200,second:139 first:61,544,LM:128 LA:38 HR:3 LR:31,LM special:100 HR attack:14 LR special:37 LA attack:6 LR attack:12 LA special:16 LM attack:14 HM attack:1,second:95 first:103,737,274,second:134 first:66,first:180 second:20
+7v7-c10-ft10-storm2,200,second:140 first:60,551,LR:90 LA:49 LM:48 HR:8 HM:5,LR special:111 HR attack:21 LM special:48 HA attack:1 LA special:6 HM attack:3 LR attack:6 LA attack:3 LM attack:1,second:139 first:61,650,274,second:134 first:66,first:162 second:38
+brain8-5v5-c8-ft5-storm2,200,second:192 first:8,400,LR:200,LR special:200,second:192 first:8,400,200,second:200,first:200
+brain8-5v5-c8-ft8-storm2,200,first:67 second:133,400,LR:200,LR special:200,first:67 second:133,400,200,second:200,first:200
