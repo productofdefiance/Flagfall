@@ -1,0 +1,6 @@
+matchup,games,first_lost_side,first_lost_turn,first_lost_card,first_lost_by,first_lr_lost_side,first_lr_lost_turn,reach_contact_turn,reach_contact_side,first_strike_side
+5v5-c7-ft4-storm1p5,1000,first:688 second:312,2672,LR:796 LM:204,LM special:643 LR attack:122 LR special:156 LM attack:40 HA attack:24 HM attack:15,first:693 second:307,2910,1353,first:353 second:647,first:825 second:175
+5v5-c8-ft8-storm1p5,1000,first:335 second:665,2012,LR:446 LM:554,LM special:121 LR attack:187 LR special:319 LM attack:240 HA attack:133,first:417 second:583,2739,1353,first:353 second:647,second:330 first:670
+5v5-c8-ft5-storm1p5,1000,first:455 second:545,2006,LR:962 LM:38,LM special:312 LR special:571 HA attack:55 LR attack:29 LM attack:33,first:433 second:567,2083,1353,first:353 second:647,first:833 second:167
+5v5-c10-ft6-storm1p5,1000,first:367 second:633,2082,LR:864 LM:136,LM special:259 LR special:256 LM attack:340 HA attack:41 LR attack:49 HM attack:55,first:386 second:614,2174,1353,first:353 second:647,first:824 second:176
+7v7-c10-ft6-storm1p5,1000,second:745 first:255,2814,LM:633 LA:179 LR:125 HM:27 HR:36,LM special:503 LR special:149 LA special:108 LR attack:40 HR attack:103 LM attack:44 LA attack:31 HM attack:9 HA attack:12 HR special:1,second:550 first:450,3821,1366,second:714 first:286,first:778 second:222

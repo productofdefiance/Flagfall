@@ -69,15 +69,19 @@
 
   /** A brain as a watch link names it: an id, or id:key=value,... with settings changed (Brief 019: a sweep's games are
       replayable because the link carries the change). Returns { id, mods, brain } or throws in plain words. */
-  const GROUPS = ["model", "plan5", "lead", "approach", "planner", "weights", "settings"];
+  const GROUPS = ["model", "plan5", "lead", "approach", "victory", "spend", "planner", "weights", "settings"];
   function brainFromSpec(spec) {
     const str = String(spec || ""), i = str.indexOf(":"), id = i < 0 ? str : str.slice(0, i), mods = i < 0 ? "" : str.slice(i + 1);
     if (!BR.DEFAULT_BRAINS[id]) throw new Error(`Brain ${id || "(none)"} is not on this board`);
     const b = E.clone(BR.DEFAULT_BRAINS[id]);
     for (const kv of mods.split(",").filter(Boolean)) {
-      const [k, v] = kv.split("="), g = GROUPS.find((x) => b[x] && Object.prototype.hasOwnProperty.call(b[x], k));
+      const [k0, v] = kv.split("="), fm = /^(\w+)\.(\d+)$/.exec(k0 || ""), k = fm ? fm[1] : k0;   // Brief 020: key.5=v is one format's own value
+      const g = GROUPS.find((x) => b[x] && Object.prototype.hasOwnProperty.call(b[x], k));
       if (!g || v === undefined || v === "" || isNaN(+v)) throw new Error(`Brain ${id} has no setting ${k}`);
-      b[g][k] = +v;
+      if (fm) {
+        if (!b.perFormat || !b.perFormat[fm[2]]) throw new Error(`Brain ${id} has no per-format settings for ${fm[2]}v${fm[2]}`);
+        b.perFormat[fm[2]][k] = +v;
+      } else b[g][k] = +v;
     }
     return { id, mods, brain: b };
   }

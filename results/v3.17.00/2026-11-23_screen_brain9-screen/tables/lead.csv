@@ -1,0 +1,11 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+a-brain8-mirror-5v5,60,2,N:2,4,29,19,S:10 N:9
+b-brain9-mirror-5v5,60,1,S:1,1,5,6,N:5 S:1
+c-brain9-m2-mirror-5v5,60,1,S:1,1,5,6,N:5 S:1
+b-vs-a-5v5,60,0,,,,8,S:3 N:5
+c-vs-a-5v5,60,0,,,,8,S:3 N:5
+a-brain8-mirror-7v7,60,2,N:1 S:1,4,6,11,S:6 N:5
+b-brain9-mirror-7v7,60,3,S:2 N:1,6,16,3,S:2 N:1
+c-brain9-m2-mirror-7v7,60,3,S:2 N:1,6,16,2,N:1 S:1
+b-vs-a-7v7,60,1,S:1,2,3,6,N:3 S:3
+c-vs-a-7v7,60,1,S:1,2,3,6,N:3 S:3

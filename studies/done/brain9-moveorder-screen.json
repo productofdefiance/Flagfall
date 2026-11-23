@@ -1,0 +1,296 @@
+{
+ "id": "brain9-moveorder-screen",
+ "kind": "screen",
+ "brief": "020",
+ "seed_name": "brain9",
+ "question": "Brief 020 item 6 (FD49-3 grid widened by F022-10; sim-only, v3.9, Brain 9 mirrors, 200 games each, same deals per format): 5v5 at Command 7, 8 and 10 with the first turn equal or reduced, 7v7 with the first turn 6 and 10, each with Arrow Storm x1.5 and x2. First mover's share of decisive games, turn-limit share, Command used on turn 1 per side, Arrow Storm kills per firing. Two Brain 8 cells (5v5 Command 8, first turn 5 and 8) show Brain 8 plays them identically.",
+ "tags": [
+  "brain9",
+  "screen",
+  "v3.9",
+  "move-order",
+  "fd49-3",
+  "fd49-4",
+  "f022-10",
+  "sim-only"
+ ],
+ "measures": [
+  "play",
+  "clock",
+  "specials",
+  "firstloss",
+  "brain8"
+ ],
+ "matchups": [
+  {
+   "name": "5v5-c7-ft7-storm1p5",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 7,
+    "game.firstTurnCommand": 7,
+    "specials.arrowStorm.mult": 1.5
+   }
+  },
+  {
+   "name": "5v5-c7-ft7-storm2",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 7,
+    "game.firstTurnCommand": 7,
+    "specials.arrowStorm.mult": 2
+   }
+  },
+  {
+   "name": "5v5-c7-ft4-storm1p5",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 7,
+    "game.firstTurnCommand": 4,
+    "specials.arrowStorm.mult": 1.5
+   }
+  },
+  {
+   "name": "5v5-c7-ft4-storm2",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 7,
+    "game.firstTurnCommand": 4,
+    "specials.arrowStorm.mult": 2
+   }
+  },
+  {
+   "name": "5v5-c8-ft8-storm1p5",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 8,
+    "game.firstTurnCommand": 8,
+    "specials.arrowStorm.mult": 1.5
+   }
+  },
+  {
+   "name": "5v5-c8-ft8-storm2",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 8,
+    "game.firstTurnCommand": 8,
+    "specials.arrowStorm.mult": 2
+   }
+  },
+  {
+   "name": "5v5-c8-ft5-storm1p5",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 8,
+    "game.firstTurnCommand": 5,
+    "specials.arrowStorm.mult": 1.5
+   }
+  },
+  {
+   "name": "5v5-c8-ft5-storm2",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 8,
+    "game.firstTurnCommand": 5,
+    "specials.arrowStorm.mult": 2
+   }
+  },
+  {
+   "name": "5v5-c10-ft10-storm1p5",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 10,
+    "game.firstTurnCommand": 10,
+    "specials.arrowStorm.mult": 1.5
+   }
+  },
+  {
+   "name": "5v5-c10-ft10-storm2",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 10,
+    "game.firstTurnCommand": 10,
+    "specials.arrowStorm.mult": 2
+   }
+  },
+  {
+   "name": "5v5-c10-ft6-storm1p5",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 10,
+    "game.firstTurnCommand": 6,
+    "specials.arrowStorm.mult": 1.5
+   }
+  },
+  {
+   "name": "5v5-c10-ft6-storm2",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 10,
+    "game.firstTurnCommand": 6,
+    "specials.arrowStorm.mult": 2
+   }
+  },
+  {
+   "name": "7v7-c10-ft6-storm1p5",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-7v7",
+   "set": {
+    "game.command": 10,
+    "game.firstTurnCommand": 6,
+    "specials.arrowStorm.mult": 1.5
+   }
+  },
+  {
+   "name": "7v7-c10-ft6-storm2",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-7v7",
+   "set": {
+    "game.command": 10,
+    "game.firstTurnCommand": 6,
+    "specials.arrowStorm.mult": 2
+   }
+  },
+  {
+   "name": "7v7-c10-ft10-storm1p5",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-7v7",
+   "set": {
+    "game.command": 10,
+    "game.firstTurnCommand": 10,
+    "specials.arrowStorm.mult": 1.5
+   }
+  },
+  {
+   "name": "7v7-c10-ft10-storm2",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-7v7",
+   "set": {
+    "game.command": 10,
+    "game.firstTurnCommand": 10,
+    "specials.arrowStorm.mult": 2
+   }
+  },
+  {
+   "name": "brain8-5v5-c8-ft5-storm2",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 8,
+    "game.firstTurnCommand": 5,
+    "specials.arrowStorm.mult": 2
+   }
+  },
+  {
+   "name": "brain8-5v5-c8-ft8-storm2",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "mo-5v5",
+   "set": {
+    "game.command": 8,
+    "game.firstTurnCommand": 8,
+    "specials.arrowStorm.mult": 2
+   }
+  }
+ ]
+}

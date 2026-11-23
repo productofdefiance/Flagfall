@@ -1,0 +1,11 @@
+matchup,games,first_lost_side,first_lost_turn,first_lost_card,first_lost_by,first_lr_lost_side,first_lr_lost_turn,reach_contact_turn,reach_contact_side,first_strike_side
+a-brain8-mirror-5v5,200,first:38 second:162,400,LR:200,LR special:200,first:38 second:162,400,200,second:200,first:200
+b-brain9-mirror-5v5,200,second:200,487,LM:54 LR:146,HA attack:54 LR special:124 LR attack:22,first:54 second:146,487,200,second:200,first:200
+c-brain9-m2-mirror-5v5,200,second:200,487,LM:54 LR:146,HA attack:54 LR special:124 LR attack:22,first:54 second:146,487,200,second:200,first:200
+b-vs-a-5v5,200,second:200,437,LR:163 LM:37,LR special:159 HA attack:37 LM attack:4,second:188 first:12,495,200,second:200,first:70 second:130
+c-vs-a-5v5,200,second:200,437,LR:163 LM:37,LR special:159 HA attack:37 LM attack:4,second:188 first:12,495,200,second:200,first:70 second:130
+a-brain8-mirror-7v7,200,first:106 second:94,417,LA:151 LR:23 LM:24 HR:2,LR special:41 LM special:46 HR attack:65 LM attack:19 LA special:13 LR attack:12 HM attack:3 LA attack:1,second:78 first:122,588,264,first:55 second:145,first:157 second:43
+b-brain9-mirror-7v7,200,first:41 second:159,576,LM:41 LR:111 HM:6 LA:37 HR:5,LR special:144 LM special:26 HR attack:10 LR attack:6 LA special:6 LA attack:5 LM attack:2 HM attack:1,second:159 first:41,661,264,first:48 second:152,first:154 second:46
+c-brain9-m2-mirror-7v7,200,first:41 second:159,576,LM:41 LR:111 HM:6 LA:37 HR:5,LR special:144 LM special:26 HR attack:10 LR attack:6 LA special:6 LA attack:5 LM attack:2 HM attack:1,second:159 first:41,661,264,first:48 second:152,first:154 second:46
+b-vs-a-7v7,200,second:114 first:86,494,LM:66 LA:69 LR:62 HM:2 HR:1,LR special:75 LA special:29 LM special:46 HR attack:22 LR attack:11 LM attack:14 HM attack:2 LA attack:1,first:80 second:120,659,264,first:54 second:146,first:157 second:43
+c-vs-a-7v7,200,second:114 first:86,494,LM:66 LA:69 LR:62 HM:2 HR:1,LR special:75 LA special:29 LM special:46 HR attack:22 LR attack:11 LM attack:14 HM attack:2 LA attack:1,first:80 second:120,659,264,first:54 second:146,first:157 second:43

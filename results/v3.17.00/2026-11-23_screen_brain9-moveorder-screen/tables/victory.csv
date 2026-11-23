@@ -1,0 +1,19 @@
+matchup,games,late_behind_side,late_behind_finished,late_behind_comeback,late_guard_behind_n,late_guard_behind_s,late_guard_behind_turns_n,late_guard_behind_turns_s,late_guard_level_n,late_guard_level_s,late_guard_level_turns_n,late_guard_level_turns_s,late_guard_ahead_n,late_guard_ahead_s,late_guard_ahead_turns_n,late_guard_ahead_turns_s,late_ahead_side,late_ahead_attacks,late_ahead_turns,late_ahead_result,points_n,points_s,points2_n,points2_s,finish_win,turn1_cmd_first,turn1_cmd_second
+5v5-c7-ft7-storm1p5,60,ended_earlier:37 level:18 S:3 N:2,1,0,2,2,19,29,1,5,64,64,3,0,29,19,ended_earlier:37 level:18 N:3 S:2,7,45,clock_win:4 finished:1,56,30,37,6,43,420,382
+5v5-c7-ft7-storm2,60,ended_earlier:47 level:9 N:1 S:3,0,1,2,0,11,21,0,3,33,31,2,0,19,10,ended_earlier:47 level:9 S:1 N:3,2,32,clock_win:3 lost:1,79,21,61,-11,50,417,388
+5v5-c7-ft4-storm1p5,60,level:12 ended_earlier:44 S:2 N:2,0,1,1,0,23,9,5,2,47,47,1,0,9,23,level:12 ended_earlier:44 N:2 S:2,3,35,lost:1 clock_win:3,33,63,6,42,48,240,418
+5v5-c7-ft4-storm2,60,S:3 ended_earlier:46 level:10 N:1,2,1,1,0,11,15,5,2,33,32,1,2,16,11,N:3 ended_earlier:46 level:10 S:1,10,23,lost:1 finished:2 clock_win:1,93,13,77,-24,53,240,379
+5v5-c8-ft8-storm1p5,60,S:4 ended_earlier:38 level:16 N:2,1,1,0,2,30,23,0,0,54,55,0,0,22,29,N:4 ended_earlier:38 level:16 S:2,7,43,clock_win:4 finished:1 lost:1,36,60,9,39,48,470.5,467.5
+5v5-c8-ft8-storm2,60,ended_earlier:47 N:3 S:1 level:9,0,0,2,3,15,17,1,1,30,27,0,3,16,15,ended_earlier:47 S:3 N:1 level:9,5,24,clock_win:4,75,29,55,-3,52,473.5,461
+5v5-c8-ft5-storm1p5,60,level:17 ended_earlier:38 S:5,3,1,0,2,18,35,5,5,51,48,0,0,33,15,level:17 ended_earlier:38 N:5,10,45,lost:1 finished:3 clock_win:1,64,38,41,10,51,300,466
+5v5-c8-ft5-storm2,60,ended_earlier:52 N:2 level:5 S:1,0,2,0,0,8,9,0,6,20,19,0,3,9,8,ended_earlier:52 S:2 level:5 N:1,5,18,clock_win:1 lost:2,95,17,77,-21,56,297,461
+5v5-c10-ft10-storm1p5,60,ended_earlier:43 level:11 S:5 N:1,0,2,0,0,14,27,5,1,37,36,0,2,27,14,ended_earlier:43 level:11 N:5 S:1,5,36,lost:2 clock_win:4,75,27,55,-4,51,590.5,534.5
+5v5-c10-ft10-storm2,60,ended_earlier:54 level:3 S:3,1,0,0,0,0,19,0,0,7,4,2,0,19,0,ended_earlier:54 level:3 N:3,3,14,clock_win:2 finished:1,88,28,66,-8,58,593.5,552
+5v5-c10-ft6-storm1p5,60,ended_earlier:39 level:17 S:3 N:1,1,0,0,0,16,26,5,15,59,58,2,0,24,16,ended_earlier:39 level:17 N:3 S:1,7,46,finished:1 clock_win:3,76,16,60,-14,46,317,542
+5v5-c10-ft6-storm2,60,ended_earlier:38 level:21 S:1,0,0,0,0,21,31,0,0,44,43,0,0,28,21,ended_earlier:38 level:21 N:1,0,50,clock_win:1,50,58,21,33,54,316,540
+7v7-c10-ft6-storm1p5,60,level:5 ended_earlier:51 S:3 N:1,1,2,2,0,19,9,0,2,14,16,0,2,9,17,level:5 ended_earlier:51 N:3 S:1,10,21,finished:1 clock_win:1 lost:2,76,32,56,-2,54,360,591.5
+7v7-c10-ft6-storm2,60,ended_earlier:56 level:2 N:1 S:1,0,0,0,0,5,8,0,0,7,7,0,0,8,5,ended_earlier:56 level:2 S:1 N:1,1,9,clock_win:2,95,19,76,-19,57,360,592.5
+7v7-c10-ft10-storm1p5,60,ended_earlier:53 level:4 N:1 S:2,0,2,3,0,16,7,2,2,12,13,0,0,7,15,ended_earlier:53 level:4 S:1 N:2,6,18,clock_win:1 lost:2,65,47,40,16,56,587,589.5
+7v7-c10-ft10-storm2,60,ended_earlier:51 level:5 S:3 N:1,1,2,1,0,17,12,0,1,14,13,0,1,12,16,ended_earlier:51 level:5 N:3 S:1,10,25,lost:2 clock_win:1 finished:1,65,49,39,18,57,587,589.5
+brain8-5v5-c8-ft5-storm2,60,S:6 ended_earlier:49 level:5,0,0,0,0,0,30,5,0,25,25,0,0,30,0,N:6 ended_earlier:49 level:5,0,24,clock_win:6,57,41,33,16,49,256,467
+brain8-5v5-c8-ft8-storm2,60,ended_earlier:50 S:4 level:5 N:1,0,0,0,0,5,20,0,0,25,25,0,0,20,5,ended_earlier:50 N:4 level:5 S:1,0,24,clock_win:5,73,27,53,-3,50,272,467
