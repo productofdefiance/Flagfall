@@ -67,6 +67,21 @@
     };
   }
 
+  /** A brain as a watch link names it: an id, or id:key=value,... with settings changed (Brief 019: a sweep's games are
+      replayable because the link carries the change). Returns { id, mods, brain } or throws in plain words. */
+  const GROUPS = ["model", "plan5", "lead", "approach", "planner", "weights", "settings"];
+  function brainFromSpec(spec) {
+    const str = String(spec || ""), i = str.indexOf(":"), id = i < 0 ? str : str.slice(0, i), mods = i < 0 ? "" : str.slice(i + 1);
+    if (!BR.DEFAULT_BRAINS[id]) throw new Error(`Brain ${id || "(none)"} is not on this board`);
+    const b = E.clone(BR.DEFAULT_BRAINS[id]);
+    for (const kv of mods.split(",").filter(Boolean)) {
+      const [k, v] = kv.split("="), g = GROUPS.find((x) => b[x] && Object.prototype.hasOwnProperty.call(b[x], k));
+      if (!g || v === undefined || v === "" || isNaN(+v)) throw new Error(`Brain ${id} has no setting ${k}`);
+      b[g][k] = +v;
+    }
+    return { id, mods, brain: b };
+  }
+  const brainProblem = (spec) => { try { brainFromSpec(spec); return null; } catch (e) { return e.message; } };
   const rulesById = (id) => (D.PRESETS || []).concat([D.DEFAULT_RULESET]).find((p) => p && p.id === id) || null;
   /** What a watch link needs: { v, rules, format, n, s, mixN, mixS, first, seed }. Missing parts take the defaults. */
   function normalise(spec) {
@@ -81,7 +96,11 @@
     const s = normalise(spec), out = [];
     if (!s.seed) out.push("The link has no game seed.");
     if (!rulesById(s.rules)) out.push(`Rule set ${s.rules || "(none)"} is not on this board.`);
-    for (const [side, id] of [["North", s.n], ["South", s.s]]) if (!BR.DEFAULT_BRAINS[id]) out.push(`${side}'s brain "${id || "(none)"}" is not on this board.`);
+    for (const [side, id] of [["North", s.n], ["South", s.s]]) {
+      const base = String(id || "").split(":")[0];
+      if (!BR.DEFAULT_BRAINS[base]) out.push(`${side}'s brain "${base || "(none)"}" is not on this board.`);
+      else if (brainProblem(id)) out.push(`${side}'s brain: ${brainProblem(id)}.`);
+    }
     if (!FORMATS.some((f) => f.id === s.format && !f.soon)) out.push(`Format ${s.format} is not playable on this board.`);
     return out.length ? out.join(" ") : null;
   }
@@ -92,9 +111,8 @@
     if (!rs) throw new Error(`Rule set ${s.rules} is not on this board`);
     const players = {}, brains = {}, names = {}, lineups = {};
     for (const t of ["N", "S"]) {
-      const b = BR.DEFAULT_BRAINS[t === "N" ? s.n : s.s];
-      if (!b) throw new Error(`Brain ${t === "N" ? s.n : s.s} is not on this board`);
-      players[t] = { type: "bot", brainId: b.id }; brains[t] = E.clone(b); names[t] = t === "N" ? "North" : "South";
+      const b = brainFromSpec(t === "N" ? s.n : s.s).brain;   // the built-in brain, with the link's setting changes (Brief 019)
+      players[t] = { type: "bot", brainId: b.id }; brains[t] = b; names[t] = t === "N" ? "North" : "South";
       lineups[t] = toLineup(rs, mixCounts(rs, fm.size, t === "N" ? s.mixN : s.mixS, s.seed, t, b));
     }
     const m = Object.assign({ id: "w" + s.seed, started: null, rs: E.clone(rs),
@@ -165,6 +183,6 @@
     return out;
   }
 
-  const api = { FORMATS, formatOf, balancedCounts, toLineup, mixCounts, matchRand, setupMatch, deployBots, playOut, actionsHash, toQuery, fromQuery, seedFrom, problem, rulesById };
+  const api = { FORMATS, formatOf, balancedCounts, toLineup, mixCounts, matchRand, setupMatch, deployBots, playOut, actionsHash, toQuery, fromQuery, seedFrom, problem, rulesById, brainFromSpec };
   if (node) module.exports = api; else root.GGWatch = api;
 })(this);

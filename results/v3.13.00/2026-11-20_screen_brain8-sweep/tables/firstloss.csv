@@ -1,0 +1,21 @@
+matchup,games,first_lost_side,first_lost_turn,first_lost_card,first_lost_by,first_lr_lost_side,first_lr_lost_turn,reach_contact_turn,reach_contact_side,first_strike_side
+tempo-back-back-mirror-5v5,200,second:20,80,LR:20,LR special:20,second:20,80,200,second:200,second:20
+tempo-back-even-mirror-5v5,200,second:200,400,LR:200,LR special:200,second:200,400,200,second:200,first:200
+tempo-back-push-mirror-5v5,200,second:200,400,LR:200,LR special:200,second:200,400,200,second:200,first:200
+tempo-even-back-mirror-5v5,200,second:200,514,LR:200,LR special:200,second:200,514,200,second:200,first:185 second:15
+tempo-even-push-mirror-5v5,200,second:170 first:30,400,LR:200,LR special:200,second:170 first:30,400,200,second:200,first:200
+tempo-push-back-mirror-5v5,200,second:190 first:10,390,LR:176 LM:24,LR special:177 LM attack:13 LR attack:10,second:174 first:26,423,200,second:200,first:143 second:57
+tempo-push-even-mirror-5v5,200,second:190 first:10,390,LR:189 LM:11,LR special:190 LR attack:10,second:186 first:14,406,200,second:200,second:200
+tempo-push-push-mirror-5v5,200,second:182 first:18,382,LR:157 LM:43,LR special:182 LR attack:18,second:185 first:15,431,200,second:200,second:200
+storm-175-mirror-5v5,200,first:153 second:47,420,LR:200,LM special:123 LR special:77,first:153 second:47,420,200,second:200,first:200
+storm-150-mirror-5v5,200,first:143 second:57,457,LM:27 LR:173,LR attack:31 HM attack:95 LM special:72 HA attack:2,first:149 second:51,489,257,second:143 first:57,second:200
+tempo-back-back-mirror-7v7,200,first:89 second:60,588,LA:100 LR:36 LM:13,HR attack:7 LR special:48 LA special:44 LR attack:4 LM special:46,first:86 second:63,734,199,second:99 first:50,second:77 first:72
+tempo-back-even-mirror-7v7,200,second:89 first:111,581,LR:87 LA:89 LM:17 HR:7,LR special:96 HR attack:30 LM attack:24 LA special:10 LM special:29 LR attack:9 HR special:2,second:105 first:95,710,329,second:108 first:92,first:102 second:98
+tempo-back-push-mirror-7v7,200,second:56 first:144,452,LM:11 LA:144 LR:45,LR special:64 LM special:77 HR attack:16 LA special:26 LR attack:11 LA attack:1 LM attack:5,first:94 second:106,741,301,first:101 second:99,second:50 first:150
+tempo-even-back-mirror-7v7,200,second:50 first:150,471,LR:104 LA:78 LM:18,LA special:12 LR special:106 LM attack:18 LM special:33 LR attack:12 HR attack:16 LA attack:3,second:81 first:119,591,278,second:177 first:23,second:59 first:141
+tempo-even-push-mirror-7v7,200,first:106 second:94,422,LA:147 LM:25 LR:25 HR:3,LR special:45 HR attack:74 LR attack:11 LM special:41 LA special:17 LM attack:7 HM attack:3 LA attack:2,second:99 first:101,592,270,second:140 first:60,first:156 second:44
+tempo-push-back-mirror-7v7,200,second:66 first:134,395,LR:79 LA:90 LM:30 HM:1,LA special:49 LR special:102 LR attack:20 LM special:21 LM attack:6 HR attack:2,second:82 first:118,530,200,second:200,second:104 first:96
+tempo-push-even-mirror-7v7,200,second:82 first:118,395,LM:60 LA:96 LR:43 HM:1,LR attack:25 LR special:86 HR attack:5 LA special:47 LM attack:17 LM special:17 HM attack:2 HA attack:1,first:92 second:108,566,200,second:200,second:104 first:96
+tempo-push-push-mirror-7v7,200,second:147 first:53,385,LM:81 LA:88 LR:31,LA special:56 HR attack:23 LR special:25 LR attack:45 LM attack:44 LM special:7,second:122 first:78,572,200,second:200,second:130 first:70
+storm-175-mirror-7v7,200,first:162 second:38,429,LR:64 LA:105 LM:29 HR:2,LA special:61 LR special:48 HR attack:30 LR attack:10 LM special:34 LM attack:13 LA attack:2 HM attack:1 HA attack:1,first:95 second:105,622,278,second:166 first:34,first:141 second:59
+storm-150-mirror-7v7,200,first:160 second:40,430,LR:15 LA:149 LM:26 HR:10,LA special:48 LR special:40 LR attack:20 LM special:37 HA attack:5 HR attack:32 LM attack:15 HM attack:3,first:91 second:109,707,278,second:166 first:34,first:146 second:54

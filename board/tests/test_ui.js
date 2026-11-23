@@ -176,5 +176,92 @@ const stat = (side, key) => side.stats.find((s) => s.key === key);
   ok(!bad.length, `no player-visible text says the old word (${bad.length} found):\n  ${bad.slice(0, 10).join("\n  ")}`);
 }
 
+// ---- Specials (Brief 011): card text from the rule set, the preview's one exact number, extra-target rows ----
+{
+  const V37 = PRESETS.find((p) => p.id === "v3.7"), bad = [];
+  const check = (where, text) => { if (UI.BANNED.test(UI.say(text))) bad.push(`${where}: ${text}`); };
+  const want = {
+    HM: ["Arc Hit", "A normal hit on every enemy in a 3-hex arc around its target."],
+    LM: ["Pick Off", "Twice a normal hit, 25% less for each friend next to the target (never below a normal hit)."],
+    HR: ["Bullseye", "1.5 times a normal shot, ignoring Armor."],
+    LR: ["Arrow Storm", "Twice a normal shot. Dodge doesn't count."],
+    HA: ["Skewer", "A full hit on the enemy next to it and on the enemy behind that one."],
+    LA: ["Javelin", "Strikes 2 or 3 hexes away in a straight line, twice a normal hit. Over friends, never over enemies."]
+  };
+  for (const code in want) {
+    const sec = UI.cardSections(V37, code).find((x) => x.head === "Special");
+    ok(sec && sec.sub === "Once a match" && sec.items[0].name === want[code][0] && sec.items[0].text === want[code][1], `${code} card: SPECIAL · Once a match · ${want[code][0]}: the brief's text`);
+    ok(sec && sec.note === "Warm up one turn (1 Stamina, no attack or brace), fire the next. No dice.", `${code} card: the warm-up line under the list`);
+  }
+  ok(!UI.cardSections(PRESETS.find((p) => p.id === "v3.6"), "HM").some((x) => x.head === "Special"), "v3.6 cards have no Special section");
+  // Arc Hit into two enemies: one exact number, the key's special row first, one extra-target row
+  const st = setup(V37, [["HM", "HM"]], [["HA", "HA"], ["LM", "LM"]], { "N-HM": "E9", "S-HA": "E10", "S-LM": "D9" });
+  E.act(st, { type: "warmup", uid: "N-HM" }); E.act(st, { type: "end" }); E.act(st, { type: "end" });
+  const p = E.options(st, "N-HM").special.targets.find((x) => x.target === "S-HA"), pv = UI.specialPreview(st, U(st, "N-HM"), U(st, "S-HA"), p);
+  ok(pv.segments.length === 1 && pv.segments[0].p === 1 && pv.segments[0].dmg === p.hits[0].dmg, "the outcome bar is one segment, 100%, the exact damage");
+  ok(pv.rows[0].special && pv.rows[0].name === "Arc Hit ×1" && /2 enemies in the arc/.test(pv.rows[0].why), `the key's first row: ${pv.rows[0].name} — ${pv.rows[0].why}`);
+  ok(pv.special.extra.length === 1 && pv.special.extra[0].uid === "S-LM" && pv.special.extra[0].dmg === p.hits[1].dmg, "one extra-target row, with its exact damage");
+  ok(pv.special.arc && pv.special.arc.length === 3, "the arc to outline on the field");
+  for (const r of pv.rows) check("special key", `${r.name} ${r.means} ${r.why}`);
+  // Arrow Storm on a Light unit: Dodge leaves the face-off and the key; the special row says why
+  const s2 = setup(V37, [["LR", "LR"]], [["LM", "LM"]], { "N-LR": "E8", "S-LM": "E11" });
+  E.act(s2, { type: "warmup", uid: "N-LR" }); E.act(s2, { type: "end" }); E.act(s2, { type: "end" });
+  const p2 = E.options(s2, "N-LR").special.targets[0], pv2 = UI.specialPreview(s2, U(s2, "N-LR"), U(s2, "S-LM"), p2);
+  ok(!pv2.target.stats.some((x) => x.key === "dodge") && !pv2.rows.some((r) => r.icon === "dodge") && /Dodge \d+% doesn't count/.test(pv2.rows[0].why), `Arrow Storm: no Dodge stat or row; "${pv2.rows[0].why}"`);
+  ok(pv2.rows[0].name === "Arrow Storm ×2", "the multiplier used here: Arrow Storm ×2");
+  ok(!bad.length, `no player-visible special text says the old word (${bad.length})`);
+}
+
+// Brief 017: no screen text uses Plex Mono; numbers are IBM Plex Sans with tabular figures.
+{ const fs = require("fs"), path = require("path"), read = (f) => fs.readFileSync(path.join(__dirname, "..", f), "utf8");
+  const files = ["index.html", "app.js", "skin.js", "ui.js"], mono = files.filter((f) => /Plex\+?\s?Mono|--mono\b/.test(read(f)));
+  ok(!mono.length, `no screen text uses Plex Mono (found in ${mono.join(", ") || "none"})`);
+  ok(/font-variant-numeric:\s*tabular-nums/.test(read("index.html")) && /num: "'IBM Plex Sans'/.test(read("skin.js")), "numbers: IBM Plex Sans, tabular figures");
+  const skin = read("skin.js");
+  ok(/brace: "#2e3338"/.test(skin) && /specialRange: "#d9a514"/.test(skin) && /zoneArc: "#eceee8"/.test(skin) && /zoneGoal: "#d9ddd4"/.test(skin) && /pitchLine: "#9ea693"/.test(skin) && /threat: "#c75400"/.test(skin) && /plum: "#6a3d8f"/.test(skin), "Approved UI v3 colours are in the skin"); }
+
+// Brief 025 (Approved UI v5, phone fit). The layout itself is checked in a browser by test_phone.js; here, what can be
+// checked without one: the flag pull's sheet numbers, the special's "9 ×1.75", labels that never wrap, no key tab.
+{
+  const NEW = PRESETS[PRESETS.length - 1];
+  // Flag pull: the puller as an attacker, the flag with its own HP, outcomes from the engine's pull cases.
+  const st = setup(NEW, [["HM", "HM"], ["LM", "LM"], ["LR", "LR"]], [["HM", "HM"], ["LA", "LA"]], { "N-HM": "D16", "N-LM": "F16", "N-LR": "A6", "S-HM": "B15", "S-LA": "I12" });
+  const o = E.options(st, "N-HM"), pv = UI.pullPreview(st, U(st, "N-HM"), o.pull);
+  ok(o.pull && pv.target.flag && pv.target.name === "South flag" && pv.target.hp === E.flagShown(st, "S") && pv.target.maxHp === NEW.game.poleHP, "pull sheet: the South flag with its own HP");
+  ok(pv.attacker.stats[0].key === "maul" && pv.attacker.stats[0].val === E.fmt(NEW.cards.HM.str), `pull sheet: the puller's Strength (${JSON.stringify(pv.attacker.stats)})`);
+  const sup = pv.attacker.stats.find((x) => x.key === "support");
+  ok(!NEW.switches.pullSupport || (sup && sup.val === "+" + E.fmt(NEW.game.supportBonus)), "pull sheet: Pull Support from the friend next to the flag");
+  ok(pv.segments.reduce((t, x) => t + x.slots, 0) === E.dieCases(st).length && pv.segments.reduce((t, x) => t + x.p, 0) > 0.999, "pull sheet: one slot per dice case, chances add up");
+  ok(pv.segments.every((sg) => sg.kills === (sg.dmg >= E.flagShown(st, "S") - 1e-9)), "pull sheet: red exactly where the flag falls");
+  ok(pv.from === "D16" && pv.to === E.fieldOf(st).FLAG.S, "pull sheet: the puller's hex and the flag's");
+  // Keeper at home goes on the flag's side.
+  const st2 = setup(NEW, [["HM", "HM"]], [["HM", "HM", true], ["LA", "LA"]], { "N-HM": "D16", "S-HM": "E16", "S-LA": "I12" });
+  U(st2, "S-HM").fk = true;   // the keeper, at home next to its flag
+  const pv2 = UI.pullPreview(st2, U(st2, "N-HM"), E.options(st2, "N-HM").pull);
+  ok(pv2.target.stats.some((x) => x.key === "hex" && x.val === "−" + E.fmt(NEW.game.keeperPullReduction)), `pull sheet: keeper at home on the flag's side (${JSON.stringify(pv2.target.stats)})`);
+  // A special's multiplier: "9 ×2", nothing struck, no second icon.
+  const V37 = PRESETS.find((p) => p.id === "v3.7");
+  const s3 = setup(V37, [["LM", "LM"]], [["HM", "HM"]], { "N-LM": "E9", "S-HM": "E10" });
+  E.act(s3, { type: "warmup", uid: "N-LM" }); E.act(s3, { type: "end" }); E.act(s3, { type: "end" });
+  const sp = E.options(s3, "N-LM").special.targets[0], spv = UI.specialPreview(s3, U(s3, "N-LM"), U(s3, "S-HM"), sp), ph = UI.phoneSpecialStats(spv);
+  ok(ph[0].key === "maul" && ph[0].val === E.fmt(V37.cards.LM.str) && ph[0].old === undefined && ph[0].mult === "×" + E.fmt(sp.hits[0].mult), `special on the phone: "${ph[0].val} ${ph[0].mult}" (${JSON.stringify(ph[0])})`);
+  ok(!ph.some((x) => x.key === "special"), "special on the phone: no separate multiplier stat");
+  ok(spv.attacker.stats.some((x) => x.key === "special"), "special on desktop: unchanged (Brief 017's separate multiplier)");
+  // F025-1 (the Editor, 21 Nov): a Strength changed before the multiplier (Javelin's Reach) is never struck: 7 ×2, not 8 struck 7 ×2.
+  const s4 = setup(V37, [["LA", "LA"]], [["HM", "HM"]], { "N-LA": "E8", "S-HM": "E10" });
+  E.act(s4, { type: "warmup", uid: "N-LA" }); E.act(s4, { type: "end" }); E.act(s4, { type: "end" });
+  const jt = E.options(s4, "N-LA").special.targets.find((x) => x.target === "S-HM");
+  if (jt) {
+    const jpv = UI.specialPreview(s4, U(s4, "N-LA"), U(s4, "S-HM"), jt), jph = UI.phoneSpecialStats(jpv), d = jt.hits[0].detail;
+    ok(d.strAfter !== d.str, `Javelin from 2 hexes: Reach changes the Strength (${d.str} → ${d.strAfter})`);
+    ok(jph[0].old === undefined && jph[0].val === E.fmt(d.strAfter) && jph[0].mult === "×" + E.fmt(jt.hits[0].mult), `Javelin on the phone: "${jph[0].val} ${jph[0].mult}", nothing struck (${JSON.stringify(jph[0])})`);
+  } else ok(false, "Javelin set-up: no target 2 hexes away");
+  // Every special's name stays short enough for its idle button (about 14 characters at 393 px; test_phone.js measures it).
+  for (const code in NEW.cards) if (NEW.cards[code].special) { const nm = E.specialName(NEW.cards[code].special); ok(nm.length <= 14, `${code}: special name "${nm}" is 14 characters or fewer`); }
+  const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
+  ok(/\.act span \{ white-space: nowrap; \}/.test(html), "action button labels never wrap (white-space: nowrap)");
+  ok(!/id="keytab"/.test(html), "no 'Pull up for the key' tab on the field");
+}
+
 console.log(`${n - fails}/${n} UI checks passed`);
 if (fails) process.exit(1);

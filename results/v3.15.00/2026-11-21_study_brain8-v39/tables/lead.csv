@@ -1,0 +1,5 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+b8-v-b5-5v5,1000,56,N:25 S:30 both:1,82,595,361,N:188 S:173
+b8-v-b5-light-5v5,1000,72,S:37 N:35,124,453,144,S:75 N:69
+b8-v-b5-7v7,1000,32,N:16 S:16,56,218,187,N:94 S:93
+b8-v-b5-light-7v7,1000,53,S:29 N:24,92,394,72,N:36 S:36

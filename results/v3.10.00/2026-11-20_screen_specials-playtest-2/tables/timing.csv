@@ -1,0 +1,4 @@
+matchup,games,bot_turns,bot_ms,bot_ms_max_turn
+balanced-5v5,400,12777,780656,689
+balanced-7v7,400,16742,1779411,1982
+light-7v7,400,15589,3056512,4057

@@ -151,7 +151,44 @@
   V36.id = "v3.6"; V36.name = "v3.6 (2026-11-19)";
   V36.note = "v3.5 plus the flag rulings: a flag blocks Volley and Reach in a straight line; pulls at full Strength; a pull counts for Reload; set spear hits arrivals only, once per unit per turn.";
   Object.assign(V36.switches, { flagBlocksLine: true, pullFullStrength: true, pullCountsForReload: true, spearOnArrival: true });
-  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35, V36];
+  /* Rule set v3.7 (Brief 011, Game Laws 6.16 and 6.17, locked by the Editor 18–19 Nov): v3.6 plus specials. Each foot
+     unit has one special attack a match: warm it up one turn (1 Stamina and Command, no attack, pull or brace that turn),
+     fire it the next as that turn's attack, no dice. The sizes live here, not in the engine. */
+  const V37 = JSON.parse(JSON.stringify(V36));
+  V37.id = "v3.7"; V37.name = "v3.7 (2026-11-20)";
+  V37.note = "v3.6 plus specials: every foot unit has one special a match; warm it up one turn, fire it the next, no dice.";
+  V37.switches.specials = true;
+  V37.game.warmupCost = 1;   // Stamina and Command to warm a special up
+  Object.assign(V37.cards.HM, { special: "arcHit" }); Object.assign(V37.cards.LM, { special: "pickOff" });
+  Object.assign(V37.cards.HR, { special: "bullseye" }); Object.assign(V37.cards.LR, { special: "arrowStorm" });
+  Object.assign(V37.cards.HA, { special: "skewer" }); Object.assign(V37.cards.LA, { special: "javelin" });
+  // Multipliers on the finished hit (after Armor, Brace and Dodge, before rounding). behindReach: false = Skewer's
+  // second hit is a full hit, without Reach's −1 (Brief 011 reading of "a full hit"; FLAGS F38).
+  V37.specials = {
+    arcHit: { mult: 1 },
+    pickOff: { mult: 2, lessPerFriend: 0.25, floor: 1 },
+    bullseye: { mult: 1.5 },
+    arrowStorm: { mult: 2 },
+    skewer: { first: 1, behind: 1, behindReach: false },
+    javelin: { mult: 2, minRange: 2, maxRange: 3 }
+  };
+  /* Rule set v3.8 (Brief 014, Game Laws 2.1, 2.4 and 2.5, locked by the Editor 19 Nov): v3.7 plus one field per
+     format. 5v5 plays on its own 103-hex field (flags D3 and D15) and deploys within 2 hexes of its flag; 7v7 plays on
+     the 147-hex field (flags E3 and E17), deploying within 3 as before. The fields are in fields.js. Nothing else changes. */
+  const V38 = JSON.parse(JSON.stringify(V37));
+  V38.id = "v3.8"; V38.name = "v3.8 (2026-11-20)";
+  V38.note = "v3.7 plus one field per format: 5v5 on its own small field with a 2-hex deploy area, 7v7 on the rounded 147-hex field.";
+  V38.switches.fields = true;
+  V38.game.deployRadius5 = 2;   // 5v5 deploys within 2 hexes of its flag (Game Laws 2.5); other formats use deployRadius
+  /* Rule set v3.9 (Brief 017, Game Laws 2.11, locked by the Editor 19 Nov): v3.8 plus routes. A move names only its
+     destination; the engine picks the route (cheapest, then one that arrives, then fewer dangers, then toward the centre
+     column, then toward its own flag) and the unit walks it: it stops where it enters an enemy Mark and takes set spear
+     from any spear it arrives next to on the way. The move hexes offered are as before. Nothing else changes. */
+  const V39 = JSON.parse(JSON.stringify(V38));
+  V39.id = "v3.9"; V39.name = "v3.9 (2026-11-20)";
+  V39.note = "v3.8 plus routes: a move walks the cheapest route to the hex you pick; it stops where it enters a Mark on the way and set spear can hit it on the way.";
+  V39.switches.routeRule211 = true;
+  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35, V36, V37, V38, V39];
 
   const TRAITS = { tackle: "Tackle", reach: "Reach", ignoreArmor: "Ignores Armor", none: "None" };
   const BRACES = { parry: "Parry", dodgeDouble: "Dodge doubles", spike: "Set spear", zone: "Projects Zone of Control", fullStamina: "Full Stamina next turn", noSupport: "No Support against it", none: "None" };

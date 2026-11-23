@@ -1,0 +1,11 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+7v7-ftc6,1000,1245,0,1245,0,N:214 ended_earlier:571 level:14 S:201,won_tiebreak:415,52
+7v7-ftc8,1000,1248,0,1248,0,ended_earlier:573 S:207 N:209 level:11,won_tiebreak:416,62
+7v7-ftc10,1000,1296,0,1296,0,ended_earlier:560 S:228 N:204 level:8,won_tiebreak:432,65
+7v7-ftc6-storm15,1000,1230,0,1230,0,ended_earlier:581 S:203 N:207 level:9,won_tiebreak:410,59
+7v7-ftc10-storm15,1000,1293,0,1293,0,S:197 ended_earlier:561 N:234 level:8,won_tiebreak:431,53
+5v5-c10-ftc6,1000,1669,10,1669,1,S:284 N:275 ended_earlier:364 level:77,won_tiebreak:555 lost:3 won_decisive:1,50
+5v5-c8-ftc5,1000,1200,0,1200,0,ended_earlier:583 N:240 level:17 S:160,won_tiebreak:400,16
+5v5-c8-ftc8,1000,1320,0,1320,0,ended_earlier:417 S:185 N:255 level:143,won_tiebreak:440,15
+5v5-c8-ftc5-storm15,1000,1687,0,1687,0,ended_earlier:380 S:336 N:229 level:55,won_tiebreak:562 won_decisive:3,58
+5v5-c8-ftc8-storm15,1000,1687,0,1687,0,ended_earlier:380 S:336 N:229 level:55,won_tiebreak:562 won_decisive:3,58

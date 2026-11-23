@@ -40,6 +40,27 @@ ok(/brain "brain99" is not on this board/.test(W.problem(Object.assign({}, spec,
 ok(/Rule set v9 is not on this board/.test(W.problem(Object.assign({}, spec, { rules: "v9" }))), "a missing rule set is named");
 ok(/not playable/.test(W.problem(Object.assign({}, spec, { format: "s9" }))), "a format that isn't playable yet is named");
 
+// 3b. Brief 019: a brain with changed settings travels in the link (n=brain7:stormLead=1), so a sweep's games replay
+{ const sp = Object.assign({}, spec, { rules: "v3.6", n: "brain7:stormLead=1,care=0", s: "brain5", mixS: "mixed" });
+  const back = W.fromQuery(W.toQuery(sp));
+  ok(back.n === "brain7:stormLead=1,care=0", "a changed brain reads back from the link: " + W.toQuery(sp));
+  ok(W.problem(back) === null, "a changed brain this board has is playable");
+  const m = W.setupMatch(back);
+  ok(m.brains.N.lead.stormLead === 1 && m.brains.N.lead.care === 0 && m.brains.N.lead.storm === 1 && m.opts.players.N.brainId === "brain7", "the link's settings are applied to the match's copy of the brain, and only those");
+  ok(BR.DEFAULT_BRAINS.brain7.lead.stormLead !== 1, "the board's own Brain 7 is left unchanged");
+  ok(/has no setting nope/.test(W.problem(Object.assign({}, sp, { n: "brain7:nope=1" }))), "an unknown setting is named");
+  const A = W.playOut(back), B = W.playOut(back, { brains: { N: W.brainFromSpec("brain7:stormLead=1,care=0").brain, S: W.brainFromSpec("brain5").brain } });
+  ok(W.actionsHash(A.st.actions) === W.actionsHash(B.st.actions), "the link plays the same game as the lab's copy of the changed brain");
+}
+
+// 3c. Brief 022: Brain 8's settings travel the same way, including a negative opening tempo
+{ const sp = Object.assign({}, spec, { n: "brain8:tempoFirst=-1,tempoSecond=1,respect=1", s: "brain5", mixS: "mixed" });
+  const back = W.fromQuery(W.toQuery(sp));
+  ok(back.n === "brain8:tempoFirst=-1,tempoSecond=1,respect=1" && W.problem(back) === null, "a Brain 8 link with a negative tempo reads back and is playable: " + W.toQuery(sp));
+  const m = W.setupMatch(back), a = m.brains.N.approach;
+  ok(a.tempoFirst === -1 && a.tempoSecond === 1 && a.respect === 1 && a.safe === BR.DEFAULT_BRAINS.brain8.approach.safe && BR.DEFAULT_BRAINS.brain8.approach.tempoFirst === 0 && BR.DEFAULT_BRAINS.brain8.approach.respect === 0, "the link's Brain 8 settings are applied to the match's copy only");
+}
+
 // 4. Board seeds dealt by tests/rng.js look like the board's own
 const rnd = require("./rng.js")("watch-test", 0), s1 = W.seedFrom(rnd);
 ok(/^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/.test(s1), "a dealt seed has the board's form: " + s1);

@@ -30,13 +30,19 @@ const MEASURES = {
   },
 
   timing: {
-    about: "How long the computer thought: total and worst time per side-turn, in milliseconds on the machine that ran it.",
-    columns: ["bot_turns", "bot_ms", "bot_ms_max_turn"],
-    make() {
-      let key = "", cur = 0, turns = 0, total = 0, max = 0;
+    about: "How long the computer thought: total and worst time per side-turn, in milliseconds on the machine that ran it. Brief 019: and its work, as positions scored (Brain 5 family: every whole-turn plan step it examines is a scored position), total and worst side-turn; machine-independent (F24).",
+    columns: ["bot_turns", "bot_ms", "bot_ms_max_turn", "bot_positions", "bot_positions_max_turn"],
+    make(ctx) {
+      const S = ctx && ctx.Bot && ctx.Bot.stats5;
+      let key = "", cur = 0, turns = 0, total = 0, max = 0, last = S ? S.values : 0, pos = 0, curPos = 0, maxPos = 0;
       return {
-        before(st, c, ms) { const k = st.turn + st.toMove; if (k !== key) { if (key) { turns++; max = Math.max(max, cur); } key = k; cur = 0; } cur += ms; total += ms; },
-        end() { if (key) { turns++; max = Math.max(max, cur); } return { bot_turns: turns, bot_ms: total, bot_ms_max_turn: max }; }
+        before(st, c, ms) {
+          const k = st.turn + st.toMove;
+          if (k !== key) { if (key) { turns++; max = Math.max(max, cur); maxPos = Math.max(maxPos, curPos); } key = k; cur = 0; curPos = 0; }
+          cur += ms; total += ms;
+          if (S) { const d = S.values - last; last = S.values; curPos += d; pos += d; }
+        },
+        end() { if (key) { turns++; max = Math.max(max, cur); maxPos = Math.max(maxPos, curPos); } return { bot_turns: turns, bot_ms: total, bot_ms_max_turn: max, bot_positions: pos, bot_positions_max_turn: maxPos }; }
       };
     }
   },
@@ -132,7 +138,7 @@ const MEASURES = {
             key = k;
             const s2 = open(st);
             for (const u of E.alive(st)) if (u.team === st.toMove) for (const t of E.alive(st)) {
-              if (t.team !== u.team && E.dist(u.hex, t.hex) >= 2 && E.flagBetween(u.hex, t.hex) && E.canAttackFrom(s2, u, u.hex, t)) o.flag_line_pairs++;
+              if (t.team !== u.team && E.fieldOf(st).dist(u.hex, t.hex) >= 2 && E.fieldOf(st).flagBetween(u.hex, t.hex) && E.canAttackFrom(s2, u, u.hex, t)) o.flag_line_pairs++;
             }
           }
           const u = c.action.uid && E.unitByUid(st, c.action.uid);
@@ -144,6 +150,128 @@ const MEASURES = {
           for (; seen < st.log.length; seen++) { const t = st.log[seen].text || ""; const m = t.match(/braced \S+ at \S+ deals/g); if (m) o.spear_hits += m.length; }
         },
         end() { return o; }
+      };
+    }
+  },
+
+  specials: {
+    about: "Brief 011 (v3.7): per special, times warmed up, fired, lapsed, warmed units removed before firing, kills, damage dealt and the average normal hit it replaced (engine preview, from the same hex); special hits on braced targets; and actions that left both sides with a win condition (F20).",
+    columns: (() => {
+      const c = ["sp_warm", "sp_fired", "sp_lapsed", "sp_removed", "sp_braced_hits", "sp_braced_dmg", "both_win_actions"];
+      for (const k of ["arcHit", "pickOff", "bullseye", "arrowStorm", "skewer", "javelin"]) for (const x of ["warm", "fired", "lapsed", "removed", "kills", "hits", "dmg", "normal"]) c.push(`sp_${k}_${x}`);
+      return c;
+    })(),
+    make(ctx) {
+      const { E } = ctx, o = Object.fromEntries(MEASURES.specials.columns.map((k) => [k, 0]));
+      const warm = new Map();   // uid -> kind, while warmed up and not yet fired, lapsed or removed
+      let pend = null;
+      const winBoth = (st) => {
+        const w = {};
+        for (const team of ["N", "S"]) {
+          const foe = E.foeOf(team);
+          if (st.pole[foe] >= st.rs.game.poleHP - 1e-9) w[team] = 1;
+          else if (!st.units.some((u) => u.team === foe && u.hp > 0 && (st.rs.switches.tkoNeedsKeeper || !u.fk))) w[team] = 1;
+        }
+        return w.N && w.S;
+      };
+      return {
+        before(st, c) {
+          const a = c.action, u = a.uid && E.unitByUid(st, a.uid);
+          pend = null;
+          if (a.type === "end") {
+            for (const x of E.alive(st)) if (x.team === st.toMove && x.sp === "charged" && warm.has(x.uid)) { const k = warm.get(x.uid); o.sp_lapsed++; o[`sp_${k}_lapsed`]++; warm.delete(x.uid); }
+            return;
+          }
+          if (!u) return;
+          const kind = E.specialOf(st, u);
+          if (a.type === "warmup" && kind) pend = { type: "warmup", uid: u.uid, kind, again: warm.has(u.uid) };
+          if (a.type === "special" && kind) {
+            const t = E.unitByUid(st, a.target);
+            if (!t || !E.specialCanTarget(st, u, t)) return;
+            const hits = E.specialHits(st, u, t), b = E.breakdown(st, u, t, u.hex);
+            const normal = E.dieCases(st).reduce((s2, [d, p]) => s2 + p * E.applyDie(st, b.value, d, b.dodge), 0);
+            pend = { type: "special", uid: u.uid, kind, hits: hits.map((h) => ({ uid: h.uid, dmg: h.dmg, braced: !!E.unitByUid(st, h.uid).braced })), normal };
+          }
+        },
+        after(st, c, r) {
+          if (!r.ok || c.refusedEnd) { pend = null; return; }
+          if (winBoth(st)) o.both_win_actions++;
+          if (pend && pend.type === "warmup") {
+            if (pend.again) { /* a re-warm on the firing turn: the earlier warm-up neither fired nor lapsed */ o.sp_lapsed++; o[`sp_${pend.kind}_lapsed`]++; }
+            o.sp_warm++; o[`sp_${pend.kind}_warm`]++; warm.set(pend.uid, pend.kind);
+          }
+          if (pend && pend.type === "special") {
+            const k = pend.kind;
+            o.sp_fired++; o[`sp_${k}_fired`]++; o[`sp_${k}_normal`] += pend.normal; warm.delete(pend.uid);
+            for (const h of pend.hits) {
+              o[`sp_${k}_hits`]++; o[`sp_${k}_dmg`] += h.dmg;
+              if (E.unitByUid(st, h.uid).hp <= 0) o[`sp_${k}_kills`]++;
+              if (h.braced) { o.sp_braced_hits++; o.sp_braced_dmg += h.dmg; }
+            }
+          }
+          pend = null;
+          for (const [uid, k] of [...warm]) { const x = E.unitByUid(st, uid); if (!x || x.hp <= 0) { o.sp_removed++; o[`sp_${k}_removed`]++; warm.delete(uid); } }
+        },
+        end() { for (const k in o) if (/_(dmg|normal)$/.test(k)) o[k] = Math.round(o[k] * 100) / 100; return o; }
+      };
+    }
+  },
+
+  specialsafety: {
+    about: "Brief 011 follow-up: how the other side reacts to a warmed-up special. At the start of each side-turn that faces at least one enemy special warmed up the turn before, counts that side's units inside its reach for next turn (the warmed unit's movement next turn plus the special's reach; flag holders are immune and left out), then at the end of that side-turn counts how many left, stayed (braced or not), came in, and how many inside reach braced. Then, on the warmed side's next turn, counts how many of the units that ended inside reach were hit by one of those warmed specials (each unit once).",
+    columns: ["sw_threat_turns", "sw_units_start", "sw_exposed_start", "sw_left", "sw_stayed", "sw_entered", "sw_exposed_end", "sw_braced_in_reach", "sw_removed_in_reach",
+      "sw_stayed_braced", "sw_stayed_unbraced", "sw_hit_next", "sw_hit_next_braced"],
+    make(ctx) {
+      const { E, Bot } = ctx, o = Object.fromEntries(MEASURES.specialsafety.columns.map((k) => [k, 0]));
+      let key = "", start = null, watch = null, pend = null;   // watch: units that ended inside reach, waiting for the warmed side's next turn
+      const reachOf = (st, w) => {
+        const k = E.specialOf(st, w), n = (st.rs.specials && st.rs.specials[k]) || {}, c = E.card(st, w);
+        if (k === "javelin") return n.maxRange || 3;
+        if (k === "arcHit" || k === "pickOff" || k === "skewer") return 1;
+        return c.range > 1 ? c.range : 1;
+      };
+      const warmers = (st, team) => E.alive(st).filter((w) => w.team !== team && w.sp === "warm").map((w) => w.uid);
+      /** uids of `team`'s units (not holders) inside the reach of any warmed-up enemy special. */
+      const exposed = (st, team) => {
+        const warm = E.alive(st).filter((w) => w.team !== team && w.sp === "warm");
+        if (!warm.length) return null;
+        const out = new Set();
+        for (const u of E.alive(st)) if (u.team === team && !E.isHolder(st, u) && warm.some((w) => Bot.canThreaten(st, w, u.hex, reachOf(st, w)))) out.add(u.uid);
+        return out;
+      };
+      const close = (st) => {
+        if (!start) return;
+        const now = exposed(st, start.team) || new Set();
+        for (const uid of start.set) {
+          const u = E.unitByUid(st, uid); if (!u || u.hp <= 0) { o.sw_removed_in_reach++; continue; }
+          if (now.has(uid)) { o.sw_stayed++; if (u.braced) o.sw_stayed_braced++; else o.sw_stayed_unbraced++; } else o.sw_left++;
+        }
+        for (const uid of now) { if (!start.set.has(uid)) o.sw_entered++; if (E.unitByUid(st, uid).braced) o.sw_braced_in_reach++; }
+        o.sw_exposed_end += now.size;
+        watch = now.size ? { warmers: new Set(warmers(st, start.team)), units: new Map([...now].map((uid) => [uid, !!E.unitByUid(st, uid).braced])), hit: new Set(), side: E.foeOf(start.team), turn: null } : null;
+        start = null;
+      };
+      return {
+        before(st, c) {
+          const k = st.turn + st.toMove;
+          if (k !== key) {
+            key = k;
+            if (watch) { if (watch.turn === null && st.toMove === watch.side) watch.turn = k; else if (watch.turn !== null) watch = null; }   // the warmed side's next turn only
+            const set = exposed(st, st.toMove);
+            if (set) { o.sw_threat_turns++; o.sw_units_start += E.alive(st).filter((u) => u.team === st.toMove && !E.isHolder(st, u)).length; o.sw_exposed_start += set.size; start = { team: st.toMove, set }; }
+          }
+          if (c.action.type === "end") close(st);
+          pend = null;
+          if (watch && watch.turn === k && c.action.type === "special" && watch.warmers.has(c.action.uid)) {
+            const u = E.unitByUid(st, c.action.uid), t = E.unitByUid(st, c.action.target);
+            if (u && t && E.specialCanTarget(st, u, t)) pend = E.specialHits(st, u, t).map((h) => h.uid);
+          }
+        },
+        after(st, c, r) {
+          if (pend && r.ok && !c.refusedEnd) for (const uid of pend) if (watch.units.has(uid) && !watch.hit.has(uid)) { watch.hit.add(uid); o.sw_hit_next++; if (watch.units.get(uid)) o.sw_hit_next_braced++; }
+          pend = null;
+        },
+        end(st) { close(st); return o; }
       };
     }
   },
@@ -181,9 +309,9 @@ MEASURES.stall = {
     const sides = [];   // one per side-turn, in order: { key, turn, attack }
     const braces = [];   // turn of every brace
     const total = (st) => st.units.reduce((a, u) => a + Math.max(u.hp, 0), 0) - st.pole.N - st.pole.S;   // falls when anything takes damage
-    const adjacent = (st) => E.alive(st).some((u) => E.alive(st).some((e) => e.team !== u.team && E.dist(u.hex, e.hex) === 1));
+    const adjacent = (st) => E.alive(st).some((u) => E.alive(st).some((e) => e.team !== u.team && E.fieldOf(st).dist(u.hex, e.hex) === 1));
     const others = (st, t) => E.alive(st).filter((u) => u.team === t && !E.isHolder(st, u));
-    const gap = (st) => { const a = others(st, "N"), b = others(st, "S"); if (!a.length || !b.length) return ""; let g = Infinity; for (const x of a) for (const y of b) g = Math.min(g, E.dist(x.hex, y.hex)); return g; };
+    const gap = (st) => { const a = others(st, "N"), b = others(st, "S"); if (!a.length || !b.length) return ""; let g = Infinity; for (const x of a) for (const y of b) g = Math.min(g, E.fieldOf(st).dist(x.hex, y.hex)); return g; };
     const uc = (st, t) => E.alive(st).filter((u) => u.team === t).reduce((a, u) => a + (E.card(st, u).beings || 1), 0);
     const snap = (st) => ({ units_n_l3: others(st, "N").length, units_s_l3: others(st, "S").length, uc_n_l3: uc(st, "N"), uc_s_l3: uc(st, "S"),
       holder_n_l3: E.holderOf(st, "N") ? 1 : 0, holder_s_l3: E.holderOf(st, "S") ? 1 : 0, flag_n_l3: +E.flagShown(st, "N").toFixed(2), flag_s_l3: +E.flagShown(st, "S").toFixed(2), gap_l3: gap(st) });
@@ -225,6 +353,221 @@ MEASURES.stall = {
   }
 };
 
-// Always collected: the outcome (it feeds the summary's key table), timing, and (Brief 016) stall.
-const ALWAYS = ["outcome", "timing", "stall"];
+// Brief 019: leads. Lead here counts non-holder unit cap (UC, whole units), as brief 016's uc_* columns do; Brain 7's
+// own lead (HP-weighted) is separate. Read only.
+const sideUc = (E, st, t) => E.alive(st).filter((u) => u.team === t && !E.isHolder(st, u)).reduce((a, u) => a + (E.card(st, u).beings || 1), 0);
+MEASURES.lead = {
+  about: "Leads (Brief 019). lead_lost: 1 if a side led by 1+ non-holder UC at every side-turn start for at least two full rounds (five side-turn starts in a row, the game's end counting as the last) and the game ended with that side not ahead on non-holder UC and not the winner; lead_lost_side (N, S or both), its largest lead in the game (lead_lost_peak) and the turn that lead began (lead_lost_first_turn). lead_unused: 1 if the game ended on the turn limit with a side 1+ non-holder UC ahead at the first side-turn start of turn limit − 3; lead_unused_side.",
+  columns: ["lead_lost", "lead_lost_side", "lead_lost_peak", "lead_lost_first_turn", "lead_unused", "lead_unused_side"],
+  make(ctx) {
+    const { E } = ctx; const obs = []; let key = "", l3;
+    return {
+      before(st) {
+        const k = st.turn + st.toMove;
+        if (k === key || st.phase !== "play") return;
+        key = k;
+        const d = sideUc(E, st, "N") - sideUc(E, st, "S");
+        obs.push({ turn: st.turn, d });
+        if (l3 === undefined && st.turn >= E.turnLimit(st) - 3) l3 = d;
+      },
+      end(st) {
+        const fin = sideUc(E, st, "N") - sideUc(E, st, "S"), all = obs.concat([{ turn: st.turn, d: fin }]);
+        const w = st.result && st.result.winner, lost = [];
+        let peak = 0, first = "";
+        for (const t of ["N", "S"]) {
+          const sg = t === "N" ? 1 : -1;
+          let run = 0, start = null, qual = null, pk = 0;
+          for (const o of all) {
+            pk = Math.max(pk, sg * o.d);
+            if (sg * o.d >= 1) { if (!run) start = o.turn; run++; if (run >= 5 && qual === null) qual = start; } else run = 0;
+          }
+          if (qual !== null && sg * fin <= 0 && w !== t) { lost.push(t); if (pk > peak || first === "") { peak = Math.max(peak, pk); first = first === "" ? qual : Math.min(first, qual); } }
+        }
+        const tl = st.result && /turn limit/.test(st.result.how);
+        const un = tl && l3 !== undefined && Math.abs(l3) >= 1;
+        return { lead_lost: lost.length ? 1 : 0, lead_lost_side: lost.length === 2 ? "both" : lost[0] || "", lead_lost_peak: lost.length ? peak : "", lead_lost_first_turn: lost.length ? first : "",
+          lead_unused: un ? 1 : 0, lead_unused_side: un ? (l3 > 0 ? "N" : "S") : "" };
+      }
+    };
+  }
+};
+MEASURES.alone = {
+  about: "Units lost alone or together (Brief 019), per side of the unit removed: alone if, at the start of the side-turn in which it was removed, no friendly unit other than its own holder (and itself) stood within 2 hexes of it; otherwise together. holder_strikes_solo/group: side-turns in which exactly one unit (or two or more) of that side attacked the enemy holder.",
+  columns: ["lost_alone_n", "lost_alone_s", "lost_together_n", "lost_together_s", "holder_strikes_solo_n", "holder_strikes_solo_s", "holder_strikes_group_n", "holder_strikes_group_s"],
+  make(ctx) {
+    const { E } = ctx, o = Object.fromEntries(MEASURES.alone.columns.map((k) => [k, 0]));
+    let key = "", alone = new Map(), side = null, strikers = new Set(), hpBefore = null;
+    const close = () => { if (side && strikers.size) o[(strikers.size === 1 ? "holder_strikes_solo_" : "holder_strikes_group_") + side.toLowerCase()]++; strikers = new Set(); };
+    return {
+      before(st, c) {
+        const k = st.turn + st.toMove;
+        if (k !== key && st.phase === "play") {
+          close(); key = k; side = st.toMove; alone = new Map();
+          for (const u of E.alive(st)) alone.set(u.uid, !E.alive(st).some((f) => f.team === u.team && f.uid !== u.uid && !E.isHolder(st, f) && E.fieldOf(st).dist(f.hex, u.hex) <= 2));
+        }
+        hpBefore = new Map(st.units.map((u) => [u.uid, u.hp]));
+        if (c.action.type === "attack") { const t = E.unitByUid(st, c.action.target); if (t && E.isHolder(st, t)) strikers.add(c.action.uid); }
+      },
+      after(st, c, r) {
+        if (!hpBefore || c.refusedEnd) return;
+        for (const u of st.units) if (hpBefore.get(u.uid) > 0 && u.hp <= 0) o[(alone.get(u.uid) ? "lost_alone_" : "lost_together_") + u.team.toLowerCase()]++;
+        if (!r.ok && c.action.type === "attack") strikers.delete(c.action.uid);
+        hpBefore = null;
+      },
+      end() { close(); return o; }
+    };
+  }
+};
+MEASURES.brain7 = {
+  about: "Brain 7's own reading of the board (Brief 019), counted at the start of each side-turn it plays (per side, n/s): side-turns ahead and behind on its material (B1), ahead on both material and flag damage, storming (B3/B6), holding (B6), storming but waiting to strike the holder (B3), regrouping (B5), holder joining (B4), and the first turn it was ahead on both. lone_losing: attacks made, by any Brain 5-family side while ahead on Brain 7's material reading, that B2 calls lone and losing (no likely kill, no friend can join, the attacker expected to be removed next turn).",
+  columns: ["b7_turns_n", "b7_turns_s", "b7_ahead_n", "b7_ahead_s", "b7_behind_n", "b7_behind_s", "b7_both_n", "b7_both_s", "b7_storm_n", "b7_storm_s", "b7_hold_n", "b7_hold_s", "b7_wait_n", "b7_wait_s", "b7_regroup_n", "b7_regroup_s", "b7_join_n", "b7_join_s", "b7_both_first_n", "b7_both_first_s", "lone_losing_n", "lone_losing_s"],
+  make(ctx) {
+    const { E, Bot } = ctx, o = Object.fromEntries(MEASURES.brain7.columns.map((k) => [k, k.startsWith("b7_both_first") ? "" : 0]));
+    const ref = require("path").join(__dirname, "..", "..", "board", "brain.js");
+    let key = "", pending = null;
+    const B7 = (t) => { const b = ctx.brains[t]; return b && b.lead ? b : null; };
+    const refLead = (() => { try { return require(ref).DEFAULT_BRAINS.brain7.lead; } catch (e) { return { lead: 1, care: 1, aheadAt: 1, killChance: 0.5 }; } })();
+    return {
+      before(st, c) {
+        const k = st.turn + st.toMove, t = st.toMove, x = t.toLowerCase();
+        if (k !== key && st.phase === "play") {
+          key = k;
+          const b = B7(t), cx = b && Bot.lead7Context(st, b);
+          if (cx) {
+            o["b7_turns_" + x]++;
+            for (const [f, col] of [["ahead", "ahead"], ["behind", "behind"], ["both", "both"], ["storm", "storm"], ["hold", "hold"], ["regroup", "regroup"], ["join", "join"]]) if (cx[f]) o[`b7_${col}_${x}`]++;
+            if (cx.storm && !cx.strikeOK) o["b7_wait_" + x]++;
+            if (cx.both && o["b7_both_first_" + x] === "") o["b7_both_first_" + x] = st.turn;
+          }
+        }
+        pending = null;
+        const b = ctx.brains[t];
+        if (c.action.type === "attack" && b && b.model) {
+          const lead = Bot.material7(st, t) - Bot.material7(st, E.foeOf(t));
+          if (lead >= (b.lead ? b.lead.aheadAt : refLead.aheadAt) - 1e-9) pending = { st: E.cloneLite(st), b, kc: b.lead ? b.lead.killChance : refLead.killChance };
+        }
+      },
+      after(st, c, r) {
+        if (!pending || !r.ok || c.refusedEnd) { pending = null; return; }
+        const a = c.action, t = pending.st.toMove;
+        if (Bot.loneLosing7(pending.st, st, t, pending.b, a.uid, a.target, pending.kc)) o["lone_losing_" + t.toLowerCase()]++;
+        pending = null;
+      },
+      end() { return o; }
+    };
+  }
+};
+
+// Brief 014: which field the game was played on, and how each side deployed (units outside the deploy area, which the
+// engine refuses, and units started on their own flag). Read only.
+MEASURES.fields = {
+  about: "Fields (Brief 014): the field the game was played on, units deployed outside their side's deploy area (the engine refuses these, so anything above 0 is a bug), and units that started on their own flag.",
+  columns: ["field", "deploy_outside", "deploy_on_flag"],
+  make(ctx) {
+    const { E } = ctx;
+    return {
+      end(st) {
+        const G = E.fieldOf(st);
+        let outside = 0, onFlag = 0;
+        for (const a of st.actions.filter((x) => x.type === "deploy")) {
+          const zone = new Set(E.deployZone(st, a.team));
+          for (const uid in a.placements) { const h = a.placements[uid]; if (!zone.has(h)) outside++; if (h === G.FLAG[a.team]) onFlag++; }
+        }
+        return { field: G.id, deploy_outside: outside, deploy_on_flag: onFlag };
+      }
+    };
+  }
+};
+
+// Brief 022: who loses the first unit and the first archer, and who gets the first strike. Sides are "first" or "second"
+// (mover). Brief 016's stall measure already has a `first_contact_turn` (first adjacency), so the first turn on which a
+// unit could attack is `reach_contact_turn` here (a column is never renamed). Read only.
+MEASURES.firstloss = {
+  about: "First losses (Brief 022): the first unit removed (its side as first or second mover, turn, card, and what removed it: the attacker's card and attack, special, or parry/spear when the attacker itself fell), the first Light Ranged removed (side, turn), the first side-turn on which a unit of the side to move could walk and attack an enemy (reach_contact_turn and _side; blockers left out), and the side that made the first attack or special.",
+  columns: ["first_lost_side", "first_lost_turn", "first_lost_card", "first_lost_by", "first_lr_lost_side", "first_lr_lost_turn", "reach_contact_turn", "reach_contact_side", "first_strike_side"],
+  make(ctx) {
+    const { E } = ctx, o = Object.fromEntries(MEASURES.firstloss.columns.map((k) => [k, ""]));
+    let key = "", hpBefore = null;
+    const sideOf = (st, t) => (t === st.first ? "first" : "second");
+    const canAttackNow = (st, u, e) => {
+      const c = E.card(st, u), g = st.rs.game, reach = c.range > 1 ? c.range : (c.trait === "reach" ? 2 : 1);
+      const steps = Math.max(0, Math.min(E.capOf(st, u), Math.floor((Math.min(u.stam, st.cmd) - g.attackCost) / c.hexCost + 1e-9)));
+      return Math.min(u.stam, st.cmd) >= g.attackCost - 1e-9 && E.fieldOf(st).dist(u.hex, e.hex) <= steps + reach;
+    };
+    return {
+      before(st, c) {
+        const k = st.turn + st.toMove;
+        if (k !== key && st.phase === "play") {
+          key = k;
+          if (o.reach_contact_turn === "" && E.alive(st).some((u) => u.team === st.toMove && E.alive(st).some((e) => e.team !== u.team && canAttackNow(st, u, e)))) { o.reach_contact_turn = st.turn; o.reach_contact_side = sideOf(st, st.toMove); }
+        }
+        hpBefore = new Map(st.units.map((u) => [u.uid, u.hp]));
+      },
+      after(st, c, r) {
+        if (!hpBefore || !r.ok || c.refusedEnd) { hpBefore = null; return; }
+        const a = c.action, me = a.uid && E.unitByUid(st, a.uid);
+        if ((a.type === "attack" || a.type === "special") && o.first_strike_side === "") o.first_strike_side = sideOf(st, me ? me.team : st.toMove);
+        for (const u of st.units) {
+          if (!(hpBefore.get(u.uid) > 0 && u.hp <= 0)) continue;
+          const by = !me ? a.type : me.uid === u.uid ? `${(E.unitByUid(st, a.target) || {}).card || "?"} parry/spear` : `${me.card} ${a.type}`;
+          if (o.first_lost_side === "") Object.assign(o, { first_lost_side: sideOf(st, u.team), first_lost_turn: st.turn, first_lost_card: u.card, first_lost_by: by });
+          if (o.first_lr_lost_side === "" && u.card === "LR") Object.assign(o, { first_lr_lost_side: sideOf(st, u.team), first_lr_lost_turn: st.turn });
+        }
+        hpBefore = null;
+      },
+      end() { return o; }
+    };
+  }
+};
+// Brief 022: Brain 8's own reading at the start of each side-turn it plays (n/s): side-turns read, in the opening with a
+// tempo slider in use (A3), and holder joining (B4).
+MEASURES.brain8 = {
+  about: "Brain 8's reading of the board (Brief 022), at the start of each side-turn a Brain 8 side plays (n/s): side-turns read, side-turns in the opening with its tempo slider in use (A3), and side-turns its holder may join the storm (B4).",
+  columns: ["b8_turns_n", "b8_turns_s", "b8_open_n", "b8_open_s", "b8_join_n", "b8_join_s"],
+  make(ctx) {
+    const { Bot } = ctx, o = Object.fromEntries(MEASURES.brain8.columns.map((k) => [k, 0]));
+    let key = "";
+    return {
+      before(st) {
+        const k = st.turn + st.toMove, t = st.toMove, x = t.toLowerCase(), b = ctx.brains[t];
+        if (k === key || st.phase !== "play" || !b || !b.approach || !Bot.approach8Context) return;
+        key = k;
+        const c = Bot.approach8Context(st, b);
+        if (!c) return;
+        o["b8_turns_" + x]++; if (c.open) o["b8_open_" + x]++; if (c.join) o["b8_join_" + x]++;
+      },
+      end() { return o; }
+    };
+  }
+};
+MEASURES.routes = {
+  about: "Brief 017 (Game Laws 2.11, v3.9 routes): every move the bots made, how many stopped short of the hex they chose (a Mark entered on the way), how many took set spear and how much, and how many ended where the engine's route() said they would. Older rule sets jump, so they never stop short.",
+  columns: ["route_moves", "moves_short", "moves_spear", "spear_damage_moves", "moves_mark_end", "moves_predicted"],
+  make(ctx) {
+    const { E } = ctx; let moves = 0, short = 0, spear = 0, dmg = 0, markEnd = 0, predicted = 0, pend = null;
+    return {
+      before(st, c) {
+        pend = null;
+        if (!c || !c.action || c.action.type !== "move") return;
+        const u = E.unitByUid(st, c.action.uid);
+        pend = { uid: c.action.uid, to: c.action.to, hp: u ? u.hp : 0, n: st.log.length, end: E.route ? (E.route(st, c.action.uid, c.action.to) || {}).end : c.action.to };
+      },
+      after(st, c, r) {
+        if (!pend || !r || !r.ok || !c.action || c.action.type !== "move") { pend = null; return; }
+        const u = E.unitByUid(st, pend.uid), line = st.log.slice(pend.n).map((x) => x.text).join(" | ");
+        moves++;
+        if (u.hex !== pend.to) short++;
+        if (u.hex === pend.end) predicted++;
+        const m = line.match(/braced \S+ at \S+ deals ([0-9.]+)/);
+        if (m) { spear++; dmg += +m[1]; }
+        if (/stopped by Zone of Control/.test(line)) markEnd++;
+        pend = null;
+      },
+      end() { return { route_moves: moves, moves_short: short, moves_spear: spear, spear_damage_moves: dmg, moves_mark_end: markEnd, moves_predicted: predicted }; }
+      };
+    }
+};
+
+// Always collected: the outcome (it feeds the summary's key table), timing, (Brief 016) stall and (Brief 019) lead and alone.
+const ALWAYS = ["outcome", "timing", "stall", "lead", "alone"];
 module.exports = { MEASURES, ALWAYS };

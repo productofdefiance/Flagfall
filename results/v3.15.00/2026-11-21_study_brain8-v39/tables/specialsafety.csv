@@ -1,0 +1,5 @@
+matchup,games,sw_threat_turns,sw_units_start,sw_exposed_start,sw_left,sw_stayed,sw_entered,sw_exposed_end,sw_braced_in_reach,sw_removed_in_reach,sw_stayed_braced,sw_stayed_unbraced,sw_hit_next,sw_hit_next_braced
+b8-v-b5-5v5,1000,3746,12872,11842,2711,9131,473,9604,1054,0,741,8390,2830,239
+b8-v-b5-light-5v5,1000,4968,14712,12846,2261,10585,1267,11852,268,0,267,10318,5381,46
+b8-v-b5-7v7,1000,5507,26826,19637,4082,15555,2845,18400,368,0,330,15225,5203,78
+b8-v-b5-light-7v7,1000,6196,26849,20815,3499,17316,3135,20451,663,0,625,16691,6496,56

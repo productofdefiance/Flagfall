@@ -1,0 +1,235 @@
+{
+ "id": "brain8-sweep",
+ "kind": "screen",
+ "brief": "022",
+ "seed_name": "brain8",
+ "question": "Brain 8 as shipped (B4 on, A1 and A2 off): the opening-tempo sweep (tempoFirst and tempoSecond at -1, 0, +1; back = -1, even = 0, push = +1; first mover's tempo first) in mirrors, and the F39 size screen (sim-only: Arrow Storm x1.75 and x1.5 instead of x2), 200 games per matchup, v3.8, balanced. Same deals as brain8-screen, so even-even is that run's b4-mirror rows.",
+ "tags": [
+  "brain8",
+  "screen",
+  "v3.8",
+  "tempo-sweep",
+  "f39"
+ ],
+ "measures": [
+  "play",
+  "specials",
+  "specialsafety",
+  "firstloss",
+  "brain8"
+ ],
+ "matchups": [
+  {
+   "name": "tempo-back-back-mirror-5v5",
+   "a": "brain8:tempoFirst=-1,tempoSecond=-1",
+   "b": "brain8:tempoFirst=-1,tempoSecond=-1",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "tempo-back-even-mirror-5v5",
+   "a": "brain8:tempoFirst=-1,tempoSecond=0",
+   "b": "brain8:tempoFirst=-1,tempoSecond=0",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "tempo-back-push-mirror-5v5",
+   "a": "brain8:tempoFirst=-1,tempoSecond=1",
+   "b": "brain8:tempoFirst=-1,tempoSecond=1",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "tempo-even-back-mirror-5v5",
+   "a": "brain8:tempoFirst=0,tempoSecond=-1",
+   "b": "brain8:tempoFirst=0,tempoSecond=-1",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "tempo-even-push-mirror-5v5",
+   "a": "brain8:tempoFirst=0,tempoSecond=1",
+   "b": "brain8:tempoFirst=0,tempoSecond=1",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "tempo-push-back-mirror-5v5",
+   "a": "brain8:tempoFirst=1,tempoSecond=-1",
+   "b": "brain8:tempoFirst=1,tempoSecond=-1",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "tempo-push-even-mirror-5v5",
+   "a": "brain8:tempoFirst=1,tempoSecond=0",
+   "b": "brain8:tempoFirst=1,tempoSecond=0",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "tempo-push-push-mirror-5v5",
+   "a": "brain8:tempoFirst=1,tempoSecond=1",
+   "b": "brain8:tempoFirst=1,tempoSecond=1",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "5v5"
+  },
+  {
+   "name": "storm-175-mirror-5v5",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "5v5",
+   "set": {
+    "specials.arrowStorm.mult": 1.75
+   }
+  },
+  {
+   "name": "storm-150-mirror-5v5",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.8",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "5v5",
+   "set": {
+    "specials.arrowStorm.mult": 1.5
+   }
+  },
+  {
+   "name": "tempo-back-back-mirror-7v7",
+   "a": "brain8:tempoFirst=-1,tempoSecond=-1",
+   "b": "brain8:tempoFirst=-1,tempoSecond=-1",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "tempo-back-even-mirror-7v7",
+   "a": "brain8:tempoFirst=-1,tempoSecond=0",
+   "b": "brain8:tempoFirst=-1,tempoSecond=0",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "tempo-back-push-mirror-7v7",
+   "a": "brain8:tempoFirst=-1,tempoSecond=1",
+   "b": "brain8:tempoFirst=-1,tempoSecond=1",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "tempo-even-back-mirror-7v7",
+   "a": "brain8:tempoFirst=0,tempoSecond=-1",
+   "b": "brain8:tempoFirst=0,tempoSecond=-1",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "tempo-even-push-mirror-7v7",
+   "a": "brain8:tempoFirst=0,tempoSecond=1",
+   "b": "brain8:tempoFirst=0,tempoSecond=1",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "tempo-push-back-mirror-7v7",
+   "a": "brain8:tempoFirst=1,tempoSecond=-1",
+   "b": "brain8:tempoFirst=1,tempoSecond=-1",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "tempo-push-even-mirror-7v7",
+   "a": "brain8:tempoFirst=1,tempoSecond=0",
+   "b": "brain8:tempoFirst=1,tempoSecond=0",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "tempo-push-push-mirror-7v7",
+   "a": "brain8:tempoFirst=1,tempoSecond=1",
+   "b": "brain8:tempoFirst=1,tempoSecond=1",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "7v7"
+  },
+  {
+   "name": "storm-175-mirror-7v7",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "7v7",
+   "set": {
+    "specials.arrowStorm.mult": 1.75
+   }
+  },
+  {
+   "name": "storm-150-mirror-7v7",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.8",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 200,
+   "seed_as": "7v7",
+   "set": {
+    "specials.arrowStorm.mult": 1.5
+   }
+  }
+ ]
+}

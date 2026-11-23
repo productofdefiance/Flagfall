@@ -1,0 +1,21 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+tempo-back-back-mirror-5v5,200,0,,,,0,
+tempo-back-even-mirror-5v5,200,12,S:4 N:8,22,139,14,N:4 S:10
+tempo-back-push-mirror-5v5,200,12,S:5 N:7,22,146,13,N:4 S:9
+tempo-even-back-mirror-5v5,200,13,S:9 N:4,23,113,60,N:30 S:30
+tempo-even-push-mirror-5v5,200,3,S:2 N:1,5,35,66,S:34 N:32
+tempo-push-back-mirror-5v5,200,6,S:4 N:2,10,45,45,N:23 S:22
+tempo-push-even-mirror-5v5,200,7,N:4 S:3,9,24,47,S:29 N:18
+tempo-push-push-mirror-5v5,200,7,S:4 both:1 N:2,12,54,36,N:16 S:20
+storm-175-mirror-5v5,200,12,S:8 N:4,16,78,39,S:21 N:18
+storm-150-mirror-5v5,200,6,N:5 S:1,9,52,41,S:16 N:25
+tempo-back-back-mirror-7v7,200,4,N:3 S:1,7,45,18,S:9 N:9
+tempo-back-even-mirror-7v7,200,8,S:5 N:3,17,81,21,N:11 S:10
+tempo-back-push-mirror-7v7,200,6,S:5 N:1,10,37,19,S:13 N:6
+tempo-even-back-mirror-7v7,200,7,S:2 N:5,12,61,27,S:19 N:8
+tempo-even-push-mirror-7v7,200,6,S:5 N:1,9,26,16,S:7 N:9
+tempo-push-back-mirror-7v7,200,6,N:4 S:2,9,41,17,N:6 S:11
+tempo-push-even-mirror-7v7,200,7,S:4 N:3,11,56,20,N:10 S:10
+tempo-push-push-mirror-7v7,200,8,S:4 N:4,13,62,25,N:13 S:12
+storm-175-mirror-7v7,200,8,N:5 S:3,15,67,19,N:10 S:9
+storm-150-mirror-7v7,200,13,N:11 S:2,24,101,22,S:14 N:8
