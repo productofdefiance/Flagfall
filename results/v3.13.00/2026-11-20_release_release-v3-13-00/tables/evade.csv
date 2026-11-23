@@ -1,0 +1,3 @@
+matchup,games,evade_chances,evade_taken,evade_safer_chances,evade_safer_taken,evade_no_step,no_step_cap,no_step_command,no_step_stamina,no_step_zone,no_step_tackle,no_step_blocked,no_step_other
+5v5,1000,988,805,536,496,833,312,0,6,0,515,0,0
+7v7,1000,2313,1807,1532,1326,793,514,23,8,0,247,1,0

@@ -1,0 +1,13 @@
+matchup,a,b,rules,format,lineups,games,a_wins,b_wins,a_tiebreak,b_tiebreak,draws,unfinished,errors,holder_ko,pull_ko,tko,tiebreak_win,draw,turn_limit,games_with_pull,avg_turn,decisive,first_mover_share,a_share,a_share_se
+cmd10-first6-storm200-7v7,brain8,brain8,v3.9,std7,mixed,1000,429,426,71,63,11,0,0,44,618,193,134,11,145,620,16.34,855,0.4351,0.5055,0.0158
+cmd10-first6-storm175-7v7,brain8,brain8,v3.9,std7,mixed,1000,433,437,55,58,17,0,0,40,660,170,113,17,130,661,15.95,870,0.4621,0.4965,0.0158
+cmd10-first6-storm150-7v7,brain8,brain8,v3.9,std7,mixed,1000,452,402,62,71,13,0,0,48,626,180,133,13,146,626,16.61,854,0.4941,0.5205,0.0158
+cmd10-first10-storm200-7v7,brain8,brain8,v3.9,std7,mixed,1000,434,442,57,54,13,0,0,44,665,167,111,13,124,665,15.62,876,0.4977,0.4975,0.0158
+cmd10-first10-storm175-7v7,brain8,brain8,v3.9,std7,mixed,1000,449,449,41,52,9,0,0,44,679,175,93,9,102,679,15.01,898,0.6013,0.4945,0.0158
+cmd10-first10-storm150-7v7,brain8,brain8,v3.9,std7,mixed,1000,458,456,27,45,14,0,0,41,696,177,72,14,86,699,14.46,914,0.6455,0.492,0.0158
+cmd8-first5-storm200-5v5,brain8,brain8,v3.9,blitz5,mixed,1000,389,392,84,76,59,0,0,71,562,148,160,59,219,562,15.25,781,0.7618,0.5025,0.0158
+cmd8-first5-storm175-5v5,brain8,brain8,v3.9,blitz5,mixed,1000,288,316,138,106,152,0,0,61,407,136,244,152,396,408,17.28,604,0.7351,0.502,0.0158
+cmd8-first5-storm150-5v5,brain8,brain8,v3.9,blitz5,mixed,1000,320,303,150,149,78,0,0,50,410,163,299,78,377,410,16.91,623,0.565,0.509,0.0158
+cmd8-first8-storm200-5v5,brain8,brain8,v3.9,blitz5,mixed,1000,403,382,93,95,27,0,0,67,556,162,188,27,215,556,15.48,785,0.7274,0.5095,0.0158
+cmd8-first8-storm175-5v5,brain8,brain8,v3.9,blitz5,mixed,1000,273,264,186,159,118,0,0,47,366,124,345,118,463,367,18.35,537,0.6406,0.518,0.0158
+cmd8-first8-storm150-5v5,brain8,brain8,v3.9,blitz5,mixed,1000,320,303,150,149,78,0,0,50,410,163,299,78,377,410,16.91,623,0.565,0.509,0.0158

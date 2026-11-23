@@ -1,0 +1,44 @@
+# command-storm-v39
+
+**Question:** FD49-3 (the Editor, 21 Nov), sim-only on v3.9, Brain 8 mirrors, 1,000 games each, balanced: 7v7 with Command 10 and a first turn of 6 or 10; 5v5 with Command 8 and a first turn of 5 or 8; each with Arrow Storm x2, x1.75 and x1.5. Which mix brings the first mover's share of decisive games to 45-55% in both formats, and what happens to stalls? Same deals for every matchup of a format.
+
+**Answer:** 12 matchups, 12000 games (per-matchup numbers in tables/outcomes.csv). Mirrors ended on the turn limit in 23.2% of games.
+
+**Key table** (v3.15.00, 12000 games; tiebreak wins counted apart from KOs and draws)
+
+| Matchup | Games | A wins (KO/TKO) | B wins (KO/TKO) | A tiebreak | B tiebreak | Draws | Holder KO | Pull KO | TKO | Ended on turn limit | Games with a pull | Avg turn | First mover's share of decisive |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| cmd10-first6-storm200-7v7: brain8 v brain8, std7, mixed | 1000 | 429 | 426 | 71 | 63 | 11 | 4.4% | 61.8% | 19.3% | 14.5% | 62.0% | 16.34 | 43.5% |
+| cmd10-first6-storm175-7v7: brain8 v brain8, std7, mixed | 1000 | 433 | 437 | 55 | 58 | 17 | 4.0% | 66.0% | 17.0% | 13.0% | 66.1% | 15.95 | 46.2% |
+| cmd10-first6-storm150-7v7: brain8 v brain8, std7, mixed | 1000 | 452 | 402 | 62 | 71 | 13 | 4.8% | 62.6% | 18.0% | 14.6% | 62.6% | 16.61 | 49.4% |
+| cmd10-first10-storm200-7v7: brain8 v brain8, std7, mixed | 1000 | 434 | 442 | 57 | 54 | 13 | 4.4% | 66.5% | 16.7% | 12.4% | 66.5% | 15.62 | 49.8% |
+| cmd10-first10-storm175-7v7: brain8 v brain8, std7, mixed | 1000 | 449 | 449 | 41 | 52 | 9 | 4.4% | 67.9% | 17.5% | 10.2% | 67.9% | 15.01 | 60.1% |
+| cmd10-first10-storm150-7v7: brain8 v brain8, std7, mixed | 1000 | 458 | 456 | 27 | 45 | 14 | 4.1% | 69.6% | 17.7% | 8.6% | 69.9% | 14.46 | 64.5% |
+| cmd8-first5-storm200-5v5: brain8 v brain8, blitz5, mixed | 1000 | 389 | 392 | 84 | 76 | 59 | 7.1% | 56.2% | 14.8% | 21.9% | 56.2% | 15.25 | 76.2% |
+| cmd8-first5-storm175-5v5: brain8 v brain8, blitz5, mixed | 1000 | 288 | 316 | 138 | 106 | 152 | 6.1% | 40.7% | 13.6% | 39.6% | 40.8% | 17.28 | 73.5% |
+| cmd8-first5-storm150-5v5: brain8 v brain8, blitz5, mixed | 1000 | 320 | 303 | 150 | 149 | 78 | 5.0% | 41.0% | 16.3% | 37.7% | 41.0% | 16.91 | 56.5% |
+| cmd8-first8-storm200-5v5: brain8 v brain8, blitz5, mixed | 1000 | 403 | 382 | 93 | 95 | 27 | 6.7% | 55.6% | 16.2% | 21.5% | 55.6% | 15.48 | 72.7% |
+| cmd8-first8-storm175-5v5: brain8 v brain8, blitz5, mixed | 1000 | 273 | 264 | 186 | 159 | 118 | 4.7% | 36.6% | 12.4% | 46.3% | 36.7% | 18.35 | 64.1% |
+| cmd8-first8-storm150-5v5: brain8 v brain8, blitz5, mixed | 1000 | 320 | 303 | 150 | 149 | 78 | 5.0% | 41.0% | 16.3% | 37.7% | 41.0% | 16.91 | 56.5% |
+
+**Stalls** (`tables/stall.csv`):
+- cmd10-first6-storm200-7v7: first attack on turn 2.3 and last damage on turn 13.0 on average (turn-limit games: 2.4 and 12.1). Turn-limit games end with 46.4 side-turns without an attack or pull on average. 100.0% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd10-first6-storm175-7v7: first attack on turn 2.3 and last damage on turn 12.9 on average (turn-limit games: 2.3 and 11.9). Turn-limit games end with 46.7 side-turns without an attack or pull on average. 100.0% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd10-first6-storm150-7v7: first attack on turn 2.2 and last damage on turn 13.3 on average (turn-limit games: 2.3 and 12.1). Turn-limit games end with 46.2 side-turns without an attack or pull on average. 100.0% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd10-first10-storm200-7v7: first attack on turn 2.1 and last damage on turn 12.7 on average (turn-limit games: 2.1 and 11.8). Turn-limit games end with 46.9 side-turns without an attack or pull on average. 100.0% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd10-first10-storm175-7v7: first attack on turn 2.1 and last damage on turn 12.6 on average (turn-limit games: 2.1 and 11.2). Turn-limit games end with 48.1 side-turns without an attack or pull on average. 100.0% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd10-first10-storm150-7v7: first attack on turn 2.1 and last damage on turn 12.5 on average (turn-limit games: 2.1 and 12.0). Turn-limit games end with 46.5 side-turns without an attack or pull on average. 100.0% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd8-first5-storm200-5v5: first attack on turn 4.5 and last damage on turn 11.6 on average (turn-limit games: 4.1 and 8.4). Turn-limit games end with 34.1 side-turns without an attack or pull on average. 100.0% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd8-first5-storm175-5v5: first attack on turn 3.9 and last damage on turn 10.2 on average (turn-limit games: 4.2 and 7.1). Turn-limit games end with 37.6 side-turns without an attack or pull on average. 100.0% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd8-first5-storm150-5v5: first attack on turn 1.8 and last damage on turn 10.4 on average (turn-limit games: 1.6 and 7.8). Turn-limit games end with 34.8 side-turns without an attack or pull on average. 99.7% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd8-first8-storm200-5v5: first attack on turn 4.3 and last damage on turn 12.2 on average (turn-limit games: 3.8 and 9.8). Turn-limit games end with 30.7 side-turns without an attack or pull on average. 100.0% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd8-first8-storm175-5v5: first attack on turn 4.0 and last damage on turn 10.4 on average (turn-limit games: 4.2 and 7.9). Turn-limit games end with 35.5 side-turns without an attack or pull on average. 100.0% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+- cmd8-first8-storm150-5v5: first attack on turn 1.8 and last damage on turn 10.4 on average (turn-limit games: 1.6 and 7.8). Turn-limit games end with 34.8 side-turns without an attack or pull on average. 99.7% of turn-limit games took their last damage 5 or more side-turns before the end (a starting cut for the stall study, not a definition of a stall).
+
+**Likely or proven:** cmd10-first6-storm200-7v7: a mirror, so the A/B split is a check on noise (+0.3 standard errors from even). cmd10-first6-storm175-7v7: a mirror, so the A/B split is a check on noise (-0.2 standard errors from even). cmd10-first6-storm150-7v7: a mirror, so the A/B split is a check on noise (+1.3 standard errors from even). cmd10-first10-storm200-7v7: a mirror, so the A/B split is a check on noise (-0.2 standard errors from even). cmd10-first10-storm175-7v7: a mirror, so the A/B split is a check on noise (-0.3 standard errors from even). cmd10-first10-storm150-7v7: a mirror, so the A/B split is a check on noise (-0.5 standard errors from even). cmd8-first5-storm200-5v5: a mirror, so the A/B split is a check on noise (+0.2 standard errors from even). cmd8-first5-storm175-5v5: a mirror, so the A/B split is a check on noise (+0.1 standard errors from even). cmd8-first5-storm150-5v5: a mirror, so the A/B split is a check on noise (+0.6 standard errors from even). cmd8-first8-storm200-5v5: a mirror, so the A/B split is a check on noise (+0.6 standard errors from even). cmd8-first8-storm175-5v5: a mirror, so the A/B split is a check on noise (+1.1 standard errors from even). cmd8-first8-storm150-5v5: a mirror, so the A/B split is a check on noise (+0.6 standard errors from even). Any cause behind a difference is likely, not isolated, unless a run was built to isolate it.
+
+**Flags raised:** none
+
+**Replay the odd games:** each row of `games.csv` has a `replay` link that opens that game on the board.
+- shortest game (7 turns, KO): seed 6RL3-PYWU-BL6W (cmd10-first10-storm150-7v7, game 139) not replayable: rule numbers changed for this run
+- longest game (35 turns, turn limit, fewer beings lost): seed 4ZDY-ZZX7-3FWS (cmd10-first6-storm200-7v7, game 80) not replayable: rule numbers changed for this run

@@ -6,6 +6,9 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.16.00 | v3.9 | Brain 8 | v5 + v4 | 21 |
+| v3.15.00 | v3.9 | Brain 8 | v5 | 20 |
+| v3.14.01 | v3.9 | Brain 5 | v5 | 19 |
 | v3.14.00 | v3.9 | Brain 5 | v5 | 18 |
 | v3.13.00 | v3.9 | Brain 5 | v3 | 17 |
 | v3.12.00 | v3.8 | Brain 5 | v2 | 16 |
@@ -20,6 +23,74 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.16.00 · Build 21 — Brief 018, no rule change: turn cue, hot-seat views, field zoom, match log (23 Nov 2026)
+Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8, unchanged (Brief 022). UI: Approved UI v4 screens on top of v5. Game version **v3.16.00** (YY: new screens and a new setting; Brief 022 took v3.15.00 first).
+
+**What a player will notice**
+- **Turn cue (every game: hot seat, against the bot, watch and replay):** a tag hangs from the scoreboard on the mover's side, "NORTH PLAYS" / "SOUTH PLAYS" (and "… DEPLOYS"), for the whole turn; it slides away when the turn passes. On desktop it hangs under that side's name in the scoreboard.
+- **Hot-seat view** (Settings step and the in-match Options menu): **Handoff** (as before), **Flip** (the field spins so the mover's flag is at the bottom), **Face to Face** (phones only: phone flat between you, the screen turns to face whoever is playing; the field never moves).
+- **Field zoom on every format:** pinch, or the new zoom button under hex names (phone: in = the field's width, out = the whole field, starts zoomed in; desktop: in = 100 px hexes, out = the whole field, starts zoomed out; pinch to 120 px). **Deployment** shows the deploying side's half of the field, on phone and desktop alike. **Clicking the space around the field** lets go of the tapped unit. Drag to pan. A touch that moves more than 8 px never taps; a second finger cancels a drag. Desktop: mouse wheel, drag, + and −.
+- **Zoomed out (hexes under 50 px), tokens show icons only**; tap a unit for its HP. 9v9 and 13v13 can be zoomed to fit or to 60 px hexes.
+- **Hex names sit in the middle of the hex**; the hex-names button moved to the right edge, above zoom.
+- **Match log:** on a phone, a new top-right button swaps the field for the log; on desktop it is a panel on the field's left (beside the field at 1200 px and wider, with a Hide button; over the field on narrower windows), opened from a button at the field's top left; the field keeps its place when the panel opens or closes (newest turn on top, each turn in play order, one row per action with Stamina, damage, HP before → after, OUT, Parry, set spear, holder and flag; tap an attack to see its sum). Options → Match log shows the same rows; the side column's Recent list is gone.
+
+**Under the hood**
+- `engine.js`: a display-only list `st.events` beside `st.log`, one entry per log line, with the facts the log rows need. Not enumerable, so it is never copied, saved, hashed or read by the rules, brains or lab. `st.log` is word for word unchanged; every preset and brain replays with identical hashes.
+- `app.js`, `index.html`, `skin.js`: zoom, gestures, the three views, the tag (text colour picked by contrast in the skin), the log. The view is kept on the match (`match.view`), never in the options the engine reads.
+- New checks `test_events.js` and `test_hotseat.js` (headless browser); `sims/shots_018.js` makes the screenshots.
+
+**Fixed in review (the Editor, 22 Nov):** the field could jump to North's end (deployment always opened on North; zooming after scrolling lost your place; some turns jumped to the top): the field's position inside its scroll area was read as "not a number". The tag now stays all turn; "zoom in" goes to 100 px hexes; the desktop log is a left-side panel (F018-6).
+
+On a phone the match log's header sits in the middle, between the Options button and Show field, and stays put while the rows scroll.
+
+**Flags:** opened F018-1 to F018-6 (`flags/018.md`); closed F018-1 to F018-5 (the Editor, 22 and 23 Nov); F018-6 tabled.
+
+## v3.15.00 · Build 20 — Brief 022, Brain 8: holder joins, safe approach, warmed-special respect, opening tempo (22 Nov 2026)
+Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). Default brain: **Brain 8** (the Editor, 21 Nov, F022-5). Game version **v3.15.00** (YY: a new brain; briefs 017 and 025 took v3.13.00, v3.14.00 and v3.14.01 first).
+
+**What a player will notice**
+- **The computer opponent is now Brain 8** in a new match (it was Brain 5; Brain 5 stays in the list).
+- A new opponent in the brain list, **"Brain 8 (safe approach)"**. When the enemy is down to its flag holder and the race is safe, its own holder joins the attack, so games end instead of running down the clock. It plays Brain 5 even, but in Brain 8 vs Brain 8 games far fewer reach the turn limit (5v5 46.5% against 64.2%; 7v7 12.5% against 40.3%, 1,000 games each).
+- Its own table on the Opponent screen: four behaviours you switch on (1) or off (0), the numbers they use, and two **opening sliders** (moving first, moving second) from −1 (sit back) to +1 (attack). It ships pushing when it moves second (+1) and as Brain 5 when it moves first (0): in 7v7 that brings the first mover's share of decisive games from 34.7% to 43.7% without changing 5v5.
+- Two behaviours are there but **off**: "Safe approach" (don't end a turn where the enemy strikes first) and "Respect a warmed special" (step out of or brace against a warmed-up special). Switched on they made it lose to Brain 5.
+- Watch links carry Brain 8's settings, negative slider values included.
+
+**Under the hood**
+- `bot.js`: Brain 8's reading of the board (`approach8Context`) and its costs (`approach8Cost`), worked out each time it plans; nothing remembered between turns. With all four switches off it plays exactly like Brain 5 (same `brainhash`). Brains 5, 6 and 7 unchanged.
+- Lab: new measures `firstloss` (first unit and first archer lost, first strike) and `brain8`; `sims/trace022.js`; `sims/lab/report022.js`. Runs: `brain8-screen`, `brain8-sweep`, `brain8-confirm`, `brain8-tempo-confirm`.
+- `test_brain8.js` (38 checks) in the checks and night checks.
+
+**Measured:** on v3.9 at the shipped settings Brain 8 loses to Brain 5 by 5 to 7.5 points in three of four matchups (mostly tiebreaks; F022-8). FD49-3's Command and Arrow Storm grid is in the brief's Report (F022-9).
+
+**Flags:** closed F47, F022-5, F021-3 (F48 recorded). Opened F022-1 to F022-9. F41 stays open (next step F022-1).
+
+## No game version — Brief 027, tooling: lab plumbing, fewer jobs (22 Nov 2026)
+Nothing in the game changes (`board/` untouched). Every game the lab plays is the same.
+
+**What the Editor will notice**
+- A results pull request runs `checks` once (was twice), and no play link, night checks or lab run. It still merges itself.
+- A release run's checks take 5 machines instead of 16; every check is still listed by name in `tables/checks.csv`.
+- The status board no longer starts after every finished checks, night-checks or lab run (about 40 short runs an evening). It still updates hourly, on pull request events, on pushes and from Refresh.
+- Main's play link is only republished when a merge changes the board.
+
+**Under the hood**
+- New `sims/lab/lab_key.sh`: the delivery and the refresh start `checks.yml` themselves only when the workflow's own token is in use (the Editor's key can read `GET /user`, the workflow token can't).
+- `lab.yml` release checks: the 12 quick checks run in one job from `sims/lab/release_quick.txt`.
+- `play-links`, `night-checks` and `lab` skip pull requests from `lab/**` branches (a job condition); `play-links`' queue moved onto its job so a skipped run can't cancel a waiting publish.
+- New checks `sims/lab/test_deliver.js` and `sims/lab/test_workflows.js`, run in `checks`.
+
+**Flags closed:** F024-1, F024-2, F024-3, F024-4. **Opened:** F027-1 (ASK).
+
+## v3.14.01 · Build 19 — Brief 025 follow-up, no rule change: a special's Strength never struck (21 Nov 2026)
+Rule set: none changed. Default brain: Brain 5. UI: v5. Game version **v3.14.01** (ZZ: a screen fix).
+
+**What a player will notice (phone)**
+- A special's preview shows Strength × multiplier with nothing struck through, even when Reach or Half Strength changed the Strength first: Javelin from 2 hexes reads `7 ×2` (was `8` struck, `7 ×2`). The numbers add up to the damage shown; the key still says why the Strength changed.
+
+**Under the hood:** `ui.js` `phoneSpecialStats()`; a new `test_ui.js` check (fails on Build 18). Desktop unchanged.
+
+**Flags closed:** F025-1, F025-3, F025-4 (the Editor, 21 Nov).
 
 ## v3.14.00 · Build 18 — Brief 025, no rule change: phone fit, Approved UI v5 (21 Nov 2026)
 Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 5, unchanged. UI: **v5** (Approved UI v5, phone only). Game version **v3.14.00** (YY: new screens).

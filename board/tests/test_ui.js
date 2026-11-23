@@ -247,6 +247,15 @@ const stat = (side, key) => side.stats.find((s) => s.key === key);
   ok(ph[0].key === "maul" && ph[0].val === E.fmt(V37.cards.LM.str) && ph[0].old === undefined && ph[0].mult === "×" + E.fmt(sp.hits[0].mult), `special on the phone: "${ph[0].val} ${ph[0].mult}" (${JSON.stringify(ph[0])})`);
   ok(!ph.some((x) => x.key === "special"), "special on the phone: no separate multiplier stat");
   ok(spv.attacker.stats.some((x) => x.key === "special"), "special on desktop: unchanged (Brief 017's separate multiplier)");
+  // F025-1 (the Editor, 21 Nov): a Strength changed before the multiplier (Javelin's Reach) is never struck: 7 ×2, not 8 struck 7 ×2.
+  const s4 = setup(V37, [["LA", "LA"]], [["HM", "HM"]], { "N-LA": "E8", "S-HM": "E10" });
+  E.act(s4, { type: "warmup", uid: "N-LA" }); E.act(s4, { type: "end" }); E.act(s4, { type: "end" });
+  const jt = E.options(s4, "N-LA").special.targets.find((x) => x.target === "S-HM");
+  if (jt) {
+    const jpv = UI.specialPreview(s4, U(s4, "N-LA"), U(s4, "S-HM"), jt), jph = UI.phoneSpecialStats(jpv), d = jt.hits[0].detail;
+    ok(d.strAfter !== d.str, `Javelin from 2 hexes: Reach changes the Strength (${d.str} → ${d.strAfter})`);
+    ok(jph[0].old === undefined && jph[0].val === E.fmt(d.strAfter) && jph[0].mult === "×" + E.fmt(jt.hits[0].mult), `Javelin on the phone: "${jph[0].val} ${jph[0].mult}", nothing struck (${JSON.stringify(jph[0])})`);
+  } else ok(false, "Javelin set-up: no target 2 hexes away");
   // Every special's name stays short enough for its idle button (about 14 characters at 393 px; test_phone.js measures it).
   for (const code in NEW.cards) if (NEW.cards[code].special) { const nm = E.specialName(NEW.cards[code].special); ok(nm.length <= 14, `${code}: special name "${nm}" is 14 characters or fewer`); }
   const html = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");

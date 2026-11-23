@@ -1,0 +1,5 @@
+matchup,games,bot_turns,bot_ms,bot_ms_max_turn,bot_positions,bot_positions_max_turn
+tempo-even-push-mirror-5v5,1000,37738,1829352,688,12235165,1212672
+tempo-back-push-mirror-5v5,1000,25491,1471847,379,9947577,1131004
+tempo-even-push-mirror-7v7,1000,31090,5114954,2657,18639059,2511639
+tempo-back-push-mirror-7v7,1000,31886,5286201,2246,19451212,2559599

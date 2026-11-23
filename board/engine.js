@@ -124,7 +124,27 @@
   const halve = (st, v) => (sw(st, "halfPoints") ? v / 2 : Math.floor(v / 2));
 
   function fail(msg) { const e = new Error(msg); e.illegal = true; throw e; }
-  function log(st, text, kind) { st.log.push({ turn: st.turn, team: st.toMove, text, kind: kind || "info" }); }
+  function log(st, text, kind) {
+    st.log.push({ turn: st.turn, team: st.toMove, text, kind: kind || "info" });
+    if (st.events) st.events.push({ i: st.log.length - 1, turn: st.turn, team: st.toMove, kind: kind || "info" });   // Brief 018 §10.8
+  }
+  /* Brief 018 §10.8: the match log's facts (st.events). Display only: a list kept beside st.log, one entry per log line,
+     on a state made by newMatch (not enumerable, so it is never copied, hashed or saved, and look-ahead copies keep
+     none). While an action is applied on such a state, REC collects what happened; apply() then fills in the action's
+     own entry. Nothing in the rules, brains or lab reads it. */
+  let REC = null;
+  const note = (st, facts) => { if (REC && REC.st === st) Object.assign(REC.extra, facts); };
+  const noteList = (st, key, item) => { if (REC && REC.st === st) (REC.extra[key] = REC.extra[key] || []).push(item); };
+  function snapUnits(st) {
+    const out = {};
+    for (const u of st.units) out[u.uid] = { hex: u.hex, hp: u.hp > 0 ? hpShown(st, u) : 0, braced: !!u.braced, sp: u.sp || null, stam: u.stam, holder: isHolder(st, u) };
+    return { cmd: st.cmd, flag: { N: flagShown(st, "N"), S: flagShown(st, "S") }, units: out };
+  }
+  /** The roll's effect on damage as a percentage (+10, −25, ...; 0 when it changed nothing). */
+  function rollPct(st, die) {
+    if (sw(st, "dice2d6")) return Math.round((diceMultiplier(st, die) - 1) * 100);
+    return die === 1 ? -50 : die === 6 ? 50 : 0;
+  }
 
   function projects(st, u) {
     const c = card(st, u);
@@ -313,6 +333,7 @@
         if (arrival) u.spearTaken = true;
         const pooled = hurt(st, u, st.rs.spikeDamage);
         if (events) events.push({ type: "spear", hex, by: e.uid, amount: st.rs.spikeDamage });   // Brief 017: for route()
+        noteList(st, "spear", { uid: u.uid, by: e.uid, byHex: e.hex, hex, amount: st.rs.spikeDamage, removed: u.hp <= 0 });
         return `; braced ${e.id} at ${e.hex} deals ${st.rs.spikeDamage}${pooled} (${u.id} HP ${fmt(Math.max(u.hp, 0))})` + (u.hp <= 0 ? ` — ${u.id} REMOVED` : "");
       }
     }
@@ -331,6 +352,7 @@
     u.hex = dst; u.moved += steps + (tackle ? tackleHexes(st) : 0); u.zmode = mode;
     if (tackle) u.tackled = true;
     if (evading) u.evadeMoved = true;
+    note(st, { steps, path: [dst], end: dst, mark: mode !== "free", evading, tackle: !!tackle });
     let msg = `${u.id} ${src} → ${dst} (${steps} hex${steps > 1 ? "es" : ""}, cost ${fmt(cost)}${tackle ? ", including " + fmt(tackleCostFor(st, u)) + " for tackle" + (tackleHexes(st) ? " and 1 hex of movement" : "") : ""})` + (evading ? "; evading" : "") + (mode !== "free" ? "; stopped by Zone of Control" : "") + left;
     if (u.hp > 0) msg += spikeCheck(st, u, dst, src);
     log(st, msg, "move");
@@ -391,6 +413,7 @@
     if (tk) u.tackled = true;
     if (evading) u.evadeMoved = true;
     const short = end !== dst;
+    note(st, { steps, path: walked.slice(), end, short, mark: stopMode(m), evading, tackle: !!tk });
     let msg = `${u.id} ${src} → ${end} (${steps} hex${steps > 1 ? "es" : ""} via ${walked.join(" ")}, cost ${fmt(cost)}${tk ? ", including " + fmt(tackleCostFor(st, u)) + " for tackle" + (tackleHexes(st) ? " and 1 hex of movement" : "") : ""})` +
       (evading ? "; evading" : "") + (stopMode(m) ? (short ? `; stopped by Zone of Control short of ${dst}` : "; stopped by Zone of Control") : "") + left + spear;
     if (short && u.hp <= 0 && !stopMode(m)) msg += ` (short of ${dst})`;
@@ -602,6 +625,7 @@
     });
     const left = leaveFlag(st, a) + leaveFlag(st, b);
     a.hex = bh; b.hex = ah;
+    note(st, { steps: 1, swap: true });
     let msg = `${a.id} and ${b.id} swap: ${a.id} to ${a.hex} (cost ${fmt(costs[0])}), ${b.id} to ${b.hex} (cost ${fmt(costs[1])})` + left;
     if (a.hp > 0) msg += spikeCheck(st, a, a.hex, ah);
     if (b.hp > 0) msg += spikeCheck(st, b, b.hex, bh);
@@ -745,6 +769,7 @@
     const die = roll();
     const dmg = applyDie(st, value, die, dodge);
     const wasHolder = isHolder(st, t);
+    note(st, { str: card(st, u).str, parts: parts.slice(), value, die, roll: rollPct(st, die), dmg, reach: card(st, u).trait === "reach" && d === 2 });
     const pooled = hurt(st, t, dmg);
     let msg = `${u.id} (${u.hex}) attacks ${t.id} (${t.hex}${wasHolder ? ", holding the flag" : ""}): ${parts.join(", ")} = ${fmt(value)}; ${sw(st, "dice2d6") ? "dice" : "die"} ${die} → ${fmt(dmg)} damage${pooled}; ${t.id} HP ${fmt(Math.max(t.hp, 0))}`;
     if (t.braced && card(st, t).brace === "parry" && d === 1) {
@@ -753,6 +778,7 @@
       else {
         const pd = parryAmount(st, u);
         const pp = hurt(st, u, pd);
+        note(st, { parry: { amount: pd, by: t.uid, removed: u.hp <= 0 } });
         msg += `; parry deals ${fmt(pd)}${pp} (${u.id} HP ${fmt(Math.max(u.hp, 0))})` + (u.hp <= 0 ? ` — ${u.id} REMOVED` : "");
       }
     }
@@ -764,14 +790,14 @@
       const holdsOwnFlag = sw(st, "holderHoldsHex") && isHolder(st, u);   // v3.1 (E1 fix): a holder never leaves its flag to take a hex
       if (isMelee(st, u) && d === 1 && u.hp > 0 && !wasHolder && !holdsOwnFlag) {
         const was = u.hex;
-        u.hex = t.hex; msg += `; ${u.id} takes ${t.hex}`;
+        u.hex = t.hex; msg += `; ${u.id} takes ${t.hex}`; note(st, { take: t.hex });
         if (st.rs.switches.captureTriggersSpike) msg += spikeCheck(st, u, u.hex, was);
       }
     }
     // v3.3 Evade: a Light unit whose adjacent attack left the target standing may step away instead of ending its turn.
     if (sw(st, "evade") && card(st, u).evade && d === 1 && t.hp > 0 && u.hp > 0) {
       u.done = false; u.evadeFrom = t.uid; u.evadeMoved = false;
-      msg += `; ${u.id} may evade`;
+      msg += `; ${u.id} may evade`; note(st, { mayEvade: true });
     }
     log(st, msg, "attack");
     return { die, dmg };
@@ -806,6 +832,7 @@
     const die = roll();
     const dmg = applyDie(st, value, die);
     st.pole[foe] = Math.min(st.rs.game.poleHP, st.pole[foe] + dmg);
+    note(st, { str: card(st, u).str, parts: parts.slice(), value, die, roll: rollPct(st, die), dmg, flagOf: foe });
     log(st, `${u.id} pulls at ${u.hex}: ${parts.join(", ")} = ${fmt(value)}; ${sw(st, "dice2d6") ? "dice" : "die"} ${die} → ${fmt(dmg)}; ${foe === "N" ? "North" : "South"} flag HP ${fmt(st.rs.game.poleHP - st.pole[foe])}/${st.rs.game.poleHP}`, "pull");
     return { die, dmg };
   }
@@ -913,6 +940,7 @@
     spend(st, u, st.rs.game.warmupCost);
     const again = u.sp === "charged";
     u.sp = "warm";
+    note(st, { special: specialName(specialOf(st, u)), warm: true });
     log(st, `${u.id} warms up ${specialName(specialOf(st, u))} at ${u.hex}${again ? " (again)" : ""}.`, "special");
   }
   function doSpecial(st, u, t) {
@@ -924,6 +952,7 @@
     const d = fieldOf(st).dist(u.hex, t.hex), hits = specialHits(st, u, t);
     // All hits land first (Article 1.12), then reactions.
     const pieces = [];
+    note(st, { special: specialName(kind), str: card(st, u).str, hits: hits.map((h) => ({ uid: h.uid, dmg: h.dmg, mult: h.mult, value: h.value, parts: h.parts.slice() })) });
     for (const h of hits) {
       const x = unitByUid(st, h.uid);
       hurt(st, x, h.dmg);
@@ -938,6 +967,7 @@
       if (!parried && u.hp > 0 && !(sw(st, "parryFirstOnly") && x.parryUsed) && !(sw(st, "parryNeedsSurvivor") && x.hp <= 0)) {
         const pd = parryAmount(st, u), pp = hurt(st, u, pd);
         parried = true;
+        note(st, { parry: { amount: pd, by: x.uid, removed: u.hp <= 0 } });
         msg += `; ${x.id} parries for ${fmt(pd)}${pp} (${u.id} HP ${fmt(Math.max(u.hp, 0))})` + (u.hp <= 0 ? ` — ${u.id} REMOVED` : "");
       }
       if (sw(st, "parryFirstOnly")) x.parryUsed = true;
@@ -945,13 +975,13 @@
     // Taking the hex: Pick Off only, as any adjacent melee kill (3.6); Arc Hit and Skewer never step in (6.17).
     if (kind === "pickOff" && t.hp <= 0 && d === 1 && u.hp > 0 && !(sw(st, "holderHoldsHex") && isHolder(st, u))) {
       const was = u.hex;
-      u.hex = t.hex; msg += `; ${u.id} takes ${t.hex}`;
+      u.hex = t.hex; msg += `; ${u.id} takes ${t.hex}`; note(st, { take: t.hex });
       if (st.rs.switches.captureTriggersSpike) msg += spikeCheck(st, u, u.hex, was);
     }
     // Evade (6.5): a Light unit after an adjacent special that leaves its target standing.
     if (sw(st, "evade") && card(st, u).evade && d === 1 && t.hp > 0 && u.hp > 0) {
       u.done = false; u.evadeFrom = t.uid; u.evadeMoved = false;
-      msg += `; ${u.id} may evade`;
+      msg += `; ${u.id} may evade`; note(st, { mayEvade: true });
     }
     log(st, msg, "special");
     return { hits: hits.map((h) => ({ uid: h.uid, dmg: h.dmg })) };
@@ -1092,6 +1122,7 @@
       }
     }
     if (rs.switches && rs.switches.fields) st.field = fieldFor(rs, matchSize(st)).id;   // v3.8: the format's own field
+    Object.defineProperty(st, "events", { value: [], writable: true, enumerable: false, configurable: true });   // Brief 018 §10.8
     return st;
   }
 
@@ -1148,6 +1179,8 @@
     if (["move", "swap", "attack", "pull", "brace", "done", "warmup", "special"].includes(action.type) && !action.uid) fail("That action needs a unit.");
     const actor = st.toMove;
     let out = {};
+    const rec = st.events ? { st, extra: {}, n0: st.events.length, pre: snapUnits(st) } : null;
+    if (rec) REC = rec;
     const u = action.uid ? unitByUid(st, action.uid) : null;
     if (action.uid && !u) fail("No such unit.");
     if (u && (u.hp <= 0)) fail("That unit has been removed.");
@@ -1184,23 +1217,49 @@
       }
       default: fail("Unknown action " + action.type);
     }
-    const rec = Object.assign({}, action);
-    if (out.die) rec.die = out.die;
-    st.actions.push(rec);
+    if (rec) { REC = null; fillEvent(st, action, rec); }
+    const done = Object.assign({}, action);
+    if (out.die) done.die = out.die;
+    st.actions.push(done);
     checkResult(st, actor);
     return out;
   }
 
+  /** Brief 018 §10.8: fill in the entry for the action just applied (display only): the unit and its targets before
+      and after, Stamina and Command spent, the flags, and what the action noted (parts, roll, Parry, set spear...). */
+  const MAIN_KIND = { move: "move", swap: "move", attack: "attack", pull: "pull", brace: "brace", warmup: "special", special: "special", done: "done" };
+  function fillEvent(st, action, rec) {
+    const kind = MAIN_KIND[action.type];
+    const ev = kind && st.events.slice(rec.n0).find((e) => e.kind === kind);
+    if (!ev) return;
+    const pre = rec.pre, post = snapUnits(st);
+    const side = (uid) => {
+      const u = unitByUid(st, uid), a = pre.units[uid], b = post.units[uid];
+      return { uid, id: u.id, card: u.card, fk: !!u.fk, team: u.team, from: a.hex, to: b.hex, hpBefore: a.hp, hpAfter: b.hp, removed: a.hp > 0 && b.hp <= 0,
+        braced: a.braced, sp: a.sp, spAfter: b.sp, holder: a.holder, holderAfter: b.holder, stamina: Math.max(0, a.stam - b.stam) };
+    };
+    Object.assign(ev, { action: action.type, command: pre.cmd - st.cmd, flag: { N: [pre.flag.N, post.flag.N], S: [pre.flag.S, post.flag.S] } }, rec.extra);
+    if (action.uid) ev.unit = side(action.uid);
+    const tg = [];
+    if (action.type === "swap") tg.push(side(action.with));
+    else if (action.type === "attack") tg.push(Object.assign(side(action.target), { dmg: rec.extra.dmg }));
+    else if (action.type === "special" && rec.extra.hits) for (const h of rec.extra.hits) tg.push(Object.assign(side(h.uid), { dmg: h.dmg, mult: h.mult }));
+    if (tg.length) ev.targets = tg;
+    if (rec.extra.spear) ev.spear = rec.extra.spear.map((x) => Object.assign({}, x, { victim: side(x.uid), by: side(x.by) }));
+  }
+
   /** Apply one action. Returns {ok, error?, die?}. The state is changed only when ok. */
   function act(st, action, roll) {
-    const snapshot = clone(st);
+    const snapshot = clone(st), nEv = st.events ? st.events.length : 0;
     try {
       const out = apply(st, action, roll);
       return Object.assign({ ok: true }, out);
     } catch (e) {
       if (!e.illegal) console.error(e);
+      REC = null;
       Object.keys(st).forEach((k) => delete st[k]);
       Object.assign(st, snapshot);
+      if (st.events) st.events.length = nEv;   // Brief 018: the failed action leaves no entries
       return { ok: false, error: e.message };
     }
   }

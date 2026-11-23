@@ -1,0 +1,3 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+5v5,1000,1509,8,1509,0,N:250 ended_earlier:405 level:89 S:256,won_tiebreak:501 lost:4 won_decisive:1,38
+7v7,1000,1299,0,1299,0,N:213 ended_earlier:551 S:220 level:16,won_tiebreak:433,65

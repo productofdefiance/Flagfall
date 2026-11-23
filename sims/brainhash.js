@@ -8,7 +8,7 @@ const crypto = require("crypto");
 for (const spec of ids) {
   const [body, seedAs] = spec.split("@"), [base, mods] = body.split(":"), id = seedAs || base;
   const B = JSON.parse(JSON.stringify(DEFAULT_BRAINS[base]));
-  for (const kv of (mods || "").split(",").filter(Boolean)) { const [k, v] = kv.split("="); const g = ["model", "plan5", "lead", "planner", "weights", "settings"].find((x) => B[x] && k in B[x]); if (!g) throw new Error(`${base} has no setting ${k}`); B[g][k] = +v; }
+  for (const kv of (mods || "").split(",").filter(Boolean)) { const [k, v] = kv.split("="); const g = ["model", "plan5", "lead", "approach", "planner", "weights", "settings"].find((x) => B[x] && k in B[x]); if (!g) throw new Error(`${base} has no setting ${k}`); B[g][k] = +v; }
   const h = crypto.createHash("sha256");
   for (const rs of PRESETS) for (const size of [5, 7]) for (let g = 0; g < 2; g++) {
     const rnd = require(dir + "/tests/rng.js")(`brainhash:${id}:${rs.id}:${size}`, g);

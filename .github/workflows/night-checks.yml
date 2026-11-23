@@ -24,7 +24,8 @@ permissions:
 jobs:
   full:
     name: full checks
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full checks')
+    # Brief 027: never on a results-only pull request (head branch lab/**), even with the label.
+    if: github.event_name != 'pull_request' || (contains(github.event.pull_request.labels.*.name, 'full checks') && !startsWith(github.event.pull_request.head.ref, 'lab/'))
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -62,6 +63,11 @@ jobs:
         continue-on-error: true
         working-directory: board
         run: node tests/test_brain7.js 30
+      - name: test_brain8.js (Brain 8 legal play, 30 games per format and lineup)
+        id: brain8
+        continue-on-error: true
+        working-directory: board
+        run: node tests/test_brain8.js 30
       - name: Summary
         if: always()
         run: |
@@ -73,6 +79,7 @@ jobs:
             echo "| test_brain5.js, 30 games per format and lineup | $(mark "${{ steps.brain5.outcome }}") |"
             echo "| test_brain6.js, 30 games per format and lineup | $(mark "${{ steps.brain6.outcome }}") |"
             echo "| test_brain7.js, 30 games per format and lineup | $(mark "${{ steps.brain7.outcome }}") |"
+            echo "| test_brain8.js, 30 games per format and lineup | $(mark "${{ steps.brain8.outcome }}") |"
           } >> "$GITHUB_STEP_SUMMARY"
       - name: File the night in results/ (Brief 008)
         if: always() && github.event_name != 'pull_request'
@@ -89,7 +96,7 @@ jobs:
           node sims/lab/nightly.js --commit "$SHA" --checks /tmp/checks.txt --parts /tmp/parts --order "$o"
           bash sims/lab/deliver.sh main "Night checks $(date -u +%Y-%m-%d)"
       - name: Open an issue if a night or on-demand run failed
-        if: (steps.v32.outcome != 'success' || steps.inv.outcome != 'success' || steps.kitd.outcome != 'success' || steps.brain5.outcome != 'success' || steps.brain6.outcome != 'success' || steps.brain7.outcome != 'success') && github.event_name != 'pull_request'
+        if: (steps.v32.outcome != 'success' || steps.inv.outcome != 'success' || steps.kitd.outcome != 'success' || steps.brain5.outcome != 'success' || steps.brain6.outcome != 'success' || steps.brain7.outcome != 'success' || steps.brain8.outcome != 'success') && github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
           RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -102,10 +109,11 @@ jobs:
           - test_brain5.js (30 games per format and lineup): ${{ steps.brain5.outcome }}
           - test_brain6.js (30 games per format and lineup): ${{ steps.brain6.outcome }}
           - test_brain7.js (30 games per format and lineup): ${{ steps.brain7.outcome }}
+          - test_brain8.js (30 games per format and lineup): ${{ steps.brain8.outcome }}
 
           Opened automatically by the night-checks workflow (Brief 003). Close it once a fix is merged."
           n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Night checks failed"' --json number --jq '.[0].number')
           if [ -n "$n" ]; then gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "$body"; else gh issue create --repo "$GITHUB_REPOSITORY" --title "Night checks failed" --body "$body"; fi
       - name: Fail the run if a check failed
-        if: steps.v32.outcome != 'success' || steps.inv.outcome != 'success' || steps.kitd.outcome != 'success' || steps.brain5.outcome != 'success' || steps.brain6.outcome != 'success' || steps.brain7.outcome != 'success'
+        if: steps.v32.outcome != 'success' || steps.inv.outcome != 'success' || steps.kitd.outcome != 'success' || steps.brain5.outcome != 'success' || steps.brain6.outcome != 'success' || steps.brain7.outcome != 'success' || steps.brain8.outcome != 'success'
         run: exit 1

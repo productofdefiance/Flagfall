@@ -1,0 +1,43 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+b5-mirror-5v5,200,7,S:4 N:3,10,107,66,S:34 N:32
+b4-v-b5-5v5,200,4,S:2 N:2,7,50,66,S:35 N:31
+b4-mirror-5v5,200,3,S:2 N:1,5,35,66,S:34 N:32
+b4a1-v-b5-5v5,200,4,S:2 N:2,6,36,64,S:32 N:32
+b4a1-mirror-5v5,200,3,S:3,5,29,49,S:17 N:32
+b4a2-v-b5-5v5,200,14,N:9 S:5,19,65,47,S:28 N:19
+b4a2-mirror-5v5,200,11,S:7 N:4,18,75,13,S:7 N:6
+b4a1a2-v-b5-5v5,200,16,S:12 N:4,25,102,28,S:18 N:10
+b4a1a2-mirror-5v5,200,0,,,,1,S:1
+tempo-back-back-mirror-5v5,200,0,,,,0,
+tempo-back-even-mirror-5v5,200,1,N:1,1,4,2,N:2
+tempo-back-push-mirror-5v5,200,9,N:5 S:4,13,73,25,N:13 S:12
+tempo-even-back-mirror-5v5,200,1,S:1,2,17,3,N:3
+tempo-even-push-mirror-5v5,200,12,N:6 S:6,23,115,19,S:8 N:11
+tempo-push-back-mirror-5v5,200,10,S:5 N:5,17,69,12,S:8 N:4
+tempo-push-even-mirror-5v5,200,3,S:2 N:1,5,31,19,N:7 S:12
+tempo-push-push-mirror-5v5,200,7,N:3 S:4,7,27,11,S:7 N:4
+firststrike-half-v-b5-5v5,200,14,N:8 S:6,18,73,34,S:15 N:19
+firststrike-double-v-b5-5v5,200,12,N:3 S:9,19,92,34,S:22 N:12
+respect-half-v-b5-5v5,200,9,N:4 S:5,11,43,48,S:29 N:19
+respect-double-v-b5-5v5,200,18,S:10 N:8,26,93,38,S:21 N:17
+b5-mirror-7v7,200,8,S:4 N:4,11,63,49,S:24 N:25
+b4-v-b5-7v7,200,12,S:7 N:5,19,124,38,S:16 N:22
+b4-mirror-7v7,200,11,S:7 N:4,18,111,27,N:16 S:11
+b4a1-v-b5-7v7,200,5,N:3 S:2,8,33,43,S:28 N:15
+b4a1-mirror-7v7,200,5,N:4 S:1,10,49,19,S:9 N:10
+b4a2-v-b5-7v7,200,20,N:10 S:10,32,152,27,S:12 N:15
+b4a2-mirror-7v7,200,29,S:12 N:17,46,243,17,N:8 S:9
+b4a1a2-v-b5-7v7,200,11,N:5 S:6,20,78,30,N:15 S:15
+b4a1a2-mirror-7v7,200,12,S:7 both:1 N:4,14,72,21,S:13 N:8
+tempo-back-back-mirror-7v7,200,0,,,,0,
+tempo-back-even-mirror-7v7,200,24,S:14 N:10,34,201,24,N:11 S:13
+tempo-back-push-mirror-7v7,200,21,S:11 N:10,28,162,24,S:11 N:13
+tempo-even-back-mirror-7v7,200,21,S:10 N:11,29,218,20,S:10 N:10
+tempo-even-push-mirror-7v7,200,20,S:10 N:9 both:1,24,131,28,S:18 N:10
+tempo-push-back-mirror-7v7,200,32,N:15 S:17,46,242,25,S:14 N:11
+tempo-push-even-mirror-7v7,200,41,N:18 S:22 both:1,54,260,24,N:13 S:11
+tempo-push-push-mirror-7v7,200,23,N:14 S:9,29,162,22,S:14 N:8
+firststrike-half-v-b5-7v7,200,9,N:4 S:5,15,76,35,S:18 N:17
+firststrike-double-v-b5-7v7,200,12,N:10 S:2,22,70,27,S:16 N:11
+respect-half-v-b5-7v7,200,13,S:7 N:6,24,97,29,N:19 S:10
+respect-double-v-b5-7v7,200,15,N:7 S:8,19,97,28,N:13 S:15

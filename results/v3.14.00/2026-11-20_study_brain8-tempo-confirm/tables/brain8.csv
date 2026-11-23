@@ -1,0 +1,5 @@
+matchup,games,b8_turns_n,b8_turns_s,b8_open_n,b8_open_s,b8_join_n,b8_join_s
+tempo-even-push-mirror-5v5,1000,18880,18858,500,500,3115,3472
+tempo-back-push-mirror-5v5,1000,12738,12753,1500,1500,1913,1841
+tempo-even-push-mirror-7v7,1000,15542,15548,609,594,2751,2742
+tempo-back-push-mirror-7v7,1000,15924,15962,1630,1612,2613,3014
