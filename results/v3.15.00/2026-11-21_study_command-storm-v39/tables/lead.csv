@@ -1,0 +1,13 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+cmd10-first6-storm200-7v7,1000,26,N:12 S:14,48,208,125,S:69 N:56
+cmd10-first6-storm175-7v7,1000,26,S:17 N:9,45,213,107,N:52 S:55
+cmd10-first6-storm150-7v7,1000,38,S:20 N:18,69,349,120,S:61 N:59
+cmd10-first10-storm200-7v7,1000,40,S:20 N:20,71,309,104,N:47 S:57
+cmd10-first10-storm175-7v7,1000,31,N:23 S:8,56,236,84,S:45 N:39
+cmd10-first10-storm150-7v7,1000,36,N:21 S:15,70,242,59,N:29 S:30
+cmd8-first5-storm200-5v5,1000,15,N:9 S:6,25,134,148,S:63 N:85
+cmd8-first5-storm175-5v5,1000,17,S:12 N:5,32,171,201,S:97 N:104
+cmd8-first5-storm150-5v5,1000,33,S:13 N:20,53,211,284,S:145 N:139
+cmd8-first8-storm200-5v5,1000,22,S:12 N:10,37,200,163,S:82 N:81
+cmd8-first8-storm175-5v5,1000,20,N:7 S:13,36,193,301,S:143 N:158
+cmd8-first8-storm150-5v5,1000,33,S:13 N:20,53,211,284,S:145 N:139

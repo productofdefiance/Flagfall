@@ -1,0 +1,79 @@
+{
+ "id": "2026-11-20_study_brain8-tempo-confirm",
+ "kind": "study",
+ "version": "v3.14.00",
+ "build": 18,
+ "commit": "851503f226aaed97bfaa230182285101abdef6fb",
+ "brief": "022",
+ "question": "The two most promising opening pairs from the brain8-sweep screen, confirmed at 1,000 games per format in Brain 8 mirrors on v3.8: first mover even (0) or sitting back (-1), second mover pushing (+1). Same deals as brain8-confirm, so its b8-mirror rows are the even-even baseline. Does either bring 7v7's first mover into 45-55% of decisive games without pushing 5v5 out, and what happens to stalls?",
+ "tags": [
+  "brain8",
+  "study",
+  "v3.8",
+  "tempo-sweep",
+  "f12"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-21T02:26:14.000Z",
+ "finished": "2026-11-21T03:21:40.397Z",
+ "games": 4000,
+ "seed_from": "tests/rng.js lab:brain8-confirm:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "tempo-even-push-mirror-5v5",
+    "a": "brain8:tempoFirst=0,tempoSecond=1",
+    "b": "brain8:tempoFirst=0,tempoSecond=1",
+    "rules": "v3.8",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "tempo-back-push-mirror-5v5",
+    "a": "brain8:tempoFirst=-1,tempoSecond=1",
+    "b": "brain8:tempoFirst=-1,tempoSecond=1",
+    "rules": "v3.8",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "tempo-even-push-mirror-7v7",
+    "a": "brain8:tempoFirst=0,tempoSecond=1",
+    "b": "brain8:tempoFirst=0,tempoSecond=1",
+    "rules": "v3.8",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "tempo-back-push-mirror-7v7",
+    "a": "brain8:tempoFirst=-1,tempoSecond=1",
+    "b": "brain8:tempoFirst=-1,tempoSecond=1",
+    "rules": "v3.8",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "7v7"
+   }
+  ],
+  "measures": [
+   "play",
+   "specials",
+   "specialsafety",
+   "firstloss",
+   "brain8"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "tempo-even-push-mirror-5v5: mirror, 46.5% ended on the turn limit, A/B 466–465; tempo-back-push-mirror-5v5: mirror, 11.6% ended on the turn limit, A/B 500–495; tempo-even-push-mirror-7v7: mirror, 12.1% ended on the turn limit, A/B 508–474; tempo-back-push-mirror-7v7: mirror, 12.2% ended on the turn limit, A/B 509–487."
+}

@@ -491,6 +491,7 @@
   function value5(st, team, B) {
     stats5.values++;
     const W = B.model, foe = E.foeOf(team), c7 = B._c7;   // c7: Brain 7's reading of the lead at the plan's start (null otherwise)
+    const c8 = B._c8, join = (c7 && c7.join) || (c8 && c8.join);   // c8: Brain 8's reading at the plan's start (null otherwise)
     if (st.result) return st.result.winner === team ? 1e5 : st.result.winner ? -1e5 : 0;
     let v = 0;
     for (const u of E.alive(st)) {
@@ -499,19 +500,89 @@
       if (u.team === team) {
         v += W.stamina * E.status(st, u).stamNext;                        // next turn: Stamina it starts with (2 after a brace)
         if (u.sp === "warm" && W.special && specOn(B)) v += W.special * W.hp * warmEdge(st, u, W);   // v3.7: a warmed special's edge next turn
-        if (!isKeeper(st, u)) v -= W.advance * E.fieldOf(st).dist(u.hex, E.fieldOf(st).FLAG[foe]); // placement for the goal
-        else if (c7 && c7.join) v -= W.advance * E.fieldOf(st).dist(u.hex, E.fieldOf(st).FLAG[foe]);   // Brain 7 B4: the holder joins the storm
+        if (!isKeeper(st, u)) v -= (c8 && c8.open ? c8.advance : W.advance) * E.fieldOf(st).dist(u.hex, E.fieldOf(st).FLAG[foe]); // placement for the goal (Brain 8 A3: scaled in the opening)
+        else if (join) v -= W.advance * E.fieldOf(st).dist(u.hex, E.fieldOf(st).FLAG[foe]);   // Brain 7 / Brain 8 B4: the holder joins the storm
         else if (flagHolderRules(st)) v -= W.home * E.fieldOf(st).dist(u.hex, E.fieldOf(st).FLAG[team]);   // placement for defence
       }
     }
     v += W.pull * (st.pole[foe] - st.pole[team]);
     const r = risk5(st, team, B, true);
-    v -= W.risk * r;
-    v += W.pressure * risk5(st, foe, B);
-    if (!(c7 && c7.join)) v -= W.flagDanger * Math.min(1, flagRisk(st, team, Object.assign({}, B, { weights: Object.assign({}, B.weights, { flagRisk: 1 }) })));
+    v -= (c8 && c8.open && c8.risk !== undefined ? c8.risk : W.risk) * r;
+    v += (c8 && c8.open ? c8.pressure : W.pressure) * risk5(st, foe, B);
+    if (!join) v -= W.flagDanger * Math.min(1, flagRisk(st, team, Object.assign({}, B, { weights: Object.assign({}, B.weights, { flagRisk: 1 }) })));
     if (W.clock) { const near = clockNear(st, W); if (near > 0) v += W.clock * near * tiebreakOutlook(st, team); }   // Brain 6 (Brief 007): the clock
     if (c7) v += lead7Value(st, team, B, c7, r);   // Brain 7 (Brief 019)
+    if (c8) v -= approach8Cost(st, team, B, c8);   // Brain 8 (Brief 022)
     return v;
+  }
+
+  // ---------- Brain 8: safe approach, respect for a warmed special, opening tempo, holder joins (Brief 022) ----------
+  // A copy of Brain 5 plus four behaviours, each behind a switch in B.approach. approach8Context reads the board when a
+  // plan is made (start of the turn and after each roll), so nothing is carried between turns. With all four off it
+  // returns null and every Brain 5 sum runs exactly as before.
+  /** The opening (A3): no unit has taken damage or been removed, and no flag has been pulled or hit. */
+  function opening8(st) {
+    return st.pole.N <= 1e-9 && st.pole.S <= 1e-9 && st.units.every((u) => u.hp >= u.maxHp - 1e-9);
+  }
+  function approach8Context(st, B) {
+    const A = B.approach;
+    if (!A || !(A.holderJoins || A.safe || A.respect || A.tempo)) return null;
+    const team = st.toMove, foe = E.foeOf(team), W = B.model;
+    const c = { team, join: false, race: null, open: false, tempo: 0, advance: W.advance, hold: 0, firstStrike: A.safe ? A.firstStrike : 0, respect: A.respect ? A.warmedRespect : 0 };
+    if (A.holderJoins && flagHolderRules(st)) {   // B4, exactly as Brain 7's (lead7Context), without B1
+      const k = keeperOf(st, foe);
+      const others = E.alive(st).filter((u) => u.team === foe && !(k && k.uid === u.uid));
+      if (k && !others.length) { c.race = race7(st, team, B); c.join = c.race.ok; }
+    }
+    if (A.tempo && opening8(st)) {
+      const t = Math.max(-1, Math.min(1, (st.first === team ? A.tempoFirst : A.tempoSecond) || 0));
+      if (t) {
+        c.open = true; c.tempo = t;
+        c.advance = W.advance * (1 + t);              // +1: twice the pull forward; -1: none
+        c.hold = t < 0 ? -t * W.advance : 0;          // -1: each hex beyond its deploy area costs what a hex of advance is worth
+        c.pressure = W.pressure * (1 + Math.max(0, t));   // +1: twice the value of threats it could make next turn (close to strike first)
+        if (!A.safe && t > 0) c.risk = W.risk * (1 - t / 2);   // A1 off: +1 halves its fear of damage taken instead (A1's caution is what the slider scales when A1 is on)
+        c.firstStrike *= 1 - t;                       // +1: no first-strike caution; -1: twice as much
+        if (c.hold) c.zone = E.deployZone(st, team);
+      }
+    }
+    return c;
+  }
+  /** A1's first strike on `u` next turn: the enemy that can reach it with the biggest expected hit (normal attack; a warmed
+      special is left to A2 when A2 is on), and whether a friend of `u` could hit that enemy back next turn. */
+  function firstStrike8(st, u, skipWarm) {
+    let best = 0, by = null;
+    for (const e of E.alive(st)) {
+      if (e.team === u.team || (skipWarm && e.sp === "warm") || !canThreaten(st, e, u.hex)) continue;
+      const d = expectedHit(st, e, u);
+      if (d > best) { best = d; by = e; }
+    }
+    const answered = !!by && E.alive(st).some((f) => f.team === u.team && f.uid !== u.uid && canThreaten(st, f, by.hex));
+    return { d: best, by, answered };
+  }
+  /** Brain 8's cost for a position (taken off Brain 5's value): A1 first strikes, A2 warmed specials, A3's hold. */
+  function approach8Cost(st, team, B, c8) {
+    const W = B.model, G = E.fieldOf(st), k = keeperOf(st, team);
+    let cost = 0;
+    const lose = (u, d) => { const hp = E.effHp(st, u); return W.hp * Math.min(d, hp) + (d >= hp - 1e-9 ? W.unit : 0); };
+    const warm = c8.respect && specOn(B) ? E.alive(st).filter((e) => e.team !== team && e.sp === "warm") : [];
+    for (const u of E.alive(st)) {
+      if (u.team !== team || (k && k.uid === u.uid)) continue;   // the holder stays on its flag either way
+      // A1: left where an enemy strikes first, without having struck this turn and with no friend to answer
+      if (c8.firstStrike && !u.attackedThis) {
+        const f = firstStrike8(st, u, warm.length > 0);
+        if (f.d > 0 && !f.answered) cost += c8.firstStrike * lose(u, f.d);
+      }
+      // A2: the full damage of the worst warmed special that can reach it next turn (none on a flag hex)
+      if (warm.length && !E.isHolder(st, u)) {
+        let d = 0;
+        for (const e of warm) if (canThreaten(st, e, u.hex, reachNext(st, e))) d = Math.max(d, specHit(st, e, u));
+        if (d > 0) cost += c8.respect * lose(u, d);
+      }
+      // A3, sitting back: each hex beyond its own deploy area
+      if (c8.hold) cost += c8.hold * Math.min(...c8.zone.map((h) => G.dist(u.hex, h)));
+    }
+    return cost;
   }
 
   // ---------- Brain 7: know the lead, keep it, storm together (Brief 019) ----------
@@ -782,6 +853,7 @@
   function planTurn5(st, B) {
     stats5.plans++;
     if (B.lead) { const c7 = lead7Context(st, B); if (c7) B = Object.assign({}, B, { _c7: c7 }); }   // Brain 7: read the lead once per plan
+    if (B.approach) { const c8 = approach8Context(st, B); if (c8) B = Object.assign({}, B, { _c8: c8 }); }   // Brain 8: read the board once per plan
     const team = st.toMove, P = B.plan5 || {}, K = P.beam || 3, M = P.perUnit || 5;
     let units = E.alive(st).filter((u) => u.team === team && !u.done).map((u) => u.uid);
     const evader = units.find((uid) => E.options(st, uid).evading);   // an Evade is now or never (another unit acting ends it)
@@ -967,6 +1039,6 @@
   }
 
   const api = { specMult, warmEdge, chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5, tiebreakStanding, tiebreakOutlook, flagPotential, clockNear, attackLine5: attackLine,
-    risk5, risk5Detail, lead7Context, lead7Value, material7, race7, loneLosing7, attack7Cost, turnsTo7, keeperOf };
+    risk5, risk5Detail, approach8Context, approach8Cost, firstStrike8, opening8, expectedHit, specHit, reachNext, lead7Context, lead7Value, material7, race7, loneLosing7, attack7Cost, turnsTo7, keeperOf };
   if (typeof module !== "undefined") module.exports = api; else root.GGBot = api;
 })(this);

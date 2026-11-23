@@ -1,0 +1,5 @@
+matchup,games,first_lost_side,first_lost_turn,first_lost_card,first_lost_by,first_lr_lost_side,first_lr_lost_turn,reach_contact_turn,reach_contact_side,first_strike_side
+tempo-even-push-mirror-5v5,1000,second:841 first:159,2000,LR:1000,LR special:1000,second:841 first:159,2000,1000,second:1000,first:1000
+tempo-back-push-mirror-5v5,1000,second:1000,2000,LR:1000,LR special:1000,second:1000,2000,1000,second:1000,first:1000
+tempo-even-push-mirror-7v7,1000,first:535 second:465,2092,LM:165 LA:716 LR:109 HM:2 HR:8,LR special:209 LM special:216 LA special:85 LR attack:61 HR attack:311 LA attack:10 LM attack:98 HA attack:4 HM attack:6,first:560 second:440,2947,1343,first:306 second:694,first:797 second:203
+tempo-back-push-mirror-7v7,1000,second:293 first:707,2267,LR:235 LM:79 LA:686,LR special:333 LM special:347 LR attack:62 HR attack:80 LM attack:36 LA special:122 LA attack:19 HM attack:1,second:520 first:480,3669,1506,first:506 second:494,second:242 first:758

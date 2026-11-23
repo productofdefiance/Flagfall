@@ -69,7 +69,7 @@
 
   /** A brain as a watch link names it: an id, or id:key=value,... with settings changed (Brief 019: a sweep's games are
       replayable because the link carries the change). Returns { id, mods, brain } or throws in plain words. */
-  const GROUPS = ["model", "plan5", "lead", "planner", "weights", "settings"];
+  const GROUPS = ["model", "plan5", "lead", "approach", "planner", "weights", "settings"];
   function brainFromSpec(spec) {
     const str = String(spec || ""), i = str.indexOf(":"), id = i < 0 ? str : str.slice(0, i), mods = i < 0 ? "" : str.slice(i + 1);
     if (!BR.DEFAULT_BRAINS[id]) throw new Error(`Brain ${id || "(none)"} is not on this board`);

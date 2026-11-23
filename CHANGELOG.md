@@ -6,7 +6,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
-| v3.15.00 | v3.9 | Brain 5 | v5 + v4 | 20 |
+| v3.16.00 | v3.9 | Brain 8 | v5 + v4 | 21 |
+| v3.15.00 | v3.9 | Brain 8 | v5 | 20 |
 | v3.14.01 | v3.9 | Brain 5 | v5 | 19 |
 | v3.14.00 | v3.9 | Brain 5 | v5 | 18 |
 | v3.13.00 | v3.9 | Brain 5 | v3 | 17 |
@@ -23,8 +24,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
-## v3.15.00 · Build 20 — Brief 018, no rule change: turn cue, hot-seat views, field zoom, match log (22 Nov 2026)
-Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 5, unchanged. UI: Approved UI v4 screens on top of v5. Game version **v3.15.00** (YY: new screens and a new setting).
+## v3.16.00 · Build 21 — Brief 018, no rule change: turn cue, hot-seat views, field zoom, match log (23 Nov 2026)
+Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8, unchanged (Brief 022). UI: Approved UI v4 screens on top of v5. Game version **v3.16.00** (YY: new screens and a new setting; Brief 022 took v3.15.00 first).
 
 **What a player will notice**
 - **Turn cue (every game: hot seat, against the bot, watch and replay):** a tag hangs from the scoreboard on the mover's side, "NORTH PLAYS" / "SOUTH PLAYS" (and "… DEPLOYS"), for the whole turn; it slides away when the turn passes. On desktop it hangs under that side's name in the scoreboard.
@@ -42,6 +43,25 @@ Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 5
 **Fixed in review (the Editor, 22 Nov):** the field could jump to North's end (deployment always opened on North; zooming after scrolling lost your place; some turns jumped to the top): the field's position inside its scroll area was read as "not a number". The tag now stays all turn; "zoom in" goes to 100 px hexes; the desktop log is a left-side panel (F018-6).
 
 **Flags opened:** F018-1 to F018-5 (`flags/018.md`; F018-3 closed in review; F018-6 opened in review).
+
+## v3.15.00 · Build 20 — Brief 022, Brain 8: holder joins, safe approach, warmed-special respect, opening tempo (22 Nov 2026)
+Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). Default brain: **Brain 8** (the Editor, 21 Nov, F022-5). Game version **v3.15.00** (YY: a new brain; briefs 017 and 025 took v3.13.00, v3.14.00 and v3.14.01 first).
+
+**What a player will notice**
+- **The computer opponent is now Brain 8** in a new match (it was Brain 5; Brain 5 stays in the list).
+- A new opponent in the brain list, **"Brain 8 (safe approach)"**. When the enemy is down to its flag holder and the race is safe, its own holder joins the attack, so games end instead of running down the clock. It plays Brain 5 even, but in Brain 8 vs Brain 8 games far fewer reach the turn limit (5v5 46.5% against 64.2%; 7v7 12.5% against 40.3%, 1,000 games each).
+- Its own table on the Opponent screen: four behaviours you switch on (1) or off (0), the numbers they use, and two **opening sliders** (moving first, moving second) from −1 (sit back) to +1 (attack). It ships pushing when it moves second (+1) and as Brain 5 when it moves first (0): in 7v7 that brings the first mover's share of decisive games from 34.7% to 43.7% without changing 5v5.
+- Two behaviours are there but **off**: "Safe approach" (don't end a turn where the enemy strikes first) and "Respect a warmed special" (step out of or brace against a warmed-up special). Switched on they made it lose to Brain 5.
+- Watch links carry Brain 8's settings, negative slider values included.
+
+**Under the hood**
+- `bot.js`: Brain 8's reading of the board (`approach8Context`) and its costs (`approach8Cost`), worked out each time it plans; nothing remembered between turns. With all four switches off it plays exactly like Brain 5 (same `brainhash`). Brains 5, 6 and 7 unchanged.
+- Lab: new measures `firstloss` (first unit and first archer lost, first strike) and `brain8`; `sims/trace022.js`; `sims/lab/report022.js`. Runs: `brain8-screen`, `brain8-sweep`, `brain8-confirm`, `brain8-tempo-confirm`.
+- `test_brain8.js` (38 checks) in the checks and night checks.
+
+**Measured:** on v3.9 at the shipped settings Brain 8 loses to Brain 5 by 5 to 7.5 points in three of four matchups (mostly tiebreaks; F022-8). FD49-3's Command and Arrow Storm grid is in the brief's Report (F022-9).
+
+**Flags:** closed F47, F022-5, F021-3 (F48 recorded). Opened F022-1 to F022-9. F41 stays open (next step F022-1).
 
 ## No game version — Brief 027, tooling: lab plumbing, fewer jobs (22 Nov 2026)
 Nothing in the game changes (`board/` untouched). Every game the lab plays is the same.

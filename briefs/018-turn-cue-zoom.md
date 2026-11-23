@@ -213,7 +213,7 @@ Every preset plays and replays identically (`regress_engine.js` hashes). The eng
 Play a few turns on a phone in each hot-seat view: check the tag appears on each turn change and goes on your first tap; in view 2, watch the spin; in view 3, lay the phone flat and check the panel always faces the player moving. Pinch in and out on 7v7, tap the zoom button both ways, and check a tap after a pinch doesn't move a unit. Open the match log from the top-right button, check the newest turn is on top and reads in play order, tap an attack open, and go back to the field.
 
 ## Report
-*Filled in by Claude Code, 22 Nov 2026. Branch `claude/affectionate-rubin-y8sb7p`, started from `brief/018-turn-cue-zoom` with `main` (v3.14.01, Build 19) merged in. Game version **v3.15.00**, Build 20.*
+*Filled in by Claude Code, 22 Nov 2026. Branch `claude/affectionate-rubin-y8sb7p`, started from `brief/018-turn-cue-zoom` with `main` (v3.14.01, Build 19) merged in. Game version **v3.16.00**, Build 21 (Brief 022 merged first and took v3.15.00 / Build 20; synced 23 Nov).*
 
 - **What's in:**
   - §2 Turn cue: the edge tag in hot seat, play ("NORTH PLAYS") and deployment ("SOUTH DEPLOYS"), names from `st.names`, at the outer edge of the mover's half, hidden by the first touch, click or key (which still acts), no timer, `role="status"`. Text colour picked by contrast in `skin.js` (`tagInk`): North 8.9:1, South 7.8:1, ink text on both.
