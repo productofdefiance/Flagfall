@@ -4,7 +4,7 @@
 |---|---|
 | Game version | **v4.00.00** (X: a big new system). Cavalry is the X change, whatever YY versions merge before it |
 | Lane | Rules (also touches Units, UI, Bot and Lab) |
-| Rule set | New preset: the newest preset at build time plus switch `cavalry`. The newest on `main` will be **v3.10** (brief 028: v3.9 plus Arrow Storm 1.5 times; the Editor, 23 Nov, built before this one), so this one is **v3.11**, a copy of v3.10 with fields and routes on (FD49-2, the Editor, 21 Nov; renumbered 23 Nov). Every comparison in this brief is against v3.10. If the order changes, take the next free id and say so in the Report |
+| Rule set | New preset: the newest preset at build time plus switch `cavalry`. The newest on `main` will be **v3.10** (brief 028: v3.9 plus Arrow Storm 1.5 times and minimum damage 0.5; the Editor, 23 Nov, built before this one), so this one is **v3.11**, a copy of v3.10 with fields and routes on (FD49-2, the Editor, 21 Nov; renumbered 23 Nov). Every comparison in this brief is against v3.10. If the order changes, take the next free id and say so in the Report |
 | Date | 19 Nov 2026 |
 | Goal | Heavy and Light Cavalry join the game with their traits, brace benefits and specials; 9v9 and 13v13 become playable; the fort rule, the rewritten Mark and the new Command numbers go in (Game Laws 2.1, 2.7, 2.9, 3.4, 3.8, 4.2, 4.5, 4.6, 4.8, 6.4, 6.5, 6.7, 6.9–6.12, 6.14–6.17) |
 | Branch | Any branch your session may push to, started from `brief/012-cavalry` |
