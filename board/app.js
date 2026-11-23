@@ -1567,15 +1567,15 @@
         ${b("end", "endturn", ui.confirmEnd ? "Confirm" : "End turn", { dis: !human, cls: ui.confirmEnd ? "confirm" : "primary" })}</div>`;
     // Confirms (section 7) take the three attack slots; Cancel takes Brace's slot.
     const cancel = `<button type="button" class="act" data-act="sheet-close" style="flex:1 1 0">${ic("close", 22)}<span>Cancel</span></button>`;
-    const go = (act, cls, icon, label, cost, u, sq) => `<div class="arow"><span class="alabel">UNIT</span>
-          <button type="button" class="act go${cls}" data-act="${act}" style="flex:3 1 0">${ic(icon, 22)}
+    const go = (act, cls, icon, label, cost, u, sq, target) => `<div class="arow"><span class="alabel">UNIT</span>
+          <button type="button" class="act go${cls}" data-act="${act}" data-uid="${u.uid}"${target ? ` data-target="${target}"` : ""} style="flex:3 1 0">${ic(icon, 22)}
             <span class="go-text"><span class="go-1">${label}</span><span class="go-2">−${fmt(cost)} Stamina ${stamSquares(u, u.stam, cost, sq)}</span></span></button>${cancel}</div>`;
     const rt = previewRoute();
     if (rt && sel) { el.innerHTML = go("move-confirm", " blue", "move", "Move", rt.cost, sel, "white") + turnRow; return; }
     const sh = ui.sheet;
     if (sh && sh.kind === "attack" && o && o.attacks.some((x) => x.target === sh.target)) {
       const u = E.unitByUid(st, ui.sel), t = E.unitByUid(st, sh.target), reach = isReachShot(st, u, t);
-      el.innerHTML = go("attack-confirm", "", reach ? "spear" : "sword", reach ? "Reach" : "Attack", st.rs.game.attackCost, u, "white") + turnRow;
+      el.innerHTML = go("attack-confirm", "", reach ? "spear" : "sword", reach ? "Reach" : "Attack", st.rs.game.attackCost, u, "white", t.uid) + turnRow;
       return;
     }
     // Specials (Brief 011, 5b): warming up opens a line and Warm up (3 parts) / Cancel (1) in the UNIT row.
@@ -2288,8 +2288,13 @@
   }
 
   // ---------- Actions ----------
+  /** A short trail of the last button presses and what they did, copied with the match record (fourth review: to see
+      what happened when a press seems to do nothing). Never saved with the match, never read by the rules. */
+  const TRAIL = [];
+  function trail(what) { TRAIL.push(new Date().toISOString().slice(11, 19) + " " + what); if (TRAIL.length > 40) TRAIL.shift(); }
   async function onAction(a, el) {
     const ui = App.ui, st = App.st;
+    if (App.view === "play" && st) trail(`${a}${el && el.dataset.target ? " → " + el.dataset.target : ""} (sel ${ui.sel || "-"}, sheet ${ui.sheet ? ui.sheet.kind : "-"}, armed ${ui.armed || "-"}, actions ${App.match ? App.match.actions.length : 0})`);
     if (a !== "end" && ui.confirmEnd) { ui.confirmEnd = false; if (App.view === "play") renderActions(); }
     switch (a) {
       case "go": {
@@ -2388,7 +2393,15 @@
       case "warm-confirm": act({ type: "warmup", uid: ui.sel }); break;
       case "special-confirm": if (ui.sheet && ui.sheet.kind === "special") act({ type: "special", uid: ui.sel, target: ui.sheet.target }); break;
       case "move-confirm": { const r = previewRoute(); if (r) act({ type: "move", uid: ui.sel, to: ui.ghost }); break; }
-      case "attack-confirm": if (ui.sheet && ui.sheet.kind === "attack") act({ type: "attack", uid: ui.sel, target: ui.sheet.target }); break;
+      case "attack-confirm": {
+        // The red button carries the attack it shows (fourth review: a press that "did nothing"), so it never depends on
+        // the preview still being open; and it never fails silently.
+        const uid = (el && el.dataset.uid) || ui.sel, target = (el && el.dataset.target) || (ui.sheet && ui.sheet.kind === "attack" && ui.sheet.target);
+        if (!uid || !target) { toast("No attack to make: pick a target first."); trail("attack-confirm: no target"); break; }
+        const r = act({ type: "attack", uid, target });
+        if (!r.ok) trail("attack-confirm refused: " + r.error);
+        break;
+      }
       case "pull-confirm": act({ type: "pull", uid: ui.sel }); break;
       case "brace": act({ type: "brace", uid: ui.sel }); break;
       case "done": act({ type: "done", uid: ui.sel }); break;
@@ -2664,7 +2677,7 @@
   // ---------- Matches ----------
   /** The record Claude reads: the same fields for the current match and any finished one. */
   function recordText(m, result) {
-    return JSON.stringify({ ruleset: m.rs, opts: m.opts, brains: m.brains, started: m.started, game: m.game || null, build: m.build || null, actions: m.actions, botMoves: m.botMoves || [], result: result || null }, null, 1);
+    return JSON.stringify({ ruleset: m.rs, opts: m.opts, brains: m.brains, started: m.started, game: m.game || null, build: m.build || null, actions: m.actions, botMoves: m.botMoves || [], result: result || null, uiTrail: m === App.match ? TRAIL.slice() : undefined }, null, 1);
   }
   /** A saved match's result, worked out by replaying its moves (summaries don't keep the engine's result). */
   function replayResult(m) {
@@ -2700,6 +2713,8 @@
   function wire() {
     $("board").addEventListener("click", (e) => { if (App.ui.suppressClick || tapsBlocked()) return; const g = e.target.closest("[data-hex]"); if (g) onBoardTap(g.dataset.hex); });
     $("board").addEventListener("pointerdown", onPointerDown);
+    // The trail also notes each press on an action button, so a press that never becomes a click shows up (fourth review).
+    $("actions").addEventListener("pointerdown", (e) => { const b = e.target.closest("[data-act]"); if (b && App.view === "play") trail("press " + b.dataset.act + (b.disabled ? " (disabled)" : "")); }, true);
     // The Editor, 23 Nov: a click on the space around the field (not a hex) lets go of the tapped unit.
     $("fieldscroll").addEventListener("click", (e) => {
       if (tapsBlocked() || App.ui.suppressClick || e.target.closest("[data-hex]") || !App.st || App.view !== "play") return;

@@ -188,6 +188,25 @@ const state = () => {
     ok(r === null, `a click outside the field lets go of the unit (sel ${r})`);
   }
 
+  // The red Attack button attacks the target it shows even if the preview was lost before the press (fourth review).
+  {
+    const r = await page.evaluate(async () => {
+      const G = window.GGShots, A = G.App, D = G.D, E = G.E, rs = JSON.parse(JSON.stringify(D.PRESETS[D.PRESETS.length - 1]));
+      const L = ["HM", "LM", "HR", "LR", "HA", "LA", "HM"].map((c, i) => ({ id: c + (i === 6 ? "2" : ""), card: c, fk: false }));
+      A.match = { id: "rb", rs, opts: { first: "N", players: { N: { type: "human" }, S: { type: "bot", brainId: "brain5" } }, names: { N: "North", S: "South" }, lineups: { N: L, S: L }, seed: "rb", format: "std7" }, brains: { S: window.GGBrain.DEFAULT_BRAINS.brain5 }, actions: [], draws: 0 };
+      G.rebuild(); const st = A.st;
+      for (const t of ["N", "S"]) { const z = E.deployZone(st, t).filter((h) => h !== E.fieldOf(st).FLAG[t]), q = {}; let i = 0; for (const u of st.units.filter((x) => x.team === t)) q[u.uid] = z[i++]; E.act(st, { type: "deploy", team: t, placements: q }); }
+      A.match.actions = JSON.parse(JSON.stringify(st.actions));
+      E.unitByUid(st, "N-HM").hex = "E9"; E.unitByUid(st, "S-LM").hex = "E10";
+      G.resetUi(); A.ui.sel = "N-HM"; G.show("play"); await new Promise((x) => setTimeout(x, 100));
+      document.querySelector('[data-act="arm-attack"]').click(); await new Promise((x) => setTimeout(x, 50));
+      A.ui.sheet = null;   // the preview lost, the button still on screen
+      document.querySelector('[data-act="attack-confirm"]').click(); await new Promise((x) => setTimeout(x, 50));
+      return A.match.actions.slice(-1)[0];
+    });
+    ok(r && r.type === "attack" && r.target === "S-LM", `the red Attack button attacks its target even if the preview was lost (${JSON.stringify(r && { type: r.type, target: r.target })})`);
+  }
+
   // ---- Gestures ----
   // Against the bot (North human): no hot-seat snap scrolling the field while the gestures run.
   await go({ view: "handoff", turns: 2, bot: true }, () => { const G = window.GGShots; G.App.ui.zoom = 1.3; G.render(); });
