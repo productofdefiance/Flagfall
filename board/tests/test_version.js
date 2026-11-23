@@ -6,21 +6,21 @@ let fails = 0, n = 0;
 const ok = (c, m) => { n++; if (!c) { fails++; console.log("FAIL:", m); } else console.log("  ok:", m); };
 
 ok(/^v\d+\.\d{2}\.\d{2}$/.test(V.game), `game version is written vX.YY.ZZ (${V.game})`);
-ok(V.game === "v3.15.00", "game version is v3.15.00 (Brief 022, Brain 8: the next YY after v3.15.00)");
+ok(V.game === "v3.16.00", "game version is v3.16.00 (Brief 020, Brain 9: the next YY after v3.15.00)");
 ok(Number.isInteger(V.build) && V.build >= 10, `build number is kept beside it (${V.build})`);
 ok(V.preview === null, "preview stays null in the repository");
 
 // The version line (Home screen)
-ok(V.line("v3.4") === `Playtest board · v3.15.00 · Build ${V.build} · Rules v3.4`, `version line (CLAUDE.md: version, then the build): "${V.line("v3.4")}"`);
+ok(V.line("v3.4") === `Playtest board · v3.16.00 · Build ${V.build} · Rules v3.4`, `version line (CLAUDE.md: version, then the build): "${V.line("v3.4")}"`);
 const prev = Object.assign({}, V, { preview: "PR #12" });
-ok(V.line("v3.4", prev) === `Playtest board · v3.15.00 · Build ${V.build} · Preview of PR #12 · Rules v3.4`, `preview copy keeps its "Preview of PR #N": "${V.line("v3.4", prev)}"`);
-ok(V.line("v3.4").indexOf("v3.15.00") < V.line("v3.4").indexOf("Build"), "the version comes before the build number");
+ok(V.line("v3.4", prev) === `Playtest board · v3.16.00 · Build ${V.build} · Preview of PR #12 · Rules v3.4`, `preview copy keeps its "Preview of PR #N": "${V.line("v3.4", prev)}"`);
+ok(V.line("v3.4").indexOf("v3.16.00") < V.line("v3.4").indexOf("Build"), "the version comes before the build number");
 
 // A saved match (the match's own line, and the Matches screen)
 const now = { game: V.game, build: V.build };
-const NOW = ` · v3.15.00 · Build ${V.build}`;
+const NOW = ` · v3.16.00 · Build ${V.build}`;
 ok(V.note(now) === NOW, `a match started on this version: "${V.note(now)}"`);
-ok(V.startedOn(now) === "v3.15.00", "Matches screen shows v3.15.00 for a match saved on this version");
+ok(V.startedOn(now) === "v3.16.00", "Matches screen shows v3.16.00 for a match saved on this version");
 const b6 = { build: 6 };   // saved on Build 6, before the game version existed
 ok(V.startedOn(b6) === "Build 6", `a match saved on Build 6 still shows "Build 6" (got "${V.startedOn(b6)}")`);
 ok(V.note(b6) === NOW + " (started on Build 6)", `and its line says so, without guessing a version: "${V.note(b6)}"`);
