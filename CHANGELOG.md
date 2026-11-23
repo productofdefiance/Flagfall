@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.16.00 | v3.9 | Brain 8 | v5 | 21 |
 | v3.15.00 | v3.9 | Brain 8 | v5 | 20 |
 | v3.14.01 | v3.9 | Brain 5 | v5 | 19 |
 | v3.14.00 | v3.9 | Brain 5 | v5 | 18 |
@@ -22,6 +23,20 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.16.00 · Build 21 — Brief 020, Brain 9: victory values, spent opening, per-format settings (23 Nov 2026)
+Rule set: none changed (v3.9 stays the newest; Brain 9 measured on v3.9). Default brain: Brain 8 (unchanged). Game version **v3.16.00** (YY: a new brain).
+
+**What a player will notice**
+- A new opponent in the brain list, **"Brain 9 (plays to finish)"**. In the last 5 turns it values how the game is likely to end (finish 3, win on the clock 1, draw 0, loss -1), so it presses when a finish is likely and keeps a guard on its flag when being finished would cost it more than losing on the clock.
+- On its first turn it spends spare Command (advancing into shape or warming up a special) instead of leaving it unused.
+- Its own tables on the Opponent screen: "Victory" (the five values, an on/off switch and three numbers) and "Opening". With both switches off it plays exactly like Brain 8.
+- Watch links carry Brain 9's settings, including a value for one format only (`brain9:tempoSecond.5=0`).
+
+**Under the hood**
+- `bot.js`: Brain 9's reading (`victory9Context`), its expected ending (`victory9Detail`, `finishChance9`, `attack9`, `outlook9`, `guards9`), finished games by the values (`endValue9`), the spent opening (`spend9Cost`) and per-format values (`forFormat9`). Nothing remembered between turns. Brains 5 to 8 unchanged (same hashes).
+- Lab: new always-on measure `victory` (late behind/ahead, guards, the Editor's points, Command used on turn 1).
+- `test_brain9.js` in the checks and night checks.
 
 ## v3.15.00 · Build 20 — Brief 022, Brain 8: holder joins, safe approach, warmed-special respect, opening tempo (22 Nov 2026)
 Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). Default brain: **Brain 8** (the Editor, 21 Nov, F022-5). Game version **v3.15.00** (YY: a new brain; briefs 017 and 025 took v3.13.00, v3.14.00 and v3.14.01 first).

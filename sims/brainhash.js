@@ -8,7 +8,11 @@ const crypto = require("crypto");
 for (const spec of ids) {
   const [body, seedAs] = spec.split("@"), [base, mods] = body.split(":"), id = seedAs || base;
   const B = JSON.parse(JSON.stringify(DEFAULT_BRAINS[base]));
-  for (const kv of (mods || "").split(",").filter(Boolean)) { const [k, v] = kv.split("="); const g = ["model", "plan5", "lead", "approach", "planner", "weights", "settings"].find((x) => B[x] && k in B[x]); if (!g) throw new Error(`${base} has no setting ${k}`); B[g][k] = +v; }
+  for (const kv of (mods || "").split(",").filter(Boolean)) {
+    const [k0, v] = kv.split("="), fm = /^(\w+)\.(\d+)$/.exec(k0), k = fm ? fm[1] : k0;   // Brief 020: key.5=v sets one format's own value
+    const g = ["model", "plan5", "lead", "approach", "victory", "spend", "planner", "weights", "settings"].find((x) => B[x] && k in B[x]); if (!g) throw new Error(`${base} has no setting ${k}`);
+    if (fm) { if (!B.perFormat || !B.perFormat[fm[2]]) throw new Error(`${base} has no per-format settings for ${fm[2]}`); B.perFormat[fm[2]][k] = +v; } else B[g][k] = +v;
+  }
   const h = crypto.createHash("sha256");
   for (const rs of PRESETS) for (const size of [5, 7]) for (let g = 0; g < 2; g++) {
     const rnd = require(dir + "/tests/rng.js")(`brainhash:${id}:${rs.id}:${size}`, g);
