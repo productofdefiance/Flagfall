@@ -5,7 +5,8 @@
 //   for the whole turn (the Editor, 22 Nov) and a touch on the field works under it; its text reaches 4.5:1 on both sides;
 // - view 2 draws the side to move's flag at the bottom; view 3 turns the interface on South's turn, never the field;
 //   bot games always use view 1;
-// - zoom: the button snaps to close (1.5 × far, 60 to 120 px hexes) and back to far; scroll then zoom keeps the spot;
+// - zoom (phone): starts at the field's width, the button goes out to the whole field and back; scroll then zoom keeps
+//   the spot; deployment shows the deploying side's half; the tag shows in every game type;
 // - deployment opens on the deploying side's own flag; icons only below 50 px; a 13v13 field at minimum fits;
 // - gestures: a touch that moves more than 8 px pans and never selects; a second finger cancels a drag;
 // - the match log: one row per action, newest turn first, a flag holder's HP from the display split.
@@ -82,7 +83,7 @@ const state = () => {
   s = await go({ view: "handoff", turns: 2 }, () => window.GGShots.act({ type: "end" }));
   ok(!s.tagUp && /^South plays$/i.test(s.tag) && s.tagSide === "S", `after End turn: "SOUTH PLAYS" at the right (${s.tag})`);
   s = await go({ view: "flip", turns: 2, bot: true });
-  ok(s.tagUp, "against the bot: no tag");
+  ok(!s.tagUp && /plays$/i.test(s.tag), `against the bot: the tag shows too (${s.tag})`);
   ok(!s.flip && !s.turned, "against the bot: always view 1 (a saved Flip is ignored)");
 
   // ---- Views ----
@@ -103,13 +104,13 @@ const state = () => {
 
   // ---- Zoom ----
   s = await go({ view: "handoff", turns: 1 });
-  ok(Math.abs(s.hexPx - 54.1) < 1 && s.hp > 0 && s.zoomLabel === "Zoom in" && !s.zoomHidden, `7v7 far: about 54 px hexes with numbers, "Zoom in" (${s.hexPx.toFixed(1)} px, ${s.zoomLabel})`);
+  ok(Math.abs(s.hexPx - 54.1) < 1 && s.hp > 0 && s.zoomLabel === "Zoom out" && !s.zoomHidden, `phone 7v7 starts zoomed in at the field's width: about 54 px hexes with numbers, "Zoom out" (${s.hexPx.toFixed(1)} px, ${s.zoomLabel})`);
   await page.evaluate(() => document.getElementById("zoombtn").click()); await page.waitForTimeout(150);
   s = await page.evaluate(state);
-  ok(Math.abs(s.hexPx - 100) < 0.5 && s.zoomLabel === "Zoom out", `zoom in: 100 px hexes, "Zoom out" (${s.hexPx.toFixed(1)})`);
+  ok(s.svgH <= s.wrapH + 1 && s.svgW <= s.wrapW + 1 && s.zoomLabel === "Zoom in", `zoom out: the whole field, "Zoom in" (${s.hexPx.toFixed(1)} px hexes)`);
   await page.evaluate(() => document.getElementById("zoombtn").click()); await page.waitForTimeout(150);
   s = await page.evaluate(state);
-  ok(Math.abs(s.hexPx - 54.1) < 1, `zoom out: back to far (${s.hexPx.toFixed(1)})`);
+  ok(Math.abs(s.hexPx - 54.1) < 1, `zoom in: back to the field's width (${s.hexPx.toFixed(1)})`);
   s = await go({ view: "handoff", size: 13 });
   ok(s.hexPx < 50 && s.hp === 0 && s.units > 0, `13v13 far: ${s.hexPx.toFixed(1)} px hexes, icons only (${s.hp} numbers on ${s.units} units)`);
   s = await page.evaluate(() => { const G = window.GGShots; G.App.ui.zoom = 0.01; G.render(); return null; }).then(() => page.waitForTimeout(80)).then(() => page.evaluate(state));
@@ -118,7 +119,7 @@ const state = () => {
   ok(Math.abs(s.hexPx - 120) < 0.5, `maximum: 120 px hexes (${s.hexPx.toFixed(1)})`);
   // Scroll, then zoom: the hex in the middle of the view stays in the middle (Build 20 review: it jumped to the top).
   const keep = await page.evaluate(async () => {
-    const G = window.GGShots; G.App.ui.zoom = null; G.render();
+    const G = window.GGShots; G.App.ui.zoom = 0.6; G.render();   // between the whole field and the width: scrollable
     await new Promise((r) => setTimeout(r, 50));
     const sc = document.getElementById("fieldscroll"); sc.scrollTop = 300;
     const mid = () => { const r = sc.getBoundingClientRect(), el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2), g = el && el.closest("[data-hex]"); return g ? g.dataset.hex : null; };
@@ -135,8 +136,10 @@ const state = () => {
       A.setup = { format: "std7", rulesetId: G.D.PRESETS[G.D.PRESETS.length - 1].id, first: "N", seed: "DEP", players: { N: human === "N" ? { type: "human", name: "North", mix: "open" } : { type: "bot", brainId: "brain5", mix: "open" }, S: human === "S" ? { type: "human", name: "South", mix: "open" } : { type: "bot", brainId: "brain5", mix: "open" } } };
       A.picks = { [human]: { keeper: null, counts: { HM: 2, LM: 1, HR: 1, LR: 1, HA: 1, LA: 1 } } };
       G.startMatch(); await new Promise((r) => setTimeout(r, 400));
-      const sc = document.getElementById("fieldscroll"); return { top: sc.scrollTop, max: sc.scrollHeight - sc.clientHeight };
+      const sc = document.getElementById("fieldscroll"), svg = document.getElementById("board");
+      return { top: sc.scrollTop, max: sc.scrollHeight - sc.clientHeight, half: svg.getBoundingClientRect().height / 2, view: sc.clientHeight };
     }, human);
+    ok(top.half <= top.view + 2 && top.half >= top.view * 0.85, `${human} deploys (phone): its half of the field fills the view (half ${top.half.toFixed(0)} px, view ${top.view} px)`);
     ok(human === "N" ? top.top === 0 : top.top >= top.max - 2, `${human} deploys: the field opens on its own flag (scroll ${top.top} of ${top.max})`);
   }
 
@@ -170,6 +173,19 @@ const state = () => {
       return { before, after: at(), top: sc.scrollTop };
     });
     ok(r.before && r.before === r.after && r.top > 100, `scroll then wheel-zoom keeps the hex under the pointer (${r.before} → ${r.after}, scroll ${r.top})`);
+  }
+
+  // Clicking the space around the field lets go of the tapped unit (the Editor, 23 Nov).
+  {
+    await go({ view: "handoff", turns: 1, bot: true }); await page.waitForTimeout(500);
+    const r = await page.evaluate(async () => {
+      const G = window.GGShots, { App, E } = G, u = E.alive(App.st).find((x) => x.team === App.st.toMove);
+      App.ui.sel = u.uid; G.render(); await new Promise((x) => setTimeout(x, 50));
+      const sc = document.getElementById("fieldscroll"); sc.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await new Promise((x) => setTimeout(x, 50));
+      return App.ui.sel;
+    });
+    ok(r === null, `a click outside the field lets go of the unit (sel ${r})`);
   }
 
   // ---- Gestures ----
@@ -255,6 +271,16 @@ const state = () => {
       return { whole, m0, m1, m2: mid(), btnLeft: btn.left - fw.left, panel: !document.getElementById("logside").hidden };
     });
     ok(d.whole, "desktop: zoom out (far) shows the whole field");
+    // Deployment on desktop: South (human) sees its own half, not the whole field.
+    const dep = await dp.evaluate(async () => {
+      const G = window.GGShots, A = G.App;
+      A.setup = { format: "std7", rulesetId: G.D.PRESETS[G.D.PRESETS.length - 1].id, first: "N", seed: "DEPD", players: { N: { type: "bot", brainId: "brain5", mix: "open" }, S: { type: "human", name: "South", mix: "open" } } };
+      A.picks = { S: { keeper: null, counts: { HM: 2, LM: 1, HR: 1, LR: 1, HA: 1, LA: 1 } } };
+      G.startMatch(); await new Promise((r) => setTimeout(r, 400));
+      const sc = document.getElementById("fieldscroll"), svg = document.getElementById("board");
+      return { top: sc.scrollTop, max: sc.scrollHeight - sc.clientHeight, h: svg.getBoundingClientRect().height, view: sc.clientHeight };
+    });
+    ok(dep.h > dep.view + 50 && dep.top >= dep.max - 2, `desktop: South's deployment shows South's half, not the whole field (field ${dep.h.toFixed(0)} px in a ${dep.view} px view, scroll ${dep.top} of ${dep.max})`);
     ok(d.m0 && d.m0 === d.m1 && d.m1 === d.m2, `desktop: hiding and showing the log panel keeps the same hex in the middle (${d.m0} → ${d.m1} → ${d.m2})`);
     ok(d.btnLeft < 20 && d.panel, `desktop: the log button sits at the field's left and opens the panel (${d.btnLeft.toFixed(0)} px from the left)`);
     await dp.close();
