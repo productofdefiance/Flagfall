@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-23T05:01:35.734Z",
- "board": "STATUS · updated 23 Nov 2026, 12:01 am ET\n\nVERSION\n  On main: v3.16.00 · Build 21 · Rules v3.9 · Brain 8\n  Building: none\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (22 Nov, 11:11 am ET)\n  Queue: clear · lab using 1 of 20\n  nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov\n\nFLAGS (open, newest first)\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n    FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n    F024-4 · OPEN · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…\n    F024-3 · OPEN · 20 Nov · The status board starts on every pull request event and every finished checks…\n  +12 older in FLAGS.md\n\nBUILDS\n  Building\n    none\n  Ready to start\n    020 Victory values\n    026 Specials flow\n  Waiting\n    012 Cavalry ← 026\n  Merged (last 3)\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n    027 Lab plumbing · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov\n  Closed (last 5)\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-23T05:06:27.935Z",
+ "board": "STATUS · updated 23 Nov 2026, 12:06 am ET\n\nVERSION\n  On main: v3.16.00 · Build 21 · Rules v3.9 · Brain 8\n  Building: none\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (22 Nov, 11:11 am ET)\n  Queue: clear · lab using 1 of 20\n  release v3.16.00 · 5v5 42.4% · 7v7 12.4% on the turn limit · 22 Nov\n  nightly v3.14.01 · 5v5 80.0% · 7v7 45.0% on the turn limit · 22 Nov\n\nFLAGS (open, newest first)\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n    FD49-3 · TEST · 21 Nov · Job order move-order-command-storm measures rule set v3.8 as ordered. Since brief 017…\n    F022-6 · OPEN · 21 Nov · Speed: the worst side-turn in the build's runs was 5,634 ms (all-Light 7v7, Brain 8…\n    F41 · OPEN · 20 Nov · Missing setting (brief 011 settings review, playtest round 2): Brain 5 barely reacts to…\n    F40 · TEST · 20 Nov · Skewer almost never fires (brief 011 bot minimum: 50+ firings). 2 in 1,200 games before…\n    F39 · TEST · 20 Nov · Move order decides balanced 5v5 under specials (v3.7, brief 011). The squad has one Light…\n    F024-4 · OPEN · 20 Nov · A pull request that changes the game version gets a release run (2,000 games, 20 parts)…\n    F024-3 · OPEN · 20 Nov · The status board starts on every pull request event and every finished checks…\n  +12 older in FLAGS.md\n\nBUILDS\n  Building\n    none\n  Ready to start\n    020 Victory values\n    026 Specials flow\n  Waiting\n    012 Cavalry ← 026\n  Merged (last 3)\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n    027 Lab plumbing · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov\n  Closed (last 5)\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -27,6 +27,11 @@
     },
     {
      "text": "Queue: clear · lab using 1 of 20",
+     "indent": 1,
+     "mark": null
+    },
+    {
+     "text": "release v3.16.00 · 5v5 42.4% · 7v7 12.4% on the turn limit · 22 Nov",
      "indent": 1,
      "mark": null
     },
@@ -228,7 +233,7 @@
   }
  },
  "schema": 2,
- "updatedText": "23 Nov 2026, 12:01 am ET",
+ "updatedText": "23 Nov 2026, 12:06 am ET",
  "main": {
   "game": "v3.16.00",
   "build": 21,
@@ -300,6 +305,16 @@
   "mergedLimit": 3
  },
  "results": [
+  {
+   "id": "2026-11-22_release_release-v3-15-00",
+   "kind": "release",
+   "version": "v3.16.00",
+   "date": "2026-11-22",
+   "dateText": "22 Nov",
+   "share5": 0.424,
+   "share7": 0.124,
+   "line": "2 matchups, 2,000 games"
+  },
   {
    "id": "2026-11-22_nightly_health",
    "kind": "nightly",
