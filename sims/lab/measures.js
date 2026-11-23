@@ -577,7 +577,7 @@ const V20_COLS = ["late_behind_side", "late_behind_finished", "late_behind_comeb
   "late_guard_behind_n", "late_guard_behind_s", "late_guard_behind_turns_n", "late_guard_behind_turns_s",
   "late_guard_level_n", "late_guard_level_s", "late_guard_level_turns_n", "late_guard_level_turns_s",
   "late_guard_ahead_n", "late_guard_ahead_s", "late_guard_ahead_turns_n", "late_guard_ahead_turns_s",
-  "late_ahead_side", "late_ahead_attacks", "late_ahead_turns", "late_ahead_result",
+  "late_ahead_side", "late_ahead_attacks", "late_ahead_sideturns", "late_ahead_result",
   "points_n", "points_s", "points2_n", "points2_s", "finish_win", "turn1_cmd_first", "turn1_cmd_second"];
 /** The Editor's points for `team` (finished = −1, or `fin`). */
 function points20(st, team, fin) {
@@ -588,11 +588,11 @@ function points20(st, team, fin) {
   return tl ? (won ? 1 : -1) : (won ? 3 : fin);
 }
 MEASURES.victory = {
-  about: "Victory values (Brief 020). At the first side-turn of turn limit − 5, the side behind on flag damage (late_behind_side: N, S, level or ended_earlier), 1 if it was then finished (lost by full pull, holder KO or TKO; late_behind_finished) and 1 if it won or drew (late_behind_comeback); the same reading's side ahead (late_ahead_side), its attacks, specials and pulls over its side-turns in the last 5 turns (late_ahead_attacks, late_ahead_turns: divide for a rate) and how it ended (late_ahead_result: finished, clock_win, draw, lost). late_guard_*: guards (units other than the holder in or next to their own goal zone) summed over a side's side-turns in the last 5 turns, split by its standing on flag damage at that side-turn's start, with the side-turns counted in late_guard_*_turns_* (divide for the average). points_n/s: the Editor's table (finish 3, clock win 1, draw 0 with fewer units lost a draw, clock loss −1, finished −1); points2_n/s the same with finished −2; finish_win 1 if a side won by a finish. turn1_cmd_first/second: Command each side spent on its first side-turn.",
+  about: "Victory values (Brief 020). At the first side-turn of turn limit − 5, the side behind on flag damage (late_behind_side: N, S, level or ended_earlier), 1 if it was then finished (lost by full pull, holder KO or TKO; late_behind_finished) and 1 if it won or drew (late_behind_comeback); the same reading's side ahead (late_ahead_side), its attacks, specials and pulls over its side-turns in the last 5 turns (late_ahead_attacks, late_ahead_sideturns: divide for a rate; `clock` already has a late_ahead_turns, for the last 3 turns) and how it ended (late_ahead_result: finished, clock_win, draw, lost). late_guard_*: guards (units other than the holder in or next to their own goal zone) summed over a side's side-turns in the last 5 turns, split by its standing on flag damage at that side-turn's start, with the side-turns counted in late_guard_*_turns_* (divide for the average). points_n/s: the Editor's table (finish 3, clock win 1, draw 0 with fewer units lost a draw, clock loss −1, finished −1); points2_n/s the same with finished −2; finish_win 1 if a side won by a finish. turn1_cmd_first/second: Command each side spent on its first side-turn.",
   columns: V20_COLS,
   make(ctx) {
     const { E, Bot } = ctx, o = Object.fromEntries(V20_COLS.map((k) => [k, ""]));
-    for (const k of V20_COLS) if (/^late_guard_|^late_ahead_attacks$|^late_ahead_turns$/.test(k)) o[k] = 0;
+    for (const k of V20_COLS) if (/^late_guard_|^late_ahead_attacks$|^late_ahead_sideturns$/.test(k)) o[k] = 0;
     let key = "", read = false, cur = null;   // cur: the side-turn on turn 1 being watched for Command spent
     const standing = (st, t) => { const us = st.pole[E.foeOf(t)], them = st.pole[t]; return us > them ? "ahead" : us < them ? "behind" : "level"; };
     const guards = (st, t) => (Bot.guards9 ? Bot.guards9(st, t) : 0);
@@ -612,7 +612,7 @@ MEASURES.victory = {
           if (st.turn >= lim - 4) {
             const sd = standing(st, t);
             o[`late_guard_${sd}_${x}`] += guards(st, t); o[`late_guard_${sd}_turns_${x}`]++;
-            if (t === o.late_ahead_side) o.late_ahead_turns++;
+            if (t === o.late_ahead_side) o.late_ahead_sideturns++;
           }
         }
       },

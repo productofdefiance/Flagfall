@@ -98,7 +98,46 @@ This build is the bot work. It is met when every measurement has a number and th
 3. Play one balanced 7v7 against Brain 9. Get ahead on flag damage and sit: does it come for you? Fall behind: does it press to finish?
 
 ## Report
-*Filled in by Claude Code. Branch `claude/nice-knuth-scz0hu`, started from `brief/020-victory-values`. In progress: the lab's numbers are added as the runs land.*
+*Filled in by Claude Code. Branch `claude/nice-knuth-scz0hu`, started from `brief/020-victory-values`. Game version v3.17.00, Build 22. Measured on v3.9 (the newest rule set on `main`: specials, brief 014's fields and brief 017's routes).*
+
+### In plain words
+- **Does it press to finish when it leads, and stall less than Brain 8?**
+  - Yes, both.
+  - In the last 5 turns the side ahead on flag damage attacks or pulls 0.24 to 0.34 times per side-turn, against 0.08 (5v5) and 0.00 (7v7) for Brain 8.
+  - Brain 9 mirrors (spent opening off) end on the turn limit in 27.1% of 5v5 games against 41.0%, and 7.6% of 7v7 games against 12.9%. 1,000 games each, same deals.
+  - The victory values are the only change between the two arms, so the press is isolated, as far as one change of brain can isolate it.
+- **The hunch: at −1, does a beaten side give up its flag? Does −2 fix it?**
+  - Neither. −1 and −2 play within 1 to 2 games of each other in every arm.
+    - Side behind at turn limit − 5 then finished: 5v5 27 of 83 at both values; 7v7 12 of 60 at both.
+    - Guards when behind: 0.02 against 0.02 at 5v5, 0.08 against 0.08 at 7v7.
+    - Leader attacks: 0.24 against 0.23 at 5v5, 0.26 against 0.25 at 7v7.
+  - The reason is likely, not isolated: late in the game neither side guards at all (under 0.1 guards per side-turn, Brain 8 included), so there is no guarding for −1 to give up or −2 to keep.
+  - In the test position the hunch shows (−1 leaves its goal empty, −2 keeps a guard), but real games almost never reach that position. F020-5 asks for a guarding behaviour to test it properly.
+  - −2 costs nothing measurable either (turn-limit share the same).
+- **Points against wins:** with the spent opening off, yes.
+  - 5v5: Brain 9 wins fewer games than Brain 8 (427 to 534; it wins more by KO, 345 to 313, but loses 221 tiebreaks to 82) and scores more points per game by the Editor's table: +0.78 against +0.54.
+  - 7v7: even on games (486 to 495) and points (+0.92 against +0.87).
+  - With the spent opening on, it loses on both counts (5v5 424 to 541, points +0.70 against +1.04; 7v7 423 to 572, +0.64 against +1.18).
+- **The spent opening (item 6)** does what was asked: at 5v5 Command 8, Brain 9's first mover spends 5.0 of 5 and 7.8 of 8, where Brain 8 spends 4.3 to 4.6 either way. But:
+  - It costs wins against Brain 8 (above).
+  - It makes Brain 9 mirrors first-mover games: 77.0% of decisive 5v5 games and 83.1% of 7v7, against 52.8% and 46.0% with it off.
+  - **Brain 9 ships with it off** (F020-4), as brief 022 shipped A1 and A2 off; it stays a switch for move-order studies.
+- **Does any of Brain 8's behaviours stop mattering?**
+  - No. B4 (holder joins) still matters: off, Brain 9 mirrors' turn-limit share rises from 13.5% to 51.5% (5v5) and from 4.5% to 18.5% (7v7) in the screen.
+  - The opening tempo still moves the first mover's share in both formats.
+  - A1 and A2 ship off in both brains and were not retested.
+- **Why does Brain 8 lose tiebreaks to Brain 5 on v3.9 (F022-8)?**
+  - Neither the tempo nor the rule set.
+    - tempoSecond 0 against +1 moves win share by 0 to 3.7 points (noise); at 5v5 balanced the games are identical.
+    - v3.8 against v3.9 moves it by 0 to 0.6 points. The all-Light games are identical: no Mark or set spear, so routes change nothing.
+  - Brain 8 loses 2 to 4.6 tiebreaks for every one it wins in every arm, and wins more by KO. Likely its finishing style (B4) trades clock leads for finishes; not isolated.
+  - Brain 9 doesn't win them back. As briefed (spent opening on) against Brain 5 it won balanced 5v5 (53.0%) and lost the rest badly (7v7 33.1%, all-Light 31.9% and 41.3%).
+- **Which settings matter differently at 5v5 and 7v7?**
+  - `tempoFirst` and `tempoSecond` move the first mover's share in opposite directions in the two formats.
+  - `spendOpening` moves both, 7v7 far more.
+  - The victory settings act only at 5v5, because 7v7 games rarely reach the last 5 turns.
+  - The spent opening doesn't make 5v5 fairer at Command 8 or 10 on its own. With Arrow Storm ×1.5 and Brain 9 spending, 5v5 Command 7 first turn 4 (48.0%), Command 8 first turn 8 (52.6%) and first turn 5 (55.2%) are inside 45–55%; Command 10 first turn 6 is not (66.8%), nor 7v7 first turn 6 (76.4%).
+
 
 - **What's in:**
   - **Brain 9** (`brain9`, "Brain 9 (plays to finish)"): a copy of Brain 8 as shipped plus two switches. `victory.playToFinish` (victory values) and `spend.spendOpening` (the spent opening). Both off = Brain 8 (same `brainhash`).
@@ -109,7 +148,7 @@ This build is the bot work. It is met when every measurement has a number and th
     - **The clock outlook:** Brain 6's `tiebreakOutlook` on flag damage alone, with the same guard-aware potential.
     - **The total:** finish × our chance + finished × theirs + the rest × the clock's value.
     - **Why guards count:** without them a guard changed nothing in the model, and the hunch (does a beaten side stop guarding?) could not show. Stateless: read when each plan is made.
-  - **Spent opening** (item 6): on its own first turn (the opening, turn 1), each point of Command left unspent costs `spareCommand` (0.4). Units left in reach of a warmed enemy special count its full damage (Brain 8's A2 reading), so spending never means walking in. It reads only Command left and the board, with no per-format number.
+  - **Spent opening** (item 6, **ships off**, F020-4): on its own first turn (the opening, turn 1), each point of Command left unspent costs `spareCommand` (0.4). Units left in reach of a warmed enemy special count its full damage (Brain 8's A2 reading), so spending never means walking in. It reads only Command left and the board, with no per-format number.
   - **Per-format settings** (item 7): `BRAIN_9.perFormat` = { 5: {}, 7: {} }, empty, so no game changes. A watch link sets one format's own value with `key.5=value` (e.g. `brain9:tempoSecond.5=0`). 9v9 and 13v13 are refused until Cavalry.
   - **Watchable** (item 5): the watch link and the lab's record carry Brain 9's settings (`brain9:finished=-2`). No `brain9b`.
   - **Lab:** a new always-on measure `victory`.
@@ -140,43 +179,103 @@ This build is the bot work. It is met when every measurement has a number and th
      - With finished −2, Brain 9 keeps one guard (finished chance after: 0.00).
      - With −1 it attacks with all three and leaves none (finished chance after: 0.61). Its expected ending is −1.00 either way, which is the hunch: at −1, being finished costs no more than the clock loss it already expects.
   5. **Off is Brain 8:** the same hash (above), and the same actions in 4 test games.
-  - **Spent opening, 5v5 Command 8:** Brain 8 spends 4 of 5 and 4 of 8 on its first turn; Brain 9 spends 4.5 of 5 and 7.5 of 8 (moves its archer forward, warms it up, moves two more units).
+  - **Spent opening (switched on), 5v5 Command 8:** Brain 8 spends 4 of 5 and 4 of 8 on its first turn; Brain 9 spends 4.5 of 5 and 7.5 of 8 (moves its archer forward, warms it up, moves two more units).
   - **Legal play:** 0 refused actions (test_brain9 legal-play loop; 30 games per format and lineup in the night checks).
 - **The test game R28X-AJDH-DUP5** (7v7, v3.7, North first):
   - Brain 5 still replays it as the Editor saw it (South wins the tiebreak, turn 35, 3.83 to 0).
-  - Brain 8: South KO, turn 12 ([watch](https://productofdefiance.github.io/Flagfall/?watch=R28X-AJDH-DUP5&rules=v3.7&format=std7&n=brain8&s=brain8&mixn=mixed&mixs=mixed&first=N)).
-  - Brain 9 at −1: North KO, turn 11 ([watch](https://productofdefiance.github.io/Flagfall/?watch=R28X-AJDH-DUP5&rules=v3.7&format=std7&n=brain9&s=brain9&mixn=mixed&mixs=mixed&first=N)).
-  - Brain 9 at −2: the same game ([watch](https://productofdefiance.github.io/Flagfall/?watch=R28X-AJDH-DUP5&rules=v3.7&format=std7&n=brain9%3Afinished%3D-2&s=brain9%3Afinished%3D-2&mixn=mixed&mixs=mixed&first=N)).
-  - So South doesn't finish with Brain 9: the spent opening changes the game from turn 1. With it off, Brain 9 plays Brain 8's game (South KO, turn 12). The victory values never come into play (the game ends before turn limit − 5). F020-2.
-- **Measurements, screen (200 games each, v3.9, balanced, same deals; `results/v3.17.00/2026-11-23_screen_brain9-*-2`; the first try of each was cancelled at 30% by a push, F020-3):**
-  - **Brain 9 as briefed loses to Brain 8.**
-    - 5v5: won 88 (75 KO/TKO, 13 tiebreak), lost 106 (93, 13), drew 6.
-    - 7v7: won 82 (77, 5), lost 118 (110, 8).
-    - Points per game by the Editor's table: 5v5 +0.69 against +0.98; 7v7 +0.61 against +1.25.
-  - **The spent opening is the likely cause** (likely, not isolated until the confirm). Brain 9 with `spendOpening` 0 against Brain 8:
-    - 7v7: won 111, lost 86 (+12.5 points); points +1.17 against +0.64.
-    - 5v5: won 86 (16 tiebreak), lost 106 (50 tiebreak), but still more points: +0.82 against +0.44. Its wins are finishes and its losses are on the clock: the trade the Editor asked about.
-  - **Move order:**
-    - Brain 9 mirrors with the spent opening on turn 7v7 into a first-mover game: 84.3% of decisive games, against 39.5% for Brain 8 mirrors.
-    - With it off: 37.6%.
-    - tempoSecond 0 brings 7v7 to 56.0% but pushes 5v5 to 88.5%.
-  - **Stalls:** Brain 9 mirrors end on the turn limit far less.
-    - 5v5: 13.5% against 45.0% (Brain 8). Victory values alone (spend off): 31.0%. Spend alone (values off): 29.0%.
-    - 7v7: 4.5% against 16.5%.
-  - **Leaders press:** with victory values on, the side ahead on flag damage at turn limit − 5 makes 0.14 to 0.40 attacks or pulls per side-turn in the last 5 turns. With them off: 0.00 to 0.03.
-  - **The hunch can't be read at this size.**
-    - A side is behind on flag damage at turn limit − 5 in only 6 to 18 games of 200.
-    - Guards in the last 5 turns average 0.00 to 0.05 a side-turn under every setting: these bots hardly guard at all late.
-    - −1 against −2 (B against C) is within 1 game of identical in every matchup; head-to-head it is the same games.
-    - The confirm (1,000 each, and with the spent opening off, where more games reach the end) is the reading.
-  - **Spent opening proof** (move-order screen, 5v5 Command 8, Arrow Storm ×2):
-    - Command used on turn 1 by the first mover: Brain 9 5.0 of 5 and 7.9 of 8; Brain 8 4.3 of 5 and 4.6 of 8.
-    - Brain 9's two cells play different games: first mover 93.1% and 88.8%. Brain 8's: 79.6% and 76.3%.
-  - **Move-order grid (Brain 9 mirrors, first mover's share of decisive games):**
-    - Arrow Storm ×2: 73% to 98% in every cell.
-    - ×1.5: 5v5 Command 7 equal 66.9%, reduced 43.8%; Command 8 equal 54.5%, reduced 57.0%; Command 10 equal 62.7%, reduced 63.7%; 7v7 first turn 6: 74.6%, first turn 10: 72.3%.
-    - Confirms queued for the 40–60% cells and every ×1.5 reduced cell.
-- **Measurements, confirm (queued 23 Nov, 1,000 games each):** `brain9-confirm` (arms A, B, C and, added, Bo and Co: Brain 9 with the spent opening off), `f022-8-tiebreaks` (item 8), `brain9-moveorder-confirm`. Pending.
+  - South finishes with Brain 8 ([watch](https://productofdefiance.github.io/Flagfall/?watch=R28X-AJDH-DUP5&rules=v3.7&format=std7&n=brain8&s=brain8&mixn=mixed&mixs=mixed&first=N)), Brain 9 at −1 ([watch](https://productofdefiance.github.io/Flagfall/?watch=R28X-AJDH-DUP5&rules=v3.7&format=std7&n=brain9&s=brain9&mixn=mixed&mixs=mixed&first=N)) and Brain 9 at −2 ([watch](https://productofdefiance.github.io/Flagfall/?watch=R28X-AJDH-DUP5&rules=v3.7&format=std7&n=brain9%3Afinished%3D-2&s=brain9%3Afinished%3D-2&mixn=mixed&mixs=mixed&first=N)): the same game, South KO on turn 12.
+  - With the spent opening switched on it changes from turn 1 (North KO, turn 11).
+  - The victory values never come into play: the game ends long before turn limit − 5. So it no longer tests a late lead (F020-2).
+  - The Editor's check 2 (a beaten side late at 7v7): GYSW-QGP8-XVGH, above.
+- **Measurements, confirm (1,000 games each, v3.9, balanced, same deals per format; `results/v3.17.00/2026-11-23_study_brain9-confirm`).**
+  - Arms: A = Brain 8, B / C = Brain 9 as briefed (spent opening on) at −1 / −2, Bo / Co = the same with the spent opening off (as it ships).
+  - Holder KO, pull KO and TKO count games.
+
+| Matchup | A won KO / tiebreak | B side won KO / tiebreak | Draw | Holder KO | Pull KO | TKO | Turn limit | Avg turn | First mover of decisive | Points A / B |
+|---|---|---|---|---|---|---|---|---|---|---|
+| A mirror 5v5 | 283 / 175 | 307 / 176 | 59 | 50 | 454 | 86 | 41.0% | 18.1 | 55.2% | +0.55 / +0.63 |
+| B mirror 5v5 | 439 / 45 | 439 / 51 | 26 | 70 | 556 | 252 | 12.2% | 15.4 | 77.0% | +0.88 / +0.88 |
+| C mirror 5v5 | 437 / 45 | 440 / 52 | 26 | 71 | 557 | 249 | 12.3% | 15.4 | 77.0% | +0.87 / +0.88 |
+| Bo mirror 5v5 | 353 / 103 | 376 / 93 | 75 | 68 | 503 | 158 | 27.1% | 18.1 | 52.8% | +0.69 / +0.77 |
+| Co mirror 5v5 | 362 / 95 | 379 / 89 | 75 | 66 | 524 | 151 | 25.9% | 18.0 | 52.0% | +0.71 / +0.77 |
+| B vs A 5v5 | 390 / 34 | 476 / 65 | 35 | 48 | 653 | 165 | 13.4% | 13.0 | 90.4% | +0.70 / +1.04 |
+| C vs A 5v5 | 390 / 34 | 476 / 65 | 35 | 48 | 653 | 165 | 13.4% | 13.0 | 90.4% | +0.70 / +1.04 |
+| Bo vs A 5v5 | 345 / 82 | 313 / 221 | 39 | 59 | 478 | 121 | 34.2% | 18.1 | 53.8% | +0.78 / +0.54 |
+| Co vs A 5v5 | 345 / 82 | 314 / 219 | 40 | 59 | 479 | 121 | 34.1% | 18.1 | 53.9% | +0.78 / +0.54 |
+| A mirror 7v7 | 432 / 59 | 439 / 60 | 10 | 44 | 657 | 170 | 12.9% | 15.9 | 46.3% | +0.85 / +0.89 |
+| B mirror 7v7 | 477 / 20 | 488 / 10 | 5 | 32 | 754 | 179 | 3.5% | 14.3 | 83.1% | +0.95 / +0.98 |
+| C mirror 7v7 | 477 / 20 | 488 / 11 | 4 | 32 | 757 | 176 | 3.5% | 14.3 | 83.1% | +0.95 / +0.98 |
+| Bo mirror 7v7 | 454 / 25 | 470 / 28 | 23 | 50 | 676 | 198 | 7.6% | 15.9 | 46.0% | +0.89 / +0.96 |
+| Co mirror 7v7 | 455 / 24 | 470 / 28 | 23 | 49 | 678 | 198 | 7.5% | 15.9 | 46.0% | +0.89 / +0.96 |
+| B vs A 7v7 | 383 / 40 | 529 / 43 | 5 | 44 | 711 | 157 | 8.8% | 15.5 | 60.6% | +0.64 / +1.18 |
+| C vs A 7v7 | 383 / 39 | 530 / 43 | 5 | 44 | 712 | 157 | 8.7% | 15.5 | 60.7% | +0.64 / +1.19 |
+| Bo vs A 7v7 | 451 / 35 | 442 / 53 | 19 | 47 | 666 | 180 | 10.7% | 15.9 | 46.1% | +0.92 / +0.87 |
+| Co vs A 7v7 | 451 / 35 | 442 / 53 | 19 | 47 | 666 | 180 | 10.7% | 15.9 | 46.1% | +0.92 / +0.87 |
+
+  - **The hunch table** (behind / ahead on flag damage at turn limit − 5; guards = units other than the holder in or next to their goal zone, per side-turn in the last 5 turns):
+
+| Matchup | Behind at limit − 5 | Then finished | Guards when behind | Leader attacks per side-turn | Leader then: finished / clock win / lost |
+|---|---|---|---|---|---|
+| A mirror 5v5 | 83 | 16 (19.3%) | 0.00 | 0.08 | 16 / 62 / 5 |
+| B mirror 5v5 | 84 | 21 (25.0%) | 0.03 | 0.33 | 21 / 50 / 13 |
+| C mirror 5v5 | 84 | 20 (23.8%) | 0.03 | 0.33 | 20 / 50 / 14 |
+| Bo mirror 5v5 | 83 | 27 (32.5%) | 0.02 | 0.24 | 27 / 48 / 8 |
+| Co mirror 5v5 | 83 | 27 (32.5%) | 0.02 | 0.23 | 27 / 48 / 8 |
+| A mirror 7v7 | 60 | 0 (0.0%) | 0.06 | 0.00 | 0 / 60 / 0 |
+| B mirror 7v7 | 29 | 6 (20.7%) | 0.06 | 0.34 | 6 / 14 / 9 |
+| C mirror 7v7 | 29 | 6 (20.7%) | 0.06 | 0.31 | 6 / 14 / 9 |
+| Bo mirror 7v7 | 60 | 12 (20.0%) | 0.08 | 0.26 | 12 / 39 / 9 |
+| Co mirror 7v7 | 60 | 12 (20.0%) | 0.08 | 0.25 | 12 / 39 / 9 |
+
+  - **Reading the hunch table:** the hunch needs C's beaten side to be finished 4+ points less often and guard more than B's. It isn't and it doesn't (identical within a game). The counter-risk (C's leader attacks less, more turn-limit games) doesn't hold either. Victory values themselves (A against Bo, same deals) raise the leader's attacks and the beaten side's finishes (5v5 19.3% to 32.5%; 7v7 0% to 20.0%).
+  - **Correction:** the screen's leader-attack rates (0.14 to 0.40) were divided by the wrong count. The new column had the same name as the older `clock` measure's `late_ahead_turns`, which overwrote it in the lab's rows. Fixed in this build: the column is `late_ahead_sideturns`, and the lab self test now fails if two measures share a column. The rates above are recomputed exactly from the guard columns, which count every side-turn of each side.
+  - **Stall and lead columns** (brief 016 and 019): in `tables/stall.csv` and `tables/lead.csv` of the run. Turn-limit games and the leader-attack rates above are the summary.
+  - **Speed** (`tables/timing.csv`, per side-turn): average 5v5 60 ms Brain 8, 61 ms Brain 9 (spend off), 80 ms with spend on. 7v7: 189 ms, 190 ms and 230 ms. Worst 7v7 side-turn: 2,943 ms (Brain 8), 2,952 ms (Brain 9 spend off), 3,351 ms (spend on), all under 4.6 s.
+- **F022-8** (`results/v3.17.00/2026-11-23_study_f022-8-tiebreaks`; Brain 8 against Brain 5, 1,000 each, same deals per lineup and format). Columns: Brain 8 won KO / tiebreak, Brain 5 won KO / tiebreak, draw, Brain 8's share.
+  - Balanced 5v5:
+    - (a) v3.9 tempo +1: 313 / 170, 209 / 243, 65, 51.5%.
+    - (b) tempo 0: identical games.
+    - (c) v3.8: 295 / 191, 203 / 248, 63, 51.7%.
+    - Brain 9 (spend on): 486 / 36, 344 / 118, 16, 53.0%.
+  - Balanced 7v7:
+    - (a) 376 / 55, 306 / 251, 12, 43.7%.
+    - (b) 405 / 63, 298 / 223, 11, 47.3%.
+    - (c) 376 / 62, 318 / 234, 10, 44.3%.
+    - Brain 9: 281 / 47, 447 / 220, 5, 33.1%.
+  - All-Light 5v5:
+    - (a) 374 / 73, 174 / 363, 16, 45.5%.
+    - (b) 398 / 68, 176 / 347, 11, 47.1%.
+    - (c) identical to (a).
+    - Brain 9: 262 / 48, 356 / 315, 19, 31.9%.
+  - All-Light 7v7:
+    - (a) 421 / 38, 320 / 214, 7, 46.2%.
+    - (b) 449 / 46, 309 / 189, 7, 49.9%.
+    - (c) identical to (a).
+    - Brain 9: 369 / 37, 384 / 196, 14, 41.3%.
+  - (a) against (b), the tempo: 0 to 3.7 points, under the noise. (a) against (c), the rule set: 0 to 0.6 points. Neither is the cause.
+  - Brain 9 was queued as briefed (spent opening on); Brain 9 as it ships (off) against Brain 5 wasn't run. That's in Known gaps.
+- **Move-order grid** (`results/v3.17.00/2026-11-23_screen_brain9-moveorder-screen-2` and `..._study_brain9-moveorder-confirm`; sim-only; Brain 9 mirrors with the spent opening switched on). First mover's share of decisive games, turn-limit share, Command used on turn 1 (first mover / second mover), Arrow Storm kills per firing:
+  - Screen, Arrow Storm ×2: 73.2% to 97.9% in every cell, kills per firing 0.34 to 0.88.
+  - Screen, ×1.5:
+    - 5v5 Command 7, first turn 7: 66.9%, 24.5%.
+    - 5v5 Command 10, first turn 10: 62.7%, 11.5%.
+    - 7v7 first turn 10: 72.3%, 8.0%.
+  - Confirm, ×1.5, 1,000 each:
+    - 5v5 Command 7, first turn 4: 48.0%, 19.4%, 4.0 / 7.0, 0.12.
+    - 5v5 Command 8, first turn 8: 52.6%, 19.8%, 7.8 / 7.8, 0.29.
+    - 5v5 Command 8, first turn 5: 55.2%, 17.7%, 5.0 / 7.8, 0.52.
+    - 5v5 Command 10, first turn 6: 66.8%, 20.0%, 5.3 / 9.0, 0.27.
+    - 7v7 first turn 6: 76.4%, 6.2%, 6.0 / 9.8, 0.43.
+  - Brain 8 at 5v5 Command 8, ×2 (screen): first turn 5 79.6%, first turn 8 76.3%, Command used 4.3 and 4.6.
+- **Hand check of the new measures** (two saved games from `brain9-confirm`, replayed with an independent script):
+  - **GYSW-QGP8-XVGH** (7v7, South first): at turn 30 (limit − 5) South leads 2.00 to 0 on flag damage.
+    - North is finished (South TKO, turn 34): `late_behind_side` N and `late_behind_finished` 1 ✓.
+    - South attacks 4 times in turns 31 to 34: `late_ahead_attacks` 4 ✓, result finished ✓.
+    - North's guards 0 over its 3 side-turns: ✓.
+    - Points −1 / +3 ✓.
+    - Turn-1 Command: South 6 of 6, North 9.5 of 10 ✓.
+    - `late_ahead_turns` read 2 here; this is how the column clash was found.
+  - **T4WW-W2ZP-4EUF** (7v7): ends turn 12 by KO: `late_behind_side` ended_earlier, no late columns, points −1 / +3 ✓.
 - **Settings review (screen, 200 games; a gap under 4 points is noise):**
   - **No effect found in either format:** `finished` −2, `clockLoss` −2, `guardBlocks` 0 and 2, `endWeight` 10. Every change within 2 games of the baseline, head-to-head and mirror.
   - **No effect found at 7v7** (identical or within 2 games): `playToFinish`, `finish` 5, `endWeight` 40, `endTurns` 3 and 8. The victory term rarely acts there: 4.5% of Brain 9 mirrors reach the turn limit.
@@ -189,7 +288,11 @@ This build is the bot work. It is met when every measurement has a number and th
     - `spareCommand` 0.8: 82.7%, 80.6%. It also wins more against Brain 8: 5v5 101–93, 7v7 92–107, against 88–106 and 82–118.
     - `holderJoins` 0 (Brain 8's B4): mirror turn-limit share 51.5% (5v5) and 18.5% (7v7). B4 still matters with victory values on.
   - **Per-format candidates (item 7, no tuning):** `tempoSecond` and `tempoFirst` move the two formats in opposite directions; `spendOpening` moves both, 7v7 far more. Values per format are tuned after Cavalry, as the brief says.
-  - **Missing settings:** see F020-5 (late guarding).
-- **Known gaps:** TKO is left out of the finish chance. The finish chance counts at most 2 turns ahead and ignores blockers other than guards.
-- **Flags closed / opened:** opened F020-1 to F020-5 (`flags/020.md`).
+    - **Missing settings:** see F020-5 (late guarding).
+- **Known gaps:**
+  - TKO is left out of the finish chance. The finish chance counts at most 2 turns ahead and ignores blockers other than guards.
+  - F022-8's Brain 9 arm and the move-order grid used Brain 9 with the spent opening on (as briefed, queued before the confirm); Brain 9 as it ships was not run against Brain 5.
+  - The R28X-AJDH-DUP5 test game doesn't test a late lead any more (F020-2).
+  - Brain 9's hash as shipped is a42c87df57b5cd87 (`brain9:spendOpening=1`: fac18e10712463bc; the 2043d10724a8f649 above was before the guard-aware outlook was added).
+- **Flags closed / opened:** opened F020-1 to F020-5 (`flags/020.md`); F020-4 applied (spent opening ships off), the Editor may reverse it. F022-8: item 8's answer (neither the tempo nor the rule set) added to its row in `flags/022.md`; it stays DECIDE (the default opponent is the Editor's call).
 - **Pull request:** https://github.com/productofdefiance/Flagfall/pull/60

@@ -35,7 +35,8 @@ ok(B9 && B9.model && B9.name === "Brain 9 (plays to finish)", "Brain 9 exists, n
 ok(JSON.stringify(B9.model) === JSON.stringify(B8.model) && JSON.stringify(B9.approach) === JSON.stringify(B8.approach) && JSON.stringify(B9.plan5) === JSON.stringify(B8.plan5), "Brain 9 starts from Brain 8 as shipped (model, approach, planning)");
 for (const id of ["brain5", "brain6", "brain7", "brain8"]) ok(!DEFAULT_BRAINS[id].victory && !DEFAULT_BRAINS[id].spend && !DEFAULT_BRAINS[id].perFormat, `${id} has no victory, spend or per-format settings (frozen)`);
 for (const g of ["victory", "spend"]) for (const k of Object.keys(B9[g])) ok(BRAIN_LABELS[g + "." + k], `Brain 9 setting ${k} has a plain label`);
-ok(B9.victory.playToFinish === 1 && B9.spend.spendOpening === 1, "both behaviours ship on");
+ok(B9.victory.playToFinish === 1, "victory values ship on");
+ok(B9.spend.spendOpening === 0, "the spent opening ships off (brief 020 confirm: it cost wins against Brain 8 and broke 7v7's move order)");
 ok(B9.victory.finish === 3 && B9.victory.clockWin === 1 && B9.victory.draw === 0 && B9.victory.clockLoss === -1 && B9.victory.finished === -1, "the Editor's values: 3, 1, 0, -1, -1");
 ok(Object.keys(B9.perFormat).join() === "5,7" && !Object.keys(B9.perFormat[5]).length && !Object.keys(B9.perFormat[7]).length, "per-format settings exist for 5v5 and 7v7 and ship empty");
 { const others = new Set(); for (const g of Bot.GROUPS9) if (B9[g] && g !== "victory" && g !== "spend") Object.keys(B9[g]).forEach((k) => others.add(k));
@@ -137,8 +138,8 @@ const PRESS = { "N-HM": "D3", "N-HM2": "D12", "N-HA": "C12", "N-LM": "E12", "N-L
     const acts = []; let left = st.cmd, k = 0;
     while (st.phase === "play" && st.turn === 1 && st.toMove === "N" && k++ < 40) { const a = Bot.chooseAction(st, B, rnd).action; if (a.type === "end") break; if (!E.act(st, a, () => E.rollWith(st, rnd)).ok) break; acts.push(a); left = st.cmd; }
     return { spent: +(ftc - left).toFixed(2), acts: acts.map((a) => a.type + (a.to ? " " + a.to : "") + "(" + a.uid + ")").join(", ") }; };
-  const r8 = { 5: run(B8, 5), 8: run(B8, 8) }, r9 = { 5: run(B9, 5), 8: run(B9, 8) };
-  console.log(`  6. spent opening, 5v5 Command 8. Brain 8 spends ${r8[5].spent} of 5 and ${r8[8].spent} of 8; Brain 9 spends ${r9[5].spent} of 5 and ${r9[8].spent} of 8`);
+  const B9S = variant({ spendOpening: 1 }), r8 = { 5: run(B8, 5), 8: run(B8, 8) }, r9 = { 5: run(B9S, 5), 8: run(B9S, 8) };
+  console.log(`  6. spent opening (switched on), 5v5 Command 8. Brain 8 spends ${r8[5].spent} of 5 and ${r8[8].spent} of 8; Brain 9 spends ${r9[5].spent} of 5 and ${r9[8].spent} of 8`);
   console.log(`        Brain 9, first turn 8: ${r9[8].acts}`);
   ok(r9[8].spent > r8[8].spent + 0.5, "6. with 8 to spend on its first turn, Brain 9 spends more than Brain 8");
   ok(r9[8].acts !== r9[5].acts, "6. Brain 9 plays a first turn of 8 differently from a first turn of 5");
@@ -148,7 +149,7 @@ const PRESS = { "N-HM": "D3", "N-HM2": "D12", "N-HA": "C12", "N-LM": "E12", "N-L
 let refused = 0, played = 0;
 for (const mode of ["balanced", "light"]) for (const fmtId of ["blitz5", "std7"]) for (let g = 0; g < games; g++) {
   const rnd = require("./rng.js")(`brain9-legal:${RS.id}:${mode}:${fmtId}`, g);
-  const spec = { seed: W.seedFrom(rnd), rules: RS.id, format: fmtId, n: g % 3 === 2 ? "brain8" : "brain9", s: g % 3 === 1 ? "brain9:finished=-2" : "brain9", mixN: mode === "light" ? "light" : "mixed", mixS: mode === "light" ? "light" : "mixed", first: g % 2 ? "S" : "N" };
+  const spec = { seed: W.seedFrom(rnd), rules: RS.id, format: fmtId, n: g % 3 === 2 ? "brain8" : g % 3 === 1 ? "brain9:spendOpening=1" : "brain9", s: g % 3 === 1 ? "brain9:finished=-2" : "brain9", mixN: mode === "light" ? "light" : "mixed", mixS: mode === "light" ? "light" : "mixed", first: g % 2 ? "S" : "N" };
   W.playOut(spec, { after: (s, c, r) => { if (c.refusedEnd) return; played++; if (!r.ok) { refused++; if (refused <= 3) console.log("  refused:", JSON.stringify(c.action), r.error); } } });
 }
 ok(refused === 0, `Brain 9 never picks an illegal action (${games} games per format and lineup, ${played} actions, ${refused} refused)`);
