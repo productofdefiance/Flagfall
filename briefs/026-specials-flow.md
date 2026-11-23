@@ -198,7 +198,166 @@ On your phone, one 7v7 against the bot:
   - Passed: `test_reasons.js` (19, updated to expect "Not enough Command" where only Command is short), `test_v37.js` (180), `test_ui.js` (114), `test_phone.js` (64, updated for the retired confirm and bar), `test_hotseat.js` (46), `test_watch.js` (20), `test_events.js` (2623), `test_version.js` (22), `test_rules.js`, `test_v1.js`, `test_v3.js`, `test_v31.js`, `sims/lab/test_workflows.js`, `sims/lab/self_test.js` (34).
   - New: `test_spflow.js` (55, browser, phone and desktop) and `test_spengine.js` (17).
   - Not run here because the session was too slow: the remaining long checks (`test_v32` to `test_v36`, the brain tests, invariants, `board_check.js`). They don't touch anything this build changed. GitHub's checks run them on the pull request.
-  - Replay hashes: see below.
+  - Replay hashes: `regress_engine.js` (3 matches, every rule set and brain, 156 lines) run on a copy of the board from before this build and on this build, in this session. **All 156 lines are identical.** The only engine change is the wording of one returned reason. Hashes:
+
+```
+match3 standard      9505d63e32261044 {"turn limit, more pull damage":3,"TKO":1,"turn limit, draw":1,"KO":1}
+match3 easy          28f2c5fd3479eb57 {"turn limit, more pull damage":3,"KO":3}
+match3 kitA          3b3df4da2d9c97f3 {"KO":2,"turn limit, more pull damage":3,"TKO":1}
+match3 kitA2         a64350ad83b45852 {"KO":4,"turn limit, fewer beings lost":1,"TKO":1}
+match3 kitC          b7e3e59238054230 {"KO":4,"TKO":1,"turn limit, more pull damage":1}
+match3 kitB          2e06a723c6c6032e {"turn limit, fewer beings lost":2,"TKO":2,"KO":1,"turn limit, draw":1}
+match3 batchC        2e06a723c6c6032e {"turn limit, fewer beings lost":2,"TKO":2,"KO":1,"turn limit, draw":1}
+match3 kitD          c8e2474704def6cf {"turn limit, fewer beings lost":2,"TKO":3,"turn limit, more pull damage":1}
+match3 brain5        f867779da566a6df {"KO":3,"turn limit, more pull damage":1,"turn limit, fewer beings lost":1,"TKO":1}
+match3 brain6        f867779da566a6df {"KO":3,"turn limit, more pull damage":1,"turn limit, fewer beings lost":1,"TKO":1}
+match3 brain7        c974f96666523e6e {"KO":4,"TKO":1,"turn limit, draw":1}
+match3 brain8        e6caba66b182604e {"TKO":2,"KO":2,"turn limit, fewer beings lost":1,"turn limit, more pull damage":1}
+v1 standard          7d2ee23b610044fb {"turn limit, more pull damage":2,"TKO":2,"turn limit, fewer beings lost":2}
+v1 easy              5346f185dee68aec {"turn limit, more pull damage":2,"turn limit, fewer beings lost":1,"turn limit, draw":1,"TKO":1,"KO":1}
+v1 kitA              ec44252a55814596 {"turn limit, draw":1,"TKO":1,"KO":4}
+v1 kitA2             588982e45cf2e152 {"turn limit, fewer beings lost":1,"KO":4,"turn limit, more pull damage":1}
+v1 kitC              0bf2d1c97af4f95b {"turn limit, more pull damage":2,"turn limit, draw":3,"TKO":1}
+v1 kitB              1644ec2c5b0077c7 {"turn limit, draw":2,"KO":2,"turn limit, fewer beings lost":1,"TKO":1}
+v1 batchC            1644ec2c5b0077c7 {"turn limit, draw":2,"KO":2,"turn limit, fewer beings lost":1,"TKO":1}
+v1 kitD              f20f358e59ca61f3 {"turn limit, draw":2,"TKO":2,"turn limit, fewer beings lost":1,"turn limit, more pull damage":1}
+v1 brain5            d5bef74e280a57ab {"KO":2,"TKO":1,"turn limit, more pull damage":2,"turn limit, fewer beings lost":1}
+v1 brain6            d5bef74e280a57ab {"KO":2,"TKO":1,"turn limit, more pull damage":2,"turn limit, fewer beings lost":1}
+v1 brain7            c795fc967461ac0b {"KO":2,"turn limit, fewer beings lost":1,"turn limit, more pull damage":2,"TKO":1}
+v1 brain8            a916b1c927d3fd8b {"turn limit, more pull damage":2,"TKO":1,"KO":3}
+v2 standard          81fe95ac607c5bba {"turn limit, more pull damage":2,"KO":1,"TKO":3}
+v2 easy              e288e6f3e5882b42 {"turn limit, more pull damage":2,"TKO":3,"KO":1}
+v2 kitA              ef8b0b6eff8fd702 {"TKO":3,"turn limit, draw":1,"turn limit, fewer beings lost":2}
+v2 kitA2             882e7197fd72595d {"KO":3,"TKO":2,"turn limit, draw":1}
+v2 kitC              78d7c19b86006201 {"KO":1,"TKO":2,"turn limit, more pull damage":1,"turn limit, fewer beings lost":1,"turn limit, draw":1}
+v2 kitB              5a1b0327fc05000e {"KO":3,"TKO":1,"turn limit, more pull damage":1,"turn limit, draw":1}
+v2 batchC            5a1b0327fc05000e {"KO":3,"TKO":1,"turn limit, more pull damage":1,"turn limit, draw":1}
+v2 kitD              e9afcb1eea0cc19b {"KO":2,"TKO":3,"turn limit, draw":1}
+v2 brain5            f96a2e128e98e1c8 {"KO":5,"TKO":1}
+v2 brain6            f96a2e128e98e1c8 {"KO":5,"TKO":1}
+v2 brain7            213d2d01dbe307ae {"KO":3,"turn limit, draw":2,"turn limit, more pull damage":1}
+v2 brain8            14781362fe7c5590 {"turn limit, more pull damage":1,"KO":4,"turn limit, fewer beings lost":1}
+v3 standard          d9918e5044751ae4 {"turn limit, fewer beings lost":2,"KO":1,"turn limit, draw":3}
+v3 easy              dfc1018fd2e8d318 {"KO":4,"TKO":1,"turn limit, more pull damage":1}
+v3 kitA              d6e3a691412a529a {"turn limit, fewer beings lost":2,"turn limit, more pull damage":1,"turn limit, draw":1,"KO":2}
+v3 kitA2             de911ae9ae5ec5b2 {"KO":3,"turn limit, fewer beings lost":1,"turn limit, more pull damage":1,"turn limit, draw":1}
+v3 kitC              043a25e3a8faffa4 {"turn limit, draw":1,"turn limit, more pull damage":3,"turn limit, fewer beings lost":2}
+v3 kitB              39d8a8ced8ab1f71 {"turn limit, draw":4,"KO":2}
+v3 batchC            39d8a8ced8ab1f71 {"turn limit, draw":4,"KO":2}
+v3 kitD              d3a66ddd00dfa47b {"turn limit, draw":2,"turn limit, more pull damage":2,"KO":1,"TKO":1}
+v3 brain5            19e2441438e1a200 {"turn limit, fewer beings lost":3,"turn limit, more pull damage":2,"KO":1}
+v3 brain6            8d02521224fd5401 {"turn limit, fewer beings lost":3,"turn limit, more pull damage":2,"KO":1}
+v3 brain7            a62041e343400d41 {"KO":3,"turn limit, fewer beings lost":1,"TKO":1,"turn limit, draw":1}
+v3 brain8            81bf0e1d35d3a5be {"turn limit, more pull damage":1,"KO":4,"TKO":1}
+v3.1 standard        a5111ca6e31dd142 {"turn limit, draw":1,"turn limit, fewer beings lost":3,"KO":1,"turn limit, more pull damage":1}
+v3.1 easy            f009eabf0262288e {"turn limit, more pull damage":4,"turn limit, draw":1,"KO":1}
+v3.1 kitA            9363c663c396b31e {"turn limit, fewer beings lost":4,"turn limit, draw":1,"turn limit, more pull damage":1}
+v3.1 kitA2           7f0384d5d441a4ea {"turn limit, more pull damage":5,"turn limit, draw":1}
+v3.1 kitC            9bc318cf3af9dd6b {"turn limit, more pull damage":2,"turn limit, fewer beings lost":2,"turn limit, draw":2}
+v3.1 kitB            d1b5ee293dc1bfae {"turn limit, draw":3,"KO":1,"turn limit, more pull damage":1,"turn limit, fewer beings lost":1}
+v3.1 batchC          d1b5ee293dc1bfae {"turn limit, draw":3,"KO":1,"turn limit, more pull damage":1,"turn limit, fewer beings lost":1}
+v3.1 kitD            a79170f26bab76e2 {"turn limit, draw":3,"turn limit, more pull damage":2,"TKO":1}
+v3.1 brain5          7ee1558d6ff54718 {"turn limit, fewer beings lost":1,"TKO":1,"KO":3,"turn limit, more pull damage":1}
+v3.1 brain6          7ee1558d6ff54718 {"turn limit, fewer beings lost":1,"TKO":1,"KO":3,"turn limit, more pull damage":1}
+v3.1 brain7          44e83e23ce41fae2 {"KO":4,"TKO":1,"turn limit, more pull damage":1}
+v3.1 brain8          cd90f4933e283896 {"KO":4,"TKO":2}
+v3.2 standard        1b816fcef7403389 {"turn limit, fewer beings lost":2,"KO":2,"turn limit, draw":2}
+v3.2 easy            9420a422f54e6099 {"turn limit, more pull damage":5,"KO":1}
+v3.2 kitA            62567f2becd82077 {"turn limit, fewer beings lost":4,"turn limit, more pull damage":1,"KO":1}
+v3.2 kitA2           58669c71d6e22546 {"turn limit, more pull damage":4,"KO":2}
+v3.2 kitC            2bc602c9ad89ed2d {"turn limit, more pull damage":2,"turn limit, draw":3,"KO":1}
+v3.2 kitB            8f07baeb24cce876 {"turn limit, draw":3,"KO":1,"turn limit, fewer beings lost":1,"turn limit, more pull damage":1}
+v3.2 batchC          8f07baeb24cce876 {"turn limit, draw":3,"KO":1,"turn limit, fewer beings lost":1,"turn limit, more pull damage":1}
+v3.2 kitD            8dfa3da9426bad16 {"turn limit, draw":3,"KO":2,"turn limit, more pull damage":1}
+v3.2 brain5          90107654bc90e8a3 {"turn limit, fewer beings lost":2,"KO":2,"turn limit, more pull damage":2}
+v3.2 brain6          239eb257be0604f4 {"turn limit, fewer beings lost":2,"KO":2,"turn limit, more pull damage":2}
+v3.2 brain7          473cffecb5156780 {"KO":2,"TKO":3,"turn limit, fewer beings lost":1}
+v3.2 brain8          09637896349874b9 {"KO":6}
+v3.3 standard        c7d8b727e6ebceae {"turn limit, fewer beings lost":3,"KO":2,"turn limit, draw":1}
+v3.3 easy            6cb565c7364350b5 {"KO":1,"turn limit, more pull damage":4,"turn limit, fewer beings lost":1}
+v3.3 kitA            baa4a3cbd81e8b83 {"turn limit, fewer beings lost":5,"turn limit, draw":1}
+v3.3 kitA2           6b9ddc01aeb5fa92 {"turn limit, more pull damage":4,"turn limit, draw":1,"KO":1}
+v3.3 kitC            d601dcda9d3c1143 {"turn limit, draw":2,"turn limit, fewer beings lost":2,"KO":2}
+v3.3 kitB            e671933ea146e771 {"turn limit, draw":4,"KO":1,"turn limit, more pull damage":1}
+v3.3 batchC          e671933ea146e771 {"turn limit, draw":4,"KO":1,"turn limit, more pull damage":1}
+v3.3 kitD            b8be1834ea52142e {"turn limit, draw":3,"TKO":1,"KO":1,"turn limit, more pull damage":1}
+v3.3 brain5          e3bff02d25f693b0 {"turn limit, more pull damage":2,"TKO":2,"KO":1,"turn limit, fewer beings lost":1}
+v3.3 brain6          e3bff02d25f693b0 {"turn limit, more pull damage":2,"TKO":2,"KO":1,"turn limit, fewer beings lost":1}
+v3.3 brain7          8957b326026a32ed {"turn limit, fewer beings lost":2,"KO":3,"TKO":1}
+v3.3 brain8          87e07cc217667a6e {"turn limit, fewer beings lost":2,"KO":3,"TKO":1}
+v3.4 standard        a23e195511c0bc3d {"turn limit, fewer beings lost":3,"turn limit, more pull damage":2,"KO":1}
+v3.4 easy            ff402574aa89118d {"turn limit, more pull damage":4,"KO":2}
+v3.4 kitA            496a4a5b5cb66480 {"turn limit, draw":1,"turn limit, fewer beings lost":1,"turn limit, more pull damage":4}
+v3.4 kitA2           5f44f725d76f0175 {"KO":3,"turn limit, fewer beings lost":1,"turn limit, more pull damage":2}
+v3.4 kitC            eaa4f26ac713b64b {"turn limit, draw":2,"turn limit, more pull damage":3,"KO":1}
+v3.4 kitB            eca4206421c0c1df {"turn limit, draw":3,"KO":2,"turn limit, fewer beings lost":1}
+v3.4 batchC          eca4206421c0c1df {"turn limit, draw":3,"KO":2,"turn limit, fewer beings lost":1}
+v3.4 kitD            ebae86560417e8d7 {"turn limit, draw":3,"KO":2,"turn limit, more pull damage":1}
+v3.4 brain5          915fedc01f6b05b3 {"turn limit, fewer beings lost":3,"TKO":2,"KO":1}
+v3.4 brain6          915fedc01f6b05b3 {"turn limit, fewer beings lost":3,"TKO":2,"KO":1}
+v3.4 brain7          804ac76593a9da24 {"turn limit, fewer beings lost":3,"KO":3}
+v3.4 brain8          c6241b20db540e9f {"KO":5,"turn limit, fewer beings lost":1}
+v3.5 standard        056eee37982b2354 {"turn limit, fewer beings lost":4,"turn limit, more pull damage":1,"turn limit, draw":1}
+v3.5 easy            8b06c77421a0f850 {"KO":5,"turn limit, more pull damage":1}
+v3.5 kitA            43a939193e0028d3 {"turn limit, draw":2,"turn limit, fewer beings lost":2,"KO":1,"turn limit, more pull damage":1}
+v3.5 kitA2           b6fc8af99b78c6ed {"KO":3,"turn limit, draw":1,"turn limit, more pull damage":1,"turn limit, fewer beings lost":1}
+v3.5 kitC            541209f733e30a22 {"turn limit, more pull damage":2,"KO":3,"turn limit, draw":1}
+v3.5 kitB            040e2cffb0583c8c {"turn limit, draw":4,"KO":2}
+v3.5 batchC          040e2cffb0583c8c {"turn limit, draw":4,"KO":2}
+v3.5 kitD            35c5e1591f16def0 {"turn limit, draw":3,"KO":2,"turn limit, more pull damage":1}
+v3.5 brain5          d7759cc74cdcf510 {"turn limit, fewer beings lost":2,"TKO":1,"turn limit, draw":1,"KO":2}
+v3.5 brain6          fa0b7d355e2c489b {"turn limit, fewer beings lost":3,"TKO":1,"KO":2}
+v3.5 brain7          e802e6cc0c70fea6 {"TKO":1,"KO":5}
+v3.5 brain8          fb7bdabefe40794e {"turn limit, more pull damage":3,"TKO":1,"KO":2}
+v3.6 standard        7f3fab020e7ee17a {"turn limit, fewer beings lost":2,"turn limit, more pull damage":4}
+v3.6 easy            685cd1c7ded77eb6 {"turn limit, more pull damage":3,"KO":3}
+v3.6 kitA            547babeae56b77b5 {"turn limit, fewer beings lost":4,"turn limit, more pull damage":2}
+v3.6 kitA2           d0d8852d6f563aa5 {"KO":4,"turn limit, more pull damage":1,"turn limit, fewer beings lost":1}
+v3.6 kitC            7e5e288cc2830c81 {"turn limit, more pull damage":1,"turn limit, fewer beings lost":2,"turn limit, draw":1,"KO":2}
+v3.6 kitB            536f9331269d6544 {"turn limit, more pull damage":1,"KO":3,"turn limit, draw":2}
+v3.6 batchC          536f9331269d6544 {"turn limit, more pull damage":1,"KO":3,"turn limit, draw":2}
+v3.6 kitD            06d17790b1b628cc {"KO":4,"turn limit, more pull damage":1,"turn limit, draw":1}
+v3.6 brain5          fe8a409c22ccd875 {"turn limit, fewer beings lost":1,"KO":3,"turn limit, draw":1,"turn limit, more pull damage":1}
+v3.6 brain6          26163f6a9841f720 {"turn limit, fewer beings lost":1,"KO":3,"turn limit, more pull damage":2}
+v3.6 brain7          851ebd3b0186d53d {"turn limit, fewer beings lost":3,"turn limit, more pull damage":1,"KO":2}
+v3.6 brain8          23771b85c5748d68 {"TKO":2,"KO":3,"turn limit, fewer beings lost":1}
+v3.7 standard        cbeedd6a6532ffe2 {"turn limit, fewer beings lost":4,"KO":1,"turn limit, draw":1}
+v3.7 easy            e745566f994abf3c {"turn limit, more pull damage":4,"KO":2}
+v3.7 kitA            7e74c2126a7a1e26 {"KO":1,"turn limit, fewer beings lost":5}
+v3.7 kitA2           8c60cd7ea466e677 {"KO":2,"turn limit, fewer beings lost":2,"turn limit, more pull damage":2}
+v3.7 kitC            a8a65d9a99b6c6b9 {"turn limit, more pull damage":2,"KO":1,"turn limit, fewer beings lost":3}
+v3.7 kitB            9b52963c4b3d2697 {"turn limit, more pull damage":2,"KO":1,"turn limit, fewer beings lost":1,"turn limit, draw":2}
+v3.7 batchC          9b52963c4b3d2697 {"turn limit, more pull damage":2,"KO":1,"turn limit, fewer beings lost":1,"turn limit, draw":2}
+v3.7 kitD            c86dd807305c83af {"KO":4,"turn limit, draw":2}
+v3.7 brain5          8aba40ee571ecb6e {"KO":6}
+v3.7 brain6          8aba40ee571ecb6e {"KO":6}
+v3.7 brain7          e250fcd82a97681f {"KO":5,"TKO":1}
+v3.7 brain8          be7022eb240076e3 {"turn limit, more pull damage":1,"KO":3,"TKO":1,"turn limit, fewer beings lost":1}
+v3.8 standard        a37bd2e8528f3a7f {"turn limit, fewer beings lost":2,"turn limit, more pull damage":4}
+v3.8 easy            cf5235b783214b6c {"KO":4,"turn limit, more pull damage":2}
+v3.8 kitA            da227a828d94cd24 {"turn limit, fewer beings lost":5,"turn limit, more pull damage":1}
+v3.8 kitA2           e71519b837417de1 {"KO":1,"turn limit, fewer beings lost":4,"turn limit, more pull damage":1}
+v3.8 kitC            8dddd513a5a29aae {"turn limit, fewer beings lost":2,"KO":2,"turn limit, draw":2}
+v3.8 kitB            b36573f761594036 {"KO":6}
+v3.8 batchC          b36573f761594036 {"KO":6}
+v3.8 kitD            24b6b31bba2f59bf {"KO":1,"turn limit, more pull damage":4,"TKO":1}
+v3.8 brain5          a32a14e06f9a83c1 {"turn limit, more pull damage":2,"turn limit, fewer beings lost":1,"TKO":1,"KO":2}
+v3.8 brain6          a32a14e06f9a83c1 {"turn limit, more pull damage":2,"turn limit, fewer beings lost":1,"TKO":1,"KO":2}
+v3.8 brain7          7135c3992ec329b2 {"KO":4,"TKO":1,"turn limit, fewer beings lost":1}
+v3.8 brain8          18ee2632fc35395b {"KO":6}
+v3.9 standard        8a18042d7ad0c09a {"turn limit, more pull damage":4,"turn limit, fewer beings lost":2}
+v3.9 easy            330eb507c67620bf {"turn limit, more pull damage":3,"KO":3}
+v3.9 kitA            34c2a3420232fef7 {"turn limit, fewer beings lost":5,"turn limit, more pull damage":1}
+v3.9 kitA2           55412d14672cfe97 {"turn limit, more pull damage":1,"turn limit, fewer beings lost":2,"KO":3}
+v3.9 kitC            819eb4611d2a27d4 {"turn limit, fewer beings lost":2,"KO":3,"turn limit, more pull damage":1}
+v3.9 kitB            396e04095500ddbe {"KO":5,"turn limit, more pull damage":1}
+v3.9 batchC          396e04095500ddbe {"KO":5,"turn limit, more pull damage":1}
+v3.9 kitD            cce3275102425ab0 {"KO":4,"turn limit, more pull damage":2}
+v3.9 brain5          2ad36b5264195d14 {"turn limit, fewer beings lost":1,"TKO":2,"KO":2,"turn limit, more pull damage":1}
+v3.9 brain6          2ad36b5264195d14 {"turn limit, fewer beings lost":1,"TKO":2,"KO":2,"turn limit, more pull damage":1}
+v3.9 brain7          085a8af1c5712068 {"KO":5,"TKO":1}
+v3.9 brain8          b74af22796dedaaa {"turn limit, fewer beings lost":1,"KO":4,"TKO":1}
+```
 - **Baseline table (rule changes only):** n/a
 - **Bot minimum (met / not met, with numbers):** n/a (screen only; Undo is human only)
 - **Settings review (brain builds only):** n/a
