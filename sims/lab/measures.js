@@ -568,6 +568,80 @@ MEASURES.routes = {
     }
 };
 
+// Brief 020: victory values. "Behind" and "ahead" are on flag damage (the board's first tiebreak step), read at the start of a
+// side-turn. The reading is taken at the first side-turn of turn limit − 5; the last 5 turns are limit − 4 to the limit.
+// Guards: a side's units other than its holder in or next to its own goal zone (as Brain 9 counts them, bot.js guards9).
+// Points by the Editor's table: finish +3, clock win +1, draw 0 (a turn-limit game on "fewer units lost" counts as a draw,
+// Game Laws 2.7), clock loss −1, finished −1 (points_*) or −2 (points2_*). Read only.
+const V20_COLS = ["late_behind_side", "late_behind_finished", "late_behind_comeback",
+  "late_guard_behind_n", "late_guard_behind_s", "late_guard_behind_turns_n", "late_guard_behind_turns_s",
+  "late_guard_level_n", "late_guard_level_s", "late_guard_level_turns_n", "late_guard_level_turns_s",
+  "late_guard_ahead_n", "late_guard_ahead_s", "late_guard_ahead_turns_n", "late_guard_ahead_turns_s",
+  "late_ahead_side", "late_ahead_attacks", "late_ahead_sideturns", "late_ahead_result",
+  "points_n", "points_s", "points2_n", "points2_s", "finish_win", "turn1_cmd_first", "turn1_cmd_second"];
+/** The Editor's points for `team` (finished = −1, or `fin`). */
+function points20(st, team, fin) {
+  const r = st.result; if (!r || !r.winner) return 0;
+  const tl = /turn limit/.test(r.how || "");
+  if (tl && !/pull damage/.test(r.how)) return 0;
+  const won = r.winner === team;
+  return tl ? (won ? 1 : -1) : (won ? 3 : fin);
+}
+MEASURES.victory = {
+  about: "Victory values (Brief 020). At the first side-turn of turn limit − 5, the side behind on flag damage (late_behind_side: N, S, level or ended_earlier), 1 if it was then finished (lost by full pull, holder KO or TKO; late_behind_finished) and 1 if it won or drew (late_behind_comeback); the same reading's side ahead (late_ahead_side), its attacks, specials and pulls over its side-turns in the last 5 turns (late_ahead_attacks, late_ahead_sideturns: divide for a rate; `clock` already has a late_ahead_turns, for the last 3 turns) and how it ended (late_ahead_result: finished, clock_win, draw, lost). late_guard_*: guards (units other than the holder in or next to their own goal zone) summed over a side's side-turns in the last 5 turns, split by its standing on flag damage at that side-turn's start, with the side-turns counted in late_guard_*_turns_* (divide for the average). points_n/s: the Editor's table (finish 3, clock win 1, draw 0 with fewer units lost a draw, clock loss −1, finished −1); points2_n/s the same with finished −2; finish_win 1 if a side won by a finish. turn1_cmd_first/second: Command each side spent on its first side-turn.",
+  columns: V20_COLS,
+  make(ctx) {
+    const { E, Bot } = ctx, o = Object.fromEntries(V20_COLS.map((k) => [k, ""]));
+    for (const k of V20_COLS) if (/^late_guard_|^late_ahead_attacks$|^late_ahead_sideturns$/.test(k)) o[k] = 0;
+    let key = "", read = false, cur = null;   // cur: the side-turn on turn 1 being watched for Command spent
+    const standing = (st, t) => { const us = st.pole[E.foeOf(t)], them = st.pole[t]; return us > them ? "ahead" : us < them ? "behind" : "level"; };
+    const guards = (st, t) => (Bot.guards9 ? Bot.guards9(st, t) : 0);
+    const closeCmd = (st) => { if (!cur) return; const kk = cur.side === st.first ? "turn1_cmd_first" : "turn1_cmd_second"; if (o[kk] === "") o[kk] = +(cur.start - cur.last).toFixed(2); cur = null; };
+    return {
+      before(st, c) {
+        const k = st.turn + st.toMove, lim = E.turnLimit(st), t = st.toMove, x = t.toLowerCase();
+        if (k !== key && st.phase === "play") {
+          key = k; closeCmd(st);
+          if (st.turn === 1) cur = { side: t, start: st.cmd, last: st.cmd };
+          if (!read && st.turn >= lim - 5) {
+            read = true;
+            const sN = standing(st, "N");
+            o.late_behind_side = sN === "behind" ? "N" : sN === "ahead" ? "S" : "level";
+            o.late_ahead_side = sN === "ahead" ? "N" : sN === "behind" ? "S" : "level";
+          }
+          if (st.turn >= lim - 4) {
+            const sd = standing(st, t);
+            o[`late_guard_${sd}_${x}`] += guards(st, t); o[`late_guard_${sd}_turns_${x}`]++;
+            if (t === o.late_ahead_side) o.late_ahead_sideturns++;
+          }
+        }
+      },
+      after(st, c, r) {
+        if (!r || !r.ok || c.refusedEnd) return;
+        if (cur && st.phase === "play" && st.turn === 1 && st.toMove === cur.side) cur.last = st.cmd;
+        const me = c.action.uid && E.unitByUid(st, c.action.uid);
+        if (me && me.team === o.late_ahead_side && st.turn >= E.turnLimit(st) - 4 && ["attack", "special", "pull"].includes(c.action.type)) o.late_ahead_attacks++;
+      },
+      end(st) {
+        closeCmd(st);
+        const r = st.result, w = r && r.winner, tl = r && /turn limit/.test(r.how || ""), fin = w && !tl;
+        if (!read) { o.late_behind_side = "ended_earlier"; o.late_ahead_side = "ended_earlier"; }
+        if (o.late_behind_side === "N" || o.late_behind_side === "S") {
+          const b = o.late_behind_side;
+          o.late_behind_finished = fin && w !== b ? 1 : 0;
+          o.late_behind_comeback = !w || w === b ? 1 : 0;
+        }
+        if (o.late_ahead_side === "N" || o.late_ahead_side === "S") {
+          const a = o.late_ahead_side;
+          o.late_ahead_result = !w ? "draw" : w !== a ? "lost" : tl ? "clock_win" : "finished";
+        }
+        Object.assign(o, { points_n: points20(st, "N", -1), points_s: points20(st, "S", -1), points2_n: points20(st, "N", -2), points2_s: points20(st, "S", -2), finish_win: fin ? 1 : 0 });
+        return o;
+      }
+    };
+  }
+};
+
 // Always collected: the outcome (it feeds the summary's key table), timing, (Brief 016) stall and (Brief 019) lead and alone.
-const ALWAYS = ["outcome", "timing", "stall", "lead", "alone"];
+const ALWAYS = ["outcome", "timing", "stall", "lead", "alone", "victory"];
 module.exports = { MEASURES, ALWAYS };

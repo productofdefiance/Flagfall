@@ -41,6 +41,10 @@ ok(/-2$/.test(dir2), "a second run the same day gets -2");
 const bad = path.join(tmp, "bad.json"); fs.writeFileSync(bad, JSON.stringify({ id: "Bad Id", kind: "screen", matchups: [{ name: "x", a: "brain99", b: "brain5", rules: "v3.4", format: "blitz5", games: 2 }] }));
 let msg = ""; try { node([path.join(here, "plan.js"), "--orders", bad]); } catch (e) { msg = String(e.stderr); }
 ok(/id: lowercase/.test(msg) && /question/.test(msg) && /brain brain99 is not on this board/.test(msg), "a broken order is refused with its problems named");
+// Brief 020: a column name belongs to one measure only (a row merges every measure's columns, so a shared name is overwritten)
+{ const { MEASURES } = require("./measures.js"), owner = {}, clash = [];
+  for (const m in MEASURES) for (const c of MEASURES[m].columns) { if (owner[c] && owner[c] !== m) clash.push(`${c} (${owner[c]}, ${m})`); owner[c] = m; }
+  ok(!clash.length, "no two measures share a column name" + (clash.length ? ": " + clash.join(", ") : "")); }
 fs.rmSync(tmp, { recursive: true, force: true });
 console.log(`${n} checks, ${fails} failures`);
 process.exit(fails ? 1 : 0);

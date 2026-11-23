@@ -1,0 +1,11 @@
+matchup,games,braces,braces_no_threat,attacks,holder_attacks,moves,safety_stops,refused,bot_errors
+a-brain8-mirror-5v5,60,209,25,998,194,2593,0,0,0
+b-brain9-mirror-5v5,60,298,36,1257,244,2709,0,0,0
+c-brain9-m2-mirror-5v5,60,298,36,1257,244,2709,0,0,0
+b-vs-a-5v5,60,239,19,1060,214,2446,0,0,0
+c-vs-a-5v5,60,239,19,1060,214,2446,0,0,0
+a-brain8-mirror-7v7,60,330,26,1334,218,3586,0,0,0
+b-brain9-mirror-7v7,60,376,76,1387,217,3770,0,0,0
+c-brain9-m2-mirror-7v7,60,373,76,1385,216,3770,0,0,0
+b-vs-a-7v7,60,279,40,1386,236,3653,0,0,0
+c-vs-a-7v7,60,279,40,1386,236,3653,0,0,0

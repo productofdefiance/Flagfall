@@ -1,0 +1,11 @@
+matchup,a,b,rules,format,lineups,games,a_wins,b_wins,a_tiebreak,b_tiebreak,draws,unfinished,errors,holder_ko,pull_ko,tko,tiebreak_win,draw,turn_limit,games_with_pull,avg_turn,decisive,first_mover_share,a_share,a_share_se
+a-brain8-mirror-5v5,brain8,brain8,v3.9,blitz5,mixed,200,55,55,33,39,18,0,0,12,72,26,72,18,90,72,18.59,110,0.6545,0.485,0.0354
+b-brain9-mirror-5v5,brain9,brain9,v3.9,blitz5,mixed,200,86,87,9,12,6,0,0,22,114,37,21,6,27,114,15.63,173,0.7052,0.49,0.0354
+c-brain9-m2-mirror-5v5,brain9:finished=-2,brain9:finished=-2,v3.9,blitz5,mixed,200,86,88,8,12,6,0,0,22,117,35,20,6,26,117,15.61,174,0.6954,0.485,0.0354
+b-vs-a-5v5,brain9,brain8,v3.9,blitz5,mixed,200,75,93,13,13,6,0,0,13,123,32,26,6,32,123,13.49,168,0.9107,0.455,0.0354
+c-vs-a-5v5,brain9:finished=-2,brain8,v3.9,blitz5,mixed,200,75,93,13,13,6,0,0,13,123,32,26,6,32,123,13.49,168,0.9107,0.455,0.0354
+a-brain8-mirror-7v7,brain8,brain8,v3.9,std7,mixed,200,89,78,16,13,4,0,0,13,127,27,29,4,33,127,16.54,167,0.3952,0.535,0.0354
+b-brain9-mirror-7v7,brain9,brain9,v3.9,std7,mixed,200,92,99,4,3,2,0,0,10,158,23,7,2,9,158,13.72,191,0.8429,0.485,0.0354
+c-brain9-m2-mirror-7v7,brain9:finished=-2,brain9:finished=-2,v3.9,std7,mixed,200,93,100,3,2,2,0,0,10,160,23,5,2,7,160,13.71,193,0.8394,0.485,0.0354
+b-vs-a-7v7,brain9,brain8,v3.9,std7,mixed,200,77,110,5,8,0,0,0,15,140,32,13,0,13,140,14.79,187,0.6364,0.41,0.0354
+c-vs-a-7v7,brain9:finished=-2,brain8,v3.9,std7,mixed,200,77,110,5,8,0,0,0,15,140,32,13,0,13,140,14.79,187,0.6364,0.41,0.0354

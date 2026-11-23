@@ -1,0 +1,11 @@
+matchup,games,late_behind_side,late_behind_finished,late_behind_comeback,late_guard_behind_n,late_guard_behind_s,late_guard_behind_turns_n,late_guard_behind_turns_s,late_guard_level_n,late_guard_level_s,late_guard_level_turns_n,late_guard_level_turns_s,late_guard_ahead_n,late_guard_ahead_s,late_guard_ahead_turns_n,late_guard_ahead_turns_s,late_ahead_side,late_ahead_attacks,late_ahead_turns,late_ahead_result,points_n,points_s,points2_n,points2_s,finish_win,turn1_cmd_first,turn1_cmd_second
+a-brain8-mirror-5v5,200,ended_earlier:105 level:77 S:7 N:11,5,0,0,0,35,36,5,0,385,385,0,0,33,36,ended_earlier:105 level:77 N:7 S:11,10,216,clock_win:13 finished:5,133,87,84,26,110,904,1656.5
+b-brain9-mirror-5v5,200,level:46 ended_earlier:142 S:7 N:5,5,2,4,3,72,83,6,5,115,112,0,0,74,69,level:46 ended_earlier:142 N:7 S:5,26,140,clock_win:5 lost:2 finished:5,161,185,70,103,173,1058.5,1800
+c-brain9-m2-mirror-5v5,200,level:46 ended_earlier:142 S:7 N:5,4,3,4,3,72,78,6,6,116,114,0,0,69,67,level:46 ended_earlier:142 N:7 S:5,22,135,clock_win:5 lost:3 finished:4,167,181,77,97,174,1058.5,1800
+b-vs-a-5v5,200,ended_earlier:158 level:24 S:7 N:11,1,1,0,0,61,54,1,0,87,85,0,0,51,62,ended_earlier:158 level:24 N:7 S:11,7,102,clock_win:16 lost:1 finished:1,151,185,63,105,168,985,1878.5
+c-vs-a-5v5,200,ended_earlier:158 level:24 S:7 N:11,1,1,0,0,61,54,1,0,87,85,0,0,51,62,ended_earlier:158 level:24 N:7 S:11,7,102,clock_win:16 lost:1 finished:1,151,185,63,105,168,985,1878.5
+a-brain8-mirror-7v7,200,level:19 ended_earlier:167 S:9 N:5,0,0,0,0,25,45,2,5,95,95,0,0,45,25,level:19 ended_earlier:167 N:9 S:5,0,87,clock_win:14,193,141,115,52,167,1178.5,1898.5
+b-brain9-mirror-7v7,200,ended_earlier:188 level:6 S:5 N:1,1,1,0,0,9,22,5,0,24,24,0,0,21,9,ended_earlier:188 level:6 N:5 S:1,5,25,lost:1 clock_win:4 finished:1,249,133,167,24,191,1200,1967.5
+c-brain9-m2-mirror-7v7,200,ended_earlier:188 level:6 S:5 N:1,1,1,0,0,9,19,5,0,24,24,1,0,19,9,ended_earlier:188 level:6 N:5 S:1,5,23,lost:1 clock_win:4 finished:1,253,133,171,22,193,1200,1967.5
+b-vs-a-7v7,200,ended_earlier:184 level:8 N:5 S:3,0,0,0,0,25,24,0,1,31,28,0,0,24,25,ended_earlier:184 level:8 S:5 N:3,1,48,clock_win:8,175,199,79,108,187,1189.5,1945
+c-vs-a-7v7,200,ended_earlier:184 level:8 N:5 S:3,0,0,0,0,25,24,0,1,31,28,0,0,24,25,ended_earlier:184 level:8 S:5 N:3,1,48,clock_win:8,175,199,79,108,187,1189.5,1945

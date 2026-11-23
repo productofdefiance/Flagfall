@@ -1,0 +1,204 @@
+{
+ "id": "brain9-confirm",
+ "kind": "study",
+ "brief": "020",
+ "seed_name": "brain9-confirm",
+ "question": "Brief 020 confirm (1,000 games each, v3.9, balanced, same deals per format, sides and move order swapped evenly): Brain 8 mirror (A); Brain 9 as briefed with finished -1 (B) and -2 (C); and, because the screen showed the spent opening costing wins at 7v7, Brain 9 with the spent opening off at -1 (Bo) and -2 (Co). Mirrors and each against Brain 8. Win share, the Editor's points, stalls, and the hunch (late_behind_finished, late_guard_behind, late_ahead_attacks).",
+ "tags": [
+  "brain9",
+  "brain8",
+  "study",
+  "v3.9",
+  "victory",
+  "hunch"
+ ],
+ "measures": [
+  "play",
+  "clock",
+  "specials",
+  "firstloss",
+  "brain8"
+ ],
+ "matchups": [
+  {
+   "name": "a-brain8-mirror-5v5",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-5v5"
+  },
+  {
+   "name": "b-brain9-mirror-5v5",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-5v5"
+  },
+  {
+   "name": "c-brain9-m2-mirror-5v5",
+   "a": "brain9:finished=-2",
+   "b": "brain9:finished=-2",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-5v5"
+  },
+  {
+   "name": "bo-brain9-nospend-mirror-5v5",
+   "a": "brain9:spendOpening=0",
+   "b": "brain9:spendOpening=0",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-5v5"
+  },
+  {
+   "name": "co-brain9-nospend-m2-mirror-5v5",
+   "a": "brain9:spendOpening=0,finished=-2",
+   "b": "brain9:spendOpening=0,finished=-2",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-5v5"
+  },
+  {
+   "name": "b-vs-a-5v5",
+   "a": "brain9",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-5v5"
+  },
+  {
+   "name": "c-vs-a-5v5",
+   "a": "brain9:finished=-2",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-5v5"
+  },
+  {
+   "name": "bo-vs-a-5v5",
+   "a": "brain9:spendOpening=0",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-5v5"
+  },
+  {
+   "name": "co-vs-a-5v5",
+   "a": "brain9:spendOpening=0,finished=-2",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-5v5"
+  },
+  {
+   "name": "a-brain8-mirror-7v7",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-7v7"
+  },
+  {
+   "name": "b-brain9-mirror-7v7",
+   "a": "brain9",
+   "b": "brain9",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-7v7"
+  },
+  {
+   "name": "c-brain9-m2-mirror-7v7",
+   "a": "brain9:finished=-2",
+   "b": "brain9:finished=-2",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-7v7"
+  },
+  {
+   "name": "bo-brain9-nospend-mirror-7v7",
+   "a": "brain9:spendOpening=0",
+   "b": "brain9:spendOpening=0",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-7v7"
+  },
+  {
+   "name": "co-brain9-nospend-m2-mirror-7v7",
+   "a": "brain9:spendOpening=0,finished=-2",
+   "b": "brain9:spendOpening=0,finished=-2",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-7v7"
+  },
+  {
+   "name": "b-vs-a-7v7",
+   "a": "brain9",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-7v7"
+  },
+  {
+   "name": "c-vs-a-7v7",
+   "a": "brain9:finished=-2",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-7v7"
+  },
+  {
+   "name": "bo-vs-a-7v7",
+   "a": "brain9:spendOpening=0",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-7v7"
+  },
+  {
+   "name": "co-vs-a-7v7",
+   "a": "brain9:spendOpening=0,finished=-2",
+   "b": "brain8",
+   "rules": "v3.9",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000,
+   "seed_as": "c-7v7"
+  }
+ ]
+}

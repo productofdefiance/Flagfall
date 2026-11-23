@@ -1,0 +1,11 @@
+matchup,games,first_lost_side,first_lost_turn,first_lost_card,first_lost_by,first_lr_lost_side,first_lr_lost_turn,reach_contact_turn,reach_contact_side,first_strike_side
+a-brain8-mirror-5v5,60,first:13 second:47,120,LR:60,LR special:60,first:13 second:47,120,60,second:60,first:60
+b-brain9-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+c-brain9-m2-mirror-5v5,60,second:60,148,LM:18 LR:42,HA attack:18 LR special:36 LR attack:6,first:18 second:42,148,60,second:60,first:60
+b-vs-a-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+c-vs-a-5v5,60,second:60,128,LR:52 LM:8,LR special:51 HA attack:8 LM attack:1,second:58 first:2,140,60,second:60,first:23 second:37
+a-brain8-mirror-7v7,60,first:32 second:28,126,LA:49 LR:8 LM:2 HR:1,LR special:15 LM special:16 HR attack:20 LM attack:4 LR attack:4 HM attack:1,second:22 first:38,174,81,first:15 second:45,first:45 second:15
+b-brain9-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+c-brain9-m2-mirror-7v7,60,first:11 second:49,170,LM:15 LR:33 HM:3 LA:8 HR:1,LR special:45 LM special:6 HR attack:4 LA special:2 LR attack:3,second:50 first:10,200,81,first:14 second:46,first:45 second:15
+b-vs-a-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17
+c-vs-a-7v7,60,second:28 first:32,141,LM:23 LA:23 LR:13 HM:1,LR special:20 LA special:8 LM special:18 HR attack:7 LM attack:3 HM attack:2 LA attack:1 LR attack:1,first:23 second:37,198,81,first:16 second:44,first:43 second:17

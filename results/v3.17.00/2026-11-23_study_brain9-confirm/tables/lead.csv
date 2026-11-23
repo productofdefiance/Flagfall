@@ -1,0 +1,19 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+a-brain8-mirror-5v5,1000,30,S:13 N:17,43,250,340,S:170 N:170
+b-brain9-mirror-5v5,1000,29,N:17 S:12,56,285,92,S:47 N:45
+c-brain9-m2-mirror-5v5,1000,29,N:17 S:12,56,285,93,S:47 N:46
+bo-brain9-nospend-mirror-5v5,1000,46,S:22 N:24,72,481,245,S:119 N:126
+co-brain9-nospend-m2-mirror-5v5,1000,49,S:23 N:26,76,532,233,S:118 N:115
+b-vs-a-5v5,1000,19,S:8 N:11,38,171,97,S:42 N:55
+c-vs-a-5v5,1000,19,S:8 N:11,38,171,97,S:42 N:55
+bo-vs-a-5v5,1000,32,S:15 N:17,47,269,289,S:143 N:146
+co-vs-a-5v5,1000,33,S:16 N:17,48,292,289,S:143 N:146
+a-brain8-mirror-7v7,1000,26,N:16 S:10,45,215,110,N:43 S:67
+b-brain9-mirror-7v7,1000,37,S:20 N:17,69,368,24,N:12 S:12
+c-brain9-m2-mirror-7v7,1000,37,S:20 N:17,69,339,24,N:12 S:12
+bo-brain9-nospend-mirror-7v7,1000,29,N:19 S:10,51,261,60,S:38 N:22
+co-brain9-nospend-m2-mirror-7v7,1000,30,N:21 S:9,53,296,59,S:38 N:21
+b-vs-a-7v7,1000,42,S:20 N:22,70,316,64,S:30 N:34
+c-vs-a-7v7,1000,43,S:20 N:23,71,324,64,S:30 N:34
+bo-vs-a-7v7,1000,28,N:18 S:10,48,241,88,S:55 N:33
+co-vs-a-7v7,1000,28,N:18 S:10,48,241,88,S:55 N:33

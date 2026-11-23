@@ -1,0 +1,19 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+5v5-c7-ft7-storm1p5,200,111,3,121,56,ended_earlier:128 level:26 S:18 N:28,won_decisive:19 won_tiebreak:18 draw:5 lost:4,16
+5v5-c7-ft7-storm2,200,77,1,87,46,ended_earlier:158 S:17 N:15 level:10,won_tiebreak:9 lost:5 won_decisive:15 draw:3,6
+5v5-c7-ft4-storm1p5,200,94,3,95,43,S:17 ended_earlier:145 level:20 N:18,won_tiebreak:17 won_decisive:11 lost:5 draw:2,10
+5v5-c7-ft4-storm2,200,81,3,100,53,N:25 ended_earlier:152 level:5 S:18,lost:4 won_decisive:21 won_tiebreak:15 draw:3,9
+5v5-c8-ft8-storm1p5,200,121,9,123,57,N:21 ended_earlier:132 level:24 S:23,won_tiebreak:19 won_decisive:16 lost:5 draw:4,14
+5v5-c8-ft8-storm2,200,68,4,69,23,ended_earlier:161 S:4 N:15 level:20,won_tiebreak:11 won_decisive:6 lost:2,7
+5v5-c8-ft5-storm1p5,200,144,8,149,84,S:22 N:35 ended_earlier:130 level:13,won_decisive:28 won_tiebreak:19 draw:3 lost:7,25
+5v5-c8-ft5-storm2,200,54,1,69,48,ended_earlier:169 S:14 N:15 level:2,won_tiebreak:7 won_decisive:15 lost:5 draw:2,9
+5v5-c10-ft10-storm1p5,200,102,5,113,68,ended_earlier:148 S:20 N:27 level:5,won_decisive:25 draw:4 lost:3 won_tiebreak:15,13
+5v5-c10-ft10-storm2,200,40,1,41,9,ended_earlier:181 N:12 S:5 level:2,won_decisive:4 lost:1 won_tiebreak:10 draw:2,10
+5v5-c10-ft6-storm1p5,200,167,15,178,99,ended_earlier:121 level:10 N:38 S:31,won_tiebreak:29 won_decisive:31 draw:5 lost:4,20
+5v5-c10-ft6-storm2,200,128,2,156,113,ended_earlier:137 N:29 S:32 level:2,won_decisive:37 won_tiebreak:18 lost:4 draw:2,6
+7v7-c10-ft6-storm1p5,200,71,8,66,29,level:4 ended_earlier:172 S:14 N:10,won_tiebreak:11 won_decisive:4 lost:8 draw:1,12
+7v7-c10-ft6-storm2,200,37,4,34,13,ended_earlier:184 S:5 N:9 level:2,lost:4 won_decisive:6 won_tiebreak:4,12
+7v7-c10-ft10-storm1p5,200,67,3,65,19,ended_earlier:175 S:13 N:8 level:4,won_tiebreak:11 won_decisive:8 lost:2,20
+7v7-c10-ft10-storm2,200,49,8,51,17,ended_earlier:180 N:15 S:4 level:1,lost:5 won_decisive:5 won_tiebreak:9,16
+brain8-5v5-c8-ft5-storm2,200,90,0,90,0,N:21 ended_earlier:162 level:8 S:9,won_tiebreak:30,9
+brain8-5v5-c8-ft8-storm2,200,81,0,81,0,ended_earlier:169 N:18 level:4 S:9,won_tiebreak:27,11

@@ -156,7 +156,7 @@ On your phone, one 7v7 against the bot:
 5. Brace a unit: the Brace button turns solid charcoal; tap Undo, it's unbraced. Brace again; next turn, dashed.
 
 ## Report
-*Filled in by Claude Code, 23 Nov 2026. Branch `claude/gallant-bohr-hkd8d8`, started from `brief/026-specials-flow`, synced with `main` after 018 merged. Game version **v3.17.00**, Build 22.*
+*Filled in by Claude Code, 23 Nov 2026. Branch `claude/gallant-bohr-hkd8d8`, started from `brief/026-specials-flow`, synced with `main` after 018 and 020 merged. Game version **v3.18.00**, Build 23 (Brief 020 took v3.17.00 first).*
 
 - **What's in:** all ten sections, on phone and desktop.
   - §1: the five Special button looks, read from the generators' colours. No state bar, no cost on the button.

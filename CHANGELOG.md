@@ -6,7 +6,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
-| v3.17.00 | v3.9 | Brain 8 | v6 + v5 + v4 | 22 |
+| v3.18.00 | v3.9 | Brain 8 | v6 + v5 + v4 | 23 |
+| v3.17.00 | v3.9 | Brain 8 | v5 + v4 | 22 |
 | v3.16.00 | v3.9 | Brain 8 | v5 + v4 | 21 |
 | v3.15.00 | v3.9 | Brain 8 | v5 | 20 |
 | v3.14.01 | v3.9 | Brain 5 | v5 | 19 |
@@ -25,8 +26,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
-## v3.17.00 · Build 22 — Brief 026, no rule change: the specials flow, Approved UI v6 (23 Nov 2026)
-Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8, unchanged. UI: **Approved UI v6** (the specials) on top of v5 and v4. Game version **v3.17.00** (YY: new screens).
+## v3.18.00 · Build 23 — Brief 026, no rule change: the specials flow, Approved UI v6 (23 Nov 2026)
+Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8, unchanged. UI: **Approved UI v6** (the specials) on top of v5 and v4. Game version **v3.18.00** (YY: new screens; Brief 020 took v3.17.00 first).
 
 **What a player will notice (phone and desktop)**
 - **One tap warms up a special**, like Brace: no confirm step. The button turns dashed gold and the unit bar says "Fires next turn · no attack or brace". **Undo takes a warm-up back** (Stamina and Command too).
@@ -44,6 +45,24 @@ Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8
 - New checks: `test_spflow.js` (the flow in a browser, phone and desktop), `test_spengine.js` (the message split; only Evade cards are told they may only evade; a killing Pick Off's spear against the sheet over 400 seeded positions). `test_phone.js` updated for the retired confirm and bar; `test_reasons.js` now expects "Not enough Command" where only Command is short.
 
 Flags closed: none. Flags opened: see `flags/026.md`.
+
+## v3.17.00 · Build 22 — Brief 020, Brain 9: victory values, spent opening, per-format settings (23 Nov 2026)
+Rule set: none changed (v3.9 stays the newest; Brain 9 measured on v3.9). Default brain: Brain 8 (unchanged). Game version **v3.17.00** (YY: a new brain; brief 018 took v3.16.00 first).
+
+**What a player will notice**
+- A new opponent in the brain list, **"Brain 9 (plays to finish)"**. In the last 5 turns it values how the game is likely to end (finish 3, win on the clock 1, draw 0, loss -1). When it leads it keeps attacking instead of sitting on the lead, and fewer games run down the clock: Brain 9 against Brain 9 ends on the turn limit in 27% of 5v5 games and 8% of 7v7, against 41% and 13% for Brain 8 (1,000 games each).
+- It plays Brain 8 about even at 7v7 and wins fewer 5v5 games, but more of the ones it wins are finishes, so it scores more by the Editor's table (+0.78 against +0.54 a game at 5v5).
+- Its own tables on the Opponent screen: "Victory" (the five values, an on/off switch and three numbers) and "Opening". With both switches off it plays exactly like Brain 8.
+- "Spend the opening Command" is there but **off**. Switched on, it uses spare first-turn Command (so a first turn of 5 and of 8 play differently), but in testing it lost to Brain 8 and handed the first mover most 7v7 games.
+- Watch links carry Brain 9's settings, including a value for one format only (`brain9:tempoSecond.5=0`).
+
+**Under the hood**
+- `bot.js`: Brain 9's reading (`victory9Context`), its expected ending (`victory9Detail`, `finishChance9`, `attack9`, `outlook9`, `guards9`), finished games by the values (`endValue9`), the spent opening (`spend9Cost`) and per-format values (`forFormat9`). Nothing is remembered between turns. Brains 5 to 8 unchanged (same hashes).
+- Lab: new always-on measure `victory` (late behind/ahead, guards, the Editor's points, Command used on turn 1). The lab self test now fails if two measures share a column name (the first version of `victory` clashed with `clock`'s `late_ahead_turns`).
+- Runs: `brain9-screen`, `brain9-settings-screen`, `brain9-moveorder-screen`, `brain9-confirm`, `f022-8-tiebreaks`, `brain9-moveorder-confirm`.
+- `test_brain9.js` (44 checks) in the checks and night checks.
+
+**Flags:** opened F020-1 to F020-5; F020-4 applied (spent opening ships off); evidence added to F022-8.
 
 ## v3.16.00 · Build 21 — Brief 018, no rule change: turn cue, hot-seat views, field zoom, match log (23 Nov 2026)
 Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8, unchanged (Brief 022). UI: Approved UI v4 screens on top of v5. Game version **v3.16.00** (YY: new screens and a new setting; Brief 022 took v3.15.00 first).

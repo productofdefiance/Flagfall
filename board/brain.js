@@ -168,6 +168,32 @@
                       // 34.7% -> 43.7% of decisive games; 5v5 and stalls unchanged)
   };
 
+  /* Brain 9 (Brief 020, 2026-11-23): Brain 8 as shipped plus victory values and a spent opening, each behind its own
+     switch. With both switches off it plays exactly like Brain 8. Victory values are the bot's taste, not a scoring rule:
+     a finish (full pull, holder KO or TKO) is worth more than a win on the clock, and near the turn limit every position
+     is valued by how the game is likely to end. Nothing is remembered between turns. Brains 5 to 8 stay frozen. */
+  const BRAIN_9 = JSON.parse(JSON.stringify(BRAIN_8));
+  BRAIN_9.id = "brain9"; BRAIN_9.name = "Brain 9 (plays to finish)";
+  BRAIN_9.note = "Brain 8 that values how a game ends: finishing the enemy is worth 3, winning on the clock 1, a draw 0, losing -1. Near the turn limit it presses to finish when the odds favour it and guards its flag when being finished would cost more than losing on the clock. Its 'Spend the opening Command' switch is off by default: switched on it spends spare first-turn Command, but in testing that cost it wins against Brain 8 (brief 020).";
+  BRAIN_9.victory = {
+    playToFinish: 1,  // 1 = victory values on; 0 = off (Brain 8's ±1e5 for any finished game, no end-of-game term)
+    finish: 3,        // value of winning by full pull, holder KO or TKO
+    clockWin: 1,      // value of winning at the turn limit on flag damage (Game Laws 2.7 a)
+    draw: 0,          // value of a draw (and of "fewer units lost" at the limit, which the Laws now read as a draw)
+    clockLoss: -1,    // value of losing at the turn limit
+    finished: -1,     // value of losing by full pull, holder KO or TKO (the brief tests -1 against -2)
+    endWeight: 20,    // value points per point of the ending's expected value, at full weight on the last turn
+    endTurns: 5,      // turns before the limit that the end term starts to count; it grows evenly to full on the last turn
+    guardBlocks: 1    // attackers each guard (a unit in or next to its own goal zone, other than the holder) is taken to tie up
+  };
+  BRAIN_9.spend = {
+    spendOpening: 0,  // 1 = on its own first turn, spare Command is worth spending (advance or warm up); 0 = Brain 8's play.
+                      // Ships off: in the brief 020 confirm (1,000 games, v3.9) it cost wins against Brain 8 (7v7 42.5% with it, 49.5%
+                      // without) and gave Brain 9 mirrors' first mover 83% of decisive 7v7 games (46% without). Switch it on for move-order studies
+    spareCommand: 0.4 // value points lost per point of first-turn Command left unspent (read from the board: Command left)
+  };
+  BRAIN_9.perFormat = { 5: {}, 7: {} };   // Brief 020 item 7 (F022-10): any setting may take its own value per format; none yet
+
   const LABELS = {
     unitBase: ["Unit on the field", "Value of having a unit at all, so a kill is worth this plus the unit's HP."],
     keeperBase: ["Flagkeeper bonus", "Extra value of the Flagkeeper, on either side."],
@@ -226,6 +252,18 @@
     "approach.warmedRespect": ["Warmed special weight", "A2: how much of a warmed special's full damage (and the unit, if it would be removed) it counts for each unit in its reach. Higher steps out or braces more."],
     "approach.tempoFirst": ["Opening tempo, moving first", "From -1 (sit back near its deploy area and let the enemy come) through 0 (as Brain 5) to +1 (close fast and strike first). Scales its advance and its first-strike caution during the opening."],
     "approach.tempoSecond": ["Opening tempo, moving second", "The same slider for when it moves second, like White and Black in chess."],
+    // Brain 9 (Brief 020): victory values and the spent opening. Switches: 1 on, 0 off.
+    "victory.playToFinish": ["Play to finish (1 on, 0 off)", "Values each way a game can end by the numbers below, and near the turn limit values every position by how the game is likely to end. Off, it plays like Brain 8."],
+    "victory.finish": ["Finish (win by full pull, holder KO or TKO)", "Value of finishing the enemy."],
+    "victory.clockWin": ["Win on the clock", "Value of winning at the turn limit on flag damage."],
+    "victory.draw": ["Draw", "Value of a draw, including a turn-limit game level on flag damage (fewer units lost counts as a draw)."],
+    "victory.clockLoss": ["Loss on the clock", "Value of losing at the turn limit on flag damage."],
+    "victory.finished": ["Being finished", "Value of losing by full pull, holder KO or TKO. Below the clock loss, it guards its flag even when it is losing on the clock."],
+    "victory.endWeight": ["Ending weight", "Value points per point of the likely ending's value, on the last turn. Higher presses (or guards) harder near the limit."],
+    "victory.endTurns": ["Turns of ending pressure", "How many turns before the limit the likely ending starts to count. It grows evenly to full on the last turn."],
+    "victory.guardBlocks": ["Attackers a guard ties up", "Each of its units in or next to its own goal zone (not the holder) is taken to stop this many enemy attackers reaching its flag next turn. The same for the enemy's guards."],
+    "spend.spendOpening": ["Spend the opening Command (1 on, 0 off)", "On its own first turn, Command left unspent costs the value below, so it advances into shape or warms up instead of leaving Command unused. Walking into a warmed enemy special's reach still counts that special's full damage."],
+    "spend.spareCommand": ["Unspent first-turn Command", "Value points lost per point of Command left unspent at the end of its first turn."],
     "model.useSpecials": ["Use specials", "1: warms up and fires specials (rule sets with specials only), and fears the enemy's warmed-up ones. 0: ignores specials."],
     "model.special": ["Warmed special's worth", "Weight on what a warmed-up special is likely to add next turn over a normal hit, at its best reachable target. Higher warms up more often."],
     "model.warmSlack": ["Warm-up reach slack", "Hexes to spare when it judges whether a target will be in reach of the special next turn. Higher warms up only when the target is already close."],
@@ -236,6 +274,6 @@
     "plan5.perUnit": ["Choices per unit", "How many of each unit's best activations (move, attack, brace, Evade) it combines into plans."]
   };
 
-  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5, brain6: BRAIN_6, brain7: BRAIN_7, brain8: BRAIN_8 }, BRAIN_LABELS: LABELS };
+  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5, brain6: BRAIN_6, brain7: BRAIN_7, brain8: BRAIN_8, brain9: BRAIN_9 }, BRAIN_LABELS: LABELS };
   if (typeof module !== "undefined") module.exports = api; else root.GGBrain = api;
 })(this);

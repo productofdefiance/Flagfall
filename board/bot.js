@@ -492,7 +492,8 @@
     stats5.values++;
     const W = B.model, foe = E.foeOf(team), c7 = B._c7;   // c7: Brain 7's reading of the lead at the plan's start (null otherwise)
     const c8 = B._c8, join = (c7 && c7.join) || (c8 && c8.join);   // c8: Brain 8's reading at the plan's start (null otherwise)
-    if (st.result) return st.result.winner === team ? 1e5 : st.result.winner ? -1e5 : 0;
+    const c9 = B._c9;   // c9: Brain 9's reading at the plan's start (null otherwise)
+    if (st.result) return c9 && c9.values ? SCALE9 * endValue9(st, team, B.victory) : st.result.winner === team ? 1e5 : st.result.winner ? -1e5 : 0;
     let v = 0;
     for (const u of E.alive(st)) {
       const val = W.unit + W.hp * u.hp;
@@ -513,6 +514,7 @@
     if (W.clock) { const near = clockNear(st, W); if (near > 0) v += W.clock * near * tiebreakOutlook(st, team); }   // Brain 6 (Brief 007): the clock
     if (c7) v += lead7Value(st, team, B, c7, r);   // Brain 7 (Brief 019)
     if (c8) v -= approach8Cost(st, team, B, c8);   // Brain 8 (Brief 022)
+    if (c9) { if (c9.values) v += victory9Term(st, team, B); if (c9.spend) v -= spend9Cost(st, team, B); }   // Brain 9 (Brief 020)
     return v;
   }
 
@@ -734,6 +736,126 @@
     if (c7.storm && !c7.strikeOK && E.isHolder(st, t)) cost += L.storm * worth;   // B3: don't strike the holder alone yet
     return cost;
   }
+  // ---------- Brain 9: victory values, the spent opening and per-format settings (Brief 020) ----------
+  // A copy of Brain 8 plus two behaviours, each behind its own switch: victory values (B.victory.playToFinish) and the
+  // spent opening (B.spend.spendOpening). victory9Context reads the board when a plan is made (start of the turn and after
+  // each roll); nothing is carried between turns. With both off it returns null and every Brain 8 sum runs as before.
+  const GROUPS9 = ["model", "plan5", "lead", "approach", "victory", "spend", "planner", "weights", "settings"];
+  const fmtCache9 = new WeakMap();
+  /** Item 7 (F022-10): the brain with its per-format values for this match's format applied (B.perFormat[size]); the
+      brain itself when it has none for this format, so a brain with no per-format values plays exactly as before. */
+  function forFormat9(B, st) {
+    const pf = B && B.perFormat; if (!pf) return B;
+    const size = E.matchSize(st), o = pf[size];
+    if (!o || !Object.keys(o).length) return B;
+    let c = fmtCache9.get(B); if (!c) fmtCache9.set(B, (c = {}));
+    if (c[size]) return c[size];
+    const b = JSON.parse(JSON.stringify(B));
+    for (const k in o) { const g = GROUPS9.find((x) => b[x] && Object.prototype.hasOwnProperty.call(b[x], k)); if (g) b[g][k] = o[k]; }
+    return (c[size] = b);
+  }
+  const SCALE9 = 1e4;   // a finished game's value times this outweighs any position (positions are worth hundreds at most)
+  /** The value of a finished game for `team` by the victory values. A turn-limit game decided on "fewer units lost" is a
+      draw (Game Laws 2.7, locked 19 Nov), whatever the board's result says. */
+  function endValue9(st, team, V) {
+    const r = st.result; if (!r || !r.winner) return V.draw;
+    const tl = /turn limit/.test(r.how || "");
+    if (tl && !/pull damage/.test(r.how)) return V.draw;
+    const won = r.winner === team;
+    return tl ? (won ? V.clockWin : V.clockLoss) : (won ? V.finish : V.finished);
+  }
+  /** The tiebreak as the Laws now read it: flag damage only. +1 ahead, -1 behind, 0 level (fewer units lost is a draw). */
+  function standing9(st, team) {
+    const foe = E.foeOf(team), us = st.pole[foe], them = st.pole[team];
+    return us > them ? 1 : us < them ? -1 : 0;
+  }
+  /** Brain 6's tiebreakOutlook on flag damage alone: the standing now, moved by the chance that a side still to play
+      changes it. Flag potential counts guards as finishChance9 does (attack9). */
+  function outlook9(st, team, V) {
+    const foe = E.foeOf(team), s = standing9(st, team), lim = E.turnLimit(st);
+    const usLeft = lim - st.turn, themLeft = lim - st.turn + (st.first === team ? 1 : 0);
+    const gap = Math.abs(st.pole[foe] - st.pole[team]), p = (pot) => Math.min(1, pot / (gap + 0.5));
+    let out = s;
+    if (s >= 0 && themLeft > 0) out -= (s > 0 ? 2 : 1) * p(attack9(st, foe, V).flag);
+    if (s <= 0 && usLeft > 0) out += (s < 0 ? 2 : 1) * p(attack9(st, team, V).flag);
+    return Math.max(-1, Math.min(1, out));
+  }
+  /** Guards: `team`'s units other than its holder in or next to its own goal zone (the measure's definition too). */
+  function guards9(st, team) {
+    const G = E.fieldOf(st), goal = G.GOAL[team], h = E.holderOf(st, team);
+    return E.alive(st).filter((u) => u.team === team && !(h && h.uid === u.uid) && (goal.has(u.hex) || G.NBRS[u.hex].some((x) => goal.has(x)))).length;
+  }
+  /** What `team` can do to the enemy flag next turn, from the board as it stands: every unit (not its holder) that can
+      walk into the enemy goal zone next turn and still act hits the enemy holder or pulls an empty flag, best first; each
+      enemy guard ties up `guardBlocks` of the best attackers; no more attackers than free goal-zone hexes or Command allow.
+      Returns { full: damage on the pool (holder HP plus flag), flag: the flag's share as the engine splits it, need: the
+      pool (or the flag left when nobody holds it) }. */
+  function attack9(st, team, V) {
+    const foe = E.foeOf(team), G = E.fieldOf(st), h = E.holderOf(st, foe), g = st.rs.game, goal = [...G.GOAL[foe]], fl = E.flagLeft(st, foe);
+    const need = h ? E.effHp(st, h) : fl;
+    const pots = [];
+    for (const u of E.alive(st)) {
+      if (u.team !== team || isKeeper(st, u)) continue;
+      const c = E.card(st, u), steps = Math.max(0, Math.min(E.capOf(st, u), Math.floor((E.status(st, u).stamNext - g.attackCost) / c.hexCost + 1e-9)));
+      if (!goal.some((x) => G.dist(u.hex, x) <= steps)) continue;
+      if (h) pots.push(expectedHit(st, u, h));
+      else if (canPullNext(st, u)) pots.push(avgDamage(st, E.pullValue(st, u).value));
+    }
+    pots.sort((a, b) => b - a);
+    const blocked = guards9(st, foe) * (V.guardBlocks || 0), whole = Math.floor(blocked + 1e-9), frac = blocked - whole;
+    const rest = pots.slice(whole);
+    if (rest.length && frac > 0) rest[0] *= 1 - frac;
+    const inGoal = E.alive(st).filter((u) => u.team === foe && goal.includes(u.hex) && !(h && h.uid === u.uid)).length;
+    const room = Math.max(0, Math.min(goal.length - inGoal, Math.floor(g.command / g.attackCost)));
+    const full = rest.slice(0, room).reduce((a, b) => a + b, 0);
+    return { full, flag: h ? full * fl / Math.max(1e-9, h.hp + fl) : full, need };
+  }
+  /** The chance that `team` finishes the enemy within `left` of its turns (at most 2 counted): attack9's damage against
+      what must fall gives one turn's chance, scaled by the material share (a side with more units keeps its attacks
+      coming: x0.5 with none, x1.5 with all). TKO is left out. */
+  function finishChance9(st, team, V, left) {
+    if (left <= 0) return 0;
+    const a = attack9(st, team, V);
+    if (a.need <= 0) return 1;
+    const mU = material7(st, team), mT = material7(st, E.foeOf(team)), share = mU + mT > 0 ? mU / (mU + mT) : 0.5;
+    const q = Math.min(1, (a.full / a.need) * (0.5 + share));
+    return 1 - Math.pow(1 - q, Math.min(left, 2));
+  }
+  /** Brain 9's reading at the plan's start: which of its two behaviours apply now. Null when both are off. */
+  function victory9Context(st, B) {
+    const V = B.victory, S = B.spend;
+    const values = !!(V && V.playToFinish), spend = !!(S && S.spendOpening) && st.turn === 1 && opening8(st);
+    if (!values && !(S && S.spendOpening)) return null;
+    return { team: st.toMove, values, spend };
+  }
+  /** Brain 9's end-of-game term: endWeight x how near the limit is x the expected value of the ending. The enemy plays
+      next, so its chance to finish us comes first; what is left ends on the clock, valued by the flag-damage outlook. */
+  function victory9Term(st, team, B) {
+    const V = B.victory, H = V.endTurns > 0 ? V.endTurns : 0;
+    if (!H || !V.endWeight) return 0;
+    const lim = E.turnLimit(st), near = Math.max(0, Math.min(1, 1 - (lim - st.turn) / H));
+    if (near <= 0) return 0;
+    const d = victory9Detail(st, team, B);
+    return V.endWeight * near * d.ev;
+  }
+  /** The parts of the expected ending (for the term, the tests and the Report): chances, clock outlook and value. */
+  function victory9Detail(st, team, B) {
+    const V = B.victory, foe = E.foeOf(team), lim = E.turnLimit(st);
+    const usLeft = lim - st.turn, themLeft = lim - st.turn + (st.first === team ? 1 : 0);
+    const them = finishChance9(st, foe, V, themLeft), us = finishChance9(st, team, V, usLeft) * (1 - them);
+    const o = outlook9(st, team, V), clockEV = o >= 0 ? o * V.clockWin + (1 - o) * V.draw : -o * V.clockLoss + (1 + o) * V.draw;
+    const clock = Math.max(0, 1 - us - them);
+    return { us, them, clock, outlook: o, clockEV, ev: us * V.finish + them * V.finished + clock * clockEV };
+  }
+  /** The spent opening: Command left unspent on its own first turn costs spareCommand per point; units it leaves in reach
+      of a warmed enemy special count that special's full damage (Brain 8's A2 reading), so spending never means walking in. */
+  function spend9Cost(st, team, B) {
+    const S = B.spend, A = B.approach || {};
+    let cost = (S.spareCommand || 0) * Math.max(0, st.cmd);
+    if (!A.respect && specOn(B)) cost += approach8Cost(st, team, B, { respect: A.warmedRespect || 1, firstStrike: 0, hold: 0 });
+    return cost;
+  }
+
   /** Brain 6 (Brief 007): how close the turn limit is, from 0 (clockTurns or more turns to go) to 1 (the last turn).
       Turns to go counts this one: on the last turn it is 0, so the weight is full. */
   function clockNear(st, W) {
@@ -852,8 +974,10 @@
   function replay5(st, acts) { let s = st; for (const a of acts) { s = tryAct(s, a); if (!s) return null; } return s; }
   function planTurn5(st, B) {
     stats5.plans++;
+    if (B.perFormat) B = forFormat9(B, st);   // Brain 9 (Brief 020, F022-10): this format's own values, if it has any
     if (B.lead) { const c7 = lead7Context(st, B); if (c7) B = Object.assign({}, B, { _c7: c7 }); }   // Brain 7: read the lead once per plan
     if (B.approach) { const c8 = approach8Context(st, B); if (c8) B = Object.assign({}, B, { _c8: c8 }); }   // Brain 8: read the board once per plan
+    if (B.victory || B.spend) { const c9 = victory9Context(st, B); if (c9) B = Object.assign({}, B, { _c9: c9 }); }   // Brain 9: read the board once per plan
     const team = st.toMove, P = B.plan5 || {}, K = P.beam || 3, M = P.perUnit || 5;
     let units = E.alive(st).filter((u) => u.team === team && !u.done).map((u) => u.uid);
     const evader = units.find((uid) => E.options(st, uid).evading);   // an Evade is now or never (another unit acting ends it)
@@ -1039,6 +1163,6 @@
   }
 
   const api = { specMult, warmEdge, chooseAction, squadCounts, deploy, evaluate, threat, flagRisk, bval, typeOf, classOf, canThreaten, value5, planTurn5, stats5, tiebreakStanding, tiebreakOutlook, flagPotential, clockNear, attackLine5: attackLine,
-    risk5, risk5Detail, approach8Context, approach8Cost, firstStrike8, opening8, expectedHit, specHit, reachNext, lead7Context, lead7Value, material7, race7, loneLosing7, attack7Cost, turnsTo7, keeperOf };
+    risk5, risk5Detail, forFormat9, endValue9, standing9, outlook9, guards9, attack9, finishChance9, victory9Context, victory9Term, victory9Detail, spend9Cost, GROUPS9, approach8Context, approach8Cost, firstStrike8, opening8, expectedHit, specHit, reachNext, lead7Context, lead7Value, material7, race7, loneLosing7, attack7Cost, turnsTo7, keeperOf };
   if (typeof module !== "undefined") module.exports = api; else root.GGBot = api;
 })(this);
