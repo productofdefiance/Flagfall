@@ -1,4 +1,4 @@
-STATUS · updated 23 Nov 2026, 12:39 pm ET
+STATUS · updated 23 Nov 2026, 2:30 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (22 Nov, 11:11 am ET)
-  Queue: 25 jobs waiting, oldest 4 min · lab using 5 of 20
+  Queue: clear
   study v3.17.00 · 16 matchups, 16,000 games · 23 Nov
   study v3.17.00 · 5v5 19.4% · 7v7 6.2% on the turn limit · 23 Nov
   study v3.17.00 · 5v5 41.0% · 7v7 12.9% on the turn limit · 23 Nov
@@ -15,7 +15,7 @@ RESULTS (last 24 hours)
   screen v3.17.00 · 5v5 45.0% · 7v7 16.5% on the turn limit · 23 Nov
   screen v3.17.00 · 5v5 36.7% · 7v7 20.0% on the turn limit · 23 Nov
   screen v3.17.00 · 5v5 24.5% · 7v7 9.5% on the turn limit · 23 Nov
-  +4 more in results/INDEX.md
+  +5 more in results/INDEX.md
 
 FLAGS (open, newest first)
   ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…
@@ -34,7 +34,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    026 Specials flow · PR #59 · Ready · checks running · not reviewed
+    026 Specials flow · PR #59 · Ready · checks pass · not reviewed
   Ready to start
     028 Arrow storm
   Waiting
