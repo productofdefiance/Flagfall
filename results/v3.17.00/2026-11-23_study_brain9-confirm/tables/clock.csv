@@ -1,0 +1,19 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+a-brain8-mirror-5v5,1000,1058,8,1058,2,ended_earlier:582 N:186 S:173 level:59,won_tiebreak:351 lost:6 won_decisive:2,56
+b-brain9-mirror-5v5,1000,609,41,710,408,ended_earlier:701 S:145 N:124 level:30,won_decisive:156 draw:6 won_tiebreak:83 lost:24,86
+c-brain9-m2-mirror-5v5,1000,602,41,699,400,ended_earlier:701 S:145 N:124 level:30,won_decisive:154 draw:6 won_tiebreak:84 lost:25,85
+bo-brain9-nospend-mirror-5v5,1000,905,23,929,595,ended_earlier:582 N:195 S:182 level:41,won_decisive:130 won_tiebreak:181 draw:47 lost:19,141
+co-brain9-nospend-m2-mirror-5v5,1000,868,17,891,558,ended_earlier:582 N:195 S:182 level:41,won_decisive:141 won_tiebreak:167 draw:47 lost:22,141
+b-vs-a-5v5,1000,370,5,386,111,ended_earlier:828 N:83 S:55 level:34,won_decisive:29 won_tiebreak:94 lost:9 draw:6,36
+c-vs-a-5v5,1000,370,5,386,111,ended_earlier:828 N:83 S:55 level:34,won_decisive:29 won_tiebreak:94 lost:9 draw:6,36
+bo-vs-a-5v5,1000,1059,11,1038,278,ended_earlier:582 N:186 S:176 level:56,won_tiebreak:265 won_decisive:63 draw:21 lost:13,90
+co-vs-a-5v5,1000,1058,11,1038,279,ended_earlier:582 N:186 S:176 level:56,won_tiebreak:265 won_decisive:63 draw:21 lost:13,90
+a-brain8-mirror-7v7,1000,357,0,357,0,ended_earlier:871 N:49 S:70 level:10,won_tiebreak:119,50
+b-brain9-mirror-7v7,1000,156,19,151,51,ended_earlier:935 N:29 S:28 level:8,won_tiebreak:23 won_decisive:21 draw:2 lost:11,55
+c-brain9-m2-mirror-7v7,1000,149,19,144,49,ended_earlier:935 N:29 S:28 level:8,won_tiebreak:23 won_decisive:21 draw:2 lost:11,55
+bo-brain9-nospend-mirror-7v7,1000,258,18,270,101,ended_earlier:871 N:49 S:60 level:20,lost:15 won_tiebreak:45 won_decisive:40 draw:9,49
+co-brain9-nospend-m2-mirror-7v7,1000,253,19,263,96,ended_earlier:871 N:49 S:60 level:20,lost:15 won_tiebreak:45 won_decisive:40 draw:9,49
+b-vs-a-7v7,1000,272,9,272,51,ended_earlier:893 S:41 N:51 level:15,won_tiebreak:69 won_decisive:11 lost:12,62
+c-vs-a-7v7,1000,272,11,273,52,ended_earlier:893 S:41 N:51 level:15,won_tiebreak:68 won_decisive:12 lost:12,62
+bo-vs-a-7v7,1000,306,8,310,54,ended_earlier:871 N:48 S:64 level:17,lost:9 won_tiebreak:79 won_decisive:17 draw:7,50
+co-vs-a-7v7,1000,306,8,310,54,ended_earlier:871 N:48 S:64 level:17,lost:9 won_tiebreak:79 won_decisive:17 draw:7,50

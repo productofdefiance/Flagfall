@@ -1,0 +1,17 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+a-v39-ts1-mixed-5v5,1000,40,N:21 S:19,55,416,332,S:152 N:180
+b-v39-ts0-mixed-5v5,1000,40,N:21 S:19,55,416,332,S:152 N:180
+c-v38-ts1-mixed-5v5,1000,66,S:37 N:29,92,632,335,S:150 N:185
+brain9-v39-mixed-5v5,1000,19,N:11 S:8,25,75,103,S:48 N:55
+a-v39-ts1-mixed-7v7,1000,27,N:14 S:13,50,214,197,S:100 N:97
+b-v39-ts0-mixed-7v7,1000,34,N:18 S:16,61,297,184,S:92 N:92
+c-v38-ts1-mixed-7v7,1000,25,N:11 S:14,43,180,199,S:99 N:100
+brain9-v39-mixed-7v7,1000,29,N:18 S:11,53,298,162,S:78 N:84
+a-v39-ts1-light-5v5,1000,56,N:28 S:28,107,336,170,S:83 N:87
+b-v39-ts0-light-5v5,1000,52,N:26 S:26,98,311,157,S:77 N:80
+c-v38-ts1-light-5v5,1000,56,N:28 S:28,107,336,170,S:83 N:87
+brain9-v39-light-5v5,1000,99,N:52 S:47,171,633,156,S:72 N:84
+a-v39-ts1-light-7v7,1000,45,N:24 S:21,80,340,83,N:50 S:33
+b-v39-ts0-light-7v7,1000,43,N:23 S:20,75,322,84,N:50 S:34
+c-v38-ts1-light-7v7,1000,45,N:24 S:21,80,340,83,N:50 S:33
+brain9-v39-light-7v7,1000,55,N:24 S:31,102,413,90,S:50 N:40

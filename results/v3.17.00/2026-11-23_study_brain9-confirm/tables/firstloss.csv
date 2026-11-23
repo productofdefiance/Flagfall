@@ -1,0 +1,19 @@
+matchup,games,first_lost_side,first_lost_turn,first_lost_card,first_lost_by,first_lr_lost_side,first_lr_lost_turn,reach_contact_turn,reach_contact_side,first_strike_side
+a-brain8-mirror-5v5,1000,first:185 second:815,2000,LR:1000,LR special:1000,first:185 second:815,2000,1000,second:1000,first:1000
+b-brain9-mirror-5v5,1000,second:985 first:15,2436,LM:298 LR:702,HA attack:303 LR special:594 LR attack:103,first:303 second:697,2441,1000,second:1000,first:1000
+c-brain9-m2-mirror-5v5,1000,second:985 first:15,2436,LM:298 LR:702,HA attack:303 LR special:594 LR attack:103,first:303 second:697,2441,1000,second:1000,first:1000
+bo-brain9-nospend-mirror-5v5,1000,first:185 second:815,2000,LR:1000,LR special:1000,first:185 second:815,2000,1000,second:1000,first:1000
+co-brain9-nospend-m2-mirror-5v5,1000,first:185 second:815,2000,LR:1000,LR special:1000,first:185 second:815,2000,1000,second:1000,first:1000
+b-vs-a-5v5,1000,second:1000,2173,LR:827 LM:173,LR special:806 HA attack:173 LM attack:21,second:953 first:47,2456,1000,second:1000,first:366 second:634
+c-vs-a-5v5,1000,second:1000,2173,LR:827 LM:173,LR special:806 HA attack:173 LM attack:21,second:953 first:47,2456,1000,second:1000,first:366 second:634
+bo-vs-a-5v5,1000,first:185 second:815,2000,LR:1000,LR special:1000,first:185 second:815,2000,1000,second:1000,first:1000
+co-vs-a-5v5,1000,first:185 second:815,2000,LR:1000,LR special:1000,first:185 second:815,2000,1000,second:1000,first:1000
+a-brain8-mirror-7v7,1000,second:469 first:531,2104,LM:153 LA:726 LR:114 HR:6 HM:1,HM attack:15 LM special:218 HR attack:278 LR special:209 LM attack:101 LA special:91 LR attack:72 LA attack:6 HA attack:10,second:441 first:559,2986,1349,second:702 first:298,second:219 first:781
+b-brain9-mirror-7v7,1000,first:208 second:792,2894,HM:45 LM:241 LR:517 LA:171 HR:26,LR special:722 LA special:35 LM special:125 LA attack:17 LR attack:34 HR attack:52 LM attack:12 HA attack:2 HM attack:1,second:803 first:197,3461,1349,second:729 first:271,second:274 first:726
+c-brain9-m2-mirror-7v7,1000,first:208 second:792,2894,HM:45 LM:241 LR:517 LA:171 HR:26,LR special:722 LA special:35 LM special:125 LA attack:17 LR attack:34 HR attack:52 LM attack:12 HA attack:2 HM attack:1,second:803 first:197,3461,1349,second:729 first:271,second:274 first:726
+bo-brain9-nospend-mirror-7v7,1000,second:469 first:531,2104,LM:153 LA:726 LR:114 HR:6 HM:1,HM attack:15 LM special:218 HR attack:278 LR special:209 LM attack:101 LA special:91 LR attack:72 LA attack:6 HA attack:10,second:441 first:559,2986,1349,second:702 first:298,second:219 first:781
+co-brain9-nospend-m2-mirror-7v7,1000,second:469 first:531,2104,LM:153 LA:726 LR:114 HR:6 HM:1,HM attack:15 LM special:218 HR attack:278 LR special:209 LM attack:101 LA special:91 LR attack:72 LA attack:6 HA attack:10,second:441 first:559,2986,1349,second:702 first:298,second:219 first:781
+b-vs-a-7v7,1000,second:548 first:452,2491,LR:274 LA:392 LM:321 HM:8 HR:5,LM attack:57 HR attack:98 LM special:255 LR special:385 LA special:118 LR attack:57 LA attack:10 HM attack:20,second:557 first:442,3410,1359,first:294 second:706,second:237 first:763
+c-vs-a-7v7,1000,second:548 first:452,2491,LR:274 LA:392 LM:321 HM:8 HR:5,LM attack:57 HR attack:98 LM special:255 LR special:385 LA special:118 LR attack:57 LA attack:10 HM attack:20,second:557 first:442,3410,1359,first:294 second:706,second:237 first:763
+bo-vs-a-7v7,1000,second:469 first:531,2104,LM:153 LA:726 LR:114 HR:6 HM:1,HM attack:15 LM special:218 HR attack:278 LR special:209 LM attack:101 LA special:91 LR attack:72 LA attack:6 HA attack:10,second:441 first:559,2986,1349,second:702 first:298,second:219 first:781
+co-vs-a-7v7,1000,second:469 first:531,2104,LM:153 LA:726 LR:114 HR:6 HM:1,HM attack:15 LM special:218 HR attack:278 LR special:209 LM attack:101 LA special:91 LR attack:72 LA attack:6 HA attack:10,second:441 first:559,2986,1349,second:702 first:298,second:219 first:781
