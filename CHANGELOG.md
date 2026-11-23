@@ -6,7 +6,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
-| v3.16.00 | v3.9 | Brain 8 | v5 | 21 |
+| v3.17.00 | v3.9 | Brain 8 | v5 + v4 | 22 |
+| v3.16.00 | v3.9 | Brain 8 | v5 + v4 | 21 |
 | v3.15.00 | v3.9 | Brain 8 | v5 | 20 |
 | v3.14.01 | v3.9 | Brain 5 | v5 | 19 |
 | v3.14.00 | v3.9 | Brain 5 | v5 | 18 |
@@ -24,8 +25,8 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
-## v3.16.00 · Build 21 — Brief 020, Brain 9: victory values, spent opening, per-format settings (23 Nov 2026)
-Rule set: none changed (v3.9 stays the newest; Brain 9 measured on v3.9). Default brain: Brain 8 (unchanged). Game version **v3.16.00** (YY: a new brain).
+## v3.17.00 · Build 22 — Brief 020, Brain 9: victory values, spent opening, per-format settings (23 Nov 2026)
+Rule set: none changed (v3.9 stays the newest; Brain 9 measured on v3.9). Default brain: Brain 8 (unchanged). Game version **v3.17.00** (YY: a new brain; brief 018 took v3.16.00 first).
 
 **What a player will notice**
 - A new opponent in the brain list, **"Brain 9 (plays to finish)"**. In the last 5 turns it values how the game is likely to end (finish 3, win on the clock 1, draw 0, loss -1), so it presses when a finish is likely and keeps a guard on its flag when being finished would cost it more than losing on the clock.
@@ -37,6 +38,28 @@ Rule set: none changed (v3.9 stays the newest; Brain 9 measured on v3.9). Defaul
 - `bot.js`: Brain 9's reading (`victory9Context`), its expected ending (`victory9Detail`, `finishChance9`, `attack9`, `outlook9`, `guards9`), finished games by the values (`endValue9`), the spent opening (`spend9Cost`) and per-format values (`forFormat9`). Nothing remembered between turns. Brains 5 to 8 unchanged (same hashes).
 - Lab: new always-on measure `victory` (late behind/ahead, guards, the Editor's points, Command used on turn 1).
 - `test_brain9.js` in the checks and night checks.
+
+## v3.16.00 · Build 21 — Brief 018, no rule change: turn cue, hot-seat views, field zoom, match log (23 Nov 2026)
+Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8, unchanged (Brief 022). UI: Approved UI v4 screens on top of v5. Game version **v3.16.00** (YY: new screens and a new setting; Brief 022 took v3.15.00 first).
+
+**What a player will notice**
+- **Turn cue (every game: hot seat, against the bot, watch and replay):** a tag hangs from the scoreboard on the mover's side, "NORTH PLAYS" / "SOUTH PLAYS" (and "… DEPLOYS"), for the whole turn; it slides away when the turn passes. On desktop it hangs under that side's name in the scoreboard.
+- **Hot-seat view** (Settings step and the in-match Options menu): **Handoff** (as before), **Flip** (the field spins so the mover's flag is at the bottom), **Face to Face** (phones only: phone flat between you, the screen turns to face whoever is playing; the field never moves).
+- **Field zoom on every format:** pinch, or the new zoom button under hex names (phone: in = the field's width, out = the whole field, starts zoomed in; desktop: in = 100 px hexes, out = the whole field, starts zoomed out; pinch to 120 px). **Deployment** shows the deploying side's half of the field, on phone and desktop alike. **Clicking the space around the field** lets go of the tapped unit. Drag to pan. A touch that moves more than 8 px never taps; a second finger cancels a drag. Desktop: mouse wheel, drag, + and −.
+- **Zoomed out (hexes under 50 px), tokens show icons only**; tap a unit for its HP. 9v9 and 13v13 can be zoomed to fit or to 60 px hexes.
+- **Hex names sit in the middle of the hex**; the hex-names button moved to the right edge, above zoom.
+- **Match log:** on a phone, a new top-right button swaps the field for the log; on desktop it is a panel on the field's left (beside the field at 1200 px and wider, with a Hide button; over the field on narrower windows), opened from a button at the field's top left; the field keeps its place when the panel opens or closes (newest turn on top, each turn in play order, one row per action with Stamina, damage, HP before → after, OUT, Parry, set spear, holder and flag; tap an attack to see its sum). Options → Match log shows the same rows; the side column's Recent list is gone.
+
+**Under the hood**
+- `engine.js`: a display-only list `st.events` beside `st.log`, one entry per log line, with the facts the log rows need. Not enumerable, so it is never copied, saved, hashed or read by the rules, brains or lab. `st.log` is word for word unchanged; every preset and brain replays with identical hashes.
+- `app.js`, `index.html`, `skin.js`: zoom, gestures, the three views, the tag (text colour picked by contrast in the skin), the log. The view is kept on the match (`match.view`), never in the options the engine reads.
+- New checks `test_events.js` and `test_hotseat.js` (headless browser); `sims/shots_018.js` makes the screenshots.
+
+**Fixed in review (the Editor, 22 Nov):** the field could jump to North's end (deployment always opened on North; zooming after scrolling lost your place; some turns jumped to the top): the field's position inside its scroll area was read as "not a number". The tag now stays all turn; "zoom in" goes to 100 px hexes; the desktop log is a left-side panel (F018-6).
+
+On a phone the match log's header sits in the middle, between the Options button and Show field, and stays put while the rows scroll.
+
+**Flags:** opened F018-1 to F018-6 (`flags/018.md`); closed F018-1 to F018-5 (the Editor, 22 and 23 Nov); F018-6 tabled.
 
 ## v3.15.00 · Build 20 — Brief 022, Brain 8: holder joins, safe approach, warmed-special respect, opening tempo (22 Nov 2026)
 Rule set: none changed (v3.9 stays the newest; Brain 8 was measured on v3.8). Default brain: **Brain 8** (the Editor, 21 Nov, F022-5). Game version **v3.15.00** (YY: a new brain; briefs 017 and 025 took v3.13.00, v3.14.00 and v3.14.01 first).

@@ -262,10 +262,11 @@
     if (t) {
       App.ui.placements = {}; App.ui.deploySel = nextUnplaced(t);
       App.ui.cover = bothHuman() ? { kind: "deploy", team: t } : null;
-      App.ui.scrollTo = fld().FLAG[t];
+      App.ui.deployView = t;   // drawn by render(): the deploying side's half, phone and desktop alike
     } else {
       App.ui.cover = bothHuman() ? { kind: "start" } : null;
       App.ui.scrollTo = fld().centre;
+      App.ui.zoom = null;   // play starts at the default view
     }
   }
   function startMatch() {
@@ -283,7 +284,8 @@
       }
     }
     App.match = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), game: V.game || null, build: V.build, rs: E.clone(rs),
-      opts: { first: "N", players, names, lineups, seed: s.seed, format: fm.id, coin: s.first === "coin" }, brains, actions: [], draws: 0 };
+      opts: { first: "N", players, names, lineups, seed: s.seed, format: fm.id, coin: s.first === "coin" }, brains, actions: [], draws: 0,
+      view: s.view || "handoff" };   // Brief 018 §3: display only, kept beside the options; the engine never sees it
     App.match.opts.first = s.first === "coin" ? (rand() < 0.5 ? "N" : "S") : s.first;
     rebuild();
     resetUi();
@@ -406,6 +408,7 @@
     if (v !== "play" && App.ui.menu) { App.ui.menu = false; renderMenu(); }
     VIEWS.forEach((x) => ($("view-" + x).hidden = x !== v));
     if (v !== "play" && App.bot.timer) { clearTimeout(App.bot.timer); App.bot.timer = null; }
+    if (v !== "play") { document.body.classList.remove("turned"); App.ui.rot = false; App.ui.orientSet = false; }   // Brief 018: only the play screen turns
     if (v === "home") renderHome();
     else if (v === "setup") renderSetup();
     else if (v === "teams") renderTeams();
@@ -467,6 +470,12 @@
   // ---------- Settings ----------
   const steps = (n) => `<div class="steps" aria-label="Step ${n} of 3">${["Settings", "Teams", "Lineup"].map((x, i) => `<span class="step ${n === i + 1 ? "on" : n > i + 1 ? "done" : ""}"><i>${i + 1}</i>${x}</span>`).join("")}</div>`;
   const seg = (name, items, val) => `<div class="seg" role="group">${items.map(([v, label, dis]) => `<button type="button" data-seg="${name}" data-val="${v}" aria-pressed="${v === val}" ${dis ? "disabled" : ""}>${label}</button>`).join("")}</div>`;
+  /** Brief 018 §3: the Hot-seat view control (Settings step and the Options menu). Face to Face only under 900 px. */
+  function viewField(name, val) {
+    const opts = VIEWS3.filter(([v]) => v !== "table" || !wide());
+    const cur = opts.some(([v]) => v === val) ? val : "handoff";
+    return `<div class="field"><span class="lab">Hot-seat view</span>${seg(name, opts.map(([v, l]) => [v, l]), cur)}<span class="hint">${esc(VIEWS3.find(([v]) => v === cur)[2])}</span></div>`;
+  }
   function renderSetup() {
     const s = App.setup;
     const rsOpts = Object.values(App.rulesets).sort((a, b) => a.name.localeCompare(b.name)).map((r) => `<option value="${esc(r.id)}" ${r.id === s.rulesetId ? "selected" : ""}>${esc(r.name)}</option>`).join("");
@@ -485,6 +494,7 @@
       <div class="field"><label for="setup-rs">Rule set</label><select class="inp" id="setup-rs" data-setup="rs">${rsOpts}</select><span class="hint">${(() => { const r0 = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET; return `${E.turnLimitFor(r0, formatOf(s.format).size)} turns per player at ${esc(formatOf(s.format).label)}`; })()}</span></div>
       <div class="field"><span class="lab">Sides</span><div class="sides">${side("N")}${side("S")}</div></div>
       <div class="field"><span class="lab">Moves first</span>${seg("first", [["N", "North"], ["S", "South"], ["coin", ic("coin", 16) + "Coin"]], s.first)}</div>
+      ${s.players.N.type === "human" && s.players.S.type === "human" ? viewField("view", s.view) : ""}
       <div class="field"><label for="setup-seed">Game seed</label><div class="row" style="flex-wrap:nowrap">
         <input class="inp mono" id="setup-seed" data-setup="seed" value="${esc(s.seed)}" spellcheck="false" autocomplete="off">
         <button type="button" class="iconbtn" data-act="seed-copy" aria-label="Copy seed">${ic("copy", 20)}</button>
@@ -505,6 +515,8 @@
     const s = App.setup;
     if (name === "format") s.format = val;
     else if (name === "first") s.first = val;
+    else if (name === "view") s.view = val;
+    else if (name === "hsview") { if (App.match) { App.match.view = val; Store.saveLive(App.match); } renderMenu(); render(); return; }
     else if (name.startsWith("player-")) {
       const t = name.slice(7), p = s.players[t];
       p.type = val; if (val === "bot" && !App.brains[p.brainId]) p.brainId = "brain8";
@@ -642,9 +654,12 @@
      drawing is as wide as its columns (14 R for 9 columns) and as tall as its middle column (19 H for 19 rows). */
   const fld = () => E.fieldOf(App.st);
   const boardW = () => (1.5 * (fld().NCOL - 1) + 2) * R + 2 * PAD, boardH = () => fld().NROW * H + 2 * PAD;
+  /* Brief 018 §4: the field can be drawn turned 180° (view 2 on North's turn, view 3 on North's turn): every hex is
+     placed at the opposite point, so tokens, numbers, names and badges are all still drawn upright. */
   function pos(h) {
     const G = fld(), [q, r] = G.parse(h); const [gx, gy] = G.geo(q, r);
-    return [PAD + R + 1.5 * R * gx, PAD + H / 2 + H * (gy - 1)];
+    const x = PAD + R + 1.5 * R * gx, y = PAD + H / 2 + H * (gy - 1);
+    return App.ui.flip ? [boardW() - x, boardH() - y] : [x, y];
   }
   const hexPts = (x, y, r) => [0, 1, 2, 3, 4, 5].map((i) => { const a = (Math.PI / 3) * i; return (x + r * Math.cos(a)).toFixed(1) + "," + (y + r * Math.sin(a)).toFixed(1); }).join(" ");
   const tr = R * 0.62;
@@ -792,6 +807,7 @@
     const opts = selOptions();
     const zones = st.phase !== "deploy" ? E.zones(st) : null;
     const names = !!ui.names;
+    const iconsOnly = ui.iconsOnly = hexPx() < 50;   // Brief 018 §8: hexes narrower than 50 px show icons only
     const v = viewer(), mine = "var(--move)", theirs = "var(--threat)";
     const enemy = enemyTapped(), ep = enemy ? E.enemyPreview(st, enemy.uid) : null;
     const rt = previewRoute();
@@ -808,14 +824,14 @@
       if (isFlag) fill = "var(--flag)";
       clip += `<polygon points="${hexPts(x, y, R + 0.4)}"/>`;
       out += `<g class="cell" data-hex="${h}"><polygon points="${hexPts(x, y, R)}" fill="${fill}" stroke="var(--line)" stroke-width="0.8"/>`;
-      if (names && !isFlag) out += `<text x="${x}" y="${y - H * 0.3}" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="var(--num)" pointer-events="none">${h}</text>`;
+      if (names && !isFlag) out += `<text x="${x}" y="${y}" dominant-baseline="central" text-anchor="middle" font-size="8" fill="var(--muted)" font-family="var(--num)" pointer-events="none">${h}</text>`;
       out += `</g>`;
     }
+    const midY = pos(G.centre)[1];
     // Pitch lines (a picture only): the deployment arc and the goal circle round each flag, the halfway line.
     const rings = Math.max(...E.deployZone(st, "N").map((h) => G.dist(h, G.FLAG.N)));
     let pitch = "";
     for (const t of ["N", "S"]) { const [fx, fy] = pos(G.FLAG[t]); pitch += `<circle cx="${fx}" cy="${fy}" r="${((rings + 0.25) * H).toFixed(1)}"/><circle cx="${fx}" cy="${fy}" r="${(1.25 * H).toFixed(1)}"/>`; }
-    const midY = pos(G.centre)[1];
     pitch += `<path d="M0 ${midY.toFixed(1)}H${boardW().toFixed(0)}"/>`;
     out += `<g clip-path="url(#fieldclip)" fill="none" stroke="var(--pitchLine)" stroke-width="1.6" pointer-events="none">${pitch}</g>`;
     // Flag pills (section 11): on the flag hex's outer flat edge, the flag's own HP. Drawn above the tokens; when the
@@ -824,8 +840,12 @@
     for (const t of ["N", "S"]) {
       const [fx, fy] = pos(G.FLAG[t]), held = st.phase !== "deploy" && E.holderOf(st, t);
       const ringOut = tr + 7.5 + 4.2 / 2 + 1.25;   // the widest ring a token can carry, with its white edge
-      const off = held ? Math.max(H / 2, ringOut + 7.5 + 1) : H / 2, py = t === "N" ? fy - off : fy + off;
-      flagPills += `<g pointer-events="none" class="flagpill"><rect x="${fx - 15}" y="${(py - 7.5).toFixed(1)}" width="30" height="15" rx="7.5" fill="var(--flag)" stroke="#fff" stroke-width="1.2"/>
+      // Brief 018 §9: the pill is drawn in field units, so it scales with the hex (017's pill at 7v7 far); it sits on the
+      // flag hex's outer edge as drawn (the edge away from the field's middle on screen, whichever way up).
+      const off = held ? Math.max(H / 2, ringOut + 7.5 + 1) : H / 2, py = fy < midY ? fy - off : fy + off;
+      if (iconsOnly) flagPills += `<g pointer-events="none" class="flagpill"><rect x="${fx - 8}" y="${(py - 7.5).toFixed(1)}" width="16" height="15" rx="7.5" fill="var(--flag)" stroke="#fff" stroke-width="1.2"/>
+        <g transform="translate(${fx - 5} ${(py - 5).toFixed(1)}) scale(${(10 / 24).toFixed(3)})" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${P.flag}</g></g>`;
+      else flagPills += `<g pointer-events="none" class="flagpill"><rect x="${fx - 15}" y="${(py - 7.5).toFixed(1)}" width="30" height="15" rx="7.5" fill="var(--flag)" stroke="#fff" stroke-width="1.2"/>
         <g transform="translate(${fx - 13} ${(py - 5).toFixed(1)}) scale(${(10 / 24).toFixed(3)})" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${P.flag}</g>
         <text x="${fx + 5}" y="${(py + 3.6).toFixed(1)}" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="var(--num)">${fmt(E.flagShown(st, t))}</text></g>`;
     }
@@ -932,8 +952,11 @@
         keyNote(u.team === v ? (ready ? "spReady" : "spWarm") : (ready ? "enemySpReady" : "enemySpWarm"), `${u.id}'s ${E.specialName(E.specialOf(st, u))} ${ready ? "is ready to fire this turn" : u.team === v ? "is warming up: it fires next turn" : "is warming up: it can fire on its next turn"}.`);
       }
       out += `<circle cx="${x}" cy="${y}" r="${tr}" fill="var(--${team})" stroke="${u.fk ? "var(--keeper)" : `var(--${team}Dark)`}" stroke-width="${u.fk ? 3 : 1.2}"/>`;
-      out += iconShape(iconKey(st.rs, u.card), x, y - 3.5, tr * 0.33, "#fff", 1.6);
-      out += `<text x="${x}" y="${(y + tr * 0.76).toFixed(1)}" text-anchor="middle" font-size="${(tr * 0.55).toFixed(1)}" font-weight="600" fill="#fff" font-family="var(--num)">${fmt(s.hp)}</text>`;
+      if (iconsOnly) out += iconShape(iconKey(st.rs, u.card), x, y, tr * 0.42, "#fff", 1.8);
+      else {
+        out += iconShape(iconKey(st.rs, u.card), x, y - 3.5, tr * 0.33, "#fff", 1.6);
+        out += `<text x="${x}" y="${(y + tr * 0.76).toFixed(1)}" text-anchor="middle" font-size="${(tr * 0.55).toFixed(1)}" font-weight="600" fill="#fff" font-family="var(--num)">${fmt(s.hp)}</text>`;
+      }
       if (dupLabel(st, u)) out += `<text x="${x + tr - 1}" y="${y + tr + 3}" text-anchor="middle" font-size="8" font-weight="700" fill="var(--ink)" font-family="var(--num)">${esc(u.id.replace(/^[A-Z]+/, ""))}</text>`;
       out += `</g>`;
     }
@@ -973,14 +996,22 @@
     return st.units.some((o) => o !== u && o.team === u.team && !o.fk && o.card === u.card);
   }
 
+  /** Where the field's drawing sits inside its scroll area (its centring margins). An <svg> has no offsetLeft/offsetTop,
+      so they are read from the margins applyZoom sets (Build 20 fix: reading offsetTop gave NaN and every scroll jumped
+      to the top of the field). */
+  const svgOff = (svg) => [parseFloat(svg.style.marginLeft) || 0, parseFloat(svg.style.marginTop) || 0];
   /** Scroll the field so a hex is in view (smoothly), and keep edge markers and fades up to date. */
   function revealHex(h, center) {
     const sc = $("fieldscroll"), svg = $("board");
     if (!sc || !svg.clientHeight) return;
-    const k = svg.clientHeight / boardH(), y = pos(h)[1] * k;
-    const top = sc.scrollTop, vis = sc.clientHeight;
-    if (!center && y > top + 70 && y < top + vis - 70) return;
-    sc.scrollTo({ top: Math.max(0, y - vis / 2), behavior: center ? "auto" : "smooth" });
+    const k = svg.clientHeight / boardH(), y = pos(h)[1] * k + svgOff(svg)[1], x = pos(h)[0] * k + svgOff(svg)[0];
+    const top = sc.scrollTop, vis = sc.clientHeight, left = sc.scrollLeft, visW = sc.clientWidth;
+    const inY = y > top + 70 && y < top + vis - 70, inX = x > left + 50 && x < left + visW - 50;
+    if (!center && inY && inX) return;
+    const to = { behavior: center ? "auto" : "smooth" };
+    if (center || !inY) to.top = Math.max(0, y - vis / 2);
+    if (sc.scrollWidth > visW + 2 && (center || !inX)) to.left = Math.max(0, x - visW / 2);
+    sc.scrollTo(to);
   }
   /** The hexes a preview is about besides the unit: its target, a special's other targets, the flag it pulls. */
   function previewHexes() {
@@ -1024,6 +1055,260 @@
     };
     fill($("edgeTop"), above, flags.up, "above");
     fill($("edgeBottom"), below, flags.down, "below");
+  }
+
+  // ---------- Field zoom, gestures, hot-seat views and the turn cue (Brief 018, Approved UI v4) ----------
+  /* Zoom is k, screen px per field unit (a hex is 2R = 60 units wide, so k = 1 is "close", 60 px hexes). ui.zoom null
+     means "far" (fill the width on a phone, the whole field on desktop) and follows the screen size. */
+  // The Editor, 22 Nov (second review of #54): "zoom in" goes to 100 px hexes on every format and screen. Pinch reaches 120 px.
+  const K_CLOSE = 100 / (2 * R), K_MAX = 120 / (2 * R);
+  /* The Editor, 23 Nov (fourth review): on a phone "zoom in" is the field's width (the old far view) and "zoom out" is
+     the whole field; a phone starts zoomed in. Desktop: in = 100 px hexes, out = the whole field, starts zoomed out. */
+  const kWidth = () => { const v = viewBox(); return v.w ? Math.min(v.w, 560) / boardW() : 1; };
+  const kClose = () => (wide() ? K_CLOSE : kWidth());
+  const viewBox = () => { const w = $("fieldwrap"); return { w: w.clientWidth, h: w.clientHeight }; };
+  function kFar() {
+    const v = viewBox();
+    if (!v.w) return 1;
+    // The whole field in view, phone and desktop (the Editor: third and fourth reviews of #54, closing F018-2).
+    return Math.min(v.w / boardW(), v.h / boardH(), kWidth());
+  }
+  /** Where a match starts and what "no zoom chosen" means: the whole field on desktop, the field's width on a phone. */
+  const kDefault = () => (wide() ? kFar() : kClose());
+  function kMin() { const v = viewBox(); return Math.min(kFar(), v.w / boardW(), v.h / boardH()); }
+  const clampK = (k) => Math.max(kMin(), Math.min(K_MAX, k));
+  const curK = () => (App.ui.zoom == null ? kDefault() : clampK(App.ui.zoom));
+  const hexPx = () => 2 * R * curK();
+  /** Deployment (the Editor, 23 Nov): the deploying side's half of the field fills the view, its own end in view, on
+      phone and desktop alike (no nearer than "zoom in", no further than "zoom out"). */
+  function deployFit() {
+    const t = App.ui.deployView, v = viewBox();
+    if (!v.w) return;
+    App.ui.deployView = null;
+    const k = Math.max(kFar(), Math.min(kClose(), v.w / boardW(), v.h / (boardH() / 2)));
+    App.ui.zoom = Math.abs(k - kDefault()) < 1e-6 ? null : k;
+    App.ui.scrollEnd = t;
+  }
+  /** Size the field for the current zoom; redraw when icons-only switches (Brief 018 §8). */
+  function applyZoom() {
+    const svg = $("board"), sc = $("fieldscroll"), k = curK(), v = viewBox();
+    if (!App.st || !v.w) return;
+    const w = boardW() * k, h = boardH() * k;
+    svg.style.width = w.toFixed(1) + "px"; svg.style.height = h.toFixed(1) + "px";
+    svg.style.marginLeft = svg.style.marginRight = w < v.w ? ((v.w - w) / 2).toFixed(1) + "px" : "0";
+    svg.style.marginTop = h < v.h && App.ui.zoom != null ? ((v.h - h) / 2).toFixed(1) + "px" : "0";
+    sc.classList.toggle("panx", w > v.w + 1);
+    if ((hexPx() < 50) !== !!App.ui.iconsOnly && App.view === "play") renderBoard();
+    renderZoomBtn();
+  }
+  /** The board point (field units) under a point of the field view (px from its top left). */
+  function boardAt(fx, fy) {
+    const sc = $("fieldscroll"), svg = $("board"), k = curK();
+    return [(sc.scrollLeft + fx - svgOff(svg)[0]) / k, (sc.scrollTop + fy - svgOff(svg)[1]) / k];
+  }
+  /** Zoom to k keeping board point bp at view point (fx, fy). */
+  function zoomTo(k, bp, fx, fy) {
+    App.ui.zoom = clampK(k);
+    applyZoom();
+    const sc = $("fieldscroll"), svg = $("board"), kk = curK();
+    sc.scrollLeft = bp[0] * kk + svgOff(svg)[0] - fx;
+    sc.scrollTop = bp[1] * kk + svgOff(svg)[1] - fy;
+    requestAnimationFrame(updateEdges);
+  }
+  /** The zoom button (§6): snaps to close (on the selected unit, else the view's centre) or far, 250 ms. */
+  function zoomStep(dir) {
+    const v = viewBox(), k0 = curK(), inward = dir ? dir > 0 : k0 < kClose() * 0.98;
+    const k1 = inward ? kClose() : kFar();
+    const c = [v.w / 2, v.h / 2], from = boardAt(c[0], c[1]);
+    const sel = App.ui.sel && E.unitByUid(App.st, App.ui.sel);
+    const to = inward && sel && sel.hp > 0 && sel.hex ? pos(sel.hex) : from;
+    const t0 = performance.now(), dur = reduced() ? 0 : 250;
+    const step = (now) => {
+      const t = dur ? Math.min(1, (now - t0) / dur) : 1, e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const k = k0 * Math.pow(k1 / k0, e), bp = [from[0] + (to[0] - from[0]) * e, from[1] + (to[1] - from[1]) * e];
+      zoomTo(k, bp, c[0], c[1]);
+      if (t < 1) requestAnimationFrame(step); else { App.ui.zoom = Math.abs(k1 - kDefault()) < 1e-6 ? null : k1; applyZoom(); }
+    };
+    requestAnimationFrame(step);
+  }
+  const ZOOM_IN = '<path d="M12 2.8 20 7.4v9.2L12 21.2 4 16.6V7.4z"/><path d="M8.5 12h7"/><path d="M12 8.5v7"/>';
+  const ZOOM_OUT = '<path d="M12 2.8 20 7.4v9.2L12 21.2 4 16.6V7.4z"/><path d="M8.5 12h7"/>';
+  P.zoomIn = ZOOM_IN; P.zoomOut = ZOOM_OUT;
+  P.showField = '<path d="M12 2.8 20 7.4v9.2L12 21.2 4 16.6V7.4z"/><path d="M12 8v8"/><path d="M8.5 10l7 4"/><path d="M15.5 10l-7 4"/>';
+  function renderZoomBtn() {
+    const b = $("zoombtn"); if (!b) return;
+    // "Within 10% of each other": the gap measured against the smaller of the two (7v7 on a 393 px phone: 54 and 60 px
+    // hexes, 11% apart, so the button shows).
+    const far = kFar(), close = kClose(), hide = Math.abs(far - close) / Math.min(far, close) < 0.1;
+    b.hidden = hide;
+    const inward = curK() < kClose() * 0.98, want = inward ? "in" : "out";
+    if (b.dataset.dir !== want) { b.dataset.dir = want; b.innerHTML = ic(inward ? "zoomIn" : "zoomOut", 20); b.setAttribute("aria-label", inward ? "Zoom in" : "Zoom out"); }
+  }
+  const reduced = () => !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+  // ---- Gestures (§6): one finger pans, two pinch; a touch that moves more than 8 px is never a tap ----
+  const GS = { pts: new Map(), mode: null, sx: 0, sy: 0, sl: 0, stp: 0, vx: 0, vy: 0, lt: 0, lx: 0, ly: 0 };
+  const blockTaps = (ms) => { App.ui.tapBlock = Date.now() + (ms || 350); };
+  const tapsBlocked = () => Date.now() < (App.ui.tapBlock || 0);
+  /** A pointer's position in the field view, in its own (unturned) coordinates: in view 3 on South's turn the whole
+      screen is turned, so physical movement runs the other way. */
+  function local(x, y) {
+    const r = $("fieldscroll").getBoundingClientRect();
+    return App.ui.rot ? [r.right - x, r.bottom - y] : [x - r.left, y - r.top];
+  }
+  /** Once a gesture is a pan or a pinch, the field area holds its fingers: a redraw replaces the hexes under them, and
+      a finger whose element is gone would stop reporting (review of #54: a pinch that started on your own unit did nothing). */
+  function holdPointers() {
+    const sc = $("fieldscroll");
+    for (const id of GS.pts.keys()) { try { sc.setPointerCapture(id); } catch (err) { /* finger already lifted */ } }
+  }
+  function gDown(e) {
+    if (App.view !== "play" || !App.st || (e.pointerType === "mouse" && e.button !== 0)) return;
+    GS.pts.set(e.pointerId, local(e.clientX, e.clientY));
+    const sc = $("fieldscroll");
+    if (GS.pts.size === 1) {
+      const [x, y] = GS.pts.get(e.pointerId);
+      Object.assign(GS, { mode: App.ui.drag ? "drag" : "tap", sx: x, sy: y, sl: sc.scrollLeft, stp: sc.scrollTop, vx: 0, vy: 0, lt: performance.now(), lx: x, ly: y });
+      cancelAnimationFrame(GS.inertia);
+    } else if (GS.pts.size === 2) {
+      // A second finger cancels any tap, preview drag or swap in progress.
+      if (App.ui.drag) { const was = App.ui.drag.active; App.ui.drag = null; if (was) { App.ui.ghost = null; render(); } }
+      const [a, b] = [...GS.pts.values()];
+      const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+      Object.assign(GS, { mode: "pinch", d0: Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, k0: curK(), bp: boardAt(m[0], m[1]) });
+      blockTaps(); holdPointers();
+    }
+  }
+  function gMove(e) {
+    if (!GS.pts.has(e.pointerId)) return;
+    const p = local(e.clientX, e.clientY); GS.pts.set(e.pointerId, p);
+    const sc = $("fieldscroll");
+    if (GS.mode === "tap" && !App.ui.drag && Math.hypot(p[0] - GS.sx, p[1] - GS.sy) > 8) { GS.mode = "pan"; blockTaps(); holdPointers(); }
+    if (GS.mode === "pan") {
+      e.preventDefault();
+      sc.scrollLeft = GS.sl - (p[0] - GS.sx); sc.scrollTop = GS.stp - (p[1] - GS.sy);
+      const now = performance.now(), dt = Math.max(1, now - GS.lt);
+      GS.vx = 0.7 * GS.vx + 0.3 * ((p[0] - GS.lx) / dt); GS.vy = 0.7 * GS.vy + 0.3 * ((p[1] - GS.ly) / dt);
+      GS.lt = now; GS.lx = p[0]; GS.ly = p[1];
+    } else if (GS.mode === "pinch" && GS.pts.size >= 2) {
+      e.preventDefault();
+      const [a, b] = [...GS.pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      zoomTo(GS.k0 * d / GS.d0, GS.bp, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+    }
+  }
+  function gUp(e) {
+    if (!GS.pts.has(e.pointerId)) return;
+    GS.pts.delete(e.pointerId);
+    if (GS.mode === "pan" || GS.mode === "pinch") blockTaps();
+    if (GS.pts.size) { if (GS.mode === "pinch") GS.mode = "lifting"; return; }
+    if (GS.mode === "pan" && e.type === "pointerup" && performance.now() - GS.lt < 80) {
+      const sc = $("fieldscroll"); let vx = GS.vx * 16, vy = GS.vy * 16;
+      const glide = () => { vx *= 0.94; vy *= 0.94; sc.scrollLeft -= vx; sc.scrollTop -= vy; if (Math.abs(vx) + Math.abs(vy) > 0.5) GS.inertia = requestAnimationFrame(glide); };
+      GS.inertia = requestAnimationFrame(glide);
+    }
+    GS.mode = null;
+  }
+  function gWheel(e) {
+    if (App.view !== "play" || !App.st) return;
+    e.preventDefault();
+    const [fx, fy] = local(e.clientX, e.clientY);
+    zoomTo(curK() * Math.exp(-e.deltaY * 0.0015), boardAt(fx, fy), fx, fy);
+  }
+
+  // ---- Hot-seat views (§3, §4) ----
+  const VIEWS3 = [["handoff", "Handoff", "Pass the phone. North stays at the top."], ["flip", "Flip", "Pass the phone. The field turns so your flag is always at the bottom."], ["table", "Face to Face", "Phone flat between you. The screen turns to face whoever is playing."]];
+  /** The view this match is shown in: always Handoff unless both players are human; Face to Face only under 900 px. */
+  function hsView() {
+    const m = App.match;
+    if (!m || !bothHuman()) return "handoff";
+    const v = m.view || "handoff";
+    return v === "table" && wide() ? "handoff" : v;
+  }
+  function moverNow() {
+    const st = App.st;
+    if (!st) return "N";
+    if (st.phase === "play") return st.toMove;
+    if (st.phase === "deploy") return deployTeam() || App.ui.lastMover || "N";
+    return App.ui.lastMover || "N";
+  }
+  /** How the screen should be for the side to move: flip = the field drawn turned; rot = the interface turned (view 3). */
+  function wantOrient() {
+    const v = hsView(), t = moverNow();
+    if (v === "flip") return { flip: t === "N", rot: false };
+    if (v === "table") return { flip: t === "N", rot: t === "S" };
+    return { flip: false, rot: false };
+  }
+  /** Put the orientation in place now (no animation), keeping the same part of the field in view. */
+  function setOrient(w) {
+    const ui = App.ui, sc = $("fieldscroll"), v = viewBox();
+    const flipChanged = !!ui.flip !== w.flip;
+    const c = flipChanged && App.st ? boardAt(v.w / 2, v.h / 2) : null;
+    ui.flip = w.flip; ui.rot = w.rot;
+    document.body.classList.toggle("turned", !!w.rot);
+    if (c) { renderBoard(); const k = curK(), svg = $("board"); sc.scrollLeft = (boardW() - c[0]) * k + svgOff(svg)[0] - v.w / 2; sc.scrollTop = (boardH() - c[1]) * k + svgOff(svg)[1] - v.h / 2; }
+  }
+  /** The turn animation (§4): view 2 spins the field 180° about the middle of the view; view 3 turns everything but
+      the field (the field is turned back the other way meanwhile, so it stays put). 400 ms; at once with reduced motion. */
+  function turnAnim(w, done) {
+    const ui = App.ui, sc = $("fieldscroll"), svg = $("board"), body = document.body;
+    if (reduced()) { setOrient(w); done(); return; }
+    ui.anim = true; renderTag();
+    const finish = () => {
+      for (const el of [svg, sc, body]) { el.style.transition = "none"; el.style.transform = ""; el.style.transformOrigin = ""; }
+      setOrient(w);
+      void body.offsetWidth;
+      for (const el of [svg, sc, body]) el.style.transition = "";
+      ui.anim = false; done();
+    };
+    const ease = "transform 400ms ease-in-out";
+    if (w.rot !== !!ui.rot) {
+      body.style.transition = "none"; body.style.transformOrigin = "50% 50%";
+      body.style.transform = w.rot ? "rotate(0deg)" : "rotate(180deg)";
+      body.classList.remove("turned");
+      void body.offsetWidth;
+      body.style.transition = ease; sc.style.transition = ease;
+      body.style.transform = w.rot ? "rotate(180deg)" : "rotate(0deg)";
+      sc.style.transform = w.rot ? "rotate(-180deg)" : "rotate(180deg)";
+    } else {
+      const v = viewBox();
+      svg.style.transformOrigin = `${(sc.scrollLeft + v.w / 2 - svgOff(svg)[0]).toFixed(1)}px ${(sc.scrollTop + v.h / 2 - svgOff(svg)[1]).toFixed(1)}px`;
+      svg.style.transition = ease; void svg.offsetWidth;
+      svg.style.transform = "rotate(180deg)";
+    }
+    setTimeout(finish, 420);
+  }
+
+  // ---- The turn cue (§2): the edge tag ----
+  /** The turn the tag is about: play turns, and each side's hot-seat deployment once its cover is down. */
+  function tagKey() {
+    const st = App.st;
+    if (!st || App.ui.cover) return null;   // every game type (the Editor, 23 Nov: bot games, watch and replay too)
+    if (st.phase === "play") return "P" + st.turn + st.toMove;
+    if (st.phase === "deploy" && deployTeam()) return "D" + deployTeam();
+    return null;
+  }
+  function renderTag() {
+    const el = $("edgetag"); if (!el) return;
+    const st = App.st, key = tagKey();
+    // The Editor, 22 Nov (review of #54): the tag stays up for the whole turn; it goes when the turn passes.
+    const show = !!key && !App.ui.anim && App.view === "play";
+    if (key && st) {
+      const t = st.phase === "play" ? st.toMove : deployTeam(), bg = SK.tagColor ? SK.tagColor(t) : LIGHT[t];
+      el.className = "edgetag " + (t === "N" ? "n" : "s");
+      el.style.background = bg; el.style.color = SK.tagInk ? SK.tagInk(bg) : "#1f2421";
+      el.textContent = `${st.names[t]} ${st.phase === "play" ? "plays" : "deploys"}`;
+      // Desktop (third review): the tag hangs under its side's name in the scoreboard, never off at the field's far edge.
+      const names = document.querySelectorAll("#topbar .tb-row .tb-name"), nm = names[t === "N" ? 0 : 1], fw = $("fieldwrap");
+      el.style.left = el.style.right = "";
+      el.classList.toggle("float", wide() && !!nm);
+      if (wide() && nm) {
+        const r = nm.getBoundingClientRect(), f = fw.getBoundingClientRect(), pad = 12;
+        if (t === "N") el.style.left = Math.max(0, r.left - f.left - pad) + "px";
+        else el.style.right = Math.max(0, f.right - r.right - pad) + "px";
+      }
+    }
+    el.classList.toggle("up", !show);
+    el.setAttribute("aria-hidden", show ? "false" : "true");
   }
 
   // ---------- Drawing: top bar (UI v2, Brief 009) ----------
@@ -1092,14 +1377,22 @@
         ${m.opts.seed ? `<div class="mh-3">Seed ${esc(m.opts.seed)}</div>` : ""}
         ${ver ? `<div class="mh-3">${esc(ver)}${m.build && V.build && m.build !== V.build ? ` (started on Build ${esc(String(m.build))})` : ""}</div>` : ""}</div>
         <button type="button" class="iconbtn mh-close" data-act="menu-close" aria-label="Close options">${ic("close", 22)}</button></div>
+      ${bothHuman() ? `<div class="mview">${viewField("hsview", App.match.view || "handoff")}</div>` : ""}
       ${item("menu-match", "list", "Match log and record")}${item("menu-rules", "book", "Rules and unit data")}${item("menu-home", "home", "Home")}
       ${live ? `<div class="msep" role="separator"></div>${item("menu-surrender", "lowflag", `${sideName(st.toMove)} surrenders`, "danger")}` : ""}`;
     el.hidden = false; dim.hidden = false;
     // Open over the Options button, so ✕ lands near where Options was (phone: the field's top left, Brief 025; desktop:
     // over the centred button in the title bar).
-    const btn = optionsButton(), r = btn && btn.getBoundingClientRect();
+    const btn = optionsButton(), r = btn && lrect(btn);
     if (r && r.width && btn.id === "menubtn") { el.style.top = Math.max(4, r.top - 4) + "px"; el.style.left = Math.max(4, r.left - 4) + "px"; el.style.right = "auto"; }
     else if (r && r.width) { el.style.left = ""; el.style.top = Math.max(4, r.top - 4) + "px"; el.style.right = Math.max(4, window.innerWidth - r.right - 8) + "px"; }
+  }
+  /** An element's box in the screen's own (unturned) coordinates: in view 3 on South's turn the screen is turned 180°. */
+  function lrect(el) {
+    const r = el.getBoundingClientRect();
+    if (!App.ui.rot) return r;
+    const W = window.innerWidth, Hh = window.innerHeight;
+    return { top: Hh - r.bottom, bottom: Hh - r.top, left: W - r.right, right: W - r.left, width: r.width, height: r.height };
   }
   function openMenu() { App.ui.menu = true; renderTopbar(); renderMenu(); const f = $("menu").querySelector("[role=menuitem]"); if (f) f.focus(); }
   function closeMenu(refocus) {
@@ -1274,15 +1567,15 @@
         ${b("end", "endturn", ui.confirmEnd ? "Confirm" : "End turn", { dis: !human, cls: ui.confirmEnd ? "confirm" : "primary" })}</div>`;
     // Confirms (section 7) take the three attack slots; Cancel takes Brace's slot.
     const cancel = `<button type="button" class="act" data-act="sheet-close" style="flex:1 1 0">${ic("close", 22)}<span>Cancel</span></button>`;
-    const go = (act, cls, icon, label, cost, u, sq) => `<div class="arow"><span class="alabel">UNIT</span>
-          <button type="button" class="act go${cls}" data-act="${act}" style="flex:3 1 0">${ic(icon, 22)}
+    const go = (act, cls, icon, label, cost, u, sq, target) => `<div class="arow"><span class="alabel">UNIT</span>
+          <button type="button" class="act go${cls}" data-act="${act}" data-uid="${u.uid}"${target ? ` data-target="${target}"` : ""} style="flex:3 1 0">${ic(icon, 22)}
             <span class="go-text"><span class="go-1">${label}</span><span class="go-2">−${fmt(cost)} Stamina ${stamSquares(u, u.stam, cost, sq)}</span></span></button>${cancel}</div>`;
     const rt = previewRoute();
     if (rt && sel) { el.innerHTML = go("move-confirm", " blue", "move", "Move", rt.cost, sel, "white") + turnRow; return; }
     const sh = ui.sheet;
     if (sh && sh.kind === "attack" && o && o.attacks.some((x) => x.target === sh.target)) {
       const u = E.unitByUid(st, ui.sel), t = E.unitByUid(st, sh.target), reach = isReachShot(st, u, t);
-      el.innerHTML = go("attack-confirm", "", reach ? "spear" : "sword", reach ? "Reach" : "Attack", st.rs.game.attackCost, u, "white") + turnRow;
+      el.innerHTML = go("attack-confirm", "", reach ? "spear" : "sword", reach ? "Reach" : "Attack", st.rs.game.attackCost, u, "white", t.uid) + turnRow;
       return;
     }
     // Specials (Brief 011, 5b): warming up opens a line and Warm up (3 parts) / Cancel (1) in the UNIT row.
@@ -1628,10 +1921,181 @@
     } else { ui.sheet = null; el.hidden = true; sc.hidden = true; }
   }
 
+  // ---------- The match log (Brief 018 §10, Approved UI v4) ----------
+  /* Built from the engine's display-only facts (st.events): newest turn at the top, each turn's actions in play order.
+     It shows only what has happened, so it is the same for every game type. Numbers are the board's half points; a
+     holder's HP and the flag's share are the display split of the pool (the engine records them that way). */
+  const LG = { ink: "#1f2421", muted: "#5f6762", red: "#c62828", flag: "#b07a33", gold: "#d9a514", brace: "#2e3338", light: "#f8f9f5" };
+  P.holder = '<path d="M12 2.5 20.2 7.25v9.5L12 21.5 3.8 16.75v-9.5z" stroke-width="2"/><path d="M10 16.5V8h5.5l-1.3 2 1.3 2H10"/>';
+  P.hexes = '<path d="M12 3.5 19.4 7.75v8.5L12 20.5 4.6 16.25v-8.5z"/>';
+  P.parryX = '<path d="M5 4l11 11"/><path d="M19 4 8 15"/><path d="M13.5 16.5l3 3"/><path d="M10.5 16.5l-3 3"/><path d="M16 19.5l3-3"/><path d="M8 19.5l-3-3"/>';
+  P.out = '<path d="M6 6l12 12"/><path d="M18 6 6 18"/>';
+  const icA = (name, size, color, label) => ic(name, size, color, label ? ` role="img" aria-label="${esc(label)}" aria-hidden="false"` : "");
+  /** A unit's 30 px slot: the 22 px team disc with its white icon, and its ring (braced, warming up, firing). */
+  function logToken(st, x, opt) {
+    opt = opt || {};
+    const size = opt.size || 30, c = size / 2, r = size === 30 ? 11 : 10 * size / 20 * 0.95;
+    let rings = "";
+    if (opt.braced) rings += `<circle cx="${c}" cy="${c}" r="${size === 30 ? 13.4 : c - 1.4}" fill="none" stroke="#fff" stroke-width="3.6"/><circle cx="${c}" cy="${c}" r="${size === 30 ? 13.4 : c - 1.4}" fill="none" stroke="${LG.brace}" stroke-width="2.2"/>`;
+    if (opt.ring === "warm") rings += `<circle cx="${c}" cy="${c}" r="13.4" fill="none" stroke="${LG.gold}" stroke-width="2" stroke-dasharray="3 2.4"/>`;
+    if (opt.ring === "fire") rings += `<circle cx="${c}" cy="${c}" r="13.2" fill="none" stroke="${LG.gold}" stroke-width="3"/>`;
+    return `<svg class="lg-tok" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(UI.unitName(st, E.unitByUid(st, x.uid) || x))}">${rings}<circle cx="${c}" cy="${c}" r="${r}" fill="${teamColor(x.team)}" ${x.fk ? `stroke="var(--keeper)" stroke-width="1.6"` : ""}/>${iconShape(iconKey(st.rs, x.card), c, c, r * 0.36, "#fff", 1.4)}</svg>`;
+  }
+  const holderMark = () => icA("holder", 16, LG.flag, "on the flag");
+  const hp2 = (a, b) => (b <= 0 ? `${fmt(a)} <span class="lg-ar">→</span> <b class="lg-out">OUT</b>` : a === b ? fmt(b) : `${fmt(a)} <span class="lg-ar">→</span> ${fmt(b)}`);
+  const rollTxt = (p) => (!p ? "" : `<span style="color:${p > 0 ? LG.ink : LG.muted}">${p > 0 ? "+" : "−"}${Math.abs(p)}%</span>`);
+  function logRow(st, e, open) {
+    const u = e.unit, side = u.team, foe = E.foeOf(side), a = e.action === "warmup" ? "special" : e.action;
+    const fight = a === "attack" || a === "pull" || (a === "special" && !e.warm);
+    const t0 = e.targets && e.targets[0];
+    const ring = a === "special" && !e.warm ? "fire" : e.warm || u.sp === "warm" ? "warm" : null;
+    const unitCell = `<span class="lg-u">${logToken(st, u, { braced: u.braced, ring })}<span class="lg-hex">${esc(u.from || "")}</span>${u.holder ? holderMark() : ""}</span>`;
+    let icon, target = "", result = "", l2 = ["", "", "", ""], l3 = [], extra = "";
+    const removed = t0 && t0.removed;
+    if (a === "move" || a === "swap") {
+      icon = e.evading ? icA("evade", 18, LG.muted, "Evade") : icA("move", 18, LG.muted, a === "swap" ? "Swap" : "Move");
+      if (a === "swap" && t0) target = `<span class="lg-u">${logToken(st, t0, { braced: t0.braced })}<span class="lg-hex">${esc(t0.from)}</span></span>`;
+      else target = `<span class="lg-u"><span class="lg-slot"></span><span class="lg-hex">${esc(e.end || u.to)}</span>${e.mark ? icA("mark", 15, LG.ink, "stopped by a Mark") : ""}</span>`;
+      result = `<span class="lg-mv" role="img" aria-label="${e.steps} hex${e.steps === 1 ? "" : "es"} moved">${ic("hexes", 15, LG.muted)}<b>${e.steps}</b></span>`;
+      const sp = (e.spear || []).find((x) => x.uid === u.uid);
+      if (sp) {
+        l2[0] = `<span class="lg-in">${hp2(u.hpBefore, u.hpAfter)}</span>`;
+        l2[2] = `<span class="lg-in lg-sp">${icA("setspear", 13, LG.red, "set spear")}<b style="color:${LG.red}">−${fmt(sp.amount)}</b> <span class="lg-mu">from</span> ${logToken(st, sp.by, { size: 20, braced: true })}<span class="lg-hex">${esc(sp.byHex)}</span></span>`;
+      }
+    } else if (a === "brace") {
+      icon = icA("brace", 18, LG.brace, "Brace");
+    } else if (a === "special" && e.warm) {
+      icon = icA("special", 18, LG.gold, "Warm-up");
+      target = `<span class="lg-spn">${esc(e.special)}</span>`;
+    } else if (a === "pull") {
+      icon = icA("flag", 18, LG.flag, "Pull");
+      target = `<span class="lg-fp" role="img" aria-label="the ${sideName(foe)} flag">${ic("flag", 14, "#fff")}</span>`;
+      result = `<b class="lg-dmg" style="color:${LG.flag}">−${fmt(e.dmg)}</b>`;
+      l2[0] = `<span class="lg-in">${fmt(u.hpAfter)}</span>`;
+      l2[1] = `<span class="lg-str" role="img" aria-label="Strength ${e.str}">${ic("maul", 12, LG.ink)}${fmt(e.str)}</span>`;
+      l2[2] = `<span style="color:${LG.flag}">${hp2(e.flag[foe][0], e.flag[foe][1])}</span>`;
+      l2[3] = rollTxt(e.roll);
+    } else {   // attack, Reach, special
+      const reach = a === "attack" && e.reach;
+      icon = a === "special" ? icA("special", 18, LG.gold, e.special) : icA(reach ? "spear" : "attack", 18, removed ? LG.red : LG.ink, reach ? "Reach" : "Attack");
+      const tcell = (t) => `<span class="lg-u">${logToken(st, t, { braced: t.braced })}<span class="lg-hex">${esc(t.from)}</span>${t.holder ? holderMark() : ""}</span>`;
+      const tHp = (t) => `<span class="lg-in">${hp2(t.hpBefore, t.hpAfter)}${t.holder ? ` <span class="lg-fl" style="color:${LG.flag}">${ic("flag", 13, LG.flag)}${hp2(e.flag[t.team][0], e.flag[t.team][1])}</span>` : ""}</span>`;
+      target = t0 ? tcell(t0) : "";
+      result = t0 ? `<b class="lg-dmg${t0.removed ? " k" : ""}">−${fmt(t0.dmg)}</b>` : "";
+      l2[0] = a === "special" ? `<span class="lg-in lg-spn s">${esc(e.special)}</span>` : `<span class="lg-in">${u.hpAfter < u.hpBefore ? hp2(u.hpBefore, u.hpAfter) : fmt(u.hpAfter)}</span>`;
+      l2[1] = `<span class="lg-str" role="img" aria-label="Strength ${e.str}">${ic("maul", 12, LG.ink)}${fmt(e.str)}</span>`;
+      l2[2] = t0 ? tHp(t0) : "";
+      l2[3] = a === "special" ? (t0 ? `<span class="lg-mult">${ic("special", 12, LG.gold)}${fmt(t0.mult)}×</span>` : "") : rollTxt(e.roll);
+      if (a === "special") for (const t of e.targets.slice(1)) {
+        extra += `<span class="lg-l2 lg-x"><span></span><span></span><span>${tcell(t)}</span><span></span><span class="lg-r"><b class="lg-dmg${t.removed ? " k" : ""}">−${fmt(t.dmg)}</b></span></span>
+          <span class="lg-l2"><span></span><span></span><span>${tHp(t)}</span><span></span><span class="lg-r"><span class="lg-mult">${ic("special", 12, LG.gold)}${fmt(t.mult)}×</span></span></span>`;
+      }
+      if (e.parry) l3.push(`<span class="lg-it">${icA("parryX", 13, LG.red, "Parry")}<b style="color:${LG.red}">−${fmt(e.parry.amount)}</b></span>`);
+      if (e.take) l3.push(`<span class="lg-it">${icA("move", 13, LG.ink, "takes the hex")}${esc(e.take)}</span>`);
+      const sp = (e.spear || []).find((x) => x.uid === u.uid);
+      if (sp) l3.push(`<span class="lg-it">${icA("setspear", 13, LG.red, "set spear")}<b style="color:${LG.red}">−${fmt(sp.amount)}</b> <span class="lg-mu">from</span> ${esc(sp.byHex)}</span>`);
+    }
+    const stam = `<span class="lg-st" role="img" aria-label="${fmt(u.stamina)} Stamina"><i></i>${fmt(u.stamina)}</span>`;
+    const hasL2 = l2.some(Boolean);
+    let box = "";
+    if (fight && open) {
+      const math = (parts, value) => `${esc(parts.join(" · "))} = <b>${fmt(value)}</b>`;
+      box = `<span class="lg-box">${a === "special" ? (e.hits || []).map((h) => math(h.parts, h.value)).join("<br>") : math(e.parts || [], e.value)}</span>`;
+    }
+    return `<button type="button" class="lg-row ${side === "N" ? "n" : "s"}${open ? " open" : ""}" data-act="logrow" data-i="${e.i}"${fight ? ` aria-expanded="${open ? "true" : "false"}"` : ""} style="--sc:${LIGHT[side]}">
+      <span class="lg-main">${unitCell}<span class="lg-ic">${icon}</span><span>${target}</span><span>${stam}</span><span class="lg-r">${result}</span></span>
+      ${hasL2 ? `<span class="lg-l2"><span>${l2[0]}</span><span class="lg-c">${l2[1]}</span><span>${l2[2]}</span><span></span><span class="lg-r">${l2[3]}</span></span>` : ""}
+      ${extra}${l3.length ? `<span class="lg-l3">${l3.join("")}</span>` : ""}${box}</button>`;
+  }
+  /** One divider per side-turn; South's mirrored. Kinds can be added later (overtime, §10.9). */
+  function logDivider(st, g) {
+    const side = g.team, foe = E.foeOf(side);
+    const used = g.rows.reduce((s, e) => s + (e.command || 0), 0);
+    let killed = 0, lost = 0;
+    for (const e of g.rows) {
+      for (const t of e.targets || []) if (t.removed && t.team !== side) killed++;
+      if (e.unit && e.unit.removed) lost++;
+      for (const sp of e.spear || []) if (sp.victim && sp.victim.removed && sp.victim.uid !== (e.unit && e.unit.uid)) { if (sp.victim.team === side) lost++; else killed++; }
+    }
+    const f0 = g.rows.length ? g.rows[0].flag[foe][0] : null, f1 = g.rows.length ? g.rows[g.rows.length - 1].flag[foe][1] : null;
+    const sum = [`<span class="lg-di" role="img" aria-label="Command ${fmt(used)} of ${fmt(g.avail)} used"><i></i>${fmt(used)}/${fmt(g.avail)}</span>`];
+    if (killed) sum.push(`<span class="lg-di" role="img" aria-label="${killed} enemy unit${killed > 1 ? "s" : ""} out">${ic("out", 13, "#ff9a8a")}${killed}</span>`);
+    if (lost) sum.push(`<span class="lg-di" role="img" aria-label="${lost} own unit${lost > 1 ? "s" : ""} lost">${ic("parryX", 13, "#ff9a8a")}${lost}</span>`);
+    if (f0 !== null && f0 !== f1) sum.push(`<span class="lg-di" role="img" aria-label="${sideName(foe)} flag ${fmt(f0)} to ${fmt(f1)}">${ic("flag", 13, LIGHT[foe])}${fmt(f0)} → ${fmt(f1)}</span>`);
+    return `<div class="lg-div ${side === "N" ? "n" : "s"}" role="heading" aria-level="3" aria-label="Turn ${g.turn}, ${sideName(side)}"><span class="lg-dl"><i style="background:${LIGHT[side]}"></i>TURN ${g.turn}</span><span class="lg-dr">${sum.join("")}</span></div>`;
+  }
+  function logGroups(st) {
+    const groups = []; let cur = null;
+    for (const e of st.events || []) {
+      if (e.kind === "turn" && e.team) {
+        const sp = st.spend.find((x) => x.team === e.team && x.turn === e.turn);
+        cur = { turn: e.turn, team: e.team, avail: sp ? sp.cmd : 0, rows: [] }; groups.push(cur); continue;
+      }
+      if (cur && e.unit && e.action && e.action !== "done") cur.rows.push(e);
+    }
+    return groups;
+  }
+  /** The settings bar: the match's real settings, never changing during a match. */
+  function logBar(st) {
+    const m = App.match, fm = formatOf(m.opts.format);
+    const preset = (D.PRESETS || []).some((p) => p.id === m.rs.id) || m.rs.id === D.DEFAULT_RULESET.id;
+    const bots = ["N", "S"].filter(isBot);
+    const opp = bots.length ? `${ic("bot", 13)}${esc(bots.length === 2 ? [...new Set(bots.map((t) => shortBrain(brainOf(t))))].join(" vs ") : "vs " + shortBrain(brainOf(bots[0])))}` : `${ic("person", 13)}Hot seat`;
+    return `<div class="lg-bar"><div class="lg-b1"><b>${esc(fm.label)}</b><span>FOOT ONLY · RULES ${esc(preset ? m.rs.id : m.rs.name)}</span></div>
+      <div class="lg-b2"><span>${ic("hourglass", 13)}${E.turnLimit(st)} turns</span><span>${opp}</span><span><i style="background:${LIGHT[st.first]}"></i>${sideName(st.first)} first</span></div></div>`;
+  }
+  function logRowsHtml(st) {
+    const open = App.ui.logRows || {};
+    const groups = logGroups(st).reverse();
+    let h = "";
+    for (const g of groups) h += logDivider(st, g) + g.rows.map((e) => logRow(st, e, !!open[e.i])).join("");
+    if (st.phase !== "deploy") h += `<div class="lg-end">Both sides deployed · ${sideName(st.first)} moves first</div>`;
+    else h += `<div class="lg-end">Deploying</div>`;
+    return h;
+  }
+  function logHtml(st) { return `<div class="lg">${logBar(st)}<div class="lg-rows">${logRowsHtml(st)}</div></div>`; }
+  /** Phone: the field area swaps for the log; the top bar, tag and action panel stay. Desktop: the Recent list. */
+  /* Desktop (the Editor, 22 Nov, review of #54; F018-6 for a lasting design): the log is a panel on the field's left.
+     1200 px and wider it sits beside the field, open unless the player collapsed it (remembered on this device);
+     narrower it starts collapsed and opens over the field. Phone (under 900 px): the field area swaps for the log. */
+  const LOG_DOCK = 1200;
+  const logDocked = () => window.innerWidth >= LOG_DOCK;
+  function logPanelOpen() { return logDocked() ? Store.local("logPanel") !== false : !!App.ui.logOverlay; }
+  function toggleLog() {
+    if (!wide()) { App.ui.logOpen = !App.ui.logOpen; renderLog(); if (App.ui.logOpen) $("logview").scrollTop = 0; else requestAnimationFrame(updateEdges); return; }
+    // Keep the same hex in the middle of the field while the field's width changes (third review: the field jumped).
+    const v0 = viewBox(), mid = boardAt(v0.w / 2, v0.h / 2), wasFar = App.ui.zoom == null, k0 = curK();
+    if (logDocked()) Store.local("logPanel", !logPanelOpen()); else App.ui.logOverlay = !App.ui.logOverlay;
+    if (!wasFar && logDocked()) App.ui.zoom = k0;
+    render();
+    const v1 = viewBox(), sc = $("fieldscroll"), svg = $("board"), k = curK(), off = svgOff(svg);
+    sc.scrollLeft = mid[0] * k + off[0] - v1.w / 2; sc.scrollTop = mid[1] * k + off[1] - v1.h / 2;
+    requestAnimationFrame(updateEdges);
+  }
+  function renderLog() {
+    const st = App.st, ui = App.ui, el = $("logview"), side = $("logside"), b = $("logbtn"), vp = $("view-play");
+    const desk = wide(), on = !desk && !!ui.logOpen, panel = desk && logPanelOpen();
+    vp.classList.toggle("log-open", on);
+    vp.classList.toggle("log-docked", panel && logDocked());
+    vp.classList.toggle("log-over", panel && !logDocked());
+    el.hidden = !on; side.hidden = !panel;
+    if (b) {
+      const fieldMode = on || (panel && !logDocked()), want = fieldMode ? "field" : "log";
+      b.hidden = desk && panel && logDocked();   // docked: the panel has its own Hide button
+      if (b.dataset.mode !== want) { b.dataset.mode = want; b.innerHTML = ic(fieldMode ? "showField" : "list", 20); b.setAttribute("aria-label", fieldMode ? (desk ? "Hide match log" : "Show field") : "Show match log"); }
+    }
+    if (on) el.innerHTML = logHtml(st);
+    if (panel) {
+      const old = side.querySelector(".ls-scroll"), keep = old ? old.scrollTop : 0;
+      side.innerHTML = `<button type="button" class="fbtn lg-hide" data-act="log" aria-label="Hide match log">${ic("back", 20)}</button><div class="ls-scroll">${logHtml(st)}</div>`;
+      side.querySelector(".ls-scroll").scrollTop = keep;
+    }
+  }
+
   // ---------- Drawing: side column (desktop) ----------
   function renderSide() {
     const st = App.st, el = $("roster");
-    if (st.phase === "deploy") { el.innerHTML = `<h3>Units</h3><p class="note">Shown once both sides have deployed.</p>`; $("recent").innerHTML = ""; return; }
+    if (st.phase === "deploy") { el.innerHTML = `<h3>Units</h3><p class="note">Shown once both sides have deployed.</p>`; return; }
     let h = `<h3>Units</h3><table><tbody>`;
     for (const t of ["N", "S"]) {
       h += `<tr class="teamhead" style="color:${teamColor(t)}"><td colspan="4">${esc(st.names[t])}</td></tr>`;
@@ -1642,9 +2106,7 @@
       }
     }
     el.innerHTML = h + `</tbody></table>`;
-    const rc = $("recent");
-    rc.innerHTML = st.log.slice(-14).map((l) => `<div${l.kind === "turn" ? ' style="color:var(--ink);font-weight:600"' : ""}>${esc(say(l.text))}</div>`).join("");
-    rc.scrollTop = rc.scrollHeight;
+    // The match log's rows now live in the left panel (the Editor, 22 Nov), not a Recent list here.
   }
 
   // ---------- Hint over the field ----------
@@ -1665,13 +2127,25 @@
      cover is up. The player can scroll freely after it. */
   function snapDue() {
     const st = App.st;
-    return !!(st && st.phase === "play" && bothHuman() && !App.ui.cover && App.ui.snapped !== st.turn + st.toMove);
+    return !!(st && st.phase === "play" && bothHuman() && !App.ui.cover && !App.ui.anim && App.ui.snapped !== st.turn + st.toMove);
+  }
+  /** Scroll so a side's own end of the field is in view (its flag's end as drawn), across onto its flag if wider. */
+  function scrollToEnd(t) {
+    const sc = $("fieldscroll"), k = curK(), [fx, fy] = pos(fld().FLAG[t]), off = svgOff($("board")), v = viewBox();
+    sc.scrollTop = fy < boardH() / 2 ? 0 : sc.scrollHeight - sc.clientHeight;
+    sc.scrollLeft = Math.max(0, fx * k + off[0] - v.w / 2);
   }
   function hotSeatSnap() {
     const st = App.st, sc = $("fieldscroll");
     App.ui.snapped = st.turn + st.toMove;
-    if (!sc || sc.scrollHeight <= sc.clientHeight + 2) return;   // the whole field already fits (desktop)
-    sc.scrollTo({ top: st.toMove === "N" ? 0 : sc.scrollHeight - sc.clientHeight, behavior: "smooth" });
+    if (!sc) return;
+    // Brief 018: to the mover's own flag end as drawn (the top in view 1 for North; the bottom in view 2; the mover's near
+    // end in view 3), and across onto its flag when the field is wider than the view.
+    const k = curK(), [fx, fy] = pos(fld().FLAG[st.toMove]), svg = $("board"), v = viewBox();
+    const to = { behavior: "smooth" };
+    if (sc.scrollHeight > sc.clientHeight + 2) to.top = fy < boardH() / 2 ? 0 : sc.scrollHeight - sc.clientHeight;
+    if (sc.scrollWidth > sc.clientWidth + 2) to.left = Math.max(0, fx * k + svgOff(svg)[0] - v.w / 2);
+    if (to.top !== undefined || to.left !== undefined) sc.scrollTo(to);
   }
 
   // ---------- Covers ----------
@@ -1685,9 +2159,23 @@
 
   function render() {
     if (App.view !== "play" || !App.st) return;
+    const ui = App.ui, w = wantOrient();
+    let anim = false;
+    if (!ui.anim && (w.flip !== !!ui.flip || w.rot !== !!ui.rot)) {
+      if (App.st.phase === "play" && !ui.cover && ui.orientSet) anim = true;   // a turn change (or a new view): the turn animation
+      else setOrient(w);
+    }
+    ui.orientSet = true;
+    if (App.st.phase !== "over") ui.lastMover = moverNow();
     renderTopbar(); renderBoard(); renderUnitbar(); renderActions(); renderSheet(); renderSide(); renderCover(); renderHint(); renderMenu();
-    $("namesbtn").setAttribute("aria-pressed", App.ui.names ? "true" : "false");
+    renderLog();   // the log panel first: it changes the field's width
+    if (ui.deployView) deployFit();
+    applyZoom(); renderTag();
+    $("namesbtn").setAttribute("aria-pressed", ui.names ? "true" : "false");
+    if (anim) { turnAnim(w, () => render()); return; }
+    if (ui.anim) return;
     if (snapDue()) { App.ui.scrollTo = null; requestAnimationFrame(() => { hotSeatSnap(); updateEdges(); }); }
+    else if (App.ui.scrollEnd) { const t = App.ui.scrollEnd; App.ui.scrollEnd = null; requestAnimationFrame(() => { scrollToEnd(t); updateEdges(); }); }
     else if (App.ui.scrollTo) { const h = App.ui.scrollTo; App.ui.scrollTo = null; requestAnimationFrame(() => { revealHex(h, true); updateEdges(); }); }
     else requestAnimationFrame(updateEdges);
     botTick();
@@ -1753,6 +2241,7 @@
   function onPointerMove(e) {
     const d = App.ui.drag;
     // Brief 017 §13 (desktop, a mouse): pointing at a move hex shows the full first-tap preview; one click moves.
+    if (GS.mode === "pan" || GS.mode === "pinch") return;
     if (!d && e.pointerType === "mouse" && wide() && App.st && App.view === "play" && !App.ui.armed && !(App.ui.sheet && App.ui.sheet.kind !== "info")) {
       const o = selOptions(), h = hexAt(e.clientX, e.clientY);
       const g = o && h && o.moves[h] && !E.alive(App.st).some((u) => u.hex === h) ? h : null;
@@ -1765,7 +2254,7 @@
       if (id !== App.ui.spHover) { App.ui.spHover = id; renderBoard(); }
       return;
     }
-    if (!d.active && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 12) {
+    if (!d.active && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 8) {
       const o0 = selOptions(); if (o0 && o0.evading && App.ui.sel !== d.uid) endEvade(App.ui.sel);   // v3.3
       d.active = true; App.ui.sel = d.uid; App.ui.ghost = null; App.ui.armed = null; App.ui.sheet = null; render();
     }
@@ -1781,7 +2270,7 @@
     if (!d) return;
     App.ui.suppressClick = true; setTimeout(() => (App.ui.suppressClick = false), 60);
     // A press on your own unit that didn't drag is a tap (the browser's own click is blocked so the field doesn't scroll).
-    if (!d.active) { const h0 = hexAt(e.clientX, e.clientY); if (h0) onBoardTap(h0); return; }
+    if (!d.active) { const h0 = hexAt(e.clientX, e.clientY); if (h0 && !tapsBlocked() && Math.hypot(e.clientX - d.x, e.clientY - d.y) <= 8) onBoardTap(h0); return; }
     const st = App.st, o = selOptions(), h = hexAt(e.clientX, e.clientY);
     App.ui.ghost = null;
     if (!o || !h || h === E.unitByUid(st, d.uid).hex) { render(); return; }
@@ -1799,8 +2288,13 @@
   }
 
   // ---------- Actions ----------
+  /** A short trail of the last button presses and what they did, copied with the match record (fourth review: to see
+      what happened when a press seems to do nothing). Never saved with the match, never read by the rules. */
+  const TRAIL = [];
+  function trail(what) { TRAIL.push(new Date().toISOString().slice(11, 19) + " " + what); if (TRAIL.length > 40) TRAIL.shift(); }
   async function onAction(a, el) {
     const ui = App.ui, st = App.st;
+    if (App.view === "play" && st) trail(`${a}${el && el.dataset.target ? " → " + el.dataset.target : ""} (sel ${ui.sel || "-"}, sheet ${ui.sheet ? ui.sheet.kind : "-"}, armed ${ui.armed || "-"}, actions ${App.match ? App.match.actions.length : 0})`);
     if (a !== "end" && ui.confirmEnd) { ui.confirmEnd = false; if (App.view === "play") renderActions(); }
     switch (a) {
       case "go": {
@@ -1845,6 +2339,14 @@
       case "pick-minus": { const p = App.picks[App.lineupSide]; p.counts[el.dataset.card] = Math.max(0, (p.counts[el.dataset.card] || 0) - 1); renderLineup(); renderLineupCard(); break; }
       case "lineup-next": lineupNext(); break;
       case "cover-ok": $("cover").hidden = true; if (App.view === "play") { ui.cover = null; render(); } break;
+      case "zoom": zoomStep(); break;
+      case "log": toggleLog(); break;
+      case "logrow": {
+        const i = +el.dataset.i; if (!el.hasAttribute("aria-expanded")) break;
+        ui.logRows = ui.logRows || {}; ui.logRows[i] = !ui.logRows[i];
+        if (App.view === "match") renderMatchView(); else renderLog();
+        break;
+      }
       case "names": ui.names = !ui.names; Store.local("names", ui.names); renderBoard(); $("namesbtn").setAttribute("aria-pressed", ui.names ? "true" : "false"); break;
       case "edge-top": $("fieldscroll").scrollBy({ top: -$("fieldscroll").clientHeight * 0.7, behavior: "smooth" }); break;
       case "edge-bottom": $("fieldscroll").scrollBy({ top: $("fieldscroll").clientHeight * 0.7, behavior: "smooth" }); break;
@@ -1891,7 +2393,15 @@
       case "warm-confirm": act({ type: "warmup", uid: ui.sel }); break;
       case "special-confirm": if (ui.sheet && ui.sheet.kind === "special") act({ type: "special", uid: ui.sel, target: ui.sheet.target }); break;
       case "move-confirm": { const r = previewRoute(); if (r) act({ type: "move", uid: ui.sel, to: ui.ghost }); break; }
-      case "attack-confirm": if (ui.sheet && ui.sheet.kind === "attack") act({ type: "attack", uid: ui.sel, target: ui.sheet.target }); break;
+      case "attack-confirm": {
+        // The red button carries the attack it shows (fourth review: a press that "did nothing"), so it never depends on
+        // the preview still being open; and it never fails silently.
+        const uid = (el && el.dataset.uid) || ui.sel, target = (el && el.dataset.target) || (ui.sheet && ui.sheet.kind === "attack" && ui.sheet.target);
+        if (!uid || !target) { toast("No attack to make: pick a target first."); trail("attack-confirm: no target"); break; }
+        const r = act({ type: "attack", uid, target });
+        if (!r.ok) trail("attack-confirm refused: " + r.error);
+        break;
+      }
       case "pull-confirm": act({ type: "pull", uid: ui.sel }); break;
       case "brace": act({ type: "brace", uid: ui.sel }); break;
       case "done": act({ type: "done", uid: ui.sel }); break;
@@ -2175,7 +2685,7 @@
   // ---------- Matches ----------
   /** The record Claude reads: the same fields for the current match and any finished one. */
   function recordText(m, result) {
-    return JSON.stringify({ ruleset: m.rs, opts: m.opts, brains: m.brains, started: m.started, game: m.game || null, build: m.build || null, actions: m.actions, botMoves: m.botMoves || [], result: result || null }, null, 1);
+    return JSON.stringify({ ruleset: m.rs, opts: m.opts, brains: m.brains, started: m.started, game: m.game || null, build: m.build || null, actions: m.actions, botMoves: m.botMoves || [], result: result || null, uiTrail: m === App.match ? TRAIL.slice() : undefined }, null, 1);
   }
   /** A saved match's result, worked out by replaying its moves (summaries don't keep the engine's result). */
   function replayResult(m) {
@@ -2194,9 +2704,7 @@
       h += `<div class="card"><h3>Current match</h3><p class="note">${esc(st.names.N)} (North, ${pl("N")}) vs ${esc(st.names.S)} (South, ${pl("S")}) · ${esc(m.rs.name)}${esc(buildNote(m))}${m.opts.format ? " · " + esc(formatOf(m.opts.format).label) : ""}${m.opts.seed ? ` · seed <span class="num">${esc(m.opts.seed)}</span>` : ""} · started ${new Date(m.started).toLocaleString()} · ${status}</p>
         <div class="actions"><button class="btn" data-act="copy-record">Copy match record for Claude</button>${st.phase === "play" && !isBot(st.toMove) ? `<button class="btn danger" data-act="surrender">${sideName(st.toMove)} surrenders</button>` : ""}</div>
         <textarea id="record" class="copyarea" readonly hidden></textarea></div>`;
-      let lg = "";
-      for (const l of st.log) lg += l.kind === "turn" ? `<div class="t">${esc(say(l.text))}</div>` : `<div>${esc(say(l.text))}</div>`;
-      h += `<div><h3>Full log</h3><div class="fulllog">${lg || "Nothing yet."}</div></div>`;
+      h += `<div><h3>Match log</h3><div class="fulllog lgwrap">${logHtml(st)}</div></div>`;   // Brief 018 §10.6: the same rows
     }
     h += `<div class="card"><h3>Finished matches</h3>`;
     if (!App.matches.length) h += `<p class="note">None saved yet.</p>`;
@@ -2211,8 +2719,17 @@
 
   // ---------- Wiring ----------
   function wire() {
-    $("board").addEventListener("click", (e) => { if (App.ui.suppressClick) return; const g = e.target.closest("[data-hex]"); if (g) onBoardTap(g.dataset.hex); });
+    $("board").addEventListener("click", (e) => { if (App.ui.suppressClick || tapsBlocked()) return; const g = e.target.closest("[data-hex]"); if (g) onBoardTap(g.dataset.hex); });
     $("board").addEventListener("pointerdown", onPointerDown);
+    // The trail also notes each press on an action button, so a press that never becomes a click shows up (fourth review).
+    $("actions").addEventListener("pointerdown", (e) => { const b = e.target.closest("[data-act]"); if (b && App.view === "play") trail("press " + b.dataset.act + (b.disabled ? " (disabled)" : "")); }, true);
+    // The Editor, 23 Nov: a click on the space around the field (not a hex) lets go of the tapped unit.
+    $("fieldscroll").addEventListener("click", (e) => {
+      if (tapsBlocked() || App.ui.suppressClick || e.target.closest("[data-hex]") || !App.st || App.view !== "play") return;
+      const ui = App.ui;
+      if (App.st.phase === "deploy") { if (ui.deploySel) { ui.deploySel = null; render(); } return; }
+      if (ui.sel || ui.ghost || ui.armed || (ui.sheet && ui.sheet.kind !== "over")) { ui.sel = null; ui.ghost = null; ui.armed = null; if (ui.sheet && ui.sheet.kind !== "over") ui.sheet = null; render(); }
+    });
     // A finger that starts on one of your units drags it instead of scrolling the field.
     $("board").addEventListener("touchstart", (e) => { if (App.ui.drag) e.preventDefault(); }, { passive: false });
     $("board").addEventListener("touchmove", (e) => { if (App.ui.drag) e.preventDefault(); }, { passive: false });
@@ -2220,7 +2737,15 @@
     window.addEventListener("pointerup", onPointerUp);
     window.addEventListener("pointercancel", () => { if (App.ui.drag && App.ui.drag.active) { App.ui.drag = null; App.ui.ghost = null; render(); } else App.ui.drag = null; });
     $("fieldscroll").addEventListener("scroll", () => requestAnimationFrame(updateEdges), { passive: true });
-    window.addEventListener("resize", () => requestAnimationFrame(updateEdges));
+    window.addEventListener("resize", () => requestAnimationFrame(() => { if (App.view === "play" && App.st) { applyZoom(); if (!App.ui.anim && (wantOrient().flip !== !!App.ui.flip || wantOrient().rot !== !!App.ui.rot)) render(); } updateEdges(); }));
+    // Brief 018 §6: pan and pinch on the field; the wheel zooms about the pointer (desktop).
+    $("fieldscroll").addEventListener("pointerdown", gDown);
+    window.addEventListener("pointermove", gMove, { passive: false });
+    window.addEventListener("pointerup", gUp); window.addEventListener("pointercancel", gUp);
+    $("fieldscroll").addEventListener("wheel", gWheel, { passive: false });
+    $("fieldscroll").addEventListener("touchmove", (e) => { if (GS.mode === "pan" || GS.mode === "pinch") e.preventDefault(); }, { passive: false });
+    $("zoombtn").dataset.act = "zoom";
+    // §2: the first touch or click anywhere after the tag shows sends it up; the touch still does what it does.
     $("namesbtn").innerHTML = ic("grid", 20); $("namesbtn").dataset.act = "names";
     $("edgeTop").dataset.act = "edge-top"; $("edgeBottom").dataset.act = "edge-bottom";
     $("scrim").addEventListener("click", () => { App.ui.sheet = null; App.ui.armed = null; render(); });
@@ -2250,6 +2775,10 @@
       App.brainId = e.target.value; App.brainEdit = E.clone(App.brains[App.brainId]); renderOpponent();
     });
     document.addEventListener("keydown", (e) => {
+      if (App.view === "play" && App.st && !App.ui.menu && !/INPUT|SELECT|TEXTAREA/.test(e.target.tagName) && !e.ctrlKey && !e.metaKey) {   // Brief 018 §6: + and − zoom
+        if (e.key === "+" || e.key === "=") { zoomStep(1); return; }
+        if (e.key === "-" || e.key === "−" || e.key === "_") { zoomStep(-1); return; }
+      }
       if (e.key !== "Escape") return;
       if (App.view === "play" && App.ui.menu) { closeMenu(); return; }
       if (App.view === "lineup" && App.lineupCard) { const code = App.lineupCard; App.lineupCard = null; renderLineupCard(); const b = document.querySelector(`[data-act="lineup-card"][data-card="${code}"]`); if (b) b.focus(); return; }
@@ -2270,7 +2799,11 @@
       const open = dy < 0;
       if (App.ui.keyOpen !== open) { App.ui.keyOpen = open; renderSheet(); }
     });
-    window.addEventListener("resize", () => { if (App.view === "play" && App.st) { renderUnitbar(); renderActions(); renderSheet(); } });   // phone ↔ desktop (Brief 025)
+    window.addEventListener("resize", () => {
+      if (App.view !== "play" || !App.st) return;
+      const dk = wide() + ":" + logDocked();
+      if (App.ui.dockKey !== dk) { App.ui.dockKey = dk; App.ui.logOverlay = false; render(); } else { renderUnitbar(); renderActions(); renderSheet(); }
+    });   // phone ↔ desktop (Brief 025)
     window.addEventListener("beforeunload", (e) => { if (App.dirty || App.brainDirty) { e.preventDefault(); e.returnValue = ""; } });
   }
 
@@ -2304,6 +2837,6 @@
     if (spec) startWatch(spec, /[?&]fast=1/.test(location.search));
   }
   // For the build's screenshots only (a "?shots=1" link): lets a test script set up a position. Nothing reads it in play.
-  if (/[?&]shots=1/.test(location.search)) window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D };
+  if (/[?&]shots=1/.test(location.search)) { window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D, revealHex, beginDeploy, startMatch }; window.GGLogRow = logRow; }
   boot();
 })();
