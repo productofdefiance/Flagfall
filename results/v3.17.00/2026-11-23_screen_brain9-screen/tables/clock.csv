@@ -1,0 +1,11 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+a-brain8-mirror-5v5,60,57,1,57,0,ended_earlier:37 S:11 N:9 level:3,won_tiebreak:19 lost:1,4
+b-brain9-mirror-5v5,60,41,0,50,35,N:13 S:5 ended_earlier:41 level:1,won_tiebreak:6 draw:1 won_decisive:11,0
+c-brain9-m2-mirror-5v5,60,41,0,50,35,N:13 S:5 ended_earlier:41 level:1,won_tiebreak:6 draw:1 won_decisive:11,0
+b-vs-a-5v5,60,37,0,41,17,ended_earlier:44 N:10 S:4 level:2,won_decisive:5 won_tiebreak:9,4
+c-vs-a-5v5,60,37,0,41,17,ended_earlier:44 N:10 S:4 level:2,won_decisive:5 won_tiebreak:9,4
+a-brain8-mirror-7v7,60,33,0,33,0,S:3 ended_earlier:48 N:8 level:1,won_tiebreak:11,9
+b-brain9-mirror-7v7,60,11,1,10,1,ended_earlier:55 S:3 N:2,lost:1 won_decisive:2 won_tiebreak:2,2
+c-brain9-m2-mirror-7v7,60,9,1,9,1,ended_earlier:55 S:3 N:2,lost:1 won_decisive:2 won_tiebreak:2,2
+b-vs-a-7v7,60,22,0,24,4,ended_earlier:52 N:5 S:3,won_decisive:2 won_tiebreak:6,7
+c-vs-a-7v7,60,22,0,24,4,ended_earlier:52 N:5 S:3,won_decisive:2 won_tiebreak:6,7

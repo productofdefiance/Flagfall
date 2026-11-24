@@ -1,0 +1,19 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+5v5-c7-ft7-storm1p5,200,5,S:2 N:3,6,23,19,S:12 N:7
+5v5-c7-ft7-storm2,200,7,N:5 S:2,14,60,11,S:7 N:4
+5v5-c7-ft4-storm1p5,200,19,S:12 N:7,31,135,21,S:15 N:6
+5v5-c7-ft4-storm2,200,6,S:3 N:3,12,48,14,S:7 N:7
+5v5-c8-ft8-storm1p5,200,3,N:1 S:2,6,24,19,S:11 N:8
+5v5-c8-ft8-storm2,200,5,N:2 S:3,10,35,4,N:2 S:2
+5v5-c8-ft5-storm1p5,200,15,S:8 N:7,28,112,24,N:16 S:8
+5v5-c8-ft5-storm2,200,5,N:2 S:3,10,45,6,N:3 S:3
+5v5-c10-ft10-storm1p5,200,8,S:2 N:6,14,67,15,S:8 N:7
+5v5-c10-ft10-storm2,200,5,N:2 S:3,8,35,5,N:4 S:1
+5v5-c10-ft6-storm1p5,200,5,S:3 N:2,8,40,33,N:16 S:17
+5v5-c10-ft6-storm2,200,9,N:4 S:5,18,87,18,N:11 S:7
+7v7-c10-ft6-storm1p5,200,9,N:5 S:4,17,95,11,S:9 N:2
+7v7-c10-ft6-storm2,200,8,N:4 S:4,13,65,5,N:4 S:1
+7v7-c10-ft10-storm1p5,200,6,N:4 S:2,11,58,10,S:6 N:4
+7v7-c10-ft10-storm2,200,6,S:4 N:2,11,59,8,N:8
+brain8-5v5-c8-ft5-storm2,200,1,N:1,1,6,24,S:9 N:15
+brain8-5v5-c8-ft8-storm2,200,6,N:4 S:2,10,57,22,S:10 N:12

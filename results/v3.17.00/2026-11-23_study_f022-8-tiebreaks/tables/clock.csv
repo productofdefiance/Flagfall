@@ -1,0 +1,17 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+a-v39-ts1-mixed-5v5,1000,1239,13,1240,0,ended_earlier:513 level:65 S:199 N:223,won_tiebreak:413 won_decisive:4 lost:5,48
+b-v39-ts0-mixed-5v5,1000,1239,13,1240,0,ended_earlier:513 level:65 S:199 N:223,won_tiebreak:413 won_decisive:4 lost:5,48
+c-v38-ts1-mixed-5v5,1000,1327,14,1331,1,ended_earlier:480 level:63 S:211 N:246,won_tiebreak:439 lost:8 won_decisive:10,78
+brain9-v39-mixed-5v5,1000,496,3,506,58,ended_earlier:809 N:96 S:87 level:8,won_tiebreak:152 won_decisive:19 draw:9 lost:3,37
+a-v39-ts1-mixed-7v7,1000,918,0,918,0,ended_earlier:682 S:141 N:165 level:12,won_tiebreak:306,70
+b-v39-ts0-mixed-7v7,1000,858,0,858,0,ended_earlier:703 S:137 N:149 level:11,won_tiebreak:286,66
+c-v38-ts1-mixed-7v7,1000,888,0,888,0,ended_earlier:694 S:137 N:159 level:10,won_tiebreak:296,59
+brain9-v39-mixed-7v7,1000,840,18,825,53,ended_earlier:707 level:20 N:135 S:138,won_decisive:10 won_tiebreak:244 lost:18 draw:1,55
+a-v39-ts1-light-5v5,1000,1308,0,1308,0,S:215 ended_earlier:548 N:221 level:16,won_tiebreak:436,32
+b-v39-ts0-light-5v5,1000,1245,0,1245,0,S:206 ended_earlier:574 N:209 level:11,won_tiebreak:415,15
+c-v38-ts1-light-5v5,1000,1308,0,1308,0,S:215 ended_earlier:548 N:221 level:16,won_tiebreak:436,32
+brain9-v39-light-5v5,1000,1124,4,1128,58,ended_earlier:602 S:183 N:194 level:21,won_tiebreak:357 lost:9 won_decisive:10 draw:1,39
+a-v39-ts1-light-7v7,1000,756,0,756,0,S:122 ended_earlier:741 N:130 level:7,won_tiebreak:252,11
+b-v39-ts0-light-7v7,1000,705,0,705,0,S:120 ended_earlier:758 N:115 level:7,won_tiebreak:235,14
+c-v38-ts1-light-7v7,1000,756,0,756,0,S:122 ended_earlier:741 N:130 level:7,won_tiebreak:252,11
+brain9-v39-light-7v7,1000,706,5,703,26,N:114 S:124 level:11 ended_earlier:751,won_tiebreak:229 lost:4 draw:5,24

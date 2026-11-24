@@ -1,0 +1,6 @@
+matchup,a,b,rules,format,lineups,games,a_wins,b_wins,a_tiebreak,b_tiebreak,draws,unfinished,errors,holder_ko,pull_ko,tko,tiebreak_win,draw,turn_limit,games_with_pull,avg_turn,decisive,first_mover_share,a_share,a_share_se
+5v5-c7-ft4-storm1p5,brain9,brain9,v3.9,blitz5,mixed,1000,368,438,47,50,97,0,0,76,486,244,97,97,194,486,16.35,806,0.4801,0.4635,0.0158
+5v5-c8-ft8-storm1p5,brain9,brain9,v3.9,blitz5,mixed,1000,398,404,53,54,91,0,0,67,468,267,107,91,198,469,15.94,802,0.5262,0.4965,0.0158
+5v5-c8-ft5-storm1p5,brain9,brain9,v3.9,blitz5,mixed,1000,423,400,55,76,46,0,0,76,487,260,131,46,177,490,15.88,823,0.5516,0.501,0.0158
+5v5-c10-ft6-storm1p5,brain9,brain9,v3.9,blitz5,mixed,1000,418,382,75,71,54,0,0,73,520,207,146,54,200,522,16.34,800,0.6675,0.52,0.0158
+7v7-c10-ft6-storm1p5,brain9,brain9,v3.9,std7,mixed,1000,478,460,23,31,8,0,0,44,715,179,54,8,62,717,15.28,938,0.7644,0.505,0.0158

@@ -1,0 +1,65 @@
+matchup,games,late_behind_turns,late_behind_press,late_ahead_turns,late_ahead_press,lead_at_3,lead_at_3_end,trail_attackers_at_3
+tempofirst-m1-mirror-5v5,60,13,1,14,4,ended_earlier:54 N:4 S:1 level:1,won_decisive:3 won_tiebreak:2,2
+tempofirst-m1-vs-b8-5v5,60,15,0,21,15,ended_earlier:51 S:3 N:5 level:1,won_decisive:7 won_tiebreak:1,1
+tempofirst-1-mirror-5v5,60,39,2,40,20,S:6 ended_earlier:43 N:11,won_decisive:3 won_tiebreak:9 lost:2 draw:3,5
+tempofirst-1-vs-b8-5v5,60,46,0,52,22,ended_earlier:39 N:13 S:5 level:3,won_decisive:7 won_tiebreak:11,5
+temposecond-0-mirror-5v5,60,31,5,35,7,ended_earlier:45 N:5 S:8 level:2,won_tiebreak:5 won_decisive:7 draw:1,13
+temposecond-0-vs-b8-5v5,60,40,0,44,14,ended_earlier:44 N:10 S:5 level:1,won_decisive:4 won_tiebreak:11,4
+spendopening-0-mirror-5v5,60,38,2,38,22,ended_earlier:37 S:11 N:9 level:3,won_decisive:5 won_tiebreak:8 draw:5 lost:2,10
+spendopening-0-vs-b8-5v5,60,58,2,56,4,ended_earlier:37 S:12 N:9 level:2,won_tiebreak:16 draw:1 lost:2 won_decisive:2,8
+playtofinish-0-mirror-5v5,60,54,0,54,0,N:13 S:5 ended_earlier:41 level:1,won_tiebreak:18,0
+playtofinish-0-vs-b8-5v5,60,42,0,42,0,ended_earlier:44 N:10 S:4 level:2,won_tiebreak:14,4
+finish-5-mirror-5v5,60,38,0,48,35,N:13 S:5 ended_earlier:41 level:1,won_decisive:12 draw:1 won_tiebreak:3 lost:2,0
+finish-5-vs-b8-5v5,60,37,0,40,17,ended_earlier:44 N:10 S:4 level:2,won_decisive:4 won_tiebreak:8 lost:2,4
+clockloss-m2-mirror-5v5,60,39,0,49,35,N:13 S:5 ended_earlier:41 level:1,won_decisive:12 draw:1 won_tiebreak:5,0
+clockloss-m2-vs-b8-5v5,60,37,0,41,17,ended_earlier:44 N:10 S:4 level:2,won_decisive:5 won_tiebreak:9,4
+endweight-10-mirror-5v5,60,41,0,50,36,N:13 S:5 ended_earlier:41 level:1,won_tiebreak:6 draw:1 won_decisive:11,0
+endweight-10-vs-b8-5v5,60,36,0,40,17,ended_earlier:44 N:9 S:4 level:3,won_decisive:5 won_tiebreak:8,4
+endweight-40-mirror-5v5,60,38,0,48,35,N:13 S:5 ended_earlier:41 level:1,won_decisive:12 draw:1 won_tiebreak:3 lost:2,0
+endweight-40-vs-b8-5v5,60,37,0,40,17,ended_earlier:44 N:10 S:4 level:2,won_decisive:4 won_tiebreak:8 lost:2,4
+endturns-3-mirror-5v5,60,54,0,53,30,N:13 S:5 ended_earlier:41 level:1,won_tiebreak:17 draw:1,0
+endturns-3-vs-b8-5v5,60,42,0,42,14,ended_earlier:44 N:10 S:4 level:2,won_tiebreak:13 draw:1,4
+endturns-8-mirror-5v5,60,11,0,13,3,N:10 level:1 ended_earlier:45 S:4,won_decisive:9 won_tiebreak:3 lost:2,6
+endturns-8-vs-b8-5v5,60,22,0,24,1,ended_earlier:45 N:9 S:4 level:2,won_decisive:6 won_tiebreak:7,7
+guardblocks-0-mirror-5v5,60,38,0,47,35,N:13 S:5 ended_earlier:41 level:1,won_tiebreak:6 draw:1 won_decisive:11,0
+guardblocks-0-vs-b8-5v5,60,37,0,41,17,ended_earlier:44 N:10 S:4 level:2,won_decisive:5 won_tiebreak:9,4
+guardblocks-2-mirror-5v5,60,41,0,50,35,N:13 S:5 ended_earlier:41 level:1,won_tiebreak:6 draw:1 won_decisive:11,0
+guardblocks-2-vs-b8-5v5,60,37,0,41,17,ended_earlier:44 N:10 S:4 level:2,won_decisive:5 won_tiebreak:9,4
+sparecommand-0p8-mirror-5v5,60,37,3,41,20,ended_earlier:41 N:5 S:11 level:3,won_tiebreak:9 draw:2 won_decisive:5,3
+sparecommand-0p8-vs-b8-5v5,60,41,0,42,11,ended_earlier:45 N:6 S:8 level:1,won_tiebreak:12 won_decisive:2,6
+holderjoins-0-mirror-5v5,60,99,0,100,21,N:18 S:16 ended_earlier:25 level:1,won_tiebreak:32 draw:1 won_decisive:1,0
+holderjoins-0-vs-b8-5v5,60,51,0,51,9,ended_earlier:39 N:13 S:6 level:2,won_tiebreak:17 won_decisive:2,6
+tempo-0-mirror-5v5,60,31,5,35,7,ended_earlier:45 N:5 S:8 level:2,won_tiebreak:5 won_decisive:7 draw:1,13
+tempo-0-vs-b8-5v5,60,40,0,44,14,ended_earlier:44 N:10 S:5 level:1,won_decisive:4 won_tiebreak:11,4
+tempofirst-m1-mirror-7v7,60,21,2,22,4,ended_earlier:50 S:4 N:5 level:1,lost:2 won_decisive:2 won_tiebreak:5,6
+tempofirst-m1-vs-b8-7v7,60,23,1,23,3,ended_earlier:51 S:6 level:1 N:2,won_tiebreak:6 lost:1 won_decisive:1,4
+tempofirst-1-mirror-7v7,60,12,0,13,5,S:2 ended_earlier:53 N:3 level:2,won_tiebreak:3 won_decisive:1 draw:1,0
+tempofirst-1-vs-b8-7v7,60,26,2,22,3,ended_earlier:51 S:4 N:3 level:2,won_tiebreak:5 lost:2,6
+temposecond-0-mirror-7v7,60,36,10,33,12,level:4 ended_earlier:44 N:7 S:5,won_tiebreak:5 won_decisive:4 draw:1 lost:2,7
+temposecond-0-vs-b8-7v7,60,19,0,21,6,ended_earlier:53 N:5 S:2,won_decisive:3 won_tiebreak:4,5
+spendopening-0-mirror-7v7,60,24,2,24,11,S:3 ended_earlier:48 N:8 level:1,draw:2 won_decisive:3 lost:2 won_tiebreak:4,8
+spendopening-0-vs-b8-7v7,60,31,2,29,6,S:3 ended_earlier:48 N:8 level:1,won_tiebreak:6 won_decisive:2 lost:3,9
+playtofinish-0-mirror-7v7,60,12,0,12,0,ended_earlier:55 S:3 N:2,won_tiebreak:4 won_decisive:1,2
+playtofinish-0-vs-b8-7v7,60,24,0,24,0,ended_earlier:52 N:5 S:3,won_tiebreak:8,7
+finish-5-mirror-7v7,60,11,1,10,1,ended_earlier:55 S:3 N:2,lost:1 won_decisive:2 won_tiebreak:2,2
+finish-5-vs-b8-7v7,60,21,0,23,5,ended_earlier:52 N:5 S:3,won_decisive:2 won_tiebreak:6,7
+clockloss-m2-mirror-7v7,60,11,1,10,1,ended_earlier:55 S:3 N:2,lost:1 won_decisive:2 won_tiebreak:2,2
+clockloss-m2-vs-b8-7v7,60,22,0,24,4,ended_earlier:52 N:5 S:3,won_decisive:2 won_tiebreak:6,7
+endweight-10-mirror-7v7,60,11,3,10,2,ended_earlier:55 S:3 N:2,lost:1 won_decisive:2 won_tiebreak:2,2
+endweight-10-vs-b8-7v7,60,22,0,24,4,ended_earlier:52 N:5 S:3,won_decisive:2 won_tiebreak:6,7
+endweight-40-mirror-7v7,60,8,1,8,1,ended_earlier:55 S:3 N:2,lost:1 won_decisive:2 won_tiebreak:2,2
+endweight-40-vs-b8-7v7,60,21,0,23,5,ended_earlier:52 N:5 S:3,won_decisive:2 won_tiebreak:6,7
+endturns-3-mirror-7v7,60,13,1,11,2,ended_earlier:55 S:3 N:2,lost:1 won_decisive:1 won_tiebreak:3,2
+endturns-3-vs-b8-7v7,60,24,0,24,4,ended_earlier:52 N:5 S:3,won_tiebreak:8,7
+endturns-8-mirror-7v7,60,8,0,8,0,ended_earlier:57 N:2 S:1,won_decisive:1 won_tiebreak:2,1
+endturns-8-vs-b8-7v7,60,18,0,18,0,ended_earlier:52 N:5 S:3,won_decisive:2 won_tiebreak:6,8
+guardblocks-0-mirror-7v7,60,11,1,10,1,ended_earlier:55 S:3 N:2,lost:1 won_decisive:2 won_tiebreak:2,2
+guardblocks-0-vs-b8-7v7,60,22,0,24,4,ended_earlier:52 N:5 S:3,won_decisive:2 won_tiebreak:6,7
+guardblocks-2-mirror-7v7,60,9,0,10,2,ended_earlier:55 S:3 N:2,won_decisive:3 won_tiebreak:2,2
+guardblocks-2-vs-b8-7v7,60,20,1,22,4,ended_earlier:52 N:5 S:3,won_decisive:2 won_tiebreak:5 lost:1,7
+sparecommand-0p8-mirror-7v7,60,6,1,6,0,ended_earlier:57 N:2 S:1,won_tiebreak:2 won_decisive:1,2
+sparecommand-0p8-vs-b8-7v7,60,22,0,24,7,ended_earlier:52 N:6 S:2,won_decisive:2 won_tiebreak:6,5
+holderjoins-0-mirror-7v7,60,44,2,43,9,ended_earlier:40 N:15 S:5,won_tiebreak:10 won_decisive:6 draw:2 lost:2,4
+holderjoins-0-vs-b8-7v7,60,40,0,41,8,ended_earlier:46 N:9 S:5,won_decisive:1 won_tiebreak:13,6
+tempo-0-mirror-7v7,60,36,10,33,12,level:4 ended_earlier:44 N:7 S:5,won_tiebreak:5 won_decisive:4 draw:1 lost:2,7
+tempo-0-vs-b8-7v7,60,19,0,21,6,ended_earlier:53 N:5 S:2,won_decisive:3 won_tiebreak:4,5

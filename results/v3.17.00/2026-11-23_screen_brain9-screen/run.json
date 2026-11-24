@@ -1,0 +1,139 @@
+{
+ "id": "2026-11-23_screen_brain9-screen",
+ "kind": "screen",
+ "version": "v3.17.00",
+ "build": 22,
+ "commit": "72f37e40a7a45ac48f9fda0dd225efefa53e0625",
+ "brief": "020",
+ "question": "Brief 020 screen (200 games each, v3.9, balanced, same deals): Brain 8 mirror (A), Brain 9 mirror with finished -1 (B) and -2 (C), and B and C against Brain 8. Does Brain 9 finish more games and stall less, does a beaten side stop guarding at -1, and does -2 bring back the turn limit?",
+ "tags": [
+  "brain9",
+  "brain8",
+  "screen",
+  "v3.9",
+  "victory"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-23T05:30:50.000Z",
+ "finished": "2026-11-23T06:43:52.694Z",
+ "games": 600,
+ "seed_from": "tests/rng.js lab:brain9:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "a-brain8-mirror-5v5",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b-brain9-mirror-5v5",
+    "a": "brain9",
+    "b": "brain9",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "c-brain9-m2-mirror-5v5",
+    "a": "brain9:finished=-2",
+    "b": "brain9:finished=-2",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "b-vs-a-5v5",
+    "a": "brain9",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "c-vs-a-5v5",
+    "a": "brain9:finished=-2",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5"
+   },
+   {
+    "name": "a-brain8-mirror-7v7",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b-brain9-mirror-7v7",
+    "a": "brain9",
+    "b": "brain9",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "c-brain9-m2-mirror-7v7",
+    "a": "brain9:finished=-2",
+    "b": "brain9:finished=-2",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "b-vs-a-7v7",
+    "a": "brain9",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   },
+   {
+    "name": "c-vs-a-7v7",
+    "a": "brain9:finished=-2",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7"
+   }
+  ],
+  "measures": [
+   "play",
+   "clock",
+   "specials",
+   "firstloss",
+   "brain8"
+  ]
+ },
+ "failed": "some machines failed while playing (play: cancelled/cancelled); the totals cover only the parts that finished",
+ "extra": {},
+ "answer": "Failed: some machines failed while playing (play: cancelled/cancelled); the totals cover only the parts that finished."
+}

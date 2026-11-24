@@ -1,0 +1,65 @@
+matchup,games,late_behind_side,late_behind_finished,late_behind_comeback,late_guard_behind_n,late_guard_behind_s,late_guard_behind_turns_n,late_guard_behind_turns_s,late_guard_level_n,late_guard_level_s,late_guard_level_turns_n,late_guard_level_turns_s,late_guard_ahead_n,late_guard_ahead_s,late_guard_ahead_turns_n,late_guard_ahead_turns_s,late_ahead_side,late_ahead_attacks,late_ahead_turns,late_ahead_result,points_n,points_s,points2_n,points2_s,finish_win,turn1_cmd_first,turn1_cmd_second
+tempofirst-m1-mirror-5v5,60,ended_earlier:54 S:2 N:1 level:3,1,0,0,0,6,12,1,0,10,8,0,0,12,5,ended_earlier:54 N:2 S:1 level:3,3,14,finished:1 clock_win:2,83,31,61,-4,57,320,578
+tempofirst-m1-vs-b8-5v5,60,ended_earlier:51 level:8 S:1,1,0,0,0,5,14,0,0,20,19,0,0,15,5,ended_earlier:51 level:8 N:1,2,21,finished:1,102,14,84,-26,58,306.5,535
+tempofirst-1-mirror-5v5,60,level:10 ended_earlier:43 S:6 N:1,0,2,0,0,15,39,0,0,31,29,0,4,36,15,level:10 ended_earlier:43 N:6 S:1,5,40,lost:2 clock_win:5,77,19,59,-11,48,305,556.5
+tempofirst-1-vs-b8-5v5,60,ended_earlier:39 level:16 S:3 N:2,0,0,0,0,12,36,1,0,56,50,0,0,34,12,ended_earlier:39 level:16 N:3 S:2,0,52,clock_win:5,69,23,51,-5,46,295.5,558.5
+temposecond-0-mirror-5v5,60,ended_earlier:45 level:7 N:7 S:1,5,0,0,12,26,24,0,4,20,17,0,0,21,29,ended_earlier:45 level:7 S:7 N:1,16,35,clock_win:3 finished:5,91,13,74,-22,52,320,552.5
+temposecond-0-vs-b8-5v5,60,ended_earlier:44 level:10 S:4 N:2,0,0,0,0,12,34,1,0,34,30,0,0,32,12,ended_earlier:44 level:10 N:4 S:2,0,44,clock_win:6,76,20,58,-10,48,307,562
+spendopening-0-mirror-5v5,60,ended_earlier:36 level:19 S:1 N:4,2,1,0,0,17,20,1,1,73,72,0,0,19,16,ended_earlier:36 level:19 N:1 S:4,6,38,clock_win:2 finished:2 lost:1,56,32,37,7,44,274,497.5
+spendopening-0-vs-b8-5v5,60,ended_earlier:36 level:19 S:1 N:4,2,1,0,0,9,12,0,0,90,89,0,0,11,9,ended_earlier:36 level:19 N:1 S:4,7,56,clock_win:2 finished:2 lost:1,55,27,38,3,41,274,497.5
+playtofinish-0-mirror-5v5,60,level:15 ended_earlier:41 S:3 N:1,0,0,0,0,5,15,0,0,75,75,0,0,15,5,level:15 ended_earlier:41 N:3 S:1,0,54,clock_win:4,33,49,10,31,41,320,540
+playtofinish-0-vs-b8-5v5,60,ended_earlier:44 level:12 S:3 N:1,0,0,0,0,5,15,0,0,60,60,0,0,15,5,ended_earlier:44 level:12 N:3 S:1,0,42,clock_win:4,62,26,44,0,44,307,555.5
+finish-5-mirror-5v5,60,level:15 ended_earlier:41 S:3 N:1,2,0,2,0,14,44,0,0,31,23,0,0,41,15,level:15 ended_earlier:41 N:3 S:1,8,48,clock_win:2 finished:2,51,59,22,33,55,320,540
+finish-5-vs-b8-5v5,60,ended_earlier:44 level:12 S:3 N:1,0,0,0,0,9,33,1,0,38,34,0,0,31,8,ended_earlier:44 level:12 N:3 S:1,0,40,clock_win:4,77,23,58,-8,50,307,555.5
+clockloss-m2-mirror-5v5,60,level:15 ended_earlier:41 S:3 N:1,2,0,2,0,15,41,0,0,34,26,0,0,38,16,level:15 ended_earlier:41 N:3 S:1,7,49,clock_win:2 finished:2,55,51,28,25,53,320,540
+clockloss-m2-vs-b8-5v5,60,ended_earlier:44 level:12 S:3 N:1,0,0,0,0,7,32,1,0,41,37,0,0,30,7,ended_earlier:44 level:12 N:3 S:1,0,41,clock_win:4,75,23,56,-7,49,307,555.5
+endweight-10-mirror-5v5,60,level:15 ended_earlier:41 S:3 N:1,2,0,2,0,15,43,0,0,34,26,0,0,39,16,level:15 ended_earlier:41 N:3 S:1,7,50,clock_win:2 finished:2,53,51,26,26,52,320,540
+endweight-10-vs-b8-5v5,60,ended_earlier:44 level:12 S:3 N:1,0,0,0,0,7,32,1,0,41,37,0,0,30,7,ended_earlier:44 level:12 N:3 S:1,0,40,clock_win:4,75,23,56,-7,49,307,555.5
+endweight-40-mirror-5v5,60,level:15 ended_earlier:41 S:3 N:1,2,0,2,0,14,44,0,0,31,23,0,0,41,15,level:15 ended_earlier:41 N:3 S:1,8,48,clock_win:2 finished:2,51,59,22,33,55,320,540
+endweight-40-vs-b8-5v5,60,ended_earlier:44 level:12 S:3 N:1,0,0,0,0,9,33,1,0,38,34,0,0,31,8,ended_earlier:44 level:12 N:3 S:1,0,40,clock_win:4,77,23,58,-8,50,307,555.5
+endturns-3-mirror-5v5,60,level:15 ended_earlier:41 S:3 N:1,0,0,1,0,11,35,0,0,59,51,0,0,25,9,level:15 ended_earlier:41 N:3 S:1,5,53,clock_win:4,39,43,16,25,41,320,540
+endturns-3-vs-b8-5v5,60,ended_earlier:44 level:12 S:3 N:1,0,0,0,0,7,26,1,0,52,48,0,0,21,6,ended_earlier:44 level:12 N:3 S:1,0,42,clock_win:4,67,21,49,-5,44,307,555.5
+endturns-8-mirror-5v5,60,S:10 level:5 N:4 ended_earlier:41,12,0,2,0,9,25,0,0,5,5,0,1,33,12,N:10 level:5 S:4 ended_earlier:41,21,13,finished:12 clock_win:2,53,59,24,32,56,320,540
+endturns-8-vs-b8-5v5,60,ended_earlier:44 S:7 level:8 N:1,4,0,0,0,6,24,0,0,25,25,0,0,29,7,ended_earlier:44 N:7 level:8 S:1,8,24,finished:4 clock_win:4,79,23,60,-9,51,307,555.5
+guardblocks-0-mirror-5v5,60,level:15 ended_earlier:41 S:3 N:1,2,0,0,0,12,43,2,0,37,29,0,0,39,13,level:15 ended_earlier:41 N:3 S:1,8,47,clock_win:2 finished:2,54,50,27,25,52,320,540
+guardblocks-0-vs-b8-5v5,60,ended_earlier:44 level:12 S:3 N:1,0,0,0,0,7,32,1,0,41,37,0,0,30,7,ended_earlier:44 level:12 N:3 S:1,0,41,clock_win:4,75,23,56,-7,49,307,555.5
+guardblocks-2-mirror-5v5,60,level:15 ended_earlier:41 S:3 N:1,2,0,2,0,15,43,0,0,34,26,0,0,39,16,level:15 ended_earlier:41 N:3 S:1,8,50,clock_win:2 finished:2,53,51,26,26,52,320,540
+guardblocks-2-vs-b8-5v5,60,ended_earlier:44 level:12 S:3 N:1,0,0,0,0,7,32,1,0,41,37,0,0,30,7,ended_earlier:44 level:12 N:3 S:1,0,41,clock_win:4,75,23,56,-7,49,307,555.5
+sparecommand-0p8-mirror-5v5,60,ended_earlier:41 level:12 N:6 S:1,2,0,1,0,37,12,0,0,42,41,1,1,12,38,ended_earlier:41 level:12 S:6 N:1,11,41,clock_win:5 finished:2,53,39,33,13,46,360,600
+sparecommand-0p8-vs-b8-5v5,60,ended_earlier:45 S:2 level:10 N:3,0,0,0,0,17,19,1,0,40,39,0,0,17,17,ended_earlier:45 N:2 level:10 S:3,0,42,clock_win:5,86,8,72,-25,47,333.5,551
+holderjoins-0-mirror-5v5,60,level:19 ended_earlier:25 N:11 S:5,0,0,2,0,71,73,0,0,40,31,0,0,61,69,level:19 ended_earlier:25 S:11 N:5,3,100,clock_win:16,29,23,16,10,26,320,540
+holderjoins-0-vs-b8-5v5,60,ended_earlier:39 level:14 S:4 N:3,0,0,0,0,18,43,1,0,43,37,0,0,38,17,ended_earlier:39 level:14 N:4 S:3,0,51,clock_win:7,65,17,49,-8,41,307,555.5
+tempo-0-mirror-5v5,60,ended_earlier:45 level:7 N:7 S:1,5,0,0,12,26,24,0,4,20,17,0,0,21,29,ended_earlier:45 level:7 S:7 N:1,16,35,clock_win:3 finished:5,91,13,74,-22,52,320,552.5
+tempo-0-vs-b8-5v5,60,ended_earlier:44 level:10 S:4 N:2,0,0,0,0,12,34,1,0,34,30,0,0,32,12,ended_earlier:44 level:10 N:4 S:2,0,44,clock_win:6,76,20,58,-10,48,307,562
+tempofirst-m1-mirror-7v7,60,ended_earlier:50 N:3 level:4 S:3,1,2,0,0,11,20,0,1,14,13,0,0,21,10,ended_earlier:50 S:3 level:4 N:3,8,22,lost:2 finished:1 clock_win:3,80,28,59,-5,54,353.5,595
+tempofirst-m1-vs-b8-7v7,60,ended_earlier:51 N:4 level:5,0,1,0,0,18,5,0,0,22,21,0,0,5,17,ended_earlier:51 S:4 level:5,4,23,clock_win:3 lost:1,40,66,11,42,53,354.5,587.5
+tempofirst-1-mirror-7v7,60,level:5 ended_earlier:53 S:1 N:1,0,0,0,0,7,9,0,0,18,16,0,0,8,7,level:5 ended_earlier:53 N:1 S:1,0,13,clock_win:2,68,42,44,11,55,360,571
+tempofirst-1-vs-b8-7v7,60,ended_earlier:51 level:5 S:2 N:2,0,2,0,0,20,6,0,1,20,22,0,0,4,17,ended_earlier:51 level:5 N:2 S:2,7,22,lost:2 clock_win:2,63,41,41,11,52,358.5,586.5
+temposecond-0-mirror-7v7,60,level:9 ended_earlier:44 S:6 N:1,2,1,1,3,13,34,0,7,32,31,0,1,32,10,level:9 ended_earlier:44 N:6 S:1,12,33,clock_win:4 finished:2 lost:1,68,30,48,1,49,360,555.5
+temposecond-0-vs-b8-7v7,60,ended_earlier:53 level:4 N:1 S:2,0,0,0,0,7,16,0,0,12,10,0,0,16,7,ended_earlier:53 level:4 S:1 N:2,0,21,clock_win:3,41,71,9,47,56,358.5,571.5
+spendopening-0-mirror-7v7,60,level:6 ended_earlier:48 S:6,2,2,2,0,8,25,1,5,22,22,0,0,25,8,level:6 ended_earlier:48 N:6,14,24,lost:2 finished:2 clock_win:2,49,57,21,32,53,355.5,573.5
+spendopening-0-vs-b8-7v7,60,level:6 ended_earlier:48 S:6,1,3,0,0,9,22,2,5,27,27,0,0,21,8,level:6 ended_earlier:48 N:6,11,29,lost:3 clock_win:2 finished:1,45,59,17,35,52,355.5,573.5
+playtofinish-0-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,0,1,0,0,6,11,0,0,5,5,0,0,10,6,ended_earlier:55 level:1 N:3 S:1,1,12,lost:1 clock_win:3,97,15,79,-23,56,360,589.5
+playtofinish-0-vs-b8-7v7,60,ended_earlier:52 level:4 N:2 S:2,0,0,0,0,10,10,0,0,20,20,0,0,10,10,ended_earlier:52 level:4 S:2 N:2,0,24,clock_win:4,52,52,26,26,52,358.5,583
+finish-5-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,1,1,0,0,6,10,0,0,5,4,0,0,9,6,ended_earlier:55 level:1 N:3 S:1,5,10,lost:1 clock_win:2 finished:1,100,14,82,-25,57,360,589.5
+finish-5-vs-b8-7v7,60,ended_earlier:52 level:4 N:2 S:2,0,0,0,0,10,15,0,0,14,12,0,0,15,10,ended_earlier:52 level:4 S:2 N:2,1,23,clock_win:4,58,50,32,22,54,358.5,583
+clockloss-m2-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,1,1,0,0,6,10,0,0,5,4,0,0,9,6,ended_earlier:55 level:1 N:3 S:1,5,10,lost:1 clock_win:2 finished:1,100,14,82,-25,57,360,589.5
+clockloss-m2-vs-b8-7v7,60,ended_earlier:52 level:4 N:2 S:2,0,0,0,0,10,16,0,0,14,12,0,0,16,10,ended_earlier:52 level:4 S:2 N:2,1,24,clock_win:4,58,50,32,22,54,358.5,583
+endweight-10-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,1,1,0,0,6,13,0,0,3,1,0,0,11,6,ended_earlier:55 level:1 N:3 S:1,5,10,lost:1 clock_win:2 finished:1,100,14,82,-25,57,360,589.5
+endweight-10-vs-b8-7v7,60,ended_earlier:52 level:4 N:2 S:2,0,0,0,0,10,16,0,0,14,12,0,0,16,10,ended_earlier:52 level:4 S:2 N:2,1,24,clock_win:4,58,50,32,22,54,358.5,583
+endweight-40-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,1,1,0,0,6,9,0,0,3,2,0,0,9,6,ended_earlier:55 level:1 N:3 S:1,5,8,lost:1 clock_win:2 finished:1,102,14,84,-26,58,360,589.5
+endweight-40-vs-b8-7v7,60,ended_earlier:52 level:4 N:2 S:2,0,0,0,0,10,15,0,0,14,12,0,0,15,10,ended_earlier:52 level:4 S:2 N:2,1,23,clock_win:4,58,50,32,22,54,358.5,583
+endturns-3-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,0,1,0,0,6,12,0,0,5,4,0,0,10,6,ended_earlier:55 level:1 N:3 S:1,4,11,lost:1 clock_win:3,98,14,80,-24,56,360,589.5
+endturns-3-vs-b8-7v7,60,ended_earlier:52 level:4 N:2 S:2,0,0,0,0,10,14,0,0,18,16,0,0,12,10,ended_earlier:52 level:4 S:2 N:2,1,24,clock_win:4,54,50,28,24,52,358.5,583
+endturns-8-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,2,0,1,0,8,8,0,0,0,0,0,0,8,7,ended_earlier:55 level:1 N:3 S:1,5,8,finished:2 clock_win:2,102,14,84,-26,58,360,589.5
+endturns-8-vs-b8-7v7,60,ended_earlier:52 S:4 level:2 N:2,2,0,0,0,10,12,0,0,10,10,0,0,14,10,ended_earlier:52 N:4 level:2 S:2,4,18,finished:2 clock_win:4,58,50,32,22,54,358.5,583
+guardblocks-0-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,1,1,0,0,6,10,0,0,5,4,0,0,9,6,ended_earlier:55 level:1 N:3 S:1,5,10,lost:1 clock_win:2 finished:1,100,14,82,-25,57,360,589.5
+guardblocks-0-vs-b8-7v7,60,ended_earlier:52 level:4 N:2 S:2,0,0,0,0,10,16,0,0,14,12,0,0,16,10,ended_earlier:52 level:4 S:2 N:2,1,24,clock_win:4,58,50,32,22,54,358.5,583
+guardblocks-2-mirror-7v7,60,ended_earlier:55 level:1 S:3 N:1,1,1,0,0,6,9,0,0,4,4,0,0,9,6,ended_earlier:55 level:1 N:3 S:1,5,10,lost:1 clock_win:2 finished:1,98,18,79,-21,58,360,589.5
+guardblocks-2-vs-b8-7v7,60,ended_earlier:52 level:4 N:2 S:2,0,1,0,0,10,14,0,0,14,12,0,0,14,10,ended_earlier:52 level:4 S:2 N:2,1,22,clock_win:3 lost:1,56,54,29,26,55,358.5,583
+sparecommand-0p8-mirror-7v7,60,ended_earlier:57 S:3,0,1,0,0,1,11,0,0,0,0,1,0,10,1,ended_earlier:57 N:3,3,6,clock_win:2 lost:1,88,28,66,-8,58,360,586.5
+sparecommand-0p8-vs-b8-7v7,60,ended_earlier:52 level:5 N:1 S:2,0,0,0,0,5,19,0,0,16,14,0,0,19,5,ended_earlier:52 level:5 S:1 N:2,0,24,clock_win:3,48,60,19,35,54,358.5,582
+holderjoins-0-mirror-7v7,60,ended_earlier:40 S:8 level:10 N:2,0,1,2,0,14,49,1,1,30,24,1,0,47,13,ended_earlier:40 N:8 level:10 S:2,5,43,clock_win:9 lost:1,87,5,73,-27,46,360,589.5
+holderjoins-0-vs-b8-7v7,60,ended_earlier:46 level:7 N:3 S:4,0,0,0,2,19,34,0,0,19,16,0,0,31,18,ended_earlier:46 level:7 S:3 N:4,1,41,clock_win:7,48,46,24,23,47,358.5,583
+tempo-0-mirror-7v7,60,level:9 ended_earlier:44 S:6 N:1,2,1,1,3,13,34,0,7,32,31,0,1,32,10,level:9 ended_earlier:44 N:6 S:1,12,33,clock_win:4 finished:2 lost:1,68,30,48,1,49,360,555.5
+tempo-0-vs-b8-7v7,60,ended_earlier:53 level:4 N:1 S:2,0,0,0,0,7,16,0,0,12,10,0,0,16,7,ended_earlier:53 level:4 S:1 N:2,0,21,clock_win:3,41,71,9,47,56,358.5,571.5
