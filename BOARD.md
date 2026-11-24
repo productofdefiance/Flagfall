@@ -1,12 +1,12 @@
-STATUS · updated 24 Nov 2026, 5:28 pm ET
+STATUS · updated 24 Nov 2026, 5:33 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
-  Building: 026 → v3.18.00
+  Building: 026 → v3.18.00 · 028 → v3.18.00
 
 RESULTS (last 24 hours)
   Nightly checks: pass (24 Nov, 2:28 pm ET)
-  Queue: clear
+  Queue: clear · lab using 1 of 20
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 24 Nov
   study v3.17.00 · 16 matchups, 16,000 games · 23 Nov
   study v3.17.00 · 5v5 19.4% · 7v7 6.2% on the turn limit · 23 Nov
@@ -35,8 +35,9 @@ FLAGS (open, newest first)
 BUILDS
   Building
     026 Specials flow · PR #59 · Ready · checks pass · reviewed: merge
+    028 Arrow storm · PR #65 · Draft · checks running · not reviewed
   Ready to start
-    028 Arrow storm
+    none
   Waiting
     012 Cavalry ← 026, 028
   Merged (last 3)
