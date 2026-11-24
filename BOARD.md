@@ -1,4 +1,4 @@
-STATUS · updated 24 Nov 2026, 4:12 pm ET
+STATUS · updated 24 Nov 2026, 5:28 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
@@ -34,7 +34,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    026 Specials flow · PR #59 · Ready · checks pass · not reviewed
+    026 Specials flow · PR #59 · Ready · checks pass · reviewed: merge
   Ready to start
     028 Arrow storm
   Waiting
@@ -48,6 +48,7 @@ CHATS
   Open
     FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov
     FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov
+    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov
   Closed (last 5)
     FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…
     FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…
