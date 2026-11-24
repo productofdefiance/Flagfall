@@ -1,5 +1,0 @@
-matchup,a,b,rules,format,lineups,games,a_wins,b_wins,a_tiebreak,b_tiebreak,draws,unfinished,errors,holder_ko,pull_ko,tko,tiebreak_win,draw,turn_limit,games_with_pull,avg_turn,decisive,first_mover_share,a_share,a_share_se
-v39-5v5,brain8,brain8,v3.9,blitz5,mixed,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0
-v310-5v5,brain8,brain8,v3.10,blitz5,mixed,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0
-v39-7v7,brain8,brain8,v3.9,std7,mixed,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0
-v310-7v7,brain8,brain8,v3.10,std7,mixed,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,,0,0
