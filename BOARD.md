@@ -1,4 +1,4 @@
-STATUS · updated 24 Nov 2026, 5:46 pm ET
+STATUS · updated 24 Nov 2026, 6:05 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: pass (24 Nov, 2:28 pm ET)
-  Queue: clear
+  Queue: clear · lab using 1 of 20
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 24 Nov
   study v3.17.00 · 16 matchups, 16,000 games · 23 Nov
   study v3.17.00 · 5v5 19.4% · 7v7 6.2% on the turn limit · 23 Nov
@@ -18,6 +18,7 @@ RESULTS (last 24 hours)
   +5 more in results/INDEX.md
 
 FLAGS (open, newest first)
+  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…
   ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…
   ! F026-2 · ASK · 23 Nov · Unit codes are still shown outside the specials. The brief's "no unit codes on screen"…
   ! F026-1 · ASK · 23 Nov · The special sheet can miss a parry in an Arc Hit. The engine's specialPreview names only…
@@ -29,8 +30,7 @@ FLAGS (open, newest first)
   ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…
   ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…
   ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…
-    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…
-  +20 older in FLAGS.md
+  +21 older in FLAGS.md
 
 BUILDS
   Building
