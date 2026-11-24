@@ -1,4 +1,4 @@
-STATUS · updated 23 Nov 2026, 4:59 pm ET
+STATUS · updated 24 Nov 2026, 2:05 am ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
@@ -15,7 +15,7 @@ RESULTS (last 24 hours)
   screen v3.17.00 · 5v5 45.0% · 7v7 16.5% on the turn limit · 23 Nov
   screen v3.17.00 · 5v5 36.7% · 7v7 20.0% on the turn limit · 23 Nov
   screen v3.17.00 · 5v5 24.5% · 7v7 9.5% on the turn limit · 23 Nov
-  +6 more in results/INDEX.md
+  +4 more in results/INDEX.md
 
 FLAGS (open, newest first)
   ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…
