@@ -1,0 +1,79 @@
+{
+ "id": "2026-11-24_study_storm-v310",
+ "kind": "study",
+ "version": "v3.18.00",
+ "build": 23,
+ "commit": "69886d64aa25b5612dfd31dc32d440fb27e9ef4e",
+ "brief": "028",
+ "question": "Arrow Storm 1.5 times and minimum damage 0.5 (v3.10) against v3.9 on the same seeds, Brain 8 against itself, balanced 5v5 and 7v7: how do games end, who loses their Light Ranged first, is Storm still warmed up and fired, and how often does the minimum damage apply?",
+ "tags": [
+  "arrow-storm",
+  "min-damage",
+  "brain8",
+  "v3.9",
+  "v3.10",
+  "F022-9",
+  "F39",
+  "F12"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-24T22:33:50.000Z",
+ "finished": "2026-11-24T22:46:20.141Z",
+ "games": 0,
+ "seed_from": "tests/rng.js lab:storm-v310:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "v39-5v5",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000
+   },
+   {
+    "name": "v310-5v5",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.10",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "v39-5v5"
+   },
+   {
+    "name": "v39-7v7",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.9",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000
+   },
+   {
+    "name": "v310-7v7",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.10",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 1000,
+    "seed_as": "v39-7v7"
+   }
+  ],
+  "measures": [
+   "specials",
+   "firstloss",
+   "mindamage",
+   "play"
+  ]
+ },
+ "failed": "some machines failed while playing (play: cancelled/cancelled); the totals cover only the parts that finished",
+ "extra": {},
+ "answer": "Failed: some machines failed while playing (play: cancelled/cancelled); the totals cover only the parts that finished."
+}
