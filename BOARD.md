@@ -1,12 +1,13 @@
-STATUS · updated 25 Nov 2026, 2:31 pm ET
+STATUS · updated 25 Nov 2026, 3:40 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
   Building: 026 → v3.18.00 · 028 → v3.18.00
 
 RESULTS (last 24 hours)
-  Nightly checks: pass (24 Nov, 2:28 pm ET)
+  Nightly checks: cancelled (25 Nov, 1:36 pm ET)
   Queue: clear
+  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 25 Nov
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 24 Nov
 
 FLAGS (open, newest first)
