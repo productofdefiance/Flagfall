@@ -156,10 +156,31 @@ const at = (extra) => ({ N: LINE, S: LINE, place: Object.assign({}, PLACE, extra
   // ---- 5. Wording table: every engine string still exists in engine.js ----
   const engineSrc = fs.readFileSync(path.join(boardDir, "engine.js"), "utf8");
   const words = await q("return G.SP_WORDS.map((w) => w.engine);");
-  const missing = words.filter((w) => !engineSrc.includes(w.startsWith("<id> ") ? w.slice(5) : `"${w}"`));
+  const missing = words.filter((w) => (w.includes("<id>") ? !w.split("<id>").every((s) => !s.trim() || engineSrc.includes(s)) : !engineSrc.includes(`"${w}"`)));
   ok(words.length >= 8 && !missing.length, `every engine reason the wording table maps exists in engine.js (missing: ${missing.join(", ")})`);
-  const shown = await q(`const c = { name: "Arrow Storm", moves: 2 }; return ["Used", "Braced this turn", "No target in reach", "LR has ended its turn", "LR attacked this turn and may only evade or end", "HR is reloading this turn", "Not enough Stamina", "Not enough Command", "Already attacked this turn"].map((r) => G.spWords(r, c));`);
-  ok(JSON.stringify(shown) === JSON.stringify(["Arrow Storm used · once a match", "Braced this turn · warm up next turn", "No targets available · move", "Ended its turn", "Attacked this turn · may only evade or end its turn", "Reloading this turn", "Not enough Stamina", "Not enough Command", "Already attacked this turn"]), `the wording table words each reason, no unit codes (${JSON.stringify(shown)})`);
+  const shown = await q(`const c = { name: "Arrow Storm", moves: 2 }; return ["Used", "Braced this turn", "No target in reach", "LR has ended its turn", "LR attacked this turn and may only evade or end", "HR is reloading this turn", "Not enough Stamina", "Not enough Command", "Already attacked this turn", "No free hex further from HM2"].map((r) => G.spWords(r, c));`);
+  ok(JSON.stringify(shown) === JSON.stringify(["Arrow Storm used · once a match", "Braced this turn · warm up next turn", "No targets available · move", "Ended its turn", "Attacked this turn · may only evade or end its turn", "Reloading this turn", "Not enough Stamina", "Not enough Command", "Already attacked this turn", "No free hex further from the unit it attacked"]), `the wording table words each reason, no unit codes (${JSON.stringify(shown)})`);
+  // F026-2: no unit code in any sentence on screen: every greyed-out button's reason (Attack, Reach, Brace, End unit,
+  // Special), the dark pill and the field key's lines, for a unit that has ended its turn, one reloading, one that may
+  // only evade, one short of Stamina, a braced unit and one with moves. (Desktop's unit list and the deploy chips keep
+  // their codes: out of scope.)
+  const CODES = /\b(HM|HM2|LM|HR|LR|HA|LA)\b/;
+  const SCREEN = [
+    ["ended its turn", "G.act({ type: 'brace', uid: 'N-HM2' }); ui.sel = 'N-HM2';", /Ended its turn/],
+    ["reloading", "E.unitByUid(st, 'N-HR').attackedLast = true; ui.sel = 'N-HR';", /Reloading this turn/],
+    ["may only evade", "const t = E.unitByUid(st, 'S-LR'); t.hp = t.maxHp = 99; G.act({ type: 'attack', uid: 'N-LM', target: 'S-LR' }); ui.sel = 'N-LM';", /Attacked this turn · may only evade or end its turn/],
+    ["short of Stamina", "E.unitByUid(st, 'N-HA').stam = 0.5; ui.sel = 'N-HA';", /Needs 1 Stamina/],
+    ["braced, then a unit with moves", "G.act({ type: 'brace', uid: 'N-HM2' }); ui.sel = 'N-LR';", null],
+  ];
+  for (const [k, js, want] of SCREEN) {
+    await go(at(), `${js} G.render();`);
+    const seen = await q(`return { why: [...document.querySelectorAll("#actions [data-why]")].map((b) => b.dataset.act + ": " + b.dataset.why), key: (ui.keyRows || []).map((r) => r.line), hint: document.getElementById("hint").hidden ? "" : document.getElementById("hint").textContent };`);
+    const all = [...seen.why, ...seen.key, seen.hint], bad = all.filter((s) => CODES.test(s));
+    ok(!bad.length && (!want || seen.why.some((s) => want.test(s))) && seen.key.length, `no unit code on screen, ${k}: ${seen.why.length} reasons, ${seen.key.length} key lines (bad: ${JSON.stringify(bad)}; reasons: ${JSON.stringify(seen.why)})`);
+  }
+  { await go(at(), "G.act({ type: 'brace', uid: 'N-HM2' }); ui.sel = 'N-LR'; G.render();");
+    const key = await q("return (ui.keyRows || []).map((r) => r.line);");
+    ok(key.includes("Heavy Melee is braced.") && key.some((l) => /^Where Light Ranged can move this turn\.$/.test(l)), `the key names units in full ("Heavy Melee is braced.", "Where Light Ranged can move this turn."): ${JSON.stringify(key)}`); }
   // Every second line the table can produce fits the big button at 393 px, with the longest special name.
   await go(SEV, CH("N-LR")); await tap("special");
   const lines = ["No targets", "Braced this turn", "Ended its turn", "Attacked this turn", "Reloading this turn", "Not enough Stamina", "Not enough Command", "Already attacked this turn", "Warm it up first", "Fires next turn", "Warming up instead", "12 targets"];

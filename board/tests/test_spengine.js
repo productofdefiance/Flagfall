@@ -6,6 +6,8 @@
 // - over many seeded positions (braced spears and braced parry units next to the target), the special sheet's kill
 //   pills (spear amount, Mark) agree with what firing actually does, and it shows none when a parry would remove the
 //   attacker first;
+// - F026-1: the sheet's parry is the one firing makes: the first braced Heavy Melee in the arc that survives its hit
+//   (the flag's position, and seeded Arc Hits with two braced Heavy Melee in one arc);
 // - one spear a turn (spearOnArrival, Game Laws 3.13): a unit that already took a spear this turn takes no second one.
 // node tests/test_spengine.js [positions, default 400]
 const E = require("../engine.js"); const { PRESETS } = require("../data.js"); const UI = require("../ui.js");
@@ -84,6 +86,51 @@ for (const code of ["HM", "HA", "LM"]) {
   ok(p.hits[0].kills && sh.removesMe && !sh.rows[0].pills.length && parry && parry.red && sh.notes.some((x) => x.key === "parry" && /removes your/.test(x.text)), `parry that removes the attacker: no pills, parry in red, a line saying so (${JSON.stringify(sh.notes)})`);
   E.act(st, { type: "special", uid: "N-LM", target: "S-HM" }, noRoll);
   ok(U(st, "N-LM").hp <= 0 && U(st, "N-LM").hex === "E11" && !U(st, "S-HA").spikeUsed, "firing: the parry removes it, it never steps in, the spear stays loaded");
+}
+
+// ---- F026-1: the sheet's parry is the one firing makes (the first braced Heavy Melee that survives its hit) ----
+// The flag's own position: Arc Hit on a 1 HP braced Heavy Melee kills it (no parry, parryNeedsSurvivor); the second
+// braced Heavy Melee in the arc survives and parries. The old preview named the first one and the sheet showed nothing.
+{ const st = setup(null, [["HM", "HM"]], [["HM", "HM"], ["HM2", "HM"]], { "N-HM": "C11", "S-HM": "C12", "S-HM2": "B11" });
+  U(st, "N-HM").sp = "charged"; U(st, "S-HM").braced = true; U(st, "S-HM2").braced = true; U(st, "S-HM").hp = 1;
+  const p = E.options(st, "N-HM").special.targets.find((x) => x.target === "S-HM");
+  const sh = UI.specialSheet(st, U(st, "N-HM"), U(st, "S-HM"), p), row2 = sh.rows.find((r) => r.uid === "S-HM2");
+  ok(p.kind === "arcHit" && p.hits.some((h) => h.uid === "S-HM2") && p.hits[0].kills, "F026-1 position: Arc Hit on C12 kills it and also hits B11");
+  ok(p.parry && p.parry.by === "S-HM2" && sh.parryFires, `F026-1: the preview names Heavy Melee 2 as the parry (${p.parry && p.parry.by})`);
+  ok(row2 && row2.mods.some((m) => m.key === "parry" && m.red && m.val === "2"), "F026-1: Heavy Melee 2's row shows the parry, 2");
+  ok(sh.notes.some((x) => x.key === "parry" && x.text === "Parry: you take 2"), `F026-1: the note says "Parry: you take 2" (${(sh.notes.find((x) => x.key === "parry") || {}).text})`);
+  const hp0 = U(st, "N-HM").hp, r = E.act(st, { type: "special", uid: "N-HM", target: "S-HM" }, noRoll);
+  ok(r.ok && hp0 - U(st, "N-HM").hp === 2, `F026-1: firing takes exactly 2 (took ${hp0 - U(st, "N-HM").hp})`);
+}
+// Seeded: Arc Hits with two braced Heavy Melee in one arc. What the sheet says you take is what firing takes.
+{ const rnd = rng("spengine-parry", 0), pick = (a) => a[Math.floor(rnd() * a.length)];
+  let fired = 0, secondParries = 0, none = 0, bad = [];
+  for (let i = 0; i < N_POS; i++) {
+    const st = setup(null, [["HM", "HM"]], [["T", pick(["LR", "LM", "HR", "HM"])], ["HM", "HM"], ["HM2", "HM"]], {});
+    const G = E.fieldOf(st), used = () => new Set(st.units.map((u) => u.hex));
+    const at = pick(Object.keys(G.NBRS).filter((h) => G.NBRS[h].length === 6 && !G.onFlag(h) && !used().has(h)));
+    const a = U(st, "N-HM"); a.hex = at;
+    const th = pick(G.NBRS[at].filter((h) => !G.onFlag(h) && !used().has(h))); U(st, "S-T").hex = th;
+    const arc = G.arcOf(at, th).filter((h) => !G.onFlag(h) && !used().has(h));
+    for (const uid of ["S-HM", "S-HM2"]) { const free = arc.filter((h) => !used().has(h)); if (free.length) U(st, uid).hex = pick(free); }
+    for (const uid of ["S-T", "S-HM", "S-HM2"]) { const x = U(st, uid); x.braced = rnd() < 0.8; x.hp = pick([1, 2, 4, 8, 14, 20]); x.maxHp = Math.max(x.maxHp, x.hp); if (rnd() < 0.15) x.parryUsed = true; }
+    a.sp = "charged"; a.hp = pick([1, 2, 3, 6, 12, 20]);
+    const o = E.options(st, "N-HM"), p = o.special && o.special.targets.find((x) => x.target === "S-T");
+    if (!p) continue;
+    const sh = UI.specialSheet(st, a, U(st, "S-T"), p), want = sh.parryFires ? Math.min(p.parry.amount, a.hp) : 0;
+    const s2 = E.clone(st), hp0 = U(s2, "N-HM").hp, r = E.act(s2, { type: "special", uid: "N-HM", target: "S-T" }, noRoll);
+    if (!r.ok) { bad.push(`#${i} refused: ${r.error}`); continue; }
+    fired++;
+    const got = hp0 - Math.max(U(s2, "N-HM").hp, 0), ev = (s2.events || []).slice(-1)[0];
+    if (sh.parryFires && p.parry.by !== p.hits.find((h) => !h.kills && U(st, h.uid).braced && E.card(st, U(st, h.uid)).brace === "parry" && !U(st, h.uid).parryUsed)?.uid) bad.push(`#${i}: preview names ${p.parry.by}`);
+    if (sh.parryFires && p.hits.findIndex((h) => h.uid === p.parry.by) > 0 && p.hits.some((h, k) => k < p.hits.findIndex((y) => y.uid === p.parry.by) && h.kills && U(st, h.uid).braced && E.card(st, U(st, h.uid)).brace === "parry")) secondParries++;
+    if (!sh.parryFires) none++;
+    if (Math.abs(got - want) > 1e-9) bad.push(`#${i}: firing took ${got}, the sheet says ${want} (${at}→${th}, parry ${p.parry && p.parry.by})`);
+    if (sh.removesMe !== (U(s2, "N-HM").hp <= 0)) bad.push(`#${i}: removesMe ${sh.removesMe} but attacker HP ${U(s2, "N-HM").hp}`);
+  }
+  ok(!bad.length, `seeded Arc Hits with two braced Heavy Melee: the sheet's parry matches firing (${bad.length} bad):\n  ${bad.slice(0, 8).join("\n  ")}`);
+  ok(fired > 200 && secondParries >= 10 && none > 20, `the seeded Arc Hits cover a second unit's parry (${secondParries}) and no parry (${none}) in ${fired} fired`);
+  console.log(`  ${N_POS} Arc Hits: ${fired} fired, ${secondParries} parried by a second Heavy Melee after the first was removed, ${none} with no parry`);
 }
 
 // ---- Seeded agreement: the sheet's kill pills against what firing does ----

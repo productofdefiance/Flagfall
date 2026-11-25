@@ -156,7 +156,7 @@ On your phone, one 7v7 against the bot:
 5. Brace a unit: the Brace button turns solid charcoal; tap Undo, it's unbraced. Brace again; next turn, dashed.
 
 ## Report
-*Filled in by Claude Code, 23 Nov 2026. Branch `claude/gallant-bohr-hkd8d8`, started from `brief/026-specials-flow`, synced with `main` after 018 and 020 merged. Game version **v3.18.00**, Build 23 (Brief 020 took v3.17.00 first).*
+*Filled in by Claude Code, 23 Nov 2026; F026-1 and F026-2 fixed on 25 Nov after the Editor's rulings. Branch `claude/gallant-bohr-hkd8d8`, started from `brief/026-specials-flow`, synced with `main` after 018 and 020 merged. Game version **v3.18.00**, Build 23 (Brief 020 took v3.17.00 first).*
 
 - **What's in:** all ten sections, on phone and desktop.
   - §1: the five Special button looks, read from the generators' colours. No state bar, no cost on the button.
@@ -170,6 +170,10 @@ On your phone, one 7v7 against the bot:
   - §9: Undo takes back a warm-up, and says "Can't undo a special once fired".
   - §10: proved by tests.
   - The one engine change: "Not enough Command".
+  - **25 Nov, the Editor's rulings:**
+    - **F026-1 fixed:** the sheet's parry is now the one firing makes: the first braced Heavy Melee in the arc that survives its hit (`specialPreview` follows `doSpecial`'s own parry loop). Display only: no rule and no preset changed, and every replay hash is the same. On the flag's own position, the sheet shows the parry (2) in Heavy Melee 2's row and "Parry: you take 2", and firing takes exactly 2 (`r5-arc-second-parry.png`). The key's line for a parrying unit that isn't the target now says it "is braced in the arc and survives its hit".
+    - **F026-2 fixed:** every greyed-out button's reason (Attack, Reach, Brace, End unit), the Evade hint and the engine's rare refusal toasts go through the same wording table as the specials. Any reason the table doesn't list has its unit codes swapped for names. The field key's lines and the pull sheet's title use full names ("Heavy Anti-Cavalry is braced.", "Where Light Melee can move this turn."; `r6-ended-reason.png`, `r7-key-names.png`). Desktop's unit list, the deploy chips and the small number on duplicate tokens keep their codes, as ruled.
+    - **F026-3:** kept as built, no change.
 - **Wording table as built** (engine reason → dark pill; the big button's second line is the part before the first " · "):
   - `Used` → `<special> used · once a match`
   - `Braced this turn` → `Braced this turn · warm up next turn`
@@ -179,7 +183,8 @@ On your phone, one 7v7 against the bot:
   - `<id> is reloading this turn` → `Reloading this turn`
   - `Not enough Stamina` / `Not enough Command` → unchanged
   - `Fire it next turn` (tapping a Warming up button) → `Fires next turn`
-  - All others in the engine's words: `Already attacked this turn`, `Warm it up first`.
+  - `No free hex further from <id>` (the Evade hint, added 25 Nov) → `No free hex further from the unit it attacked`
+  - All others in the engine's words, with any unit code swapped for the unit's name: `Already attacked this turn`, `Warm it up first`, `Needs 1 Stamina, 0.5 left`, `No enemy in range`.
   - Note: the "attacked … may only evade" line reaches the Special button only through `blockReasons`. `warmupBlock` checks "Already attacked this turn" first.
 - **Section 10 in one line:** a killing Pick Off next to a braced spear takes exactly the pill's amount (2). Over 400 seeded positions (298 kills, 108 with a spear, 259 with a Mark, braced spears and braced parry units next to the target), the sheet's pills match what firing does every time. The one-spear-a-turn rule holds. On a test copy with `parryNeedsSurvivor` off, a parry that would remove the attacker hides the pills, and the engine indeed never steps in.
 - **Readings (screenshots in `briefs/img/026/report/`):**
@@ -197,6 +202,7 @@ On your phone, one 7v7 against the bot:
 - **Checks run and results:**
   - Passed: `test_reasons.js` (19, updated to expect "Not enough Command" where only Command is short), `test_v37.js` (180), `test_ui.js` (114), `test_phone.js` (64, updated for the retired confirm and bar), `test_hotseat.js` (46), `test_watch.js` (20), `test_events.js` (2623), `test_version.js` (22), `test_rules.js`, `test_v1.js`, `test_v3.js`, `test_v31.js`, `sims/lab/test_workflows.js`, `sims/lab/self_test.js` (34).
   - New: `test_spflow.js` (55, browser, phone and desktop) and `test_spengine.js` (17).
+  - 25 Nov: `test_spengine.js` now has 24 checks. New: the F026-1 position, and 400 seeded Arc Hits with two braced Heavy Melee in one arc (68 parried by a second Heavy Melee after the first was removed, 177 with no parry; what the sheet says you take matches firing every time). `test_spflow.js` now has 61 checks. New: no unit code in any button reason, dark pill or field-key line across five states, and the key naming units in full. All the new checks fail on the board from before the fix (4 of 24 and 7 of 61) and pass on this one. Also passed again: `test_ui.js` (114), `test_phone.js` (64), `test_hotseat.js` (46), `test_watch.js` (20), `test_reasons.js` (19), `test_events.js` (2623), `test_version.js` (22).
   - Not run here because the session was too slow: the remaining long checks (`test_v32` to `test_v36`, the brain tests, invariants, `board_check.js`). They don't touch anything this build changed. GitHub's checks run them on the pull request.
   - Replay hashes: `regress_engine.js` (3 matches, every rule set and brain, 156 lines) run on a copy of the board from before this build and on this build, in this session. **All 156 lines are identical.** The only engine change is the wording of one returned reason. Hashes:
 
@@ -361,6 +367,6 @@ v3.9 brain8          b74af22796dedaaa {"turn limit, fewer beings lost":1,"KO":4,
 - **Baseline table (rule changes only):** n/a
 - **Bot minimum (met / not met, with numbers):** n/a (screen only; Undo is human only)
 - **Settings review (brain builds only):** n/a
-- **Known gaps:** F026-1 (an Arc Hit's second braced Heavy Melee parry is missing from the engine's preview), F026-2 (unit codes outside the specials).
-- **Flags closed / opened:** none closed. Opened: F026-1, F026-2, F026-3 (`flags/026.md`).
+- **Known gaps:** none (F026-1 and F026-2 fixed on 25 Nov).
+- **Flags closed / opened:** opened F026-1, F026-2 and F026-3 (`flags/026.md`). On 25 Nov: F026-1 and F026-2 FIXED, F026-3 CLOSED (kept as built).
 - **Pull request:** https://github.com/productofdefiance/Flagfall/pull/59
