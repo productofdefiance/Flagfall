@@ -1,4 +1,4 @@
-STATUS · updated 24 Nov 2026, 6:56 pm ET
+STATUS · updated 24 Nov 2026, 7:00 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
@@ -8,16 +8,10 @@ RESULTS (last 24 hours)
   Nightly checks: pass (24 Nov, 2:28 pm ET)
   Queue: clear
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 24 Nov
-  study v3.17.00 · 16 matchups, 16,000 games · 23 Nov
-  study v3.17.00 · 5v5 19.4% · 7v7 6.2% on the turn limit · 23 Nov
-  study v3.17.00 · 5v5 41.0% · 7v7 12.9% on the turn limit · 23 Nov
-  screen v3.17.00 · 5v5 3.5% · 7v7 9.0% on the turn limit · 23 Nov
-  screen v3.17.00 · 5v5 5.0% · 7v7 10.0% on the turn limit · 23 Nov
-  screen v3.17.00 · 5v5 45.0% · 7v7 16.5% on the turn limit · 23 Nov
-  screen v3.17.00 · 5v5 36.7% · 7v7 20.0% on the turn limit · 23 Nov
-  +5 more in results/INDEX.md
 
 FLAGS (open, newest first)
+  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…
+  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…
   ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…
   ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…
   ! F026-2 · ASK · 23 Nov · Unit codes are still shown outside the specials. The brief's "no unit codes on screen"…
@@ -28,9 +22,7 @@ FLAGS (open, newest first)
     F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…
     F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…
   ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…
-  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…
-  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…
-  +21 older in FLAGS.md
+  +23 older in FLAGS.md
 
 BUILDS
   Building
