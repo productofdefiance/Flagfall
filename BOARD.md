@@ -1,4 +1,4 @@
-STATUS · updated 24 Nov 2026, 10:09 pm ET
+STATUS · updated 25 Nov 2026, 2:18 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
@@ -26,7 +26,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    026 Specials flow · PR #59 · Ready · checks pass · reviewed: merge
+    026 Specials flow · PR #59 · Ready · checks pass · reviewed: hold
     028 Arrow storm · PR #65 · Ready · checks pass · not reviewed
   Ready to start
     none
@@ -40,7 +40,7 @@ BUILDS
 CHATS
   Open
     FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?
-    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov
+    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov stale?
     FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov
   Closed (last 5)
     FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…
