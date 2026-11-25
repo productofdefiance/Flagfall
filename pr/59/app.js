@@ -347,7 +347,7 @@
     const st = App.st, ui = App.ui;
     const before = st.actions.length;
     const r = E.act(st, action, roll);
-    if (!r.ok) { toast(r.error); render(); return r; }
+    if (!r.ok) { toast(named(st, r.error)); render(); return r; }
     App.match.actions = E.clone(st.actions);
     ui.confirmEnd = false; ui.ghost = null; ui.armed = null; ui.sheet = null; ui.spRow = false;
     if (r.die) toast(`${st.rs.switches && st.rs.switches.dice2d6 ? "Dice" : "Die"} ${r.die} → ${fmt(r.dmg)} ${action.type === "pull" ? "pulled" : "damage"}`);
@@ -869,11 +869,11 @@
     const showMoves = opts && !ui.armed && !(ui.sheet && (ui.sheet.kind === "attack" || ui.sheet.kind === "special"));
     if (showMoves) {
       for (const h in opts.moves) { const [x, y] = pos(h); out += `<g class="cell" data-hex="${h}"><polygon points="${hexPts(x, y, R - 2)}" fill="${mine}" fill-opacity="${rt ? 0.09 : 0.16}" stroke="none"/></g>`; }
-      if (Object.keys(opts.moves).length) keyNote(opts.evading ? "evade" : "moves", opts.evading ? `${sel.id} may step further from the unit it attacked.` : `Where ${sel.id} can move this turn.`);
+      if (Object.keys(opts.moves).length) keyNote(opts.evading ? "evade" : "moves", opts.evading ? `${UI.unitName(st, sel)} may step further from the unit it attacked.` : `Where ${UI.unitName(st, sel)} can move this turn.`);
     }
     if (ep) {
       for (const h in ep.moves) { const [x, y] = pos(h); out += `<polygon points="${hexPts(x, y, R - 2)}" fill="${theirs}" fill-opacity="0.16" stroke="none" pointer-events="none"/>`; }
-      if (Object.keys(ep.moves).length) keyNote("enemyMoves", `Where ${enemy.id} can move on its next turn.`);
+      if (Object.keys(ep.moves).length) keyNote("enemyMoves", `Where ${UI.unitName(st, enemy)} can move on its next turn.`);
     }
     if (opts && opts.pull && !ui.armed) {
       const [x, y] = pos(G.FLAG[E.foeOf(sel.team)]);
@@ -888,7 +888,7 @@
       if (t && survives) {
         const ev = E.evadeHexes(st, sel.uid, t.uid);
         for (const h in ev) { const [x, y] = pos(h); out += `<polygon points="${hexPts(x, y, R - 2)}" fill="${mine}" fill-opacity="0.18" stroke="none" pointer-events="none"/>`; }
-        if (Object.keys(ev).length) keyNote("evade", `If ${t.id} survives, ${sel.id} may step to these hexes (Evade).`);
+        if (Object.keys(ev).length) keyNote("evade", `If ${UI.unitName(st, t)} survives, ${UI.unitName(st, sel)} may step to these hexes (Evade).`);
       }
     }
     // Range (section 3), redrawn from the end hex while a move is previewed; the special's range when it can fire.
@@ -896,14 +896,14 @@
     const rangeOf = (u, from, col, spCol, spReady) => {
       const ro = rangeOutline(st, u, from, col);
       rangeSvg += ro.svg;
-      if (ro.svg) keyNote(u.team === v ? "range" : "enemyRange", `What ${u.id} can hit from ${from}.`);
-      if (spReady) { const so = specialOutline(st, u, from, spCol, ro.lined); if (so) { rangeSvg += so; keyNote(u.team === v ? "special" : "enemySpecial", `${E.specialName(E.specialOf(st, u))}: what ${u.id}'s special can hit from ${from}.`); } }
+      if (ro.svg) keyNote(u.team === v ? "range" : "enemyRange", `What ${UI.unitName(st, u)} can hit from ${from}.`);
+      if (spReady) { const so = specialOutline(st, u, from, spCol, ro.lined); if (so) { rangeSvg += so; keyNote(u.team === v ? "special" : "enemySpecial", `${E.specialName(E.specialOf(st, u))}: what ${UI.unitName(st, u)}'s special can hit from ${from}.`); } }
     };
     if (opts && sel && !ui.armed && !(ui.sheet && ui.sheet.kind !== "info") && !opts.evading) {
       const ready = !!(opts.special && opts.special.state === "Charged" && opts.special.fire);
       if (rt) {
         if (E.canAttackAfter(st, sel.uid, rt.end)) rangeOf(sel, rt.end, mine, "var(--specialRange)", ready);
-        else { badges += badge(rt.end, "noattack"); keyNote("noattack", `${sel.id} can't attack after moving to ${rt.end}.`); }
+        else { badges += badge(rt.end, "noattack"); keyNote("noattack", `${UI.unitName(st, sel)} can't attack after moving to ${rt.end}.`); }
       } else rangeOf(sel, sel.hex, mine, "var(--specialRange)", ready);
     }
     if (ep) rangeOf(enemy, enemy.hex, theirs, "var(--plum)", ep.specialNext);
@@ -919,18 +919,18 @@
         keyNote("short", `The move stops at ${rt.end}, short of ${ui.ghost}: take shorter steps to go another way.`);
       }
       routeSvg += k > 0 ? arrowHead(pts.slice(0, k + 1), mine) : "";
-      keyNote("route", `${sel.id} walks ${rt.path.slice(0, k + 1).join(" → ")}.`);
+      keyNote("route", `${UI.unitName(st, sel)} walks ${rt.path.slice(0, k + 1).join(" → ")}.`);
       for (const e of rt.events) {
         const by = e.by && E.unitByUid(st, e.by);
         if (e.type === "mark") { badges += badge(e.hex, "mark"); keyNote("mark", `${by ? `The ${UI.unitName(st, by)} on ${by.hex}` : "An enemy"} marks ${e.hex}: the move stops there.`); }
-        if (e.type === "spear" && by) { badges += badge(by.hex, "spear"); keyNote("spear", `The braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)} when ${sel.id} arrives on ${e.hex}.`); }
-        if (e.type === "tackle" && by) { badges += badge(by.hex, "tackle", e.amount); keyNote("tackle", `Breaking away from ${by.id} costs ${fmt(e.amount)} more Stamina.`); }
+        if (e.type === "spear" && by) { badges += badge(by.hex, "spear"); keyNote("spear", `The braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)} when ${UI.unitName(st, sel)} arrives on ${e.hex}.`); }
+        if (e.type === "tackle" && by) { badges += badge(by.hex, "tackle", e.amount); keyNote("tackle", `Breaking away from ${UI.unitName(st, by)} costs ${fmt(e.amount)} more Stamina.`); }
       }
     }
     // Attack picked: the set spear badge on the spearman that a kill would set off.
     if (opts && ui.sheet && ui.sheet.kind === "attack") {
       const kc = E.killConsequences(st, sel.uid, ui.sheet.target) || [];
-      for (const e of kc) if (e.type === "spear") { const by = E.unitByUid(st, e.by); if (by) { badges += badge(by.hex, "spear"); keyNote("spear", `If the attack kills, ${sel.id} takes the hex and the braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)}.`); } }
+      for (const e of kc) if (e.type === "spear") { const by = E.unitByUid(st, e.by); if (by) { badges += badge(by.hex, "spear"); keyNote("spear", `If the attack kills, ${UI.unitName(st, sel)} takes the hex and the braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)}.`); } }
     }
     // Brief 026 §6.4: a killing Pick Off sets off the spear too: the same badge, from the special sheet's own reading.
     if (opts && ui.sheet && ui.sheet.kind === "special" && opts.special) {
@@ -949,14 +949,14 @@
       const isSel = ui.sel === u.uid || ui.deploySel === u.uid;
       out += `<g class="cell unit" data-hex="${u.hex}" data-uid="${u.uid}" opacity="${s.done ? 0.5 : 1}">`;
       if (isSel) out += ring(x, y, tr + 6, enemy && enemy.uid === u.uid ? theirs : mine, 2.5);
-      if (s.braced) { out += ring(x, y, tr + 3.6, "var(--brace)", 3.2); keyNote("braced", `${u.id} is braced.`); }
-      else if (s.bracedLast) { out += `<circle cx="${x}" cy="${y}" r="${tr + 3.6}" fill="none" stroke="#fff" stroke-width="6" stroke-dasharray="4 3" pointer-events="none"/><circle cx="${x}" cy="${y}" r="${tr + 3.6}" fill="none" stroke="var(--brace)" stroke-width="3.2" stroke-dasharray="4 3" pointer-events="none"/>`; keyNote("bracedLast", `${u.id} braced last turn: ${fmt(s.stamNow !== null ? s.stamNow : s.stamNext)} Stamina now.`); }
+      if (s.braced) { out += ring(x, y, tr + 3.6, "var(--brace)", 3.2); keyNote("braced", `${UI.unitName(st, u)} is braced.`); }
+      else if (s.bracedLast) { out += `<circle cx="${x}" cy="${y}" r="${tr + 3.6}" fill="none" stroke="#fff" stroke-width="6" stroke-dasharray="4 3" pointer-events="none"/><circle cx="${x}" cy="${y}" r="${tr + 3.6}" fill="none" stroke="var(--brace)" stroke-width="3.2" stroke-dasharray="4 3" pointer-events="none"/>`; keyNote("bracedLast", `${UI.unitName(st, u)} braced last turn: ${fmt(s.stamNow !== null ? s.stamNow : s.stamNext)} Stamina now.`); }
       // Warm-up ring (6.16): gold on your units, plum on theirs; dashed while warming up, solid when ready to fire.
       const ready = u.sp === "charged", warm = u.sp === "warm";
       if (st.phase === "play" && (ready || warm)) {
         const col = u.team === v ? "var(--keeper)" : "var(--plum)", out2 = s.braced && ready ? tr + 7.5 : ready ? tr + 3.8 : tr + 3.5;
         out += ready ? ring(x, y, out2, col, 4.2) : ring(x, y, s.braced ? tr + 7.5 : out2, col, 2.6, "4 3");
-        keyNote(u.team === v ? (ready ? "spReady" : "spWarm") : (ready ? "enemySpReady" : "enemySpWarm"), `${u.id}'s ${E.specialName(E.specialOf(st, u))} ${ready ? "is ready to fire this turn" : u.team === v ? "is warming up: it fires next turn" : "is warming up: it can fire on its next turn"}.`);
+        keyNote(u.team === v ? (ready ? "spReady" : "spWarm") : (ready ? "enemySpReady" : "enemySpWarm"), `${UI.unitName(st, u)}'s ${E.specialName(E.specialOf(st, u))} ${ready ? "is ready to fire this turn" : u.team === v ? "is warming up: it fires next turn" : "is warming up: it can fire on its next turn"}.`);
       }
       out += `<circle cx="${x}" cy="${y}" r="${tr}" fill="var(--${team})" stroke="${u.fk ? "var(--keeper)" : `var(--${team}Dark)`}" stroke-width="${u.fk ? 3 : 1.2}"/>`;
       if (iconsOnly) out += iconShape(iconKey(st.rs, u.card), x, y, tr * 0.42, "#fff", 1.8);
@@ -974,7 +974,7 @@
       let m = "";
       for (const deg of [45, 135, 225, 315]) { const a = (deg * Math.PI) / 180, c = Math.cos(a), s2 = Math.sin(a); m += `M${(x + c * (tr + 3)).toFixed(1)} ${(y + s2 * (tr + 3)).toFixed(1)}L${(x + c * (tr + 10)).toFixed(1)} ${(y + s2 * (tr + 10)).toFixed(1)}`; }
       out += `<path d="${m}" stroke="#fff" stroke-width="6.1" stroke-linecap="round" pointer-events="none"/><path d="${m}" stroke="${theirs}" stroke-width="3.6" stroke-linecap="round" pointer-events="none"/>`;
-      keyNote("canHit", `${enemy.id} can hit ${t.id} from where it stands.`);
+      keyNote("canHit", `${UI.unitName(st, enemy)} can hit ${UI.unitName(st, t)} from where it stands.`);
     }
     if (opts && ui.drag && ui.drag.active) for (const uid of opts.swaps) { const f = E.unitByUid(st, uid); const [x, y] = pos(f.hex); out += `<circle cx="${x}" cy="${y}" r="${tr + 6}" fill="none" stroke="var(--move)" stroke-width="2.5" stroke-dasharray="5 3" pointer-events="none"/>`; }
     // Firing a special (5c): legal targets ringed as Attack's are; Arc Hit outlines its arc around the chosen target.
@@ -1554,9 +1554,11 @@
 
   // ---------- Drawing: action bar ----------
   const PICK = "Pick one of your own units";
-  /* Brief 026 §5: how the board words the engine's special reasons (warmupBlock / fireBlock). Display only: the engine's
-     reason decides which line shows. `engine` is the engine's own text (with <id> for a unit code), so a test can check
-     every one still exists in engine.js; every reason not listed shows in the engine's own words. No unit codes. */
+  /* Brief 026 §5: how the board words the engine's reasons. First built for the special (warmupBlock / fireBlock); since
+     F026-2 every greyed-out button's reason (Attack, Reach, Brace, End unit) and the Evade hint go through it too.
+     Display only: the engine's reason decides which line shows. `engine` is the engine's own text (with <id> for a unit
+     code), so a test can check every one still exists in engine.js; a reason not listed shows in the engine's own words,
+     with any unit code swapped for the unit's name (named()). No unit codes. */
   const SP_WORDS = [
     { engine: "Used", show: (r, c) => `${c.name} used · once a match` },
     { engine: "Braced this turn", show: () => "Braced this turn · warm up next turn" },
@@ -1567,15 +1569,19 @@
     { engine: "Not enough Stamina", show: () => "Not enough Stamina" },
     { engine: "Not enough Command", show: () => "Not enough Command" },
     { engine: "Fire it next turn", show: () => "Fires next turn" },
+    { engine: "No free hex further from <id>", show: () => "No free hex further from the unit it attacked" },
   ];
+  const spRe = (e) => new RegExp("^" + e.split("<id>").map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\S+") + "$");
+  /** A sentence with every unit code (a whole word that is a unit's id) swapped for its name; the side to move first. */
+  function named(st, s) {
+    if (!s || !st || !st.units) return s;
+    return s.replace(/\b[A-Z]{2,3}\d*\b/g, (id) => { const u = st.units.find((x) => x.id === id && x.team === st.toMove) || st.units.find((x) => x.id === id); return u ? UI.unitName(st, u) : id; });
+  }
   /** The engine's reason `r` as the screen words it. `c`: { name: the special's name, moves: hexes the unit can still move }. */
   function spWords(r, c) {
     if (!r) return r;
-    for (const w of SP_WORDS) {
-      const m = w.engine.startsWith("<id> ") ? r.endsWith(w.engine.slice(4)) && !/\s/.test(r.slice(0, r.length - w.engine.length + 4)) : r === w.engine;
-      if (m) return w.show(r, c || {});
-    }
-    return r;
+    for (const w of SP_WORDS) if (w.engine.includes("<id>") ? spRe(w.engine).test(r) : r === w.engine) return w.show(r, c || {});
+    return named(App.st, r);
   }
   /** The big button's second line for a blocked special: the worded reason up to its first " · " (No targets for no target). */
   const spShort = (r, c) => (r === "No target in reach" ? "No targets" : spWords(r, c).split(" · ")[0]);
@@ -1601,7 +1607,7 @@
     const o = selOptions(), sel = o && E.unitByUid(st, ui.sel), enemy = enemyTapped();
     const turnRow = `<div class="arow"><span class="alabel">TURN</span>
         ${b("undo", "undo", "Undo", { dis: !canUndo(), why: human ? undoWhy() : null })}
-        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done), why: enemy ? PICK : ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel).done : human ? PICK : null })}
+        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done), why: enemy ? PICK : ui.sel && st.phase === "play" ? spWords(E.blockReasons(st, ui.sel).done) : human ? PICK : null })}
         ${b("end", "endturn", ui.confirmEnd ? "Confirm" : "End turn", { dis: !human, cls: ui.confirmEnd ? "confirm" : "primary" })}</div>`;
     // Confirms (section 7) take the three attack slots; Cancel takes Brace's slot.
     const cancel = `<button type="button" class="act" data-act="sheet-close" style="flex:1 1 0">${ic("close", 22)}<span>Cancel</span></button>`;
@@ -1633,7 +1639,7 @@
     const su = ui.sel && E.unitByUid(st, ui.sel), ss = su && su.hp > 0 ? E.status(st, su) : null;
     const hasReach = su && su.hp > 0 && E.card(st, su).trait === "reach";
     const reloading = !!(ss && ss.reloading && su.team === st.toMove);
-    const W = (r) => (enemy ? PICK : r);
+    const W = (r) => (enemy ? PICK : spWords(r));   // F026-2: Attack, Reach and Brace word their reasons as the special does
     // Order (section 7): Attack, Reach (Anti-Cavalry only), Special, Brace: attack, attack, attack, defend.
     el.innerHTML = `<div class="arow"><span class="alabel">UNIT</span>
         ${b("arm-attack", "attack", "Attack", { dis: !nAtt, why: W(why ? why.attack : pick), cls: (ui.armed === "attack" ? "on" : "") + (reloading ? " reloading" : ""), pressed: ui.armed === "attack", dot: reloading ? "red" : "", aria: reloading ? "Attack, reloading" : "", flex: hasReach ? 1 : 2 })}
@@ -1930,7 +1936,7 @@
       el.innerHTML = renderPullPhone(st, u, o.pull);
     } else if (sh.kind === "pull" && o && o.pull) {
       const left = g.poleHP - st.pole[E.foeOf(u.team)];
-      el.innerHTML = `${grab}<div style="font:700 20px/1.1 var(--display);letter-spacing:.02em">${esc(u.id)} pulls the ${sideName(E.foeOf(u.team))} flag <span class="muted" style="font:500 13px/1 var(--body)">flag HP ${left}</span></div>
+      el.innerHTML = `${grab}<div style="font:700 20px/1.1 var(--display);letter-spacing:.02em">${esc(UI.unitName(st, u))} pulls the ${sideName(E.foeOf(u.team))} flag <span class="muted" style="font:500 13px/1 var(--body)">flag HP ${left}</span></div>
         <div class="calc">${esc(o.pull.parts.join(" · "))} = <b>${fmt(o.pull.value)}</b></div>${diceRow(o.pull.value)}
         <div class="row" style="flex-wrap:nowrap"><button class="btn" data-act="sheet-close" style="flex:1">Cancel</button><button class="btn go" data-act="pull-confirm" style="flex:2">Pull</button></div>`;
     } else if (sh.kind === "info") {
@@ -2150,7 +2156,7 @@
     if (o && ui.ghost && o.moves[ui.ghost]) {
       t = "";   // Brief 017: the route, its badges and the Move button say it all
     } else if (o && ui.armed) t = "Tap a target";   // Brief 026: words name the thing, not the mark
-    else if (o && o.evading) { const tg = E.unitByUid(st, o.evading); t = Object.keys(o.moves).length ? `Evade: step further from ${tg ? UI.unitName(st, tg) : "the target"}, or End unit` : `Can't evade: ${E.whyNoMove(st, E.unitByUid(st, ui.sel))} · End unit`; }
+    else if (o && o.evading) { const tg = E.unitByUid(st, o.evading); t = Object.keys(o.moves).length ? `Evade: step further from ${tg ? UI.unitName(st, tg) : "the target"}, or End unit` : `Can't evade: ${spWords(E.whyNoMove(st, E.unitByUid(st, ui.sel)))} · End unit`; }
     if (ui.pill && st && st.phase === "play") t = ui.pill;   // Brief 026: a tapped reason, for a moment
     el.hidden = !t || !!ui.sheet; el.textContent = t;
   }
@@ -2318,8 +2324,8 @@
       toast("Swap needs a friend next to it and the Stamina for both moves.");
     } else if (here && targetsFor(o).some((a) => a.target === here.uid)) {
       App.ui.sheet = attackSheet(here.uid); render(); revealAbove(E.unitByUid(st, d.uid).hex); return;
-    } else if (here) toast(`${E.unitByUid(st, d.uid).id} cannot attack that unit from here.`);
-    else toast(`${E.unitByUid(st, d.uid).id} cannot reach ${h}.`);
+    } else if (here) toast(`${UI.unitName(st, E.unitByUid(st, d.uid))} cannot attack that unit from here.`);
+    else toast(`${UI.unitName(st, E.unitByUid(st, d.uid))} cannot reach ${h}.`);
     render();
   }
 
@@ -2402,7 +2408,7 @@
       case "deploy-done": {
         const t = deployTeam();
         const r = E.act(st, { type: "deploy", team: t, placements: ui.placements });
-        if (!r.ok) { toast(r.error); render(); break; }
+        if (!r.ok) { toast(named(st, r.error)); render(); break; }
         App.match.actions = E.clone(st.actions);
         ui.deploySel = null;
         beginDeploy(); Store.saveLive(App.match);

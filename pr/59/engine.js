@@ -993,7 +993,11 @@
     const kind = specialOf(st, u);
     if (!kind || !specialCanTarget(st, u, t)) return null;
     const hits = specialHits(st, u, t), d = fieldOf(st).dist(u.hex, t.hex);
-    const parryFrom = hits.map((h) => unitByUid(st, h.uid)).find((x) => x.braced && card(st, x).brace === "parry" && fieldOf(st).dist(u.hex, x.hex) === 1 && !(sw(st, "parryFirstOnly") && x.parryUsed));
+    // Brief 026 (F026-1): the same choice as doSpecial's parry loop: the first braced Heavy Melee hit in order that can
+    // parry, skipping one already used (v3.2) and, under parryNeedsSurvivor, one its own hit removes. Display only.
+    const parryHit = hits.find((h) => { const x = unitByUid(st, h.uid);
+      return x.braced && card(st, x).brace === "parry" && fieldOf(st).dist(u.hex, x.hex) === 1 && !(sw(st, "parryFirstOnly") && x.parryUsed) && !(sw(st, "parryNeedsSurvivor") && h.kills); });
+    const parryFrom = parryHit ? unitByUid(st, parryHit.uid) : null;
     const n = specNums(st, kind);
     return { kind, name: specialName(kind), target: t.uid, hits, arc: kind === "arcHit" ? fieldOf(st).arcOf(u.hex, t.hex) : null,
       behind: kind === "skewer" ? fieldOf(st).hexBehind(u.hex, t.hex) : null,

@@ -183,7 +183,7 @@
     }
     const p2 = p.parry && p.parry.by !== t.uid ? E.unitByUid(st, p.parry.by) : null;
     if (p2) pv.rows.push({ icon: "parry", name: "Parry", red: true, means: `A braced ${E.card(st, p2).name} hits back at the first melee attacker each turn. One parry per action.`,
-      why: `${unitName(st, p2)} is braced in the arc: you take ${fmt(p.parry.amount)}${p.parry.ifSurvives ? " if it survives the hit" : ""}.` });
+      why: `${unitName(st, p2)} is braced in the arc${p.parry.ifSurvives ? " and survives its hit" : ""}: you take ${fmt(p.parry.amount)}.` });
     const kind = p.kind, mults = [...new Set(p.hits.map((h) => h.mult))];
     // Brief 017 §8: Strength shows its change struck through (Javelin 8 → 14: Reach −1, then ×2), then the multiplier
     // as its own stat with the special icon. Only with one multiplier; the damage below is the engine's exact number.
