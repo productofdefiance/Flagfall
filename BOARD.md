@@ -1,4 +1,4 @@
-STATUS · updated 25 Nov 2026, 3:40 pm ET
+STATUS · updated 25 Nov 2026, 4:02 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
@@ -27,8 +27,8 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    026 Specials flow · PR #59 · Ready · checks running · reviewed: hold
-    028 Arrow storm · PR #65 · Ready · checks pass · not reviewed
+    026 Specials flow · PR #59 · Ready · checks pass · reviewed: hold
+    028 Arrow storm · PR #65 · needs sync · checks pass · not reviewed
   Ready to start
     none
   Waiting
