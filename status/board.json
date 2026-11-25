@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-24T23:56:42.654Z",
- "board": "STATUS · updated 24 Nov 2026, 6:56 pm ET\n\nVERSION\n  On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8\n  Building: 026 → v3.18.00 · 028 → v3.18.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (24 Nov, 2:28 pm ET)\n  Queue: clear\n  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 24 Nov\n  study v3.17.00 · 16 matchups, 16,000 games · 23 Nov\n  study v3.17.00 · 5v5 19.4% · 7v7 6.2% on the turn limit · 23 Nov\n  study v3.17.00 · 5v5 41.0% · 7v7 12.9% on the turn limit · 23 Nov\n  screen v3.17.00 · 5v5 3.5% · 7v7 9.0% on the turn limit · 23 Nov\n  screen v3.17.00 · 5v5 5.0% · 7v7 10.0% on the turn limit · 23 Nov\n  screen v3.17.00 · 5v5 45.0% · 7v7 16.5% on the turn limit · 23 Nov\n  screen v3.17.00 · 5v5 36.7% · 7v7 20.0% on the turn limit · 23 Nov\n  +5 more in results/INDEX.md\n\nFLAGS (open, newest first)\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…\n  ! F026-2 · ASK · 23 Nov · Unit codes are still shown outside the specials. The brief's \"no unit codes on screen\"…\n  ! F026-1 · ASK · 23 Nov · The special sheet can miss a parry in an Arc Hit. The engine's specialPreview names only…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n  +21 older in FLAGS.md\n\nBUILDS\n  Building\n    026 Specials flow · PR #59 · Ready · checks pass · reviewed: merge\n    028 Arrow storm · PR #65 · Draft · checks running · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 026, 028\n  Merged (last 3)\n    020 Victory values · v3.17.00 · 23 Nov\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov\n  Closed (last 5)\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-25T00:00:27.238Z",
+ "board": "STATUS · updated 24 Nov 2026, 7:00 pm ET\n\nVERSION\n  On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8\n  Building: 026 → v3.18.00 · 028 → v3.18.00\n\nRESULTS (last 24 hours)\n  Nightly checks: pass (24 Nov, 2:28 pm ET)\n  Queue: clear\n  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 24 Nov\n\nFLAGS (open, newest first)\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F026-3 · ASK · 23 Nov · A charged special on a unit that has ended its turn doesn't open the special row. §3 says…\n  ! F026-2 · ASK · 23 Nov · Unit codes are still shown outside the specials. The brief's \"no unit codes on screen\"…\n  ! F026-1 · ASK · 23 Nov · The special sheet can miss a parry in an Arc Hit. The engine's specialPreview names only…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  +23 older in FLAGS.md\n\nBUILDS\n  Building\n    026 Specials flow · PR #59 · Ready · checks pass · reviewed: merge\n    028 Arrow storm · PR #65 · Draft · checks running · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 026, 028\n  Merged (last 3)\n    020 Victory values · v3.17.00 · 23 Nov\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov\n  Closed (last 5)\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -34,52 +34,22 @@
      "text": "nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 24 Nov",
      "indent": 1,
      "mark": null
-    },
-    {
-     "text": "study v3.17.00 · 16 matchups, 16,000 games · 23 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "study v3.17.00 · 5v5 19.4% · 7v7 6.2% on the turn limit · 23 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "study v3.17.00 · 5v5 41.0% · 7v7 12.9% on the turn limit · 23 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "screen v3.17.00 · 5v5 3.5% · 7v7 9.0% on the turn limit · 23 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "screen v3.17.00 · 5v5 5.0% · 7v7 10.0% on the turn limit · 23 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "screen v3.17.00 · 5v5 45.0% · 7v7 16.5% on the turn limit · 23 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "screen v3.17.00 · 5v5 36.7% · 7v7 20.0% on the turn limit · 23 Nov",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "+5 more in results/INDEX.md",
-     "indent": 1,
-     "mark": null
     }
    ]
   },
   {
    "title": "FLAGS (open, newest first)",
    "lines": [
+    {
+     "text": "! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…",
+     "indent": 1,
+     "mark": "ask"
+    },
     {
      "text": "! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…",
      "indent": 1,
@@ -131,17 +101,7 @@
      "mark": "ask"
     },
     {
-     "text": "! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…",
-     "indent": 1,
-     "mark": "ask"
-    },
-    {
-     "text": "! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…",
-     "indent": 1,
-     "mark": "ask"
-    },
-    {
-     "text": "+21 older in FLAGS.md",
+     "text": "+23 older in FLAGS.md",
      "indent": 1,
      "mark": null
     }
@@ -273,7 +233,7 @@
   }
  },
  "schema": 2,
- "updatedText": "24 Nov 2026, 6:56 pm ET",
+ "updatedText": "24 Nov 2026, 7:00 pm ET",
  "main": {
   "game": "v3.17.00",
   "build": 22,
@@ -368,80 +328,26 @@
    "share5": 0.7,
    "share7": 0.15,
    "line": "2 matchups, 40 games"
-  },
-  {
-   "id": "2026-11-23_study_f022-8-tiebreaks",
-   "kind": "study",
-   "version": "v3.17.00",
-   "date": "2026-11-23",
-   "dateText": "23 Nov",
-   "share5": null,
-   "share7": null,
-   "line": "16 matchups, 16,000 games"
-  },
-  {
-   "id": "2026-11-23_study_brain9-moveorder-confirm",
-   "kind": "study",
-   "version": "v3.17.00",
-   "date": "2026-11-23",
-   "dateText": "23 Nov",
-   "share5": 0.194,
-   "share7": 0.062,
-   "line": "5 matchups, 5,000 games"
-  },
-  {
-   "id": "2026-11-23_study_brain9-confirm",
-   "kind": "study",
-   "version": "v3.17.00",
-   "date": "2026-11-23",
-   "dateText": "23 Nov",
-   "share5": 0.41,
-   "share7": 0.129,
-   "line": "18 matchups, 18,000 games"
-  },
-  {
-   "id": "2026-11-23_screen_brain9-settings-screen-2",
-   "kind": "screen",
-   "version": "v3.17.00",
-   "date": "2026-11-23",
-   "dateText": "23 Nov",
-   "share5": 0.035,
-   "share7": 0.09,
-   "line": "64 matchups, 12,800 games"
-  },
-  {
-   "id": "2026-11-23_screen_brain9-settings-screen",
-   "kind": "screen",
-   "version": "v3.17.00",
-   "date": "2026-11-23",
-   "dateText": "23 Nov",
-   "share5": 0.05,
-   "share7": 0.1,
-   "line": "64 matchups, 3,840 games"
-  },
-  {
-   "id": "2026-11-23_screen_brain9-screen-2",
-   "kind": "screen",
-   "version": "v3.17.00",
-   "date": "2026-11-23",
-   "dateText": "23 Nov",
-   "share5": 0.45,
-   "share7": 0.165,
-   "line": "10 matchups, 2,000 games"
-  },
-  {
-   "id": "2026-11-23_screen_brain9-screen",
-   "kind": "screen",
-   "version": "v3.17.00",
-   "date": "2026-11-23",
-   "dateText": "23 Nov",
-   "share5": 0.36666666666666664,
-   "share7": 0.2,
-   "line": "10 matchups, 600 games"
   }
  ],
- "resultsMore": 5,
+ "resultsMore": 0,
  "flags": [
+  {
+   "name": "F028-3",
+   "status": "ASK",
+   "date": "24 Nov",
+   "issue": "Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in 1,000 games (7.4% of 1,190 warm-ups), above the brief's \"more than half\" line. Example: seed XRWD-ALC9-SXS5 (v310-5v5, North first), South's Light Ranged warms up at E6 on turn 6 and lapses on turn 7. At 7v7 they…",
+   "issueFull": "Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in 1,000 games (7.4% of 1,190 warm-ups), above the brief's \"more than half\" line. Example: seed XRWD-ALC9-SXS5 (v310-5v5, North first), South's Light Ranged warms up at E6 on turn 6 and lapses on turn 7. At 7v7 they barely move (308 to 332 lapsed). Storm is still worth warming: it deals 10.7 a firing at 5v5 and 10.5 at 7v7 against a normal hit of about 5.6, though it kills on 4% of firings at 5v5 (85% on v3.9) and 45% at 7v7 (80%)",
+   "next": "For brief 020 (brain work), not this build: a warm-up check that the target will still be in reach and that the 1.5 times hit is worth the turn. Small: about one lapse every 11 games"
+  },
+  {
+   "name": "F028-2",
+   "status": "ASK",
+   "date": "24 Nov",
+   "issue": "5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format, same seeds as v3.9): the first mover's share of decisive 5v5 games falls from 53.5% (v3.9) to 41.9% on v3.10 (766 decisive games; about 4.5 standard errors below even and 3 points under F12's 45% floor). 7v7…",
+   "issueFull": "5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format, same seeds as v3.9): the first mover's share of decisive 5v5 games falls from 53.5% (v3.9) to 41.9% on v3.10 (766 decisive games; about 4.5 standard errors below even and 3 points under F12's 45% floor). 7v7 moves into range: 44.6% to 49.2%. FD49-3's 56.5% for 5v5 was measured at Command 8 (first turn 5); v3.10's 5v5 plays the preset's Command 10, first turn 6, so that prediction never applied to this rule set. That Command is the cause is likely, not isolated. Fighting also starts much earlier at 5v5 (first attack turn 4.3 to 1.3; turn-limit games 44.3% to 23.4%), likely because Brain 8 no longer holds back from a Storm that can't one-shot its archer",
+   "next": "Recommended: keep v3.10 as built (the Editor's ruling) and measure 5v5 Command (8 or 10, first turn equal against reduced) in the Cavalry build's Command comparison, as F022-9 plans. If 5v5 matters before then, a sim-only screen of 5v5 at first-turn Command 8 and 10 on v3.10 answers it in a day"
+  },
   {
    "name": "F028-1",
    "status": "ASK",
@@ -489,22 +395,6 @@
    "issue": "The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000 games, v3.9). Brain 9 against Brain 8: 5v5 424 won, 541 lost with it, 427 to 534 without (but more points, +0.78 against +0.54); 7v7 423 to 572 with it, 486 to 495 without. Brain 9 mirrors: first mover 77.0%…",
    "issueFull": "The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000 games, v3.9). Brain 9 against Brain 8: 5v5 424 won, 541 lost with it, 427 to 534 without (but more points, +0.78 against +0.54); 7v7 423 to 572 with it, 486 to 495 without. Brain 9 mirrors: first mover 77.0% (5v5) and 83.1% (7v7) of decisive games with it, 52.8% and 46.0% without",
    "next": "Applied in this build: Brain 9 ships with spendOpening 0, as brief 022 shipped A1 and A2 off; the switch stays for move-order studies. The Editor can reverse it (one number in brain.js)"
-  },
-  {
-   "name": "F020-3",
-   "status": "ASK",
-   "date": "23 Nov",
-   "issue": "F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run, which cancelled the one playing the three screens after 70 minutes. The cancelled run filed 30% of the games (6 of 20 parts) and moved all three job orders to studies/done/. The lab's paths filter doesn't protect a…",
-   "issueFull": "F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run, which cancelled the one playing the three screens after 70 minutes. The cancelled run filed 30% of the games (6 of 20 parts) and moved all three job orders to studies/done/. The lab's paths filter doesn't protect a pull request: GitHub checks it against everything the pull request changes, so every push to a pull request with a job order or a version change restarts the lab. Code re-queued the orders (the partial run folders stay as filed, marked Failed) and pushes nothing more until they finish",
-   "next": "Recommended: the lab fix brief F022-7 asks for also skips the cancel when the new push changes nothing under studies/queue/, board/ or sims/lab/"
-  },
-  {
-   "name": "F020-2",
-   "status": "OPEN",
-   "date": "23 Nov",
-   "issue": "The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays as the Editor saw it with Brain 5 (South wins the tiebreak at turn 35), but Brain 8 finishes it (South KO, turn 12) and Brain 9's spent opening changes the game from turn 1 (North KO, turn 11), before the…",
-   "issueFull": "The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays as the Editor saw it with Brain 5 (South wins the tiebreak at turn 35), but Brain 8 finishes it (South KO, turn 12) and Brain 9's spent opening changes the game from turn 1 (North KO, turn 11), before the victory values ever count. It isn't a test of pressing a late lead any more",
-   "next": "The Report picks late-lead games from the lab runs instead"
   }
  ],
  "chats": {
@@ -554,9 +444,9 @@
  },
  "tiles": {
   "building": 2,
-  "flagsAsk": 12,
-  "flagsNewest": "F028-1",
-  "flagsMoreAsk": 5,
-  "flagsMoreOpen": 20
+  "flagsAsk": 14,
+  "flagsNewest": "F028-3",
+  "flagsMoreAsk": 6,
+  "flagsMoreOpen": 21
  }
 }
