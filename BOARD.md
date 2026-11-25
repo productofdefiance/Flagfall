@@ -1,4 +1,4 @@
-STATUS · updated 24 Nov 2026, 7:19 pm ET
+STATUS · updated 24 Nov 2026, 10:09 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
@@ -39,7 +39,7 @@ BUILDS
 
 CHATS
   Open
-    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov
+    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?
     FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov
     FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov
   Closed (last 5)
