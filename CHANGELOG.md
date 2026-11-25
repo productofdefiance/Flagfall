@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.18.00 | v3.10 | Brain 8 | v5 + v4 | 23 |
 | v3.17.00 | v3.9 | Brain 8 | v5 + v4 | 22 |
 | v3.16.00 | v3.9 | Brain 8 | v5 + v4 | 21 |
 | v3.15.00 | v3.9 | Brain 8 | v5 | 20 |
@@ -24,6 +25,32 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.18.00 · Build 23 — Brief 028, rule set v3.10: Arrow Storm 1.5 times, minimum damage 0.5 (24 Nov 2026)
+Rule set: new **v3.10** (v3.9 with Arrow Storm 1.5 times a normal shot and minimum damage 0.5), the new-game default. Default brain: Brain 8 (unchanged). Game version **v3.18.00** (YY: a rule change).
+
+**What a player will notice**
+- Arrow Storm hits for 1.5 times a normal shot (was twice), still ignoring Dodge. A full-health Light Ranged (12) survives a clean Storm on 1.5 health instead of being removed from range.
+- The Storm's description says "1.5 times a normal shot. Dodge doesn't count." on v3.10 (older rule sets still say "Twice").
+- No hit, pull or special is rounded up to a whole point any more: the smallest is 0.5. Options shows "Minimum damage 0.5". It almost never comes up (about 1 hit in 700).
+- 5v5 games fight sooner and end on the clock less often (23% of Brain 8 games, was 44%). 7v7 plays much as before.
+- Older rule sets play and replay exactly as before.
+
+**Under the hood**
+- `data.js`: preset v3.10 (two numbers). No engine, bot or screen code changed.
+- `test_v310.js` (78 checks) in the checks. `test_brain8.js` 3b now takes its set-up from the Storm's own number; `test_route.js` and `test_fields.js` no longer assume v3.9 is newest.
+- Lab: new measure `mindamage`. Run `storm-v310` (study, 4,000 games, v3.9 against v3.10 on the same seeds).
+
+**Baseline** (Brain 8 mirrors, 1,000 games each; tiebreak wins apart)
+
+| | Holder KO | Pull KO | TKO | Tiebreak win | Draw | Ended on turn limit | Games with a pull | Avg turn | First mover's share of decisive |
+|---|---|---|---|---|---|---|---|---|---|
+| 5v5 v3.9 | 4.6% | 42.2% | 8.9% | 37.5% | 6.8% | 44.3% | 42.2% | 18.5 | 53.5% |
+| 5v5 v3.10 | 6.4% | 58.7% | 11.5% | 21.4% | 2.0% | 23.4% | 58.7% | 14.4 | 41.9% |
+| 7v7 v3.9 | 4.3% | 65.8% | 19.0% | 10.1% | 0.8% | 10.9% | 65.8% | 15.5 | 44.6% |
+| 7v7 v3.10 | 4.8% | 63.9% | 18.1% | 11.6% | 1.6% | 13.2% | 63.9% | 16.3 | 49.2% |
+
+**Flags:** carries out F022-9 (Arrow Storm half); opened F028-1, F028-2 (5v5 first mover at 41.9%), F028-3.
 
 ## v3.17.00 · Build 22 — Brief 020, Brain 9: victory values, spent opening, per-format settings (23 Nov 2026)
 Rule set: none changed (v3.9 stays the newest; Brain 9 measured on v3.9). Default brain: Brain 8 (unchanged). Game version **v3.17.00** (YY: a new brain; brief 018 took v3.16.00 first).
