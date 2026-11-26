@@ -126,12 +126,23 @@ Screenshots at 393 × 665 of: the end sheet, the rematch sheet in its three pict
 ## Report
 *Filled in by Claude Code.*
 
-- **What's in:**
+- **What's in:** all six sections. End sheet (New game on top; See field · Copy record · Rematch under it). Rematch sheet with the three Yes/No rows, help lines, the seed box and copy button; Start rematch / Next: Lineup. Rematch built from the finished match's own record (`rematchOf()`): new id, same rule set, format, brains as played, types, view; Same sides: No swaps everything and keeps `opts.first`; a coin-toss rematch takes draw 0 then tosses with `Math.random()`; Same dice: No uses the sheet's new seed. Same lineups: No: humans go through the Lineup screen from the lineup played; bots redraw from `match.mix` (saved by `startMatch()` from this build on; older matches keep their lineup); the top arrow returns to the sheet with choices as left. The bug: a finished match clears the live match (device and database), Continue sets `App.live = App.match`, New game never files a match already held as finished. Lineup Reset. Desktop uses the same sheet in its right-hand column.
 - **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
+  - On a phone, the end and rematch sheets hide the unit bar and action buttons (all disabled once the match is over). Without it the rematch sheet didn't fit at 393 × 665: Cancel and Start rematch were below the fold inside the sheet.
+  - Abandoning a match now also clears the database's live copy (before, only this device's copy was cleared, so a reload could offer Continue for an abandoned match).
+  - A live match is never saved again once it is over (the bot's last move and the Hot-seat view switch used to re-save it).
+  - Names on Same sides: No: a typed name goes with the team, a default end name ("North") stays with the end. See F029-1.
+  - Escape on the rematch sheet works like Cancel.
+- **Checks run and results (paste regression hashes):** every README check passes in this session (test_v32 40, test_v35 6, test_v36 4, test_v37 2, fields/kitd/brains at the workflow's counts; lab self test 35/35; board_check 3 games, 0 different). `test_version.js` updated to v3.18.00 (22/22). New `test_rematch.js`: 49/49. Its bug part fails on `main`'s board (`node tests/test_rematch.js <main board> bug`: 4/6, "asks nothing" and "Matches still shows the result (got abandoned)" fail) and passes on this build. Same-dice replay: Brain 8 v Brain 8, 5v5, seed SAME-DICE-29: 113 actions, South KO, identical actions and result in the rematch. Engine untouched (no `engine.js`, `data.js`, `bot.js`, `brain.js` or `watch.js` change); `regress_engine.js` against `main`'s board, 3 games per rule set:
+  REGRESS_HASHES
 - **Baseline table (rule changes only):** n/a
 - **Bot minimum (met / not met, with numbers):** n/a
 - **Settings review (brain builds only):** n/a
 - **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+  - The help line "Same code: same moves, same rolls." follows the brief, not the picture; the design chat asked the Editor to confirm it at review.
+  - A rematch's Lineup screen still shows the Settings · Teams · Lineup steps (brief didn't say to change them).
+  - A rematch in progress on the Lineup screen is lost on a page reload (back to Home; the finished match is safe in Matches).
+  - The bot's last move reason isn't in the finished match's saved record (true before this build too).
+  - Screenshots in `briefs/img/029/build/` (made by `sims/shots_029.js`): 01 end, 02 to 04 the rematch sheet's three pictured states, 05 / 05b Lineup with Reset (before and after a tap), 06 / 07 desktop, 08 / 09 the bug before (old board asks) and after (straight to Settings).
+- **Flags closed / opened:** none closed; opened F029-1 (`ASK`: where default names go on Same sides: No).
+- **Pull request:** PR_LINK (branch `claude/fervent-einstein-v0rlyz`).

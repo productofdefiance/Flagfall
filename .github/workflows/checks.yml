@@ -245,6 +245,10 @@ jobs:
         env:
           NODE_PATH: /tmp/pw/node_modules
         run: node board/tests/test_hotseat.js
+      - name: test_rematch.js (Brief 029 - rematch, New game after the end, Lineup Reset)
+        env:
+          NODE_PATH: /tmp/pw/node_modules
+        run: node board/tests/test_rematch.js
 
   compare:
     name: build number and replay hashes

@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.18.00 | v3.9 | Brain 8 | v7 | 23 |
 | v3.17.00 | v3.9 | Brain 8 | v5 + v4 | 22 |
 | v3.16.00 | v3.9 | Brain 8 | v5 + v4 | 21 |
 | v3.15.00 | v3.9 | Brain 8 | v5 | 20 |
@@ -24,6 +25,25 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.18.00 · Build 23 — Brief 029, Rematch, a clean New game after the end, Lineup Reset (26 Nov 2026)
+Rule set: none changed (v3.9 stays the newest). Default brain: Brain 8 (unchanged). Game version **v3.18.00** (YY: a new screen). UI: Approved UI v7.
+
+**What a player will notice**
+- The end-of-match sheet has **New game** as the big button, with **See field · Copy record · Rematch** under it.
+- **Rematch** opens a sheet with three Yes/No choices: Same lineups, Same sides, Same dice (all Yes each time). One tap on **Start rematch** replays the match exactly: same rule set, format, brains, lineups and seed.
+- Same sides: No swaps ends; the end that moved first moves first again. A coin-toss match always tosses again. Same dice: No shows the new seed before you start, with a copy button.
+- Same lineups: No sends human sides to the Lineup screen, starting from the lineup just played; the top arrow goes back to the rematch sheet. Bots draw again from their mix.
+- **New game after a finished match no longer asks "Abandon the match in progress?"**, and the finished match is no longer re-filed as Abandoned (it happened after Continue and a reload). Home no longer offers Continue for a finished match.
+- The Lineup screen's bottom **Back is now Reset**: it clears every unit (the Flagkeeper stays). The top arrow still goes back.
+- On a phone, the end and rematch sheets take the bottom of the screen in place of the (unusable) action buttons.
+
+**Under the hood**
+- `app.js`: `rematchOf()` builds the new match from the finished match's own record (new id, `actions: []`); `startRematch()`; a coin-toss rematch still takes draw 0 so later rolls keep their draw numbers. `startMatch()` records each bot side's mix as `match.mix` (display only).
+- A match that ends clears the saved live match (this device and the database); Continue keeps one match in memory; New game never files a match Matches already holds as finished. Abandoning now also clears the database's live match.
+- `test_rematch.js` (49 checks, headless browser) in the checks; `sims/shots_029.js` makes the screenshots.
+
+**Flags:** opened F029-1.
 
 ## v3.17.00 · Build 22 — Brief 020, Brain 9: victory values, spent opening, per-format settings (23 Nov 2026)
 Rule set: none changed (v3.9 stays the newest; Brain 9 measured on v3.9). Default brain: Brain 8 (unchanged). Game version **v3.17.00** (YY: a new brain; brief 018 took v3.16.00 first).
