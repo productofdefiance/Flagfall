@@ -1,4 +1,4 @@
-STATUS · updated 25 Nov 2026, 4:02 pm ET
+STATUS · updated 25 Nov 2026, 9:58 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
@@ -8,7 +8,6 @@ RESULTS (last 24 hours)
   Nightly checks: cancelled (25 Nov, 1:36 pm ET)
   Queue: clear
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 25 Nov
-  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 24 Nov
 
 FLAGS (open, newest first)
   ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…
@@ -30,7 +29,7 @@ BUILDS
     026 Specials flow · PR #59 · Ready · checks pass · reviewed: hold
     028 Arrow storm · PR #65 · needs sync · checks pass · not reviewed
   Ready to start
-    none
+    029 Rematch
   Waiting
     012 Cavalry ← 026, 028
   Merged (last 3)
@@ -43,6 +42,7 @@ CHATS
     FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?
     FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov stale?
     FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov
+    FF UI v3.17.00 - · Rematch, end-of-match new game, lineup Reset · opened 25 Nov
   Closed (last 5)
     FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…
     FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…
