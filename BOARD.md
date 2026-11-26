@@ -1,15 +1,16 @@
-STATUS · updated 25 Nov 2026, 9:58 pm ET
+STATUS · updated 25 Nov 2026, 11:13 pm ET
 
 VERSION
   On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8
-  Building: 026 → v3.18.00 · 028 → v3.18.00
+  Building: 026 → v3.18.00 · 028 → v3.18.00 · 029 → v3.18.00
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (25 Nov, 1:36 pm ET)
-  Queue: clear
+  Queue: 12 jobs waiting, oldest 0 min · lab using 13 of 20
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 25 Nov
 
 FLAGS (open, newest first)
+  ! F029-1 · ASK · 26 Nov · Same sides: No moves each team's name to the other end (brief §3). But a name that is…
   ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…
   ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…
   ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…
@@ -21,15 +22,15 @@ FLAGS (open, newest first)
   ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…
   ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…
   ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…
-    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…
-  +20 older in FLAGS.md
+  +21 older in FLAGS.md
 
 BUILDS
   Building
     026 Specials flow · PR #59 · Ready · checks pass · reviewed: hold
     028 Arrow storm · PR #65 · needs sync · checks pass · not reviewed
+    029 Rematch · PR #67 · Draft · checks running · not reviewed
   Ready to start
-    029 Rematch
+    none
   Waiting
     012 Cavalry ← 026, 028
   Merged (last 3)
@@ -42,8 +43,8 @@ CHATS
     FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?
     FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov stale?
     FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov
-    FF UI v3.17.00 - · Rematch, end-of-match new game, lineup Reset · opened 25 Nov
   Closed (last 5)
+    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…
     FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…
     FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…
     FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…

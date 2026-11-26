@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-26T02:58:54.878Z",
- "board": "STATUS · updated 25 Nov 2026, 9:58 pm ET\n\nVERSION\n  On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8\n  Building: 026 → v3.18.00 · 028 → v3.18.00\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (25 Nov, 1:36 pm ET)\n  Queue: clear\n  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 25 Nov\n\nFLAGS (open, newest first)\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n  +20 older in FLAGS.md\n\nBUILDS\n  Building\n    026 Specials flow · PR #59 · Ready · checks pass · reviewed: hold\n    028 Arrow storm · PR #65 · needs sync · checks pass · not reviewed\n  Ready to start\n    029 Rematch\n  Waiting\n    012 Cavalry ← 026, 028\n  Merged (last 3)\n    020 Victory values · v3.17.00 · 23 Nov\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov stale?\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov\n    FF UI v3.17.00 - · Rematch, end-of-match new game, lineup Reset · opened 25 Nov\n  Closed (last 5)\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-26T04:13:37.641Z",
+ "board": "STATUS · updated 25 Nov 2026, 11:13 pm ET\n\nVERSION\n  On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8\n  Building: 026 → v3.18.00 · 028 → v3.18.00 · 029 → v3.18.00\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (25 Nov, 1:36 pm ET)\n  Queue: 12 jobs waiting, oldest 0 min · lab using 13 of 20\n  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 25 Nov\n\nFLAGS (open, newest first)\n  ! F029-1 · ASK · 26 Nov · Same sides: No moves each team's name to the other end (brief §3). But a name that is…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n  +21 older in FLAGS.md\n\nBUILDS\n  Building\n    026 Specials flow · PR #59 · Ready · checks pass · reviewed: hold\n    028 Arrow storm · PR #65 · needs sync · checks pass · not reviewed\n    029 Rematch · PR #67 · Draft · checks running · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 026, 028\n  Merged (last 3)\n    020 Victory values · v3.17.00 · 23 Nov\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov stale?\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov\n  Closed (last 5)\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -11,7 +11,7 @@
      "mark": null
     },
     {
-     "text": "Building: 026 → v3.18.00 · 028 → v3.18.00",
+     "text": "Building: 026 → v3.18.00 · 028 → v3.18.00 · 029 → v3.18.00",
      "indent": 1,
      "mark": null
     }
@@ -26,7 +26,7 @@
      "mark": null
     },
     {
-     "text": "Queue: clear",
+     "text": "Queue: 12 jobs waiting, oldest 0 min · lab using 13 of 20",
      "indent": 1,
      "mark": null
     },
@@ -40,6 +40,11 @@
   {
    "title": "FLAGS (open, newest first)",
    "lines": [
+    {
+     "text": "! F029-1 · ASK · 26 Nov · Same sides: No moves each team's name to the other end (brief §3). But a name that is…",
+     "indent": 1,
+     "mark": "ask"
+    },
     {
      "text": "! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…",
      "indent": 1,
@@ -96,12 +101,7 @@
      "mark": "ask"
     },
     {
-     "text": "  F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "+20 older in FLAGS.md",
+     "text": "+21 older in FLAGS.md",
      "indent": 1,
      "mark": null
     }
@@ -126,12 +126,17 @@
      "mark": null
     },
     {
+     "text": "029 Rematch · PR #67 · Draft · checks running · not reviewed",
+     "indent": 2,
+     "mark": null
+    },
+    {
      "text": "Ready to start",
      "indent": 1,
      "mark": null
     },
     {
-     "text": "029 Rematch",
+     "text": "none",
      "indent": 2,
      "mark": null
     },
@@ -191,13 +196,13 @@
      "mark": null
     },
     {
-     "text": "FF UI v3.17.00 - · Rematch, end-of-match new game, lineup Reset · opened 25 Nov",
-     "indent": 2,
+     "text": "Closed (last 5)",
+     "indent": 1,
      "mark": null
     },
     {
-     "text": "Closed (last 5)",
-     "indent": 1,
+     "text": "FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…",
+     "indent": 2,
      "mark": null
     },
     {
@@ -238,7 +243,7 @@
   }
  },
  "schema": 2,
- "updatedText": "25 Nov 2026, 9:58 pm ET",
+ "updatedText": "25 Nov 2026, 11:13 pm ET",
  "main": {
   "game": "v3.17.00",
   "build": 22,
@@ -246,11 +251,11 @@
   "brain": "Brain 8"
  },
  "queue": {
-  "text": "Queue: clear",
+  "text": "Queue: 12 jobs waiting, oldest 0 min · lab using 13 of 20",
   "mark": null,
-  "jobsWaiting": 0,
+  "jobsWaiting": 12,
   "oldestWaitMin": 0,
-  "labUsing": 0
+  "labUsing": 13
  },
  "nightly": {
   "state": "cancelled",
@@ -284,6 +289,19 @@
     "version": "v3.18.00",
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/65/"
+   },
+   {
+    "brief": "029",
+    "name": "Rematch",
+    "pr": 67,
+    "draft": true,
+    "checks": "running",
+    "review": null,
+    "sync": null,
+    "state": "running",
+    "version": "v3.18.00",
+    "size": "YY",
+    "play": "https://productofdefiance.github.io/Flagfall/pr/67/"
    }
   ],
   "waiting": [
@@ -295,13 +313,6 @@
      "028"
     ],
     "ready": false,
-    "stated": true
-   },
-   {
-    "brief": "029",
-    "name": "Rematch",
-    "waitsOn": null,
-    "ready": true,
     "stated": true
    }
   ],
@@ -344,6 +355,14 @@
  ],
  "resultsMore": 0,
  "flags": [
+  {
+   "name": "F029-1",
+   "status": "ASK",
+   "date": "26 Nov",
+   "issue": "Same sides: No moves each team's name to the other end (brief §3). But a name that is just the end's own (\"North\", the default) would then put \"North\" on the South end. Built: a typed name (\"Ann\") goes with the team; a default end name stays with the end",
+   "issueFull": "Same sides: No moves each team's name to the other end (brief §3). But a name that is just the end's own (\"North\", the default) would then put \"North\" on the South end. Built: a typed name (\"Ann\") goes with the team; a default end name stays with the end",
+   "next": "Recommended: keep as built. Alternative: names always follow the team, even \"North\""
+  },
   {
    "name": "F028-3",
    "status": "ASK",
@@ -399,14 +418,6 @@
    "issue": "The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays as the Editor saw it with Brain 5 (South wins the tiebreak at turn 35), but Brain 8 finishes it (South KO, turn 12) and Brain 9's spent opening changes the game from turn 1 (North KO, turn 11), before the…",
    "issueFull": "The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays as the Editor saw it with Brain 5 (South wins the tiebreak at turn 35), but Brain 8 finishes it (South KO, turn 12) and Brain 9's spent opening changes the game from turn 1 (North KO, turn 11), before the victory values ever count. It isn't a test of pressing a late lead any more",
    "next": "The Report picks late-lead games from the lab runs instead"
-  },
-  {
-   "name": "F020-1",
-   "status": "OPEN",
-   "date": "23 Nov",
-   "issue": "The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not change). They live in BRAIN_9.victory (and the spent opening in BRAIN_9.spend)",
-   "issueFull": "The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not change). They live in BRAIN_9.victory (and the spent opening in BRAIN_9.spend)",
-   "next": "Information for the design chat; no action"
   }
  ],
  "chats": {
@@ -428,15 +439,14 @@
     "subject": "review of brief 026, specials flow (pull request #59)",
     "opened": "24 Nov",
     "stale": false
-   },
-   {
-    "name": "FF UI v3.17.00 -",
-    "subject": "Rematch, end-of-match new game, lineup Reset",
-    "opened": "25 Nov",
-    "stale": false
    }
   ],
   "closed": [
+   {
+    "name": "FF UI v3.17.00",
+    "closed": "25 Nov",
+    "outcome": "brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7); game-start redesign direction filed"
+   },
    {
     "name": "FF UI+Lab v3.14.00 - v3.15.00",
     "closed": null,
@@ -461,10 +471,10 @@
   "closedLimit": 5
  },
  "tiles": {
-  "building": 2,
-  "flagsAsk": 11,
-  "flagsNewest": "F028-3",
+  "building": 3,
+  "flagsAsk": 12,
+  "flagsNewest": "F029-1",
   "flagsMoreAsk": 5,
-  "flagsMoreOpen": 19
+  "flagsMoreOpen": 20
  }
 }
