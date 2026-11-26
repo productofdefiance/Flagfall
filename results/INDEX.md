@@ -2,6 +2,7 @@
 
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
+- 2026-11-26 · nightly · v3.17.00 · [2026-11-26_nightly_health](v3.17.00/2026-11-26_nightly_health/SUMMARY.md): passed: all 4 night checks
 - 2026-11-25 · nightly · v3.17.00 · [2026-11-25_nightly_health](v3.17.00/2026-11-25_nightly_health/SUMMARY.md): passed: all 4 night checks
 - 2026-11-24 · nightly · v3.17.00 · [2026-11-24_nightly_health](v3.17.00/2026-11-24_nightly_health/SUMMARY.md): passed: all 4 night checks
 - 2026-11-23 · nightly · v3.17.00 · [2026-11-23_nightly_health](v3.17.00/2026-11-23_nightly_health/SUMMARY.md): passed: all 4 night checks
