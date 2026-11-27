@@ -66,7 +66,7 @@ Brain 8 mirrors (the default), balanced, sides and move order swapped evenly, sa
 Play one human-vs-human 7v7 on v3.10. Warm up and fire Arrow Storm at a full-health Light Ranged: it should survive on about 1.5 to 2 health (depending on the dice), and the description should say 1.5 times. Options shows Minimum damage 0.5.
 
 ## Report
-*Filled in by Claude Code, 24 Nov 2026. Game version **v3.18.00 · Build 23**. Branch `claude/gallant-hawking-3wc3ve`, started from `brief/028-arrow-storm`.*
+*Filled in by Claude Code, 24 Nov 2026. Game version **v3.19.00 · Build 24** (set at the 27 Nov sync; Brief 026 took v3.18.00, Build 23). Branch `claude/gallant-hawking-3wc3ve`, started from `brief/028-arrow-storm`.*
 
 **In plain words**
 - **Does the first mover still lose its archer first?** At 7v7, no: the first mover lost its Light Ranged first in 58.1% of games on v3.9 and 44.9% on v3.10. At 5v5 it flips the other way: on v3.9 the first mover's Storm removed the second mover's archer first in 82.8% of games; on v3.10 the first mover loses its archer first in 75.6%, but now mostly to ordinary fighting, because the fighting starts on turn 1 instead of turn 4.
