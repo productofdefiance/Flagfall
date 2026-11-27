@@ -1,4 +1,4 @@
-STATUS · updated 27 Nov 2026, 2:48 am ET
+STATUS · updated 27 Nov 2026, 2:53 am ET
 
 VERSION
   On main: v3.19.00 · Build 24 · Rules v3.10 · Brain 8
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (26 Nov, 1:21 pm ET)
-  Queue: 16 jobs waiting, oldest 7 min · lab using 12 of 20
+  Queue: 5 jobs waiting, oldest 8 min · lab using 13 of 20
   screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov
   release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov
@@ -43,6 +43,7 @@ CHATS
     FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?
     FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov stale?
     FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov
+    FF Roadmap v3.19.00 - · roadmap for the run-up to Cavalry (012) and the stretch after it · opened 27 Nov
   Closed (last 5)
     FF Docs v3.18.00 - v3.19.00 · closed 27 Nov · brief 031 pushed (version at merge, answers F029-2); 028 merged during the…
     FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…
