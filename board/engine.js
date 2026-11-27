@@ -916,7 +916,8 @@
     if (u.done) return `${u.id} has ended its turn`;
     if (evadeTarget(st, u)) return `${u.id} attacked this turn and may only evade or end`;
     const c = st.rs.game.warmupCost;
-    if (u.stam + EPS < c || st.cmd + EPS < c) return "Not enough Stamina";
+    if (u.stam + EPS < c) return "Not enough Stamina";
+    if (st.cmd + EPS < c) return "Not enough Command";   // Brief 026: the side's Command, not the unit's Stamina, is short
     return null;
   }
   /** Why the special can't fire now, at any target (null = it can at some target). */
@@ -930,7 +931,8 @@
     if (u.done) return `${u.id} has ended its turn`;
     if (card(st, u).reload && u.attackedLast) return `${u.id} is reloading this turn`;
     const c = st.rs.game.attackCost;
-    if (u.stam + EPS < c || st.cmd + EPS < c) return "Not enough Stamina";
+    if (u.stam + EPS < c) return "Not enough Stamina";
+    if (st.cmd + EPS < c) return "Not enough Command";   // Brief 026
     if (!alive(st).some((t) => specialCanTarget(st, u, t))) return "No target in reach";
     return null;
   }
@@ -991,7 +993,11 @@
     const kind = specialOf(st, u);
     if (!kind || !specialCanTarget(st, u, t)) return null;
     const hits = specialHits(st, u, t), d = fieldOf(st).dist(u.hex, t.hex);
-    const parryFrom = hits.map((h) => unitByUid(st, h.uid)).find((x) => x.braced && card(st, x).brace === "parry" && fieldOf(st).dist(u.hex, x.hex) === 1 && !(sw(st, "parryFirstOnly") && x.parryUsed));
+    // Brief 026 (F026-1): the same choice as doSpecial's parry loop: the first braced Heavy Melee hit in order that can
+    // parry, skipping one already used (v3.2) and, under parryNeedsSurvivor, one its own hit removes. Display only.
+    const parryHit = hits.find((h) => { const x = unitByUid(st, h.uid);
+      return x.braced && card(st, x).brace === "parry" && fieldOf(st).dist(u.hex, x.hex) === 1 && !(sw(st, "parryFirstOnly") && x.parryUsed) && !(sw(st, "parryNeedsSurvivor") && h.kills); });
+    const parryFrom = parryHit ? unitByUid(st, parryHit.uid) : null;
     const n = specNums(st, kind);
     return { kind, name: specialName(kind), target: t.uid, hits, arc: kind === "arcHit" ? fieldOf(st).arcOf(u.hex, t.hex) : null,
       behind: kind === "skewer" ? fieldOf(st).hexBehind(u.hex, t.hex) : null,
