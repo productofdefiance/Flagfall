@@ -1,4 +1,4 @@
-STATUS · updated 27 Nov 2026, 3:02 am ET
+STATUS · updated 27 Nov 2026, 3:15 am ET
 
 VERSION
   On main: v3.19.00 · Build 24 · Rules v3.10 · Brain 8
@@ -24,11 +24,11 @@ FLAGS (open, newest first)
     F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…
   ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…
   ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…
-  +22 older in FLAGS.md
+  +18 older in FLAGS.md
 
 BUILDS
   Building
-    029 Rematch · PR #67 · Ready · checks running · not reviewed
+    029 Rematch · PR #67 · Ready · checks pass · not reviewed
   Ready to start
     012 Cavalry
   Waiting
