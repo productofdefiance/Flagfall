@@ -183,7 +183,7 @@
     }
     const p2 = p.parry && p.parry.by !== t.uid ? E.unitByUid(st, p.parry.by) : null;
     if (p2) pv.rows.push({ icon: "parry", name: "Parry", red: true, means: `A braced ${E.card(st, p2).name} hits back at the first melee attacker each turn. One parry per action.`,
-      why: `${unitName(st, p2)} is braced in the arc: you take ${fmt(p.parry.amount)}${p.parry.ifSurvives ? " if it survives the hit" : ""}.` });
+      why: `${unitName(st, p2)} is braced in the arc${p.parry.ifSurvives ? " and survives its hit" : ""}: you take ${fmt(p.parry.amount)}.` });
     const kind = p.kind, mults = [...new Set(p.hits.map((h) => h.mult))];
     // Brief 017 §8: Strength shows its change struck through (Javelin 8 → 14: Reach −1, then ×2), then the multiplier
     // as its own stat with the special icon. Only with one multiplier; the damage below is the engine's exact number.
@@ -196,6 +196,38 @@
     pv.rows.unshift({ icon: "special", name: `${p.name} ${mults.map(multText).join(" / ")}`, means: specialAbout(st.rs, kind), why, special: true });
     pv.special = { kind, name: p.name, arc: p.arc, mult: mults.length === 1 && h0.mult !== 1 ? h0.mult : null, str: h0.detail.str, strAfter: h0.detail.strAfter, extra: p.hits.slice(1).map((h) => { const x = E.unitByUid(st, h.uid); return { uid: x.uid, team: x.team, name: unitName(st, x), hp: E.hpShown(st, x), maxHp: x.maxHp, dmg: h.dmg, kills: h.kills }; }) };
     return pv;
+  }
+
+  // ---------- The special sheet (Brief 026, Approved UI v6) ----------
+  /** Everything the gold special sheet shows, read from the engine's preview `p` (E.options().special.targets): the
+      attacker line (Strength and the multiplier, always), then one row per hit in the engine's hit order with that
+      target's own modifiers. A modifier the special ignores is kept and marked `struck` (Arrow Storm's Dodge, Bullseye's
+      Armor with Pierce). `pills`: what a kill brings (E.killConsequences, Pick Off only), only if the attacker survives
+      the parry the engine reports. `notes`: an Evade that follows, or a parry that hurts the attacker. Nothing computed. */
+  function specialSheet(st, u, t, p) {
+    const h0 = p.hits[0], mults = [...new Set(p.hits.map((h) => h.mult))];
+    // A parry fires only if the parrying unit survives its hit (parryNeedsSurvivor); the engine reports who and how much.
+    const parryBy = p.parry && E.unitByUid(st, p.parry.by), parryHit = p.parry && p.hits.find((h) => h.uid === p.parry.by);
+    const parryFires = !!(p.parry && !(p.parry.ifSurvives && parryHit && parryHit.kills));
+    const removesMe = parryFires && p.parry.amount >= E.effHp(st, u) - 1e-9;
+    const rows = p.hits.map((h, i) => {
+      const x = E.unitByUid(st, h.uid), d = h.detail, mods = [];
+      if (d.support > 0) mods.push({ key: "support", label: "Support", val: "+" + fmt(d.support) });
+      if (d.armor > 0) mods.push(d.pierce ? { key: "armor", label: "Armor, doesn't count (Pierce)", val: minus(d.armor), struck: true } : { key: "armor", label: "Armor", val: minus(d.armorTaken || d.armor) });
+      if (d.brace > 0) mods.push({ key: "brace", label: "Brace", val: minus(d.brace) });
+      if (d.dodge && d.dodge.pct !== undefined && d.dodge.pct) mods.push({ key: "dodge", label: h.dodgeIgnored ? "Dodge, doesn't count" : "Dodge", val: `${d.dodge.pct}%`, struck: !!h.dodgeIgnored });
+      else if (d.dodge && d.dodge.flat) mods.push({ key: "dodge", label: "Dodge", val: minus(d.dodge.flat) });
+      if (d.defenderSupport) mods.push({ key: "support", label: "Defender Support", val: minus(d.defenderSupport) });
+      if (d.home && d.home.amount) mods.push({ key: "hex", label: d.home.keeper ? "Keeper at home" : "Goal zone", val: minus(d.home.amount) });
+      if (parryFires && parryBy && parryBy.uid === x.uid) mods.push({ key: "parry", label: "Parry", val: fmt(p.parry.amount), red: true });
+      const kc = i === 0 && h.kills && !removesMe ? E.killConsequences(st, u.uid, t.uid, { special: true }) : null;
+      return { uid: x.uid, team: x.team, name: unitName(st, x), hp: E.hpShown(st, x), maxHp: x.maxHp, dmg: h.dmg, kills: !!h.kills, mods, pills: kc || [] };
+    });
+    const notes = [];
+    if (p.evade && !h0.kills && !removesMe) notes.push({ key: "evade", text: p.evade.hexes ? `Evade ${p.evade.hexes}: ${fmt(p.evade.stam)} Stamina left after this special, up to ${plural(p.evade.hexes, "hex")}` : `Evade 0: ${say(p.evade.reason || "No legal step")}` });
+    if (parryFires) notes.push({ key: "parry", red: true, text: `Parry: you take ${fmt(p.parry.amount)}` + (removesMe ? `, which removes your ${unitName(st, u)}` : "") });
+    return { kind: p.kind, name: p.name, attacker: { uid: u.uid, team: u.team, name: unitName(st, u), str: fmt(h0.detail.strAfter), mult: mults.map(multText).join(" / ") },
+      rows, notes, parryFires, removesMe };
   }
 
   // ---------- Phone sheet (Brief 025, Approved UI v5) ----------
@@ -285,6 +317,6 @@
   /** The Lineup row's numbers: "HP 20 · Str 10 · Range 1 · Move 3" (Anti-Cavalry: "Reach 2"). */
   const lineupStats = (c) => { const r = rangeStat(c); return `HP ${fmt(c.hp)} · Str ${fmt(c.str)} · ${r.label} ${fmt(r.val)} · Move ${fmt(c.cap)}`; };
 
-  const api = { phoneSpecialStats, pullPreview, specialAbout, specialNote, specialPreview, say, BANNED, unitName, whose, outcomeSegments, pct1, changeTone, attackPreview, typeOf, classOf, rangeStat, cardSections, cardTypeLine, lineupStats };
+  const api = { specialSheet, phoneSpecialStats, pullPreview, specialAbout, specialNote, specialPreview, say, BANNED, unitName, whose, outcomeSegments, pct1, changeTone, attackPreview, typeOf, classOf, rangeStat, cardSections, cardTypeLine, lineupStats };
   if (typeof module !== "undefined") module.exports = api; else root.GGUi = api;
 })(this);
