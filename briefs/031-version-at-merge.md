@@ -111,6 +111,11 @@ n/a (no change to what the bot can do).
 2. Settings → Rules → main: tick `waits-on` as a required check (the Report gives the exact clicks).
 3. Open the next build's play link: Home reads `v3.20.01+NNN`.
 
+## Report back
+The standard items, plus: the two-order merge outputs; the clicks for the required check; the stamping time added to each workflow; how many release runs (and games) the last ten merged briefs would have skipped under the new rule; anything in the old version path that had no place in the new one.
+
+---
+
 ## Report
 *Filled in by Claude Code.*
 
