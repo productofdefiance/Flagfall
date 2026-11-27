@@ -1,12 +1,13 @@
-STATUS · updated 27 Nov 2026, 2:20 am ET
+STATUS · updated 27 Nov 2026, 2:40 am ET
 
 VERSION
-  On main: v3.18.00 · Build 23 · Rules v3.9 · Brain 8
-  Building: 028 → v3.19.00 · 029 → v3.20.00
+  On main: v3.19.00 · Build 24 · Rules v3.10 · Brain 8
+  Building: 029 → v3.20.00
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (26 Nov, 1:21 pm ET)
-  Queue: clear
+  Queue: clear · lab using 1 of 20
+  screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov
   release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov
 
@@ -27,17 +28,15 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    028 Arrow storm · PR #65 · Ready · checks running · not reviewed
-    029 Rematch · PR #67 · Ready · checks pass · not reviewed
+    029 Rematch · PR #67 · needs sync · checks pass · not reviewed
   Ready to start
-    none
+    012 Cavalry
   Waiting
-    012 Cavalry ← 028
     031 Version at merge ← 029
   Merged (last 3)
+    028 Arrow storm · v3.19.00 · 27 Nov
     026 Specials flow · v3.18.00 · 27 Nov
     020 Victory values · v3.17.00 · 23 Nov
-    018 Turn cue zoom · v3.16.00 · 23 Nov
 
 CHATS
   Open
