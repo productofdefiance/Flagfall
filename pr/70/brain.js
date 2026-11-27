@@ -1,0 +1,279 @@
+/* Flagfall Arena — default brains for the computer opponent.
+   A brain is a set of weights: how much the bot cares about each thing when it scores a move.
+   Every weight is editable on the board's "Opponent" tab. This file is only the starting point. */
+(function (root) {
+  const STANDARD = {
+    id: "standard",
+    name: "Standard",
+    note: "First version, 2026-11-16. Plays one action at a time and looks one action ahead.",
+    weights: {
+      unitBase: 6,        // value of having a unit on the field at all (so a kill is worth this plus its HP)
+      keeperBase: 4,      // extra value of the Flagkeeper
+      hp: 1,              // value per HP point on a unit
+      pull: 2.5,          // value per point of damage on the enemy flagpole (and cost per point on ours)
+      danger: 0.7,        // cost per point of damage the enemy could deal next turn (each enemy's best attack or pull)
+      pressure: 0.4,      // value per point of damage we could deal on our next turn (the same sum, the other way)
+      advance: 0.6,       // field units: value per hex closer to the enemy flag
+      engage: 0.25,       // melee field units: value per hex closer to the nearest enemy
+      spacing: 0.6,       // Ranged units: cost per hex away from their full range to the nearest enemy
+      cohesion: 0.4,      // value per friend next to a unit (counts up to 2)
+      keeperHome: 2.5,    // Flagkeeper: cost per hex beyond its leash from the flag
+      defend: 1.2,        // Flagkeeper: cost per hex from the flag while enemies are near it
+      braceCost: 0.6,     // cost of bracing (it starts next turn with less Stamina)
+      endTurnBar: 0.25    // ends its turn when no action is worth more than this
+    },
+    settings: {
+      keeperLeash: 2,             // hexes the Flagkeeper may stray from its flag
+      commitKeeperWhenAhead: 2,   // drop the leash when this many units ahead
+      lateTurns: 4,               // drop the leash this many turns before the limit when not ahead on pulls
+      noise: 0,                   // random wobble added to every score; higher plays sloppier
+      pauseMs: 700                // pause between its actions on the board
+    }
+  };
+  const EASY = JSON.parse(JSON.stringify(STANDARD));
+  EASY.id = "easy"; EASY.name = "Easy"; EASY.note = "Standard with a lot of random wobble: it often picks a worse move.";
+  EASY.settings.noise = 4;
+
+  /* Coaching kit v0, batch A (2026-11-16): Standard plus shared behaviours with Light and Heavy identities.
+     A unit's behaviour = global value × its type multiplier × its class multiplier. */
+  const KIT_A = JSON.parse(JSON.stringify(STANDARD));
+  KIT_A.id = "kitA"; KIT_A.name = "Kit A (Light identity)";
+  KIT_A.note = "Coaching kit v0 batch A: Light units keep 2 hexes off until they strike, value open hexes around them, and back off below 40% HP; Heavy units close in and hold.";
+  KIT_A.behaviours = { engageDistance: 1, room: 0.6, retreatPoint: 0.3, together: 1 };
+  KIT_A.typeMult = { melee: {}, ranged: {}, antiCav: {} };
+  KIT_A.classMult = { light: { engageDistance: 2, room: 1, retreatPoint: 1.35, together: 0 }, heavy: { room: 0, retreatPoint: 0.5 } };
+
+  const KIT_A2 = JSON.parse(JSON.stringify(KIT_A));
+  KIT_A2.id = "kitA2"; KIT_A2.name = "Kit A2 (cautious Light)";
+  KIT_A2.note = "Kit A plus caution: losses on Light units weigh 2.5 times as much, so Light units only strike when it's worth the exposure.";
+  KIT_A2.behaviours.caution = 1;
+  KIT_A2.classMult.light.caution = 2.5;
+  KIT_A2.classMult.heavy.caution = 0.8;
+
+  const KIT_C = JSON.parse(JSON.stringify(STANDARD));
+  KIT_C.id = "kitC"; KIT_C.name = "Caution only (test)";
+  KIT_C.note = "Standard plus caution alone, to check whether Kit A's other settings add anything.";
+  KIT_C.behaviours = { caution: 1 }; KIT_C.typeMult = {}; KIT_C.classMult = { light: { caution: 2.5 }, heavy: { caution: 0.8 } };
+
+  const KIT_B = JSON.parse(JSON.stringify(KIT_C));
+  KIT_B.id = "kitB"; KIT_B.name = "Kit B (caution, bracing, teamwork)";
+  KIT_B.note = "Coaching kit v0 batch B: caution (Light 2.5, Heavy 0.8), bracing habit, guarding weaker friends and the holder, seeking Support.";
+  Object.assign(KIT_B.behaviours, { braceHabit: 1, guard: 1, seekSupport: 1 });
+
+  /* Coaching kit v0, batch C (2026-11-16): Kit B plus a squad picker. Tested and left off: raid (siege value for
+     units that could reach the enemy goal zone; lost 21% and 40% to Kit B) and urgency (late-game press or guard;
+     neutral, 44% vs 48%). The squad is the measured gain: with Kit B on both sides, heavy squads beat the balanced
+     lineup 83% at 7v7 and 88% at 5v5. */
+  const KIT_C2 = JSON.parse(JSON.stringify(KIT_B));
+  KIT_C2.id = "batchC"; KIT_C2.name = "Kit C (Kit B + heavy squad)";
+  KIT_C2.note = "Coaching kit v0 batch C: Kit B's play with its own squad instead of the balanced lineup: 3 HM, 2 HA, 2 HR at 7v7; 2 HM, 2 HA, 1 HR at 5v5.";
+  KIT_C2.squad = { 7: { HM: 3, HA: 2, HR: 2 }, 5: { HM: 2, HA: 2, HR: 1 } };
+
+  /* Kit D (Brief 005, 2026-11-18): Kit B plus a turn planner (bot.js planAction). Each planner behaviour can be
+     switched off here: focus (remove one enemy at a time), pickWeak (most value per point of damage), fort (two
+     attackers in the goal zone, least valuable takes the parry), finish (pull an empty flag; rush a lone holder). */
+  const KIT_D = JSON.parse(JSON.stringify(KIT_B));
+  KIT_D.id = "kitD"; KIT_D.name = "Kit D (Kit B + turn planner)";
+  KIT_D.note = "Plans its whole turn: gangs up on one enemy it can remove, picks off weak units first, cracks a held flag with two attackers, and rushes the flag when only the holder is left. Otherwise plays like Kit B.";
+  // pickWeak is off: in testing (about 120 games per format against Kit B, two rounds) it made Kit D worse at 7v7
+  // (67% of decisive games with it, 80% without). See Brief 005's Report. Switch it on here to try it.
+  KIT_D.planner = { focus: 1, pickWeak: 0, fort: 1, finish: 1 };
+
+  /* Brain 5 (Brief 006, 2026-11-18): plans its whole turn on one value model (bot.js value5 / planTurn5). Built on
+     Kit D's ideas but none of its habits: no bracing habit, guard, cohesion or engage pull. Every choice comes from the
+     model's weights below, editable on the Opponent screen. */
+  const BRAIN_5 = JSON.parse(JSON.stringify(STANDARD));
+  BRAIN_5.id = "brain5"; BRAIN_5.name = "Brain 5 (plans its turn)";
+  BRAIN_5.note = "Plans its whole turn within its Command and Stamina and scores every plan the same way: what it gains, what it risks next turn, and what it leaves for next turn.";
+  BRAIN_5.model = {
+    unit: 6,          // value of a unit on the field (a removal is worth this plus its HP)
+    hp: 1,            // value per HP, ours or theirs
+    pull: 2.5,        // value per point of damage on the enemy flag (and cost on ours)
+    risk: 0.7,        // how much it fears the damage the enemy can do back next turn
+    pressure: 0.3,    // how much it values the damage it could do on its next turn
+    stamina: 0.5,     // value per point of Stamina a unit will start next turn with (a brace costs 1 point)
+    advance: 0.3,     // value per hex closer to the enemy flag (units other than the holder)
+    home: 2.5,        // holder: cost per hex away from its own flag
+    flagDanger: 20    // cost of leaving our empty flag where the enemy could finish it
+  };
+  BRAIN_5.plan5 = { beam: 3, perUnit: 5 };   // plans kept at each step; activations kept per unit
+  /* Specials (Brief 011, rule set v3.7 on): read only when the rule set has specials, so every older rule set plays as
+     before. Starting values, not tuned (the brief: tune later). */
+  Object.assign(BRAIN_5.model, {
+    useSpecials: 1,     // 1 = warms up and fires specials, and counts the enemy's warmed-up ones; 0 = ignores specials
+    special: 0.5,       // weight on a warmed-up special's likely extra damage next turn (over a normal hit)
+    warmSlack: 1,       // hexes to spare when judging whether a target will be in reach next turn (the target moves too)
+    warmCost: 1,        // value points a warm-up costs the plan (its Stamina and Command this turn)
+    specialMargin: 0    // how much (in value points) firing must beat the unit's best other action by
+  });
+  BRAIN_5.plan5.warmMoves = 4;   // warm up then move: tried after this many of the unit's best moves
+
+  /* Brain 6 (Brief 007, 2026-11-18): Brain 5 with tuned weights, the clock (the tiebreak standing, weighted more as the
+     turn limit nears) and the cost of an attack that leaves no Evade step. Brain 5 stays as it was, so Brief 006's
+     numbers stay comparable. */
+  const BRAIN_6 = JSON.parse(JSON.stringify(BRAIN_5));
+  BRAIN_6.id = "brain6"; BRAIN_6.name = "Brain 6 (knows the clock)";
+  BRAIN_6.note = "Brain 5 that knows the turn limit: as the last turn nears it values winning the tiebreak (more flag damage, then fewer units lost), so the side behind pushes and the side ahead keeps its lead. Its 'Keep an Evade step' setting is off by default: switched on, Light units nearly always keep a step, but all-Light games freeze on the clock (Brief 007).";
+  Object.assign(BRAIN_6.model, {
+    clock: 20,        // value of being ahead on the tiebreak (and cost of being behind) on the last turn
+    clockTurns: 5,    // how many turns before the limit the clock starts to count; it grows to full on the last turn
+    evade: 0          // cost, per point of the target's expected hit back, of an adjacent attack that leaves no Evade step.
+                      // Off by default (Brief 007): at 1, "no legal step" fell from 32% to 7%, but all-Light mirrors ended on
+                      // the turn limit 91% (5v5) and 72% (7v7) of the time, against 52% and 40% for Brain 5. The Editor picks (F31).
+  });
+
+  /* Brain 7 (Brief 019, 2026-11-20): Brain 5 plus five behaviours about the lead, each behind its own switch in `lead`
+     (1 = on, 0 = off). With all five off it plays exactly like Brain 5. Every behaviour is worked out from the board as
+     it stands when the plan is made (start of the turn and after each roll); nothing is remembered between turns. */
+  const BRAIN_7 = JSON.parse(JSON.stringify(BRAIN_5));
+  BRAIN_7.id = "brain7"; BRAIN_7.name = "Brain 7 (keeps its lead)";
+  BRAIN_7.note = "Brain 5 that knows when it is ahead on units: it likes even trades when ahead and avoids them when behind, doesn't throw a lead away on lone losing attacks, gathers its spare units and storms the enemy holder together, sends its own holder in when the enemy has only its holder and can't win the race, and regroups when behind while there is time.";
+  BRAIN_7.lead = {
+    lead: 1,          // B1 Know the lead: value material ratio (units other than the holder, by unit cap and HP left)
+    care: 1,          // B2 No bad trades when ahead: a lone attack that likely loses the attacker scores low
+    storm: 1,         // B3 Storm together: gather spare units in reach of the enemy goal zone, strike the holder together
+    holderJoins: 1,   // B4 The holder joins the storm when the enemy has only its holder and the race check passes
+    regroup: 1,       // B5 Regroup when behind, while there are enough turns left
+    aheadAt: 1,       // "ahead" means a lead of at least this much material (unit cap × share of HP left)
+    leadWeight: 20,   // B1: value of the lead ratio (ours − theirs) ÷ (ours + theirs)
+    killChance: 0.5,  // B2: a kill this likely makes a lone attack fine
+    aheadCaution: 1.5,// B2: fear of damage taken is multiplied by this when ahead
+    stormLead: 1.5,   // B6: when ahead on material and on flag damage, storm only with at least this lead; below it, hold
+    stormMin: 2,      // B3: strike the enemy holder when at least this many units can attack it this turn
+    gather: 3,        // B3: value per point of flag damage our spare units could do next turn, while storming
+    press: 2,         // B3: value per point of damage on the enemy holder's pool (holder HP + flag), while storming
+    regroupSpare: 2,  // B5: regroup only if the turns left are at least the turns needed to gather and strike plus this
+    together: 2       // B5: cost of each unit with no friend within 2 hexes, while regrouping
+  };
+
+  /* Brain 8 (Brief 022, 2026-11-20): Brain 5 plus four behaviours, each behind its own switch in `approach` (1 = on,
+     0 = off): Brain 7's B4 (the holder joins the storm, with its race check) on its own, a safe approach (A1), respect for a
+     warmed special (A2) and an opening tempo per move order (A3). With all four off it plays exactly like Brain 5. Every
+     behaviour reads the board as it stands when the plan is made; nothing is remembered between turns. Brains 5, 6 and 7
+     stay frozen. */
+  const BRAIN_8 = JSON.parse(JSON.stringify(BRAIN_5));
+  BRAIN_8.id = "brain8"; BRAIN_8.name = "Brain 8 (safe approach)";
+  BRAIN_8.note = "Brain 5 that sends its holder in when the enemy has only its holder and can't win the race, with an opening tempo for going first and for going second. Its safe approach and its respect for warmed-up specials are switches, off by default: in testing they cost it wins against Brain 5.";
+  BRAIN_8.approach = {
+    holderJoins: 1,   // B4 The holder joins the storm when the enemy has only its holder and the race check passes (Brain 7's B4)
+    safe: 0,          // A1 Safe approach: a unit left where an enemy strikes first counts that strike as already taken.
+                      // Ships off: in the brief 022 screen it cost wins against Brain 5 (5v5, 200 games: 69 won, 109 lost)
+    respect: 0,       // A2 Respect a warmed special: units in its reach next turn count its full damage.
+                      // Ships off: it cost wins against Brain 5 (5v5: 64 won, 104 lost) and made warmed specials lapse far more
+    tempo: 1,         // A3 Opening tempo: the two sliders below apply during the opening
+    firstStrike: 1,   // A1: weight on the expected first-strike damage (and the unit, if it would be removed)
+    warmedRespect: 1, // A2: weight on a warmed special's full damage (and the unit, if it would be removed)
+    tempoFirst: 0,    // A3: opening tempo when it moves first, from -1 (sit back) through 0 (Brain 5) to +1 (shock attack)
+    tempoSecond: 1    // A3: the same when it moves second. Ships at +1 (brief 022 confirm, 1,000 Brain 8 mirrors: 7v7 first mover
+                      // 34.7% -> 43.7% of decisive games; 5v5 and stalls unchanged)
+  };
+
+  /* Brain 9 (Brief 020, 2026-11-23): Brain 8 as shipped plus victory values and a spent opening, each behind its own
+     switch. With both switches off it plays exactly like Brain 8. Victory values are the bot's taste, not a scoring rule:
+     a finish (full pull, holder KO or TKO) is worth more than a win on the clock, and near the turn limit every position
+     is valued by how the game is likely to end. Nothing is remembered between turns. Brains 5 to 8 stay frozen. */
+  const BRAIN_9 = JSON.parse(JSON.stringify(BRAIN_8));
+  BRAIN_9.id = "brain9"; BRAIN_9.name = "Brain 9 (plays to finish)";
+  BRAIN_9.note = "Brain 8 that values how a game ends: finishing the enemy is worth 3, winning on the clock 1, a draw 0, losing -1. Near the turn limit it presses to finish when the odds favour it and guards its flag when being finished would cost more than losing on the clock. Its 'Spend the opening Command' switch is off by default: switched on it spends spare first-turn Command, but in testing that cost it wins against Brain 8 (brief 020).";
+  BRAIN_9.victory = {
+    playToFinish: 1,  // 1 = victory values on; 0 = off (Brain 8's ±1e5 for any finished game, no end-of-game term)
+    finish: 3,        // value of winning by full pull, holder KO or TKO
+    clockWin: 1,      // value of winning at the turn limit on flag damage (Game Laws 2.7 a)
+    draw: 0,          // value of a draw (and of "fewer units lost" at the limit, which the Laws now read as a draw)
+    clockLoss: -1,    // value of losing at the turn limit
+    finished: -1,     // value of losing by full pull, holder KO or TKO (the brief tests -1 against -2)
+    endWeight: 20,    // value points per point of the ending's expected value, at full weight on the last turn
+    endTurns: 5,      // turns before the limit that the end term starts to count; it grows evenly to full on the last turn
+    guardBlocks: 1    // attackers each guard (a unit in or next to its own goal zone, other than the holder) is taken to tie up
+  };
+  BRAIN_9.spend = {
+    spendOpening: 0,  // 1 = on its own first turn, spare Command is worth spending (advance or warm up); 0 = Brain 8's play.
+                      // Ships off: in the brief 020 confirm (1,000 games, v3.9) it cost wins against Brain 8 (7v7 42.5% with it, 49.5%
+                      // without) and gave Brain 9 mirrors' first mover 83% of decisive 7v7 games (46% without). Switch it on for move-order studies
+    spareCommand: 0.4 // value points lost per point of first-turn Command left unspent (read from the board: Command left)
+  };
+  BRAIN_9.perFormat = { 5: {}, 7: {} };   // Brief 020 item 7 (F022-10): any setting may take its own value per format; none yet
+
+  const LABELS = {
+    unitBase: ["Unit on the field", "Value of having a unit at all, so a kill is worth this plus the unit's HP."],
+    keeperBase: ["Flagkeeper bonus", "Extra value of the Flagkeeper, on either side."],
+    hp: ["Per HP", "Value per HP point on a unit; damage dealt is worth this per point."],
+    pull: ["Per flag point", "Value per point pulled off the enemy flag, and cost per point off ours."],
+    danger: ["Danger", "Cost per point of damage the enemy could deal next turn: each enemy's best attack or pull."],
+    pressure: ["Pressure", "Value per point of damage it could deal on its next turn: its units' best attacks and pulls."],
+    advance: ["Advance", "Field units: value per hex closer to the enemy flag."],
+    engage: ["Engage", "Melee field units: value per hex closer to the nearest enemy."],
+    spacing: ["Ranged spacing", "Ranged units: cost per hex away from full range to the nearest enemy."],
+    cohesion: ["Stay together", "Value per friend next to a unit, counting up to 2."],
+    keeperHome: ["Keeper leash", "Flagkeeper: cost per hex beyond its leash."],
+    defend: ["Keeper defends", "Flagkeeper: cost per hex from its flag while enemies are within 2 of it."],
+    braceCost: ["Brace cost", "Cost of bracing, for the lost Stamina next turn."],
+    endTurnBar: ["End-turn bar", "It ends its turn when no action is worth more than this."],
+    keeperLeash: ["Leash length (hexes)", "How far the Flagkeeper may stray from its flag before the leash cost starts."],
+    commitKeeperWhenAhead: ["Commit keeper when ahead by", "Drop the leash when this many units ahead."],
+    lateTurns: ["Late-game turns", "Drop the leash this many turns before the limit when not ahead on pulls."],
+    noise: ["Sloppiness", "Random wobble added to every score. 0 always plays its best move."],
+    pauseMs: ["Pause (ms)", "Pause between its actions on the board, so you can follow them."],
+    // Brain 5's value model (Brief 006)
+    "model.unit": ["Unit on the field", "Value of having a unit at all. Removing an enemy unit is worth this plus its HP; losing one of ours costs the same."],
+    "model.hp": ["Per HP", "Value of each HP point, ours or theirs. Damage dealt and damage taken both count at this rate."],
+    "model.pull": ["Per flag point", "Value of each point of damage on the enemy flag (from pulls or hits on its holder), and the cost of each point on ours."],
+    "model.risk": ["Fear of damage taken", "How much it counts the damage the enemy can realistically do back next turn: their movement, range and Command; our Armor, Brace, Dodge room and Support. Higher plays safer."],
+    "model.pressure": ["Value of threats", "How much it counts the damage it could do on its own next turn. Higher plays more forward."],
+    "model.stamina": ["Next turn's Stamina", "Value of each point of Stamina a unit will start next turn with. Bracing costs 1 point (a braced unit starts with 2), so this is what a brace has to beat."],
+    "model.advance": ["Advance", "Value of each hex closer to the enemy flag, for every unit except the one holding our flag."],
+    "model.home": ["Holder stays home", "Cost of each hex our flag holder is away from our flag."],
+    "model.flagDanger": ["Empty flag danger", "Cost of leaving our flag empty where enemy units could pull it down next turn."],
+    "model.clock": ["Clock weight", "Value of being ahead on the tiebreak (more flag damage, then fewer units lost), and the cost of being behind, on the last turn. Earlier it counts for less, and nothing before the clock starts."],
+    "model.clockTurns": ["Turns of clock pressure", "How many turns before the turn limit the clock starts to count. It grows evenly to the full Clock weight on the last turn. 0 turns the clock off."],
+    "model.evade": ["Keep an Evade step", "Cost of an attack by a Light unit, next to its target, that leaves it no legal step to Evade: this many times the damage the target is expected to hit back with next turn. Higher keeps movement, Stamina and Command for the step."],
+    // Brain 7 (Brief 019): the lead. The five behaviours are switches: 1 on, 0 off.
+    "lead.lead": ["B1 Know the lead (1 on, 0 off)", "Counts material: each unit other than the holder is worth its unit cap times its share of HP left. Values the lead as (ours − theirs) ÷ (ours + theirs), so it likes even trades when ahead and avoids them when behind. B2 to B5 need this on."],
+    "lead.care": ["B2 No bad trades when ahead (1 on, 0 off)", "When ahead, an attack that likely loses the attacker next turn scores low, unless a kill is likely or a friend can join it this turn or next."],
+    "lead.storm": ["B3 Storm together (1 on, 0 off)", "While storming, values spare units standing where they can reach the enemy goal zone and attack next turn, and doesn't send one unit alone at the enemy holder when more could join next turn."],
+    "lead.holderJoins": ["B4 Holder joins the storm (1 on, 0 off)", "When the enemy has only its holder, our holder may leave our flag to storm, but only if the enemy holder can't reach our flag and pull it down first."],
+    "lead.regroup": ["B5 Regroup when behind (1 on, 0 off)", "When behind, values keeping units within 2 hexes of a friend and avoids lone losing attacks, while there are enough turns left to gather and come again. Late in the game it commits everything."],
+    "lead.aheadAt": ["Ahead by", "It counts as ahead (or behind) when the material lead is at least this much. A full-HP unit of 1 unit cap is worth 1."],
+    "lead.leadWeight": ["Lead weight", "Value of the lead ratio, (ours − theirs) ÷ (ours + theirs). Higher trades down harder when ahead."],
+    "lead.killChance": ["Kill chance that justifies a lone attack", "When ahead, a lone attack that likely loses the attacker is still fine if it kills at least this often (0.5 = half the time)."],
+    "lead.aheadCaution": ["Caution when ahead", "When ahead, its fear of damage taken is multiplied by this. 1 means no extra caution."],
+    "lead.stormLead": ["Storm when ahead on both by", "When ahead on material and on flag damage, it storms only with a material lead of at least this; below it, it holds. Ahead on material but not on flag damage, it always storms."],
+    "lead.stormMin": ["Strike together with", "It attacks the enemy holder when at least this many units can attack it this turn, or when waiting gains nothing."],
+    "lead.gather": ["Gather weight", "While storming: value per point of flag damage its spare units could do next turn from the enemy goal zone."],
+    "lead.press": ["Press the holder", "While storming: extra value of each point of damage on the enemy holder and its flag together. Without it, one hit on a braced holder scores about even (the parry back against the share that reaches the flag), so the storm gathers and then waits."],
+    "lead.regroupSpare": ["Regroup spare turns", "It regroups only while the turns left are at least the turns needed to gather and strike plus this many."],
+    "lead.together": ["Stay together when behind", "While regrouping: cost of each unit with no friend (other than the holder) within 2 hexes."],
+    // Brain 8 (Brief 022): the approach. The four behaviours are switches: 1 on, 0 off.
+    "approach.holderJoins": ["B4 Holder joins the storm (1 on, 0 off)", "When the enemy has only its holder, our holder may leave our flag to storm, but only if the enemy holder can't reach our flag and pull it down first. The same as Brain 7's B4, on its own."],
+    "approach.safe": ["A1 Safe approach (1 on, 0 off)", "A unit that ends its turn where an enemy can strike it first next turn, without having struck this turn and with no friend able to hit that enemy back next turn, counts that first strike as already taken. Striking first, or with a friend covering, is still fine."],
+    "approach.respect": ["A2 Respect a warmed special (1 on, 0 off)", "Units in reach of an enemy's warmed-up special next turn count its full damage (the multiplier, Arrow Storm ignoring Dodge, Arc Hit's extra targets), so stepping out, bracing where the brace saves the unit, or striking the warmed unit first wins when it beats staying."],
+    "approach.tempo": ["A3 Opening tempo (1 on, 0 off)", "Uses the two opening sliders below until the first damage of the match (any unit hurt or any flag pulled)."],
+    "approach.firstStrike": ["First-strike weight", "A1: how much of the enemy's expected first strike (and the unit, if that strike would remove it) it counts as already taken. Higher keeps out of reach more."],
+    "approach.warmedRespect": ["Warmed special weight", "A2: how much of a warmed special's full damage (and the unit, if it would be removed) it counts for each unit in its reach. Higher steps out or braces more."],
+    "approach.tempoFirst": ["Opening tempo, moving first", "From -1 (sit back near its deploy area and let the enemy come) through 0 (as Brain 5) to +1 (close fast and strike first). Scales its advance and its first-strike caution during the opening."],
+    "approach.tempoSecond": ["Opening tempo, moving second", "The same slider for when it moves second, like White and Black in chess."],
+    // Brain 9 (Brief 020): victory values and the spent opening. Switches: 1 on, 0 off.
+    "victory.playToFinish": ["Play to finish (1 on, 0 off)", "Values each way a game can end by the numbers below, and near the turn limit values every position by how the game is likely to end. Off, it plays like Brain 8."],
+    "victory.finish": ["Finish (win by full pull, holder KO or TKO)", "Value of finishing the enemy."],
+    "victory.clockWin": ["Win on the clock", "Value of winning at the turn limit on flag damage."],
+    "victory.draw": ["Draw", "Value of a draw, including a turn-limit game level on flag damage (fewer units lost counts as a draw)."],
+    "victory.clockLoss": ["Loss on the clock", "Value of losing at the turn limit on flag damage."],
+    "victory.finished": ["Being finished", "Value of losing by full pull, holder KO or TKO. Below the clock loss, it guards its flag even when it is losing on the clock."],
+    "victory.endWeight": ["Ending weight", "Value points per point of the likely ending's value, on the last turn. Higher presses (or guards) harder near the limit."],
+    "victory.endTurns": ["Turns of ending pressure", "How many turns before the limit the likely ending starts to count. It grows evenly to full on the last turn."],
+    "victory.guardBlocks": ["Attackers a guard ties up", "Each of its units in or next to its own goal zone (not the holder) is taken to stop this many enemy attackers reaching its flag next turn. The same for the enemy's guards."],
+    "spend.spendOpening": ["Spend the opening Command (1 on, 0 off)", "On its own first turn, Command left unspent costs the value below, so it advances into shape or warms up instead of leaving Command unused. Walking into a warmed enemy special's reach still counts that special's full damage."],
+    "spend.spareCommand": ["Unspent first-turn Command", "Value points lost per point of Command left unspent at the end of its first turn."],
+    "model.useSpecials": ["Use specials", "1: warms up and fires specials (rule sets with specials only), and fears the enemy's warmed-up ones. 0: ignores specials."],
+    "model.special": ["Warmed special's worth", "Weight on what a warmed-up special is likely to add next turn over a normal hit, at its best reachable target. Higher warms up more often."],
+    "model.warmSlack": ["Warm-up reach slack", "Hexes to spare when it judges whether a target will be in reach of the special next turn. Higher warms up only when the target is already close."],
+    "model.warmCost": ["Warm-up cost", "Value points a warm-up costs in a plan, for the Stamina and Command it spends this turn. Higher warms up only when the special is clearly coming."],
+    "model.specialMargin": ["Special margin", "How many value points firing a special must beat the unit's other choices by. Higher saves specials for bigger moments (an unfired special lapses)."],
+    "plan5.warmMoves": ["Warm-up moves tried", "Warm up, then move: tried after this many of the unit's best moves. More is slower."],
+    "plan5.beam": ["Plans kept per step", "How many whole-turn plans it keeps while it builds them up, unit by unit. More is slower and looks wider."],
+    "plan5.perUnit": ["Choices per unit", "How many of each unit's best activations (move, attack, brace, Evade) it combines into plans."]
+  };
+
+  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5, brain6: BRAIN_6, brain7: BRAIN_7, brain8: BRAIN_8, brain9: BRAIN_9 }, BRAIN_LABELS: LABELS };
+  if (typeof module !== "undefined") module.exports = api; else root.GGBrain = api;
+})(this);
