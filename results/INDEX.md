@@ -2,9 +2,11 @@
 
 One line per run, newest first. Written automatically by the lab (`sims/lab/index.js`); don't edit by hand. The same list for scripts is `index.csv`. How this folder works: `README.md`.
 
+- 2026-11-27 · screen · v3.19.00 · brief 028 · [2026-11-27_screen_command-v310-screen](v3.19.00/2026-11-27_screen_command-v310-screen/SUMMARY.md): 7v7-c10-f6: mirror, 14.5% ended on the turn limit, A/B 98–98; 7v7-c10-f10: mirror, 14.5% ended on the turn limit, A/B 97–99; 5v5-c10-f6: mirror, 23.5% ended on the turn limit, A/B 104–93; 5v5-c10-f10: mirror, 23.5% ended on the turn limit, A/B 104–93; 5v5-c8-f5: mirror, 39.0% ended on the turn limit, A/B 91–91; 5v5-c8-f8: mirror, 39.0% ended on the turn limit, A/B 91–91.
 - 2026-11-27 · release · v3.18.00 · [2026-11-27_release_release-v3-18-00](v3.18.00/2026-11-27_release_release-v3-18-00/SUMMARY.md): 5v5: mirror, 43.6% ended on the turn limit, A/B 471–455; 7v7: mirror, 14.3% ended on the turn limit, A/B 491–494.
 - 2026-11-26 · nightly · v3.17.00 · [2026-11-26_nightly_health](v3.17.00/2026-11-26_nightly_health/SUMMARY.md): passed: all 4 night checks
 - 2026-11-25 · nightly · v3.17.00 · [2026-11-25_nightly_health](v3.17.00/2026-11-25_nightly_health/SUMMARY.md): passed: all 4 night checks
+- 2026-11-24 · study · v3.18.00 · brief 028 · [2026-11-24_study_storm-v310](v3.18.00/2026-11-24_study_storm-v310/SUMMARY.md): v39-5v5: mirror, 44.3% ended on the turn limit, A/B 492–440; v310-5v5: mirror, 23.4% ended on the turn limit, A/B 504–476; v39-7v7: mirror, 10.9% ended on the turn limit, A/B 500–492; v310-7v7: mirror, 13.2% ended on the turn limit, A/B 494–490.
 - 2026-11-24 · nightly · v3.17.00 · [2026-11-24_nightly_health](v3.17.00/2026-11-24_nightly_health/SUMMARY.md): passed: all 4 night checks
 - 2026-11-23 · nightly · v3.17.00 · [2026-11-23_nightly_health](v3.17.00/2026-11-23_nightly_health/SUMMARY.md): passed: all 4 night checks
 - 2026-11-23 · release · v3.17.00 · [2026-11-23_release_release-v3-17-00](v3.17.00/2026-11-23_release_release-v3-17-00/SUMMARY.md): 5v5: mirror, 42.2% ended on the turn limit, A/B 493–439; 7v7: mirror, 13.5% ended on the turn limit, A/B 490–498.

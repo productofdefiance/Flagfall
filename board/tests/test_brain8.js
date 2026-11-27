@@ -91,11 +91,13 @@ const DUEL = { "N-HM": "D3", "N-HM2": "C4", "N-HA": "E4", "N-LM": null, "N-LR": 
   console.log(`  3a. warmed Arrow Storm would deal ${hitA.toFixed(1)} to our Light Melee (16 HP), counted at ${B8.approach.warmedRespect}; Brain 8: ${fmt(pa)} (in reach after: ${inWarm(sa, U(sa, "N-LM"))})`);
   ok(inWarm(a, U(a, "N-LM")) && !inWarm(sa, U(sa, "N-LM")), "3a. Brain 8 steps out of the warmed storm's reach");
   // b. our Heavy Melee pinned (no movement left) inside reach on 7 HP: the storm removes it, a brace (2 less) leaves it alive
-  const b = setup(Object.assign({}, base, { "N-LM": null, "N-HM2": "D7" })); U(b, "S-LR").sp = "warm"; U(b, "N-HM2").moved = 99; U(b, "N-HM2").hp = 7;
+  // Brief 028: its health is the storm's own hit (7 at 2 times on v3.9, 6 at 1.5 times on v3.10), so the set-up holds on the newest rules
+  const b = setup(Object.assign({}, base, { "N-LM": null, "N-HM2": "D7" })); U(b, "S-LR").sp = "warm"; U(b, "N-HM2").moved = 99;
+  const hpB = Bot.specHit(b, U(b, "S-LR"), U(b, "N-HM2")); U(b, "N-HM2").hp = hpB;
   const bb = E.cloneLite(b); E.apply(bb, { type: "brace", uid: "N-HM2" });
   const hitB = Bot.specHit(b, U(b, "S-LR"), U(b, "N-HM2")), hitBb = Bot.specHit(bb, U(bb, "S-LR"), U(bb, "N-HM2")), pb = Bot.planTurn5(b, B8A);
-  console.log(`  3b. pinned Heavy Melee on 7 HP: storm ${hitB.toFixed(1)} unbraced, ${hitBb.toFixed(1)} braced; Brain 8: ${fmt(pb)}`);
-  ok(hitB >= 7 && hitBb < 7, "3b. the storm removes it unbraced and not braced");
+  console.log(`  3b. pinned Heavy Melee on ${hpB} HP: storm ${hitB.toFixed(1)} unbraced, ${hitBb.toFixed(1)} braced; Brain 8: ${fmt(pb)}`);
+  ok(hitB >= hpB && hitBb < hpB, "3b. the storm removes it unbraced and not braced");
   ok(pb.steps.some((x) => x.type === "brace" && x.uid === "N-HM2"), "3b. Brain 8 braces");
   // c. our Light Ranged pinned 3 hexes from the warmed archer on 3 HP: a brace can't save it, a shot can remove the archer
   const c = setup(Object.assign({}, base, { "N-LM": null, "N-LR": "D10" })); U(c, "S-LR").sp = "warm"; U(c, "N-LR").moved = 99; U(c, "N-LR").hp = 3; U(c, "S-LR").hp = 4;

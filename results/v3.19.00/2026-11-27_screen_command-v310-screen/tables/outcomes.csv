@@ -1,0 +1,7 @@
+matchup,a,b,rules,format,lineups,games,a_wins,b_wins,a_tiebreak,b_tiebreak,draws,unfinished,errors,holder_ko,pull_ko,tko,tiebreak_win,draw,turn_limit,games_with_pull,avg_turn,decisive,first_mover_share,a_share,a_share_se
+7v7-c10-f6,brain8,brain8,v3.10,std7,mixed,200,88,83,10,15,4,0,0,13,124,34,25,4,29,124,16.54,171,0.4795,0.5,0.0354
+7v7-c10-f10,brain8,brain8,v3.10,std7,mixed,200,81,90,16,9,4,0,0,5,130,36,25,4,29,130,16.18,171,0.6725,0.495,0.0354
+5v5-c10-f6,brain8,brain8,v3.10,blitz5,mixed,200,77,76,27,17,3,0,0,16,116,21,44,3,47,116,14.36,153,0.3333,0.5275,0.0354
+5v5-c10-f10,brain8,brain8,v3.10,blitz5,mixed,200,77,76,27,17,3,0,0,16,116,21,44,3,47,116,14.36,153,0.3333,0.5275,0.0354
+5v5-c8-f5,brain8,brain8,v3.10,blitz5,mixed,200,65,57,26,34,18,0,0,8,82,32,60,18,78,82,17.09,122,0.5738,0.5,0.0354
+5v5-c8-f8,brain8,brain8,v3.10,blitz5,mixed,200,65,57,26,34,18,0,0,8,82,32,60,18,78,82,17.09,122,0.5738,0.5,0.0354

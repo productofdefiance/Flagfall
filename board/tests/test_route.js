@@ -16,7 +16,7 @@ const rows = [];   // the route table for the Report
 
 // ---- The preset ----
 ok(V39 && V39.switches.routeRule211 === true, "v3.9 has switch routeRule211");
-ok(PRESETS[PRESETS.length - 1] === V39, "v3.9 is the newest preset (the new-game default)");
+ok(PRESETS.indexOf(V39) === PRESETS.indexOf(V38) + 1 && PRESETS.indexOf(V39) < PRESETS.length, "v3.9 follows v3.8 (v3.10, brief 028, is the newest)");
 { const a = JSON.parse(JSON.stringify(V38)), b = JSON.parse(JSON.stringify(V39));
   for (const k of ["id", "name", "note"]) { delete a[k]; delete b[k]; }
   delete b.switches.routeRule211;

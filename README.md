@@ -54,6 +54,7 @@ node tests/test_v36.js
 node tests/test_v37.js
 node tests/test_fields.js
 node tests/test_route.js
+node tests/test_v310.js
 node tests/test_stamina.js
 node tests/test_reasons.js
 node tests/test_kitd.js
@@ -69,6 +70,7 @@ node tests/test_phone.js
 node tests/test_spflow.js
 node tests/test_spengine.js
 node tests/test_hotseat.js
+node tests/test_rematch.js
 node tests/test_events.js
 node tests/test_invariants.js
 node tests/test_rng.js

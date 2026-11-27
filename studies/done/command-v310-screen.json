@@ -1,0 +1,17 @@
+{
+  "id": "command-v310-screen",
+  "kind": "screen",
+  "brief": "028",
+  "question": "On v3.10 (Arrow Storm 1.5 times), does equal first-turn Command put the first mover inside 45-55% of decisive games, and does 5v5 at Command 8 fix the 41.9% (F028-2)? Brain 8 against itself, balanced, same seeds per format. Sim-only Command changes: a screen, not a ruling (F23).",
+  "tags": ["command", "move-order", "brain8", "v3.10", "F028-2", "F12"],
+  "measures": ["firstloss", "specials", "play"],
+  "matchups": [
+    { "name": "7v7-c10-f6", "a": "brain8", "b": "brain8", "rules": "v3.10", "format": "std7", "mix": "mixed", "games": 200 },
+    { "name": "7v7-c10-f10", "a": "brain8", "b": "brain8", "rules": "v3.10", "format": "std7", "mix": "mixed", "games": 200, "seed_as": "7v7-c10-f6", "set": { "game.command": 10, "game.firstTurnCommand": 10 } },
+    { "name": "5v5-c10-f6", "a": "brain8", "b": "brain8", "rules": "v3.10", "format": "blitz5", "mix": "mixed", "games": 200 },
+    { "name": "5v5-c10-f10", "a": "brain8", "b": "brain8", "rules": "v3.10", "format": "blitz5", "mix": "mixed", "games": 200, "seed_as": "5v5-c10-f6", "set": { "game.command": 10, "game.firstTurnCommand": 10 } },
+    { "name": "5v5-c8-f5", "a": "brain8", "b": "brain8", "rules": "v3.10", "format": "blitz5", "mix": "mixed", "games": 200, "seed_as": "5v5-c10-f6", "set": { "game.command": 8, "game.firstTurnCommand": 5 } },
+    { "name": "5v5-c8-f8", "a": "brain8", "b": "brain8", "rules": "v3.10", "format": "blitz5", "mix": "mixed", "games": 200, "seed_as": "5v5-c10-f6", "set": { "game.command": 8, "game.firstTurnCommand": 8 } }
+  ],
+  "flags": ["F028-2", "F12"]
+}
