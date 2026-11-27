@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (26 Nov, 1:21 pm ET)
-  Queue: clear · lab using 1 of 20
+  Queue: 13 jobs waiting, oldest 0 min · lab using 13 of 20
   screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov
   release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov
