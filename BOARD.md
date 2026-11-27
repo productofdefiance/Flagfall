@@ -1,15 +1,16 @@
-STATUS · updated 27 Nov 2026, 1:00 am ET
+STATUS · updated 27 Nov 2026, 1:05 am ET
 
 VERSION
   On main: v3.18.00 · Build 23 · Rules v3.9 · Brain 8
-  Building: 028 → v3.19.00 · 029 → v3.19.00
+  Building: 028 → v3.19.00 · 029 → v3.20.00
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (26 Nov, 1:21 pm ET)
-  Queue: 54 jobs waiting, oldest 5 min · lab using 2 of 20
+  Queue: 26 jobs waiting, oldest 9 min · lab using 13 of 20
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov
 
 FLAGS (open, newest first)
+  ! F029-2 · ASK · 27 Nov · Version numbers clash when several pull requests are open: each build takes "the next…
   ! F029-1 · ASK · 26 Nov · Same sides: No moves each team's name to the other end (brief §3). But a name that is…
   ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…
   ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…
@@ -21,8 +22,7 @@ FLAGS (open, newest first)
     F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…
   ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…
   ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…
-  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…
-  +21 older in FLAGS.md
+  +22 older in FLAGS.md
 
 BUILDS
   Building
