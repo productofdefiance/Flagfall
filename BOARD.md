@@ -1,4 +1,4 @@
-STATUS · updated 27 Nov 2026, 1:05 am ET
+STATUS · updated 27 Nov 2026, 1:15 am ET
 
 VERSION
   On main: v3.18.00 · Build 23 · Rules v3.9 · Brain 8
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (26 Nov, 1:21 pm ET)
-  Queue: 26 jobs waiting, oldest 9 min · lab using 13 of 20
+  Queue: 16 jobs waiting, oldest 19 min · lab using 16 of 20
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov
 
 FLAGS (open, newest first)
@@ -26,7 +26,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    028 Arrow storm · PR #65 · Ready · checks running · not reviewed
+    028 Arrow storm · PR #65 · Ready · checks pass · not reviewed
     029 Rematch · PR #67 · Draft · checks running · not reviewed
   Ready to start
     none
