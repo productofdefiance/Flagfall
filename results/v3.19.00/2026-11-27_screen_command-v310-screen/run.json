@@ -1,0 +1,112 @@
+{
+ "id": "2026-11-27_screen_command-v310-screen",
+ "kind": "screen",
+ "version": "v3.19.00",
+ "build": 24,
+ "commit": "b57e6a6ccedb00f2a23e059740b758f93943ffef",
+ "brief": "028",
+ "question": "On v3.10 (Arrow Storm 1.5 times), does equal first-turn Command put the first mover inside 45-55% of decisive games, and does 5v5 at Command 8 fix the 41.9% (F028-2)? Brain 8 against itself, balanced, same seeds per format. Sim-only Command changes: a screen, not a ruling (F23).",
+ "tags": [
+  "command",
+  "move-order",
+  "brain8",
+  "v3.10",
+  "F028-2",
+  "F12"
+ ],
+ "trigger": "pull request",
+ "started": "2026-11-27T05:56:13.000Z",
+ "finished": "2026-11-27T07:04:01.861Z",
+ "games": 1200,
+ "seed_from": "tests/rng.js lab:command-v310-screen:<matchup>, game number + seed_from",
+ "scripts": [
+  "sims/lab/play.js",
+  "sims/lab/merge.js"
+ ],
+ "settings": {
+  "matchups": [
+   {
+    "name": "7v7-c10-f6",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.10",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "7v7-c10-f10",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.10",
+    "format": "std7",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "7v7-c10-f6",
+    "set": {
+     "game.command": 10,
+     "game.firstTurnCommand": 10
+    }
+   },
+   {
+    "name": "5v5-c10-f6",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.10",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200
+   },
+   {
+    "name": "5v5-c10-f10",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.10",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5-c10-f6",
+    "set": {
+     "game.command": 10,
+     "game.firstTurnCommand": 10
+    }
+   },
+   {
+    "name": "5v5-c8-f5",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.10",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5-c10-f6",
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 5
+    }
+   },
+   {
+    "name": "5v5-c8-f8",
+    "a": "brain8",
+    "b": "brain8",
+    "rules": "v3.10",
+    "format": "blitz5",
+    "mix": "mixed",
+    "games": 200,
+    "seed_as": "5v5-c10-f6",
+    "set": {
+     "game.command": 8,
+     "game.firstTurnCommand": 8
+    }
+   }
+  ],
+  "measures": [
+   "firstloss",
+   "specials",
+   "play"
+  ]
+ },
+ "failed": null,
+ "extra": {},
+ "answer": "7v7-c10-f6: mirror, 14.5% ended on the turn limit, A/B 98–98; 7v7-c10-f10: mirror, 14.5% ended on the turn limit, A/B 97–99; 5v5-c10-f6: mirror, 23.5% ended on the turn limit, A/B 104–93; 5v5-c10-f10: mirror, 23.5% ended on the turn limit, A/B 104–93; 5v5-c8-f5: mirror, 39.0% ended on the turn limit, A/B 91–91; 5v5-c8-f8: mirror, 39.0% ended on the turn limit, A/B 91–91."
+}

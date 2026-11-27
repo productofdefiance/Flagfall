@@ -1,0 +1,7 @@
+matchup,games,first_lost_side,first_lost_turn,first_lost_card,first_lost_by,first_lr_lost_side,first_lr_lost_turn,reach_contact_turn,reach_contact_side,first_strike_side
+7v7-c10-f6,200,first:110 second:90,423,LA:138 LR:15 LM:39 HR:8,LM special:51 LM attack:19 HR attack:41 LR special:17 LA special:38 LR attack:27 HM attack:2 LA attack:4 HA attack:1,first:98 second:102,734,272,first:65 second:135,first:171 second:29
+7v7-c10-f10,200,second:130 first:70,414,LA:124 LM:61 LR:11 HR:4,HR attack:40 LR attack:31 LA special:54 LM attack:40 HR special:3 LM special:13 LR special:9 HM attack:6 LA attack:4,second:107 first:93,661,272,first:67 second:133,second:29 first:171
+5v5-c10-f6,200,first:168 second:32,402,LR:128 LM:72,HM attack:85 HA attack:18 LM special:30 LR attack:54 LM attack:1 LR special:12,first:159 second:41,474,258,second:142 first:58,second:142 first:58
+5v5-c10-f10,200,first:168 second:32,402,LR:128 LM:72,HM attack:85 HA attack:18 LM special:30 LR attack:54 LM attack:1 LR special:12,first:159 second:41,474,258,second:142 first:58,second:142 first:58
+5v5-c8-f5,200,second:59 first:141,459,LR:115 LM:85,LM attack:35 LR special:12 LM special:34 HA attack:73 LR attack:32 HM attack:14,second:82 first:118,589,258,second:142 first:58,first:114 second:86
+5v5-c8-f8,200,second:59 first:141,459,LR:115 LM:85,LM attack:35 LR special:12 LM special:34 HA attack:73 LR attack:32 HM attack:14,second:82 first:118,589,258,second:142 first:58,first:114 second:86
