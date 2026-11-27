@@ -133,7 +133,7 @@ The standard items, plus: the two-order merge outputs; the clicks for the requir
   - The check also fails a brief pull request (title `NNN …`) with no releases file, even with no board change. Otherwise a tooling brief could forget it and `waits-on` would never go green for briefs waiting on it.
   - `BASE.json` lists the 28 briefs merged the old way. Without it, `waits-on` would fail this very pull request ("Waits on 029") and every brief waiting on an old one.
   - `waits-on` is a commit status, not a job name. Only a status can be set again from `main` without re-running the pull request's workflow (re-runs are capped).
-- **Checks run and results:** see the end of this Report.
+- **Checks run and results:** every check in `README.md` passed in this session (stamped board): the 33 `board/tests/test_*.js` (test_v32 at 40, invariants at 30, browser checks included), the lab and status tests, `tools/test_tools.js`, the red-team invariants (30) and `board_check.js` (10 games). `test_stall.js` failed once (it guessed an unstamped run's folder name); fixed, and it now passes stamped and unstamped. These were session runs; GitHub's `checks` must still pass.
   - **Two merges in both orders** (scratch copy of this repository with 031 merged; pretend 090 = YY, `app.js` only; 091 = ZZ, `data.js`):
     ```
     check 090: OK: releases/090.json (bump YY) matches brief 090; board/ changed.
