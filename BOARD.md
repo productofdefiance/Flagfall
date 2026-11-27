@@ -1,8 +1,8 @@
-STATUS · updated 27 Nov 2026, 3:43 am ET
+STATUS · updated 27 Nov 2026, 3:44 am ET
 
 VERSION
   On main: v3.20.00 · Build 25 · Rules v3.10 · Brain 8
-  Building: none
+  Building: 031 → ZZ
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (26 Nov, 1:21 pm ET)
@@ -13,7 +13,7 @@ RESULTS (last 24 hours)
   nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov
 
 FLAGS (open, newest first)
-  ! F029-2 · ASK · 27 Nov · Version numbers clash when several pull requests are open: each build takes "the next…
+  ! F031-1 · ASK · 27 Nov · A follow-up fix to a brief that has already merged has no path. Every pull request that…
   ! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…
   ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…
   ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…
@@ -29,10 +29,9 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    none
+    031 Version at merge · PR #73 · Draft · checks running · not reviewed
   Ready to start
     012 Cavalry
-    031 Version at merge
   Waiting
     none
   Merged (last 3)
