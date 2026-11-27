@@ -156,9 +156,16 @@
     },
     saveLive(match) {
       if (match.watch) return Promise.resolve();   // a watched sim game (Brief 008) never replaces your own live match
+      if (match === App.match && App.st && App.st.phase === "over") return Promise.resolve();   // Brief 029: a finished match is never the live one
       match.updated = new Date().toISOString();
       this.local("live", match);
       return this.write("live/current", { match }).catch(() => {});
+    },
+    /** Brief 029: a match that ends is no longer the live match, on this device and in the database. */
+    clearLive() {
+      App.live = null;
+      this.local("live", null);
+      return this.write("live/current", { match: null }).catch(() => {});
     },
     summary(match, st, how, winner) {
       return { id: match.id, started: match.started, finished: new Date().toISOString(), ruleset: match.rs.name, game: match.game || null, build: match.build || null, format: match.opts.format || null,
@@ -271,11 +278,12 @@
   }
   function startMatch() {
     const s = App.setup, rs = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET, fm = formatOf(s.format);
-    const players = {}, brains = {}, names = {}, lineups = {};
+    const players = {}, brains = {}, names = {}, lineups = {}, mix = {};
     for (const t of ["N", "S"]) {
       const p = s.players[t];
       if (p.type === "bot") {
         const b = App.brains[p.brainId] || BR.DEFAULT_BRAINS.standard;
+        mix[t] = p.mix || "open";
         players[t] = { type: "bot", brainId: b.id }; brains[t] = E.clone(b); names[t] = p.name && p.name !== sideName(t) ? p.name : sideName(t);
         lineups[t] = toLineup(rs, mixPick(rs, fm.size, p.mix || "open", t, p));   // Teams screen: Heavy, Light, Mixed, Open (the kit's squad) or Random
       } else {
@@ -286,6 +294,7 @@
     App.match = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), game: V.game || null, build: V.build, rs: E.clone(rs),
       opts: { first: "N", players, names, lineups, seed: s.seed, format: fm.id, coin: s.first === "coin" }, brains, actions: [], draws: 0,
       view: s.view || "handoff" };   // Brief 018 §3: display only, kept beside the options; the engine never sees it
+    if (Object.keys(mix).length) App.match.mix = mix;   // Brief 029: each bot side's mix, so a rematch can draw again (display only; the lineups are in opts)
     App.match.opts.first = s.first === "coin" ? (rand() < 0.5 ? "N" : "S") : s.first;
     rebuild();
     resetUi();
@@ -294,6 +303,69 @@
     App.live = App.match;
     if (App.match.opts.coin) toast(`Coin toss: ${sideName(App.st.first)} moves first.`);
     show("play");
+  }
+
+  // ---------- Rematch (Brief 029, Approved UI v7) ----------
+  /** A lineup in the engine's form back to the Lineup screen's pick (the inverse of toLineup). */
+  function fromLineup(rs, lineup) {
+    const pick = { keeper: null, counts: {} };
+    for (const u of lineup || []) { if (u.fk && !noKeeper(rs)) pick.keeper = u.card; else pick.counts[u.card] = (pick.counts[u.card] || 0) + 1; }
+    if (!pick.keeper && !noKeeper(rs)) pick.keeper = rs.cards.HM ? "HM" : Object.keys(rs.cards)[0];
+    return pick;
+  }
+  /** The rematch sheet's choices, all Yes each time it opens; Same dice: No shows one new seed, kept while it is open. */
+  const rematchSheet = () => ({ kind: "rematch", lineups: true, sides: true, dice: true, newSeed: E.makeSeed() });
+  /** The new match, built from the finished match's own record: the rule set, format, brains (with their settings),
+      types, names and hot-seat view as played. Same sides: No puts each team on the other end and keeps opts.first
+      (the end that moved first moves first again). Same lineups: No redraws a bot from its mix with the rematch's
+      seed and side, and takes a human's lineup from `picks` (the Lineup screen). */
+  function rematchOf(m, c, picks) {
+    const o = m.opts, rs = E.clone(m.rs), fm = formatOf(o.format), seed = c.dice ? o.seed : c.newSeed;
+    const from = (t) => (c.sides ? t : E.foeOf(t));
+    const players = {}, names = {}, lineups = {}, brains = {}, mix = {};
+    for (const t of ["N", "S"]) {
+      const f = from(t), p = o.players && o.players[f] ? E.clone(o.players[f]) : { type: "human" };
+      players[t] = p;
+      // A name that is just its end's name ("North") stays with the end; a name the player typed goes with the team.
+      names[t] = o.names[f] === sideName(f) ? sideName(t) : o.names[f];
+      if (m.brains && m.brains[f]) brains[t] = E.clone(m.brains[f]);
+      if (m.mix && m.mix[f]) mix[t] = m.mix[f];
+      if (c.lineups) lineups[t] = E.clone(o.lineups[f]);
+      else if (p.type === "bot") lineups[t] = mix[t] ? toLineup(rs, WT.mixCounts(rs, fm.size, mix[t], seed, t, brains[t] || BR.DEFAULT_BRAINS.standard)) : E.clone(o.lineups[f]);
+      else lineups[t] = picks && picks[t] ? toLineup(rs, picks[t]) : E.clone(o.lineups[f]);
+    }
+    const r = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), game: V.game || null, build: V.build, rs,
+      opts: Object.assign(E.clone(o), { first: o.first, players, names, lineups, seed }), brains, actions: [], draws: 0, view: m.view || "handoff" };
+    if (Object.keys(mix).length) r.mix = mix;
+    return r;
+  }
+  function startRematch(c, picks) {
+    const m = App.rematch ? App.rematch.from : App.match;
+    App.rematch = null;
+    App.match = rematchOf(m, c, picks);
+    // A coin-toss match tosses again whatever the dice: draw 0 is still taken (so every later roll keeps its draw
+    // number and the same dice really repeat), but the side comes from a fresh toss. opts.first records it for replay.
+    if (App.match.opts.coin) { rand(); App.match.opts.first = Math.random() < 0.5 ? "N" : "S"; }
+    rebuild();
+    resetUi();
+    beginDeploy();
+    Store.saveLive(App.match);
+    App.live = App.match;
+    if (App.match.opts.coin) toast(`Coin toss: ${sideName(App.st.first)} moves first.`);
+    show("play");
+  }
+  /** The rematch sheet's go button: straight in, or through the Lineup screen for each human side. */
+  function rematchGo() {
+    const c = App.ui.sheet, m = App.match;
+    if (!c || c.kind !== "rematch" || !m) return;
+    const from = (t) => (c.sides ? t : E.foeOf(t));
+    const humans = ["N", "S"].filter((t) => !(m.opts.players && m.opts.players[from(t)] && m.opts.players[from(t)].type === "bot"));   // the ends they will play
+    if (c.lineups || !humans.length) { startRematch(c); return; }
+    App.rematch = { from: m, c: E.clone(c), rs: m.rs, format: m.opts.format };
+    App.picks = {};
+    for (const t of humans) App.picks[t] = fromLineup(m.rs, m.opts.lineups[from(t)]);
+    App.lineupQueue = humans;
+    openLineup(humans[0]);
   }
 
   // ---------- Watch a simulated game (Brief 008) ----------
@@ -354,7 +426,7 @@
     const u = action.uid && E.unitByUid(st, action.uid);
     if (!u || u.hp <= 0 || u.done || action.type === "end") ui.sel = null;
     if (action.type === "end" && st.phase === "play" && !isBot(st.toMove)) ui.botReason = "";
-    Store.saveLive(App.match);
+    if (st.result) Store.clearLive(); else Store.saveLive(App.match);
     if (st.result && before < st.actions.length) { ui.sheet = { kind: "over" }; Store.saveFinished(App.match, st).then(loadMatches); }
     render();
     return r;
@@ -572,6 +644,7 @@
   }
   function teamsNext() {
     const s = App.setup;
+    App.rematch = null;
     const rs = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET, size = formatOf(s.format).size;
     App.picks = {};
     for (const t of ["N", "S"]) {
@@ -592,6 +665,9 @@
   }
 
   // ---------- Lineup ----------
+  /** The rule set and format the Lineup screen picks for: the finished match's during a rematch (Brief 029), else Settings'. */
+  const lineupCtx = () => (App.rematch ? { rs: App.rematch.rs, format: App.rematch.format }
+    : { rs: App.rulesets[App.setup.rulesetId] || D.DEFAULT_RULESET, format: App.setup.format });
   /** The − / count / + stepper for one card, as on the Lineup row and the card's pinned bar. */
   function stepper(rs, pick, code, used, size) {
     const c = rs.cards[code], n = pick.counts[code] || 0;
@@ -603,7 +679,7 @@
   function renderLineupCard() {
     const el = $("lsheet"), dim = $("lscrim"), code = App.lineupCard;
     if (!code || App.view !== "lineup" || !App.picks[App.lineupSide]) { el.hidden = true; dim.hidden = true; return; }
-    const s = App.setup, t = App.lineupSide, rs = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET, size = formatOf(s.format).size;
+    const t = App.lineupSide, { rs, format } = lineupCtx(), size = formatOf(format).size;
     const c = rs.cards[code]; if (!c) { App.lineupCard = null; el.hidden = true; dim.hidden = true; return; }
     const pick = App.picks[t], used = beingsOf(rs, pick), r = UI.rangeStat(c);
     const keepScroll = el.querySelector(".ls-body") ? el.querySelector(".ls-body").scrollTop : 0;
@@ -617,7 +693,7 @@
     if (wasHidden) { const b = el.querySelector('[data-act="lineup-card-close"]'); if (b) b.focus(); }
   }
   function renderLineup() {
-    const s = App.setup, t = App.lineupSide, rs = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET, size = formatOf(s.format).size;
+    const t = App.lineupSide, { rs, format } = lineupCtx(), size = formatOf(format).size;
     const pick = App.picks[t], col = teamColor(t), used = beingsOf(rs, pick);
     const kc = pick.keeper ? rs.cards[pick.keeper] : null;
     const cards = Object.keys(rs.cards);
@@ -631,21 +707,22 @@
     }).join("");
     const last = App.lineupQueue[App.lineupQueue.length - 1] === t;
     $("view-lineup").innerHTML = `<div class="scroll" style="display:flex;flex-direction:column"><div class="wrap" style="flex:1">
-      ${backbar(sideName(t) + " lineup", "teams")}${steps(3)}
+      ${App.rematch ? backbar(sideName(t) + " lineup").replace('data-act="go" data-to="home"', 'data-act="rematch-back"') : backbar(sideName(t) + " lineup", "teams")}${steps(3)}
       <div class="counter"><div class="row" style="justify-content:space-between"><span class="lab" style="font:600 13px/1 var(--body)">Unit cap (UC)</span><span class="num" style="font:600 15px/1 var(--num)">${used}/${size}</span></div><div class="pips">${pips}</div></div>
       ${kc ? `<div class="field"><label for="keeper-pick">Flagkeeper</label>
         <div class="keeper">${tokenInline(iconKey(rs, pick.keeper), t, 34, true)}<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
           <select class="inp" id="keeper-pick" data-keeper="1" style="height:40px;font-weight:600">${cards.map((c) => `<option value="${c}" ${c === pick.keeper ? "selected" : ""}>${esc(rs.cards[c].name)}</option>`).join("")}</select>
           <span class="hint">${statLine(kc)}. Moves ${E.capOf({ rs }, { card: pick.keeper, fk: true })} as keeper.</span></div></div></div>` : ""}
       <div class="field"><span class="lab">Units</span><span class="hint">${kc ? `Pick ${size - 1} more.` : `Pick ${size}. Any unit can hold the flag: place it on the flag hex when you deploy.`} Repeats are allowed.</span><div class="urows">${rows}</div></div>
-    </div><div class="footer"><button class="btn" data-act="go" data-to="teams" style="flex:1">Back</button>
+    </div><div class="footer"><button class="btn" data-act="lineup-reset" style="flex:1">Reset</button>
       <button class="btn primary" data-act="lineup-next" style="flex:2" ${used === size ? "" : "disabled"}>${last ? "Start match" : "Next: " + sideName(E.foeOf(t)) + " lineup"}</button></div></div>`;
   }
   function lineupNext() {
-    const s = App.setup, t = App.lineupSide;
-    const saved = Store.local("picks") || {}; saved[s.format + ":" + t] = App.picks[t]; Store.local("picks", saved);
+    const t = App.lineupSide, { format } = lineupCtx();
+    const saved = Store.local("picks") || {}; saved[format + ":" + t] = App.picks[t]; Store.local("picks", saved);
     const i = App.lineupQueue.indexOf(t);
     if (i < App.lineupQueue.length - 1) openLineup(App.lineupQueue[i + 1]);
+    else if (App.rematch) startRematch(App.rematch.c, App.picks);
     else startMatch();
   }
 
@@ -1909,13 +1986,14 @@
     if (!sh && wide() && st.phase === "play" && (previewRoute() || enemyTapped()) && (ui.keyRows || []).length) sh = { kind: "key", auto: true };
     const phone = !wide();
     $("view-play").classList.toggle("sheet-up", !!(phone && sh && !App.ui.cover && ["attack", "special", "pull"].includes(sh.kind)));   // §6: the sheet takes the unit bar's place
+    $("view-play").classList.toggle("end-up", !!(phone && sh && !App.ui.cover && ["over", "rematch"].includes(sh.kind)));   // Brief 029: the end sheets take the bottom (nothing below is playable)
     if (!sh || App.ui.cover) { el.hidden = true; sc.hidden = true; return; }
     if (sh.kind === "key") {
       el.hidden = false; sc.hidden = true; el.className = "preview keysheet";
       el.innerHTML = (sh.auto ? "" : `<button type="button" class="handle" data-act="key-close" aria-expanded="true" aria-controls="fieldkey" aria-label="Hide the key"><span></span></button>`) + keyHtml(ui.keyRows || []);
       return;
     }
-    el.hidden = false; sc.hidden = sh.kind === "over" || wide();
+    el.hidden = false; sc.hidden = sh.kind === "over" || sh.kind === "rematch" || wide();
     const g = st.rs.game, grab = `<div class="grab" aria-hidden="true"></div>`;
     const two = !!(st.rs.switches && st.rs.switches.dice2d6);
     const diceRow = (v, dodge) => `<div class="dice">${E.dieCases(st).map(([d, p, label]) => `<div><small>${two ? "" : "Die "}${label}${two ? ` · ${Math.round(p * 1000) / 10}%` : ""}</small><b>${fmt(E.applyDie(st, v, d, dodge))}</b></div>`).join("")}</div>`;
@@ -1956,9 +2034,33 @@
         stats: [["Str", fmt(c.str)], [r.label, fmt(r.val)], ["Move", fmt(E.capOf(st, x))]] });
     } else if (sh.kind === "over") {
       const r = st.result;
+      el.className = "endsheet";   // Brief 029 §1 (Approved UI v7): New game the big button; See field · Copy record · Rematch under it
       el.innerHTML = `${grab}<h2>${r.winner ? esc(st.names[r.winner]) + " wins" : "Draw"}</h2><p class="note">${esc(say(r.how))} on turn ${st.turn}. Saved under Matches.</p>
-        <div class="row" style="flex-wrap:nowrap"><button class="btn" data-act="sheet-close" style="flex:1">See field</button><button class="btn" data-act="copy-record" style="flex:1">Copy record</button><button class="btn primary" data-act="new" style="flex:1">New game</button></div>`;
+        <button class="btn primary end-new" data-act="new">New game</button>
+        <div class="end-row"><button class="btn" data-act="sheet-close">See field</button><button class="btn" data-act="copy-record">Copy record</button><button class="btn" data-act="rematch">Rematch</button></div>`;
+    } else if (sh.kind === "rematch") {
+      el.className = "endsheet";
+      el.innerHTML = grab + rematchHtml(st, sh);
     } else { ui.sheet = null; el.hidden = true; sc.hidden = true; }
+  }
+
+  /** Brief 029 §2 (Approved UI v7): the rematch sheet. Each option's help line sits under its name and never wraps;
+      the Yes/No switches share one 132 px column. */
+  function rematchHtml(st, sh) {
+    const m = App.match, o = m.opts;
+    const who = (t) => (isBot(t) ? `Bot (${brainOf(t).name})` : st.names[t]);
+    const first = sideName(o.first);
+    const sw = (k, v) => `<div class="seg rm-seg" role="group" aria-label="${k === "lineups" ? "Same lineups" : k === "sides" ? "Same sides" : "Same dice"}">${[["1", "Yes"], ["0", "No"]].map(([x, l]) => `<button type="button" data-act="rm-set" data-k="${k}" data-v="${x}" aria-pressed="${(x === "1") === v}">${l}</button>`).join("")}</div>`;
+    const row = (k, name, help, v, extra) => `<div class="rm-row"><div class="rm-main"><div class="rm-l"><div class="rm-n">${name}</div><div class="rm-h">${esc(help)}</div></div>${sw(k, v)}</div>${extra || ""}</div>`;
+    const sidesHelp = o.coin ? (sh.sides ? "Same ends. New coin toss." : "Ends swap. New coin toss.") : (sh.sides ? `Same ends. ${first} moves first.` : `Ends swap. ${first} still moves first.`);
+    const code = sh.dice ? o.seed : sh.newSeed;
+    const seed = `<div class="rm-seed"><div class="rm-code" aria-label="Game seed"><span class="num">${esc(code || "")}</span>${sh.dice ? "" : `<small>New</small>`}</div><button type="button" class="iconbtn rm-copy" data-act="rm-seed-copy" aria-label="Copy game seed">${ic("copy", 20)}</button></div>`;
+    const humans = ["N", "S"].some((t) => !isBot(t));
+    return `<h2>Rematch</h2><p class="note">${esc(formatOf(o.format).label)} · Rules ${esc(m.rs.id)} · ${esc(who("N"))} vs ${esc(who("S"))}. Format and settings stay.</p>
+      <div class="rm-rows">${row("lineups", "Same lineups", sh.lineups ? "Both sides keep their units." : "Pick again on the Lineup screen.", sh.lineups)}
+      ${row("sides", "Same sides", sidesHelp, sh.sides)}
+      ${row("dice", "Same dice", sh.dice ? "Same code: same moves, same rolls." : "New code, new rolls.", sh.dice, seed)}</div>
+      <div class="rm-btns"><button class="btn" data-act="rm-cancel">Cancel</button><button class="btn primary" data-act="rm-go">${!sh.lineups && humans ? "Next: Lineup" : "Start rematch"}</button></div>`;
   }
 
   // ---------- The match log (Brief 018 §10, Approved UI v4) ----------
@@ -2352,7 +2454,7 @@
       case "go-opponent": show("opponent"); break;
       case "go-match": loadMatches(); show("match"); break;
       case "continue": {
-        if (App.live && (!App.match || App.match.id !== App.live.id)) { App.match = E.clone(App.live); rebuild(); resetUi(); if (App.st.phase === "deploy") beginDeploy(); else App.ui.scrollTo = fld().centre; }
+        if (App.live && (!App.match || App.match.id !== App.live.id)) { App.match = E.clone(App.live); App.live = App.match; rebuild(); resetUi(); if (App.st.phase === "deploy") beginDeploy(); else App.ui.scrollTo = fld().centre; }
         show("play"); break;
       }
       case "new": {
@@ -2360,9 +2462,12 @@
         if (cur) {
           if (!(await confirmBox("Abandon the match in progress?", "It is saved under Matches as unfinished.", "Abandon and start new", "danger"))) break;
           if (!App.match || App.match.id !== cur.id) { App.match = E.clone(cur); rebuild(); }
-          Store.saveAbandoned(App.match, App.st);
-          App.live = null; App.match = null; App.st = null; Store.local("live", null);
+          const kept = (Store.local("matches") || {})[cur.id] || App.matches.find((x) => x.id === cur.id);
+          if (!(kept && kept.how !== "abandoned") && App.st.phase !== "over") Store.saveAbandoned(App.match, App.st);   // Brief 029: never re-file a finished match
+          else Store.clearLive();
+          App.match = null; App.st = null; Store.clearLive();
         }
+        App.rematch = null;
         App.setup = Object.assign(defaultSetup(), Store.local("setup") || {}, { seed: E.makeSeed() });
         { const latest = D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : null;
           if (latest && Store.local("presetSeen") !== latest) { App.setup.rulesetId = latest; Store.local("presetSeen", latest); Store.local("setup", App.setup); } }
@@ -2380,6 +2485,26 @@
       case "pick-plus": { const p = App.picks[App.lineupSide]; p.counts[el.dataset.card] = (p.counts[el.dataset.card] || 0) + 1; renderLineup(); renderLineupCard(); break; }
       case "pick-minus": { const p = App.picks[App.lineupSide]; p.counts[el.dataset.card] = Math.max(0, (p.counts[el.dataset.card] || 0) - 1); renderLineup(); renderLineupCard(); break; }
       case "lineup-next": lineupNext(); break;
+      case "lineup-reset": {   // Brief 029 §5: every unit count to 0; the Flagkeeper stays; no confirm
+        const p = App.picks[App.lineupSide]; if (!p) break;
+        for (const c in p.counts) p.counts[c] = 0;
+        App.lineupCard = null; renderLineupCard(); renderLineup(); break;
+      }
+      case "rematch-back": {   // Brief 029 §3: the Lineup screen's top arrow during a rematch: back to the sheet, choices as left
+        const r = App.rematch; if (!r) { show("teams"); break; }
+        App.rematch = null; $("cover").hidden = true;
+        App.match = r.from; rebuild(); resetUi(); App.ui.sheet = r.c; show("play"); break;
+      }
+      case "rematch": ui.sheet = rematchSheet(); render(); break;
+      case "rm-set": if (ui.sheet && ui.sheet.kind === "rematch") { ui.sheet[el.dataset.k] = el.dataset.v === "1"; renderSheet(); } break;
+      case "rm-cancel": ui.sheet = { kind: "over" }; render(); break;
+      case "rm-go": rematchGo(); break;
+      case "rm-seed-copy": {
+        const sh = ui.sheet; if (!sh || sh.kind !== "rematch") break;
+        const v = sh.dice ? App.match.opts.seed : sh.newSeed;
+        try { await navigator.clipboard.writeText(v); toast("Seed copied."); } catch (e) { toast("Seed: " + v); }
+        break;
+      }
       case "cover-ok": $("cover").hidden = true; if (App.view === "play") { ui.cover = null; render(); } break;
       case "zoom": zoomStep(); break;
       case "log": toggleLog(); break;
@@ -2785,7 +2910,8 @@
       if (tapsBlocked() || App.ui.suppressClick || e.target.closest("[data-hex]") || !App.st || App.view !== "play") return;
       const ui = App.ui;
       if (App.st.phase === "deploy") { if (ui.deploySel) { ui.deploySel = null; render(); } return; }
-      if (ui.sel || ui.ghost || ui.armed || (ui.sheet && ui.sheet.kind !== "over")) { ui.sel = null; ui.ghost = null; ui.armed = null; ui.spRow = false; if (ui.sheet && ui.sheet.kind !== "over") ui.sheet = null; render(); }
+      const keep = ui.sheet && (ui.sheet.kind === "over" || ui.sheet.kind === "rematch");
+      if (ui.sel || ui.ghost || ui.armed || (ui.sheet && !keep)) { ui.sel = null; ui.ghost = null; ui.armed = null; ui.spRow = false; if (ui.sheet && !keep) ui.sheet = null; render(); }
     });
     // A finger that starts on one of your units drags it instead of scrolling the field.
     $("board").addEventListener("touchstart", (e) => { if (App.ui.drag) e.preventDefault(); }, { passive: false });
@@ -2839,6 +2965,7 @@
       if (e.key !== "Escape") return;
       if (App.view === "play" && App.ui.menu) { closeMenu(); return; }
       if (App.view === "lineup" && App.lineupCard) { const code = App.lineupCard; App.lineupCard = null; renderLineupCard(); const b = document.querySelector(`[data-act="lineup-card"][data-card="${code}"]`); if (b) b.focus(); return; }
+      if (App.view === "play" && App.ui.sheet && App.ui.sheet.kind === "rematch") { App.ui.sheet = { kind: "over" }; render(); return; }   // Brief 029: Escape = Cancel
       if (App.view === "play" && App.ui.sheet && App.ui.sheet.kind !== "over") { App.ui.sheet = null; App.ui.armed = null; App.ui.ghost = null; render(); return; }
       if (App.view === "play" && (App.ui.ghost || App.ui.armed)) { App.ui.ghost = null; App.ui.armed = null; render(); }   // Brief 017 §13: Escape cancels a hover preview
     });
@@ -2894,6 +3021,6 @@
     if (spec) startWatch(spec, /[?&]fast=1/.test(location.search));
   }
   // For the build's screenshots only (a "?shots=1" link): lets a test script set up a position. Nothing reads it in play.
-  if (/[?&]shots=1/.test(location.search)) { window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D, revealHex, beginDeploy, startMatch, undo, SP_WORDS, spWords }; window.GGLogRow = logRow; }
+  if (/[?&]shots=1/.test(location.search)) { window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D, revealHex, beginDeploy, startMatch, onAction, Store, rematchOf, liveSummary, renderHome, undo, SP_WORDS, spWords }; window.GGLogRow = logRow; }
   boot();
 })();

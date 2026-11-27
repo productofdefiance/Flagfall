@@ -70,6 +70,7 @@ node tests/test_phone.js
 node tests/test_spflow.js
 node tests/test_spengine.js
 node tests/test_hotseat.js
+node tests/test_rematch.js
 node tests/test_events.js
 node tests/test_invariants.js
 node tests/test_rng.js

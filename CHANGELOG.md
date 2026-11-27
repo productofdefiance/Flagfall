@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.20.00 | v3.10 | Brain 8 | v7 | 25 |
 | v3.19.00 | v3.10 | Brain 8 | v6 + v5 + v4 | 24 |
 | v3.18.00 | v3.9 | Brain 8 | v6 + v5 + v4 | 23 |
 | v3.17.00 | v3.9 | Brain 8 | v5 + v4 | 22 |
@@ -27,6 +28,24 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
 
+## v3.20.00 · Build 25 — Brief 029, Rematch, a clean New game after the end, Lineup Reset (26 Nov 2026)
+Rule set: none changed (v3.10 stays the newest). Default brain: Brain 8 (unchanged). Game version **v3.20.00** (YY: a new screen; brief 026 took v3.18.00 and brief 028 v3.19.00, in the order the Editor merged them). UI: Approved UI v7.
+
+**What a player will notice**
+- The end-of-match sheet has **New game** as the big button, with **See field · Copy record · Rematch** under it.
+- **Rematch** opens a sheet with three Yes/No choices: Same lineups, Same sides, Same dice (all Yes each time). One tap on **Start rematch** replays the match exactly: same rule set, format, brains, lineups and seed.
+- Same sides: No swaps ends; the end that moved first moves first again. A coin-toss match always tosses again. Same dice: No shows the new seed before you start, with a copy button.
+- Same lineups: No sends human sides to the Lineup screen, starting from the lineup just played; the top arrow goes back to the rematch sheet. Bots draw again from their mix.
+- **New game after a finished match no longer asks "Abandon the match in progress?"**, and the finished match is no longer re-filed as Abandoned (it happened after Continue and a reload). Home no longer offers Continue for a finished match.
+- The Lineup screen's bottom **Back is now Reset**: it clears every unit (the Flagkeeper stays). The top arrow still goes back.
+- On a phone, the end and rematch sheets take the bottom of the screen in place of the (unusable) action buttons.
+
+**Under the hood**
+- `app.js`: `rematchOf()` builds the new match from the finished match's own record (new id, `actions: []`); `startRematch()`; a coin-toss rematch still takes draw 0 so later rolls keep their draw numbers. `startMatch()` records each bot side's mix as `match.mix` (display only).
+- A match that ends clears the saved live match (this device and the database); Continue keeps one match in memory; New game never files a match Matches already holds as finished. Abandoning now also clears the database's live match.
+- `test_rematch.js` (49 checks, headless browser) in the checks; `sims/shots_029.js` makes the screenshots.
+
+**Flags:** opened and closed F029-1 (names when ends swap, as built); opened F029-2 (version numbers with several pull requests open).
 ## v3.19.00 · Build 24 — Brief 028, rule set v3.10: Arrow Storm 1.5 times, minimum damage 0.5 (24 Nov 2026)
 Rule set: new **v3.10** (v3.9 with Arrow Storm 1.5 times a normal shot and minimum damage 0.5), the new-game default. Default brain: Brain 8 (unchanged). Game version **v3.19.00** (YY: a rule change; Brief 026 took v3.18.00 first).
 
