@@ -419,9 +419,9 @@
     const st = App.st, ui = App.ui;
     const before = st.actions.length;
     const r = E.act(st, action, roll);
-    if (!r.ok) { toast(r.error); render(); return r; }
+    if (!r.ok) { toast(named(st, r.error)); render(); return r; }
     App.match.actions = E.clone(st.actions);
-    ui.confirmEnd = false; ui.ghost = null; ui.armed = null; ui.sheet = null;
+    ui.confirmEnd = false; ui.ghost = null; ui.armed = null; ui.sheet = null; ui.spRow = false;
     if (r.die) toast(`${st.rs.switches && st.rs.switches.dice2d6 ? "Dice" : "Die"} ${r.die} → ${fmt(r.dmg)} ${action.type === "pull" ? "pulled" : "damage"}`);
     const u = action.uid && E.unitByUid(st, action.uid);
     if (!u || u.hp <= 0 || u.done || action.type === "end") ui.sel = null;
@@ -437,17 +437,18 @@
     if (!a || a.type === "deploy") return "Nothing to undo this turn";
     if (a.type === "end") return "Can't undo past the start of the turn";
     if (["attack", "pull"].includes(a.type)) return "Can't undo an attack or pull: the dice have been rolled";
+    if (a.type === "special") return "Can't undo a special once fired";   // Brief 026 §9
     return null;
   }
   function canUndo() {
     const a = App.match && App.match.actions[App.match.actions.length - 1];
-    return !!(a && App.st.phase === "play" && !isBot(App.st.toMove) && ["move", "swap", "brace", "done"].includes(a.type));
+    return !!(a && App.st.phase === "play" && !isBot(App.st.toMove) && ["move", "swap", "brace", "warmup", "done"].includes(a.type));   // Brief 026: a warm-up too (no dice)
   }
   function undo() {
     if (!canUndo()) return;
     App.match.actions.pop();
     rebuild();
-    Object.assign(App.ui, { sel: null, ghost: null, armed: null, sheet: null, confirmEnd: false });
+    Object.assign(App.ui, { sel: null, ghost: null, armed: null, sheet: null, spRow: false, confirmEnd: false });
     Store.saveLive(App.match);
     render();
   }
@@ -945,11 +946,11 @@
     const showMoves = opts && !ui.armed && !(ui.sheet && (ui.sheet.kind === "attack" || ui.sheet.kind === "special"));
     if (showMoves) {
       for (const h in opts.moves) { const [x, y] = pos(h); out += `<g class="cell" data-hex="${h}"><polygon points="${hexPts(x, y, R - 2)}" fill="${mine}" fill-opacity="${rt ? 0.09 : 0.16}" stroke="none"/></g>`; }
-      if (Object.keys(opts.moves).length) keyNote(opts.evading ? "evade" : "moves", opts.evading ? `${sel.id} may step further from the unit it attacked.` : `Where ${sel.id} can move this turn.`);
+      if (Object.keys(opts.moves).length) keyNote(opts.evading ? "evade" : "moves", opts.evading ? `${UI.unitName(st, sel)} may step further from the unit it attacked.` : `Where ${UI.unitName(st, sel)} can move this turn.`);
     }
     if (ep) {
       for (const h in ep.moves) { const [x, y] = pos(h); out += `<polygon points="${hexPts(x, y, R - 2)}" fill="${theirs}" fill-opacity="0.16" stroke="none" pointer-events="none"/>`; }
-      if (Object.keys(ep.moves).length) keyNote("enemyMoves", `Where ${enemy.id} can move on its next turn.`);
+      if (Object.keys(ep.moves).length) keyNote("enemyMoves", `Where ${UI.unitName(st, enemy)} can move on its next turn.`);
     }
     if (opts && opts.pull && !ui.armed) {
       const [x, y] = pos(G.FLAG[E.foeOf(sel.team)]);
@@ -964,7 +965,7 @@
       if (t && survives) {
         const ev = E.evadeHexes(st, sel.uid, t.uid);
         for (const h in ev) { const [x, y] = pos(h); out += `<polygon points="${hexPts(x, y, R - 2)}" fill="${mine}" fill-opacity="0.18" stroke="none" pointer-events="none"/>`; }
-        if (Object.keys(ev).length) keyNote("evade", `If ${t.id} survives, ${sel.id} may step to these hexes (Evade).`);
+        if (Object.keys(ev).length) keyNote("evade", `If ${UI.unitName(st, t)} survives, ${UI.unitName(st, sel)} may step to these hexes (Evade).`);
       }
     }
     // Range (section 3), redrawn from the end hex while a move is previewed; the special's range when it can fire.
@@ -972,14 +973,14 @@
     const rangeOf = (u, from, col, spCol, spReady) => {
       const ro = rangeOutline(st, u, from, col);
       rangeSvg += ro.svg;
-      if (ro.svg) keyNote(u.team === v ? "range" : "enemyRange", `What ${u.id} can hit from ${from}.`);
-      if (spReady) { const so = specialOutline(st, u, from, spCol, ro.lined); if (so) { rangeSvg += so; keyNote(u.team === v ? "special" : "enemySpecial", `${E.specialName(E.specialOf(st, u))}: what ${u.id}'s special can hit from ${from}.`); } }
+      if (ro.svg) keyNote(u.team === v ? "range" : "enemyRange", `What ${UI.unitName(st, u)} can hit from ${from}.`);
+      if (spReady) { const so = specialOutline(st, u, from, spCol, ro.lined); if (so) { rangeSvg += so; keyNote(u.team === v ? "special" : "enemySpecial", `${E.specialName(E.specialOf(st, u))}: what ${UI.unitName(st, u)}'s special can hit from ${from}.`); } }
     };
     if (opts && sel && !ui.armed && !(ui.sheet && ui.sheet.kind !== "info") && !opts.evading) {
       const ready = !!(opts.special && opts.special.state === "Charged" && opts.special.fire);
       if (rt) {
         if (E.canAttackAfter(st, sel.uid, rt.end)) rangeOf(sel, rt.end, mine, "var(--specialRange)", ready);
-        else { badges += badge(rt.end, "noattack"); keyNote("noattack", `${sel.id} can't attack after moving to ${rt.end}.`); }
+        else { badges += badge(rt.end, "noattack"); keyNote("noattack", `${UI.unitName(st, sel)} can't attack after moving to ${rt.end}.`); }
       } else rangeOf(sel, sel.hex, mine, "var(--specialRange)", ready);
     }
     if (ep) rangeOf(enemy, enemy.hex, theirs, "var(--plum)", ep.specialNext);
@@ -995,18 +996,24 @@
         keyNote("short", `The move stops at ${rt.end}, short of ${ui.ghost}: take shorter steps to go another way.`);
       }
       routeSvg += k > 0 ? arrowHead(pts.slice(0, k + 1), mine) : "";
-      keyNote("route", `${sel.id} walks ${rt.path.slice(0, k + 1).join(" → ")}.`);
+      keyNote("route", `${UI.unitName(st, sel)} walks ${rt.path.slice(0, k + 1).join(" → ")}.`);
       for (const e of rt.events) {
         const by = e.by && E.unitByUid(st, e.by);
         if (e.type === "mark") { badges += badge(e.hex, "mark"); keyNote("mark", `${by ? `The ${UI.unitName(st, by)} on ${by.hex}` : "An enemy"} marks ${e.hex}: the move stops there.`); }
-        if (e.type === "spear" && by) { badges += badge(by.hex, "spear"); keyNote("spear", `The braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)} when ${sel.id} arrives on ${e.hex}.`); }
-        if (e.type === "tackle" && by) { badges += badge(by.hex, "tackle", e.amount); keyNote("tackle", `Breaking away from ${by.id} costs ${fmt(e.amount)} more Stamina.`); }
+        if (e.type === "spear" && by) { badges += badge(by.hex, "spear"); keyNote("spear", `The braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)} when ${UI.unitName(st, sel)} arrives on ${e.hex}.`); }
+        if (e.type === "tackle" && by) { badges += badge(by.hex, "tackle", e.amount); keyNote("tackle", `Breaking away from ${UI.unitName(st, by)} costs ${fmt(e.amount)} more Stamina.`); }
       }
     }
     // Attack picked: the set spear badge on the spearman that a kill would set off.
     if (opts && ui.sheet && ui.sheet.kind === "attack") {
       const kc = E.killConsequences(st, sel.uid, ui.sheet.target) || [];
-      for (const e of kc) if (e.type === "spear") { const by = E.unitByUid(st, e.by); if (by) { badges += badge(by.hex, "spear"); keyNote("spear", `If the attack kills, ${sel.id} takes the hex and the braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)}.`); } }
+      for (const e of kc) if (e.type === "spear") { const by = E.unitByUid(st, e.by); if (by) { badges += badge(by.hex, "spear"); keyNote("spear", `If the attack kills, ${UI.unitName(st, sel)} takes the hex and the braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)}.`); } }
+    }
+    // Brief 026 §6.4: a killing Pick Off sets off the spear too: the same badge, from the special sheet's own reading.
+    if (opts && ui.sheet && ui.sheet.kind === "special" && opts.special) {
+      const p = opts.special.targets.find((x) => x.target === ui.sheet.target), t = p && E.unitByUid(st, p.target);
+      const ss = t && UI.specialSheet(st, sel, t, p);
+      for (const e of (ss && ss.rows[0].pills) || []) if (e.type === "spear") { const by = E.unitByUid(st, e.by); if (by) { badges += badge(by.hex, "spear"); keyNote("spear", `If ${E.specialName(E.specialOf(st, sel))} kills, ${UI.unitName(st, sel)} takes the hex and the braced ${UI.unitName(st, by)} on ${by.hex} deals ${fmt(e.amount)}.`); } }
     }
     out += rangeSvg + routeSvg;
     // Units
@@ -1019,14 +1026,14 @@
       const isSel = ui.sel === u.uid || ui.deploySel === u.uid;
       out += `<g class="cell unit" data-hex="${u.hex}" data-uid="${u.uid}" opacity="${s.done ? 0.5 : 1}">`;
       if (isSel) out += ring(x, y, tr + 6, enemy && enemy.uid === u.uid ? theirs : mine, 2.5);
-      if (s.braced) { out += ring(x, y, tr + 3.6, "var(--brace)", 3.2); keyNote("braced", `${u.id} is braced.`); }
-      else if (s.bracedLast) { out += `<circle cx="${x}" cy="${y}" r="${tr + 3.6}" fill="none" stroke="#fff" stroke-width="6" stroke-dasharray="4 3" pointer-events="none"/><circle cx="${x}" cy="${y}" r="${tr + 3.6}" fill="none" stroke="var(--brace)" stroke-width="3.2" stroke-dasharray="4 3" pointer-events="none"/>`; keyNote("bracedLast", `${u.id} braced last turn: ${fmt(s.stamNow !== null ? s.stamNow : s.stamNext)} Stamina now.`); }
+      if (s.braced) { out += ring(x, y, tr + 3.6, "var(--brace)", 3.2); keyNote("braced", `${UI.unitName(st, u)} is braced.`); }
+      else if (s.bracedLast) { out += `<circle cx="${x}" cy="${y}" r="${tr + 3.6}" fill="none" stroke="#fff" stroke-width="6" stroke-dasharray="4 3" pointer-events="none"/><circle cx="${x}" cy="${y}" r="${tr + 3.6}" fill="none" stroke="var(--brace)" stroke-width="3.2" stroke-dasharray="4 3" pointer-events="none"/>`; keyNote("bracedLast", `${UI.unitName(st, u)} braced last turn: ${fmt(s.stamNow !== null ? s.stamNow : s.stamNext)} Stamina now.`); }
       // Warm-up ring (6.16): gold on your units, plum on theirs; dashed while warming up, solid when ready to fire.
       const ready = u.sp === "charged", warm = u.sp === "warm";
       if (st.phase === "play" && (ready || warm)) {
         const col = u.team === v ? "var(--keeper)" : "var(--plum)", out2 = s.braced && ready ? tr + 7.5 : ready ? tr + 3.8 : tr + 3.5;
         out += ready ? ring(x, y, out2, col, 4.2) : ring(x, y, s.braced ? tr + 7.5 : out2, col, 2.6, "4 3");
-        keyNote(u.team === v ? (ready ? "spReady" : "spWarm") : (ready ? "enemySpReady" : "enemySpWarm"), `${u.id}'s ${E.specialName(E.specialOf(st, u))} ${ready ? "is ready to fire this turn" : u.team === v ? "is warming up: it fires next turn" : "is warming up: it can fire on its next turn"}.`);
+        keyNote(u.team === v ? (ready ? "spReady" : "spWarm") : (ready ? "enemySpReady" : "enemySpWarm"), `${UI.unitName(st, u)}'s ${E.specialName(E.specialOf(st, u))} ${ready ? "is ready to fire this turn" : u.team === v ? "is warming up: it fires next turn" : "is warming up: it can fire on its next turn"}.`);
       }
       out += `<circle cx="${x}" cy="${y}" r="${tr}" fill="var(--${team})" stroke="${u.fk ? "var(--keeper)" : `var(--${team}Dark)`}" stroke-width="${u.fk ? 3 : 1.2}"/>`;
       if (iconsOnly) out += iconShape(iconKey(st.rs, u.card), x, y, tr * 0.42, "#fff", 1.8);
@@ -1044,7 +1051,7 @@
       let m = "";
       for (const deg of [45, 135, 225, 315]) { const a = (deg * Math.PI) / 180, c = Math.cos(a), s2 = Math.sin(a); m += `M${(x + c * (tr + 3)).toFixed(1)} ${(y + s2 * (tr + 3)).toFixed(1)}L${(x + c * (tr + 10)).toFixed(1)} ${(y + s2 * (tr + 10)).toFixed(1)}`; }
       out += `<path d="${m}" stroke="#fff" stroke-width="6.1" stroke-linecap="round" pointer-events="none"/><path d="${m}" stroke="${theirs}" stroke-width="3.6" stroke-linecap="round" pointer-events="none"/>`;
-      keyNote("canHit", `${enemy.id} can hit ${t.id} from where it stands.`);
+      keyNote("canHit", `${UI.unitName(st, enemy)} can hit ${UI.unitName(st, t)} from where it stands.`);
     }
     if (opts && ui.drag && ui.drag.active) for (const uid of opts.swaps) { const f = E.unitByUid(st, uid); const [x, y] = pos(f.hex); out += `<circle cx="${x}" cy="${y}" r="${tr + 6}" fill="none" stroke="var(--move)" stroke-width="2.5" stroke-dasharray="5 3" pointer-events="none"/>`; }
     // Firing a special (5c): legal targets ringed as Attack's are; Arc Hit outlines its arc around the chosen target.
@@ -1542,7 +1549,8 @@
       row = `<span class="rfrom">${sel.hex}</span>${ic("arrow", 13)}<span class="rto">${ui.ghost}</span><span class="rchips">${chips.join("")}</span>`;
     } else if (o && o.evading) {
       row = `<span class="rchips">${evChip(Object.values(o.moves).reduce((m, x) => Math.max(m, x.steps), 0))}</span>`;
-    } else if (o && !sel.done && !Object.keys(o.moves).length) row = `<span class="rline">No movement available this turn</span>`;
+    } else if (o && o.special && o.special.state === "Warming up") row = `<span class="rline">Fires next turn · no attack or brace</span>`;   // Brief 026 §2
+    else if (o && !sel.done && !Object.keys(o.moves).length) row = `<span class="rline">No movement available this turn</span>`;
     el.innerHTML = `${tokenInline(iconKey(st.rs, sel.card), sel.team, 30, sel.fk)}
       <div class="ub-left">
         <div class="ub-name">${esc(UI.unitName(st, sel))}</div>
@@ -1580,8 +1588,7 @@
     const o = selOptions(), rt = previewRoute();
     const cost = rt ? rt.cost : 0;
     const mv = movesLeft(st, sel);
-    const warm = !!(ui.sheet && ui.sheet.kind === "warm" && o && o.special && o.special.warmup);
-    const rewarm = warm && o.special.state === "Charged";   // charged, no target in range: it warms up again
+    const warm = !!(mine && o && o.special && o.special.state === "Warming up");   // Brief 026 §2: warming up this turn
     // Chips in walking order, filling from the right; the Evade chip first in an Evade step.
     const evChip = (n) => `<span class="uchip">${ic("evade", 12, "#fff", "", 2.4)}${n}</span>`;
     const evHexes = () => Object.values(o.moves).reduce((m, x) => Math.max(m, x.steps), 0);
@@ -1589,8 +1596,7 @@
     if (o && o.evading) chips.push(evChip(evHexes()));
     if (rt) for (const e of rt.events) chips.push(e.type === "spear" ? `<span class="uchip hurt">${ic("setspear", 12, "#fff", "", 2.4)}${fmt(e.amount)}</span>` : e.type === "mark" ? `<span class="uchip">${ic("mark", 12, "#fff", "", 2.4)}</span>` : `<span class="uchip">+${fmt(e.amount)}</span>`);
     let note = "";
-    if (rewarm) note = "No target in range · fires next turn";
-    else if (warm) note = "Fires next turn · no attack or brace";
+    if (warm && !rt) note = "Fires next turn · no attack or brace";
     else if (!rt && o && !o.evading && !sel.done && !Object.keys(o.moves).length) note = "No movement available this turn";
     const after = note ? `<span class="ub-note">${esc(note)}</span>` : `<span class="ub-chips">${chips.join("")}</span>`;
     // While a note shows (warm-up, can't move), it takes all of row 1: no hex and moves (review of #47, fix 1).
@@ -1625,10 +1631,48 @@
 
   // ---------- Drawing: action bar ----------
   const PICK = "Pick one of your own units";
+  /* Brief 026 §5: how the board words the engine's reasons. First built for the special (warmupBlock / fireBlock); since
+     F026-2 every greyed-out button's reason (Attack, Reach, Brace, End unit) and the Evade hint go through it too.
+     Display only: the engine's reason decides which line shows. `engine` is the engine's own text (with <id> for a unit
+     code), so a test can check every one still exists in engine.js; a reason not listed shows in the engine's own words,
+     with any unit code swapped for the unit's name (named()). No unit codes. */
+  const SP_WORDS = [
+    { engine: "Used", show: (r, c) => `${c.name} used · once a match` },
+    { engine: "Braced this turn", show: () => "Braced this turn · warm up next turn" },
+    { engine: "No target in reach", show: (r, c) => (c.moves ? "No targets available · move" : "No targets available") },
+    { engine: "<id> has ended its turn", show: () => "Ended its turn" },
+    { engine: "<id> attacked this turn and may only evade or end", show: () => "Attacked this turn · may only evade or end its turn" },
+    { engine: "<id> is reloading this turn", show: () => "Reloading this turn" },
+    { engine: "Not enough Stamina", show: () => "Not enough Stamina" },
+    { engine: "Not enough Command", show: () => "Not enough Command" },
+    { engine: "Fire it next turn", show: () => "Fires next turn" },
+    { engine: "No free hex further from <id>", show: () => "No free hex further from the unit it attacked" },
+  ];
+  const spRe = (e) => new RegExp("^" + e.split("<id>").map((s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("\\S+") + "$");
+  /** A sentence with every unit code (a whole word that is a unit's id) swapped for its name; the side to move first. */
+  function named(st, s) {
+    if (!s || !st || !st.units) return s;
+    return s.replace(/\b[A-Z]{2,3}\d*\b/g, (id) => { const u = st.units.find((x) => x.id === id && x.team === st.toMove) || st.units.find((x) => x.id === id); return u ? UI.unitName(st, u) : id; });
+  }
+  /** The engine's reason `r` as the screen words it. `c`: { name: the special's name, moves: hexes the unit can still move }. */
+  function spWords(r, c) {
+    if (!r) return r;
+    for (const w of SP_WORDS) if (w.engine.includes("<id>") ? spRe(w.engine).test(r) : r === w.engine) return w.show(r, c || {});
+    return named(App.st, r);
+  }
+  /** The big button's second line for a blocked special: the worded reason up to its first " · " (No targets for no target). */
+  const spShort = (r, c) => (r === "No target in reach" ? "No targets" : spWords(r, c).split(" · ")[0]);
+  /** Brief 026: a reason in the dark pill over the field (phone); desktop shows it where a greyed-out button's reason goes. */
+  function reasonPill(msg) {
+    if (!msg) return;
+    if (wide()) { toast(msg); return; }
+    App.ui.pill = msg; renderHint();
+    clearTimeout(reasonPill._t); reasonPill._t = setTimeout(() => { App.ui.pill = null; renderHint(); }, 3000);
+  }
   function renderActions() {
     const st = App.st, ui = App.ui, el = $("actions");
     // A greyed-out button stays tappable when it has a reason: the tap shows why (Brief 005). Reasons come from the engine.
-    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}${opt.bar ? " hasbar" : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}${opt.flex ? ` style="flex:${opt.flex} 1 0"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span>${opt.bar ? `<i class="spbar ${opt.bar}"></i>` : ""}</button>`;
+    const b = (act, icon, label, opt) => `<button type="button" class="act${opt.cls ? " " + opt.cls : ""}" data-act="${act}" ${opt.dis ? (opt.why ? `aria-disabled="true" data-why="${esc(opt.why)}" title="${esc(opt.why)}"${opt.pill ? ' data-pill="1"' : ""}` : "disabled") : ""} ${opt.pressed !== undefined ? `aria-pressed="${opt.pressed}"` : ""}${opt.aria ? ` aria-label="${esc(opt.aria)}"` : ""}${opt.flex ? ` style="flex:${opt.flex} 1 0"` : ""}>${opt.dot ? `<i class="dot ${opt.dot}"></i>` : ""}${ic(icon, 22)}<span>${label}</span></button>`;
     if (st.phase === "deploy") {
       const t = deployTeam(), mine = st.units.filter((u) => u.team === t);
       const placed = mine.filter((u) => ui.placements[u.uid]).length;
@@ -1640,7 +1684,7 @@
     const o = selOptions(), sel = o && E.unitByUid(st, ui.sel), enemy = enemyTapped();
     const turnRow = `<div class="arow"><span class="alabel">TURN</span>
         ${b("undo", "undo", "Undo", { dis: !canUndo(), why: human ? undoWhy() : null })}
-        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done), why: enemy ? PICK : ui.sel && st.phase === "play" ? E.blockReasons(st, ui.sel).done : human ? PICK : null })}
+        ${b("done", "endunit", "End unit", { dis: !(o && sel && !sel.done), why: enemy ? PICK : ui.sel && st.phase === "play" ? spWords(E.blockReasons(st, ui.sel).done) : human ? PICK : null })}
         ${b("end", "endturn", ui.confirmEnd ? "Confirm" : "End turn", { dis: !human, cls: ui.confirmEnd ? "confirm" : "primary" })}</div>`;
     // Confirms (section 7) take the three attack slots; Cancel takes Brace's slot.
     const cancel = `<button type="button" class="act" data-act="sheet-close" style="flex:1 1 0">${ic("close", 22)}<span>Cancel</span></button>`;
@@ -1655,19 +1699,10 @@
       el.innerHTML = go("attack-confirm", "", reach ? "spear" : "sword", reach ? "Reach" : "Attack", st.rs.game.attackCost, u, "white", t.uid) + turnRow;
       return;
     }
-    // Specials (Brief 011, 5b): warming up opens a line and Warm up (3 parts) / Cancel (1) in the UNIT row.
-    if (sh && sh.kind === "warm" && o && o.special && o.special.warmup) {
-      const u = E.unitByUid(st, ui.sel);
-      // Phone (Brief 025 §5): no line above the buttons (the note is in the unit bar); the button names the special.
-      // A charged special with no target warms up again: "Warm up <name> again" (review of #47, fix 4).
-      if (!wide()) { const again = o.special.state === "Charged"; el.innerHTML = go("warm-confirm", " gold", "special", `Warm up ${esc(o.special.name)}${again ? " again" : ""}`, o.special.warmupCost, u, "ink") + turnRow; fitWarm(el, again); return; }
-      el.innerHTML = `<div class="warmline">${ic("special", 16, "var(--gold)")}<span>Warm up ${esc(o.special.name)}${o.special.state === "Charged" ? " again" : ""}: fire it next turn. No attack or brace this turn.</span></div>` +
-        go("warm-confirm", " gold", "special", "Warm up", o.special.warmupCost, u, "ink") + turnRow;
-      return;
-    }
-    // Firing (section 7): the preview is open on a target; the button carries the special's name.
-    if (sh && sh.kind === "special" && o && o.special && o.special.targets.some((x) => x.target === sh.target)) {
-      el.innerHTML = go("special-confirm", " gold", "special", esc(o.special.name), st.rs.game.attackCost, E.unitByUid(st, ui.sel), "ink") + turnRow;
+    // Brief 026 §3: tapping a Charged special opens the special row: the special big in Attack's slot, Warm up in the
+    // special's slot, Cancel in Brace's. It stays open after a warm-up from it ("Warming up instead").
+    if (ui.spRow && o && o.special && (o.special.state === "Charged" || o.special.state === "Warming up")) {
+      el.innerHTML = specialRow(st, o, E.unitByUid(st, ui.sel), b, cancel) + turnRow;
       return;
     }
     // Phone (Brief 025 §6.6): the flag pull's sheet leaves its buttons to the panel, as an attack does.
@@ -1681,34 +1716,55 @@
     const su = ui.sel && E.unitByUid(st, ui.sel), ss = su && su.hp > 0 ? E.status(st, su) : null;
     const hasReach = su && su.hp > 0 && E.card(st, su).trait === "reach";
     const reloading = !!(ss && ss.reloading && su.team === st.toMove);
-    const W = (r) => (enemy ? PICK : r);
+    const W = (r) => (enemy ? PICK : spWords(r));   // F026-2: Attack, Reach and Brace word their reasons as the special does
     // Order (section 7): Attack, Reach (Anti-Cavalry only), Special, Brace: attack, attack, attack, defend.
     el.innerHTML = `<div class="arow"><span class="alabel">UNIT</span>
         ${b("arm-attack", "attack", "Attack", { dis: !nAtt, why: W(why ? why.attack : pick), cls: (ui.armed === "attack" ? "on" : "") + (reloading ? " reloading" : ""), pressed: ui.armed === "attack", dot: reloading ? "red" : "", aria: reloading ? "Attack, reloading" : "", flex: hasReach ? 1 : 2 })}
         ${hasReach ? b("arm-reach", "reach", "Reach", { dis: !nReach, why: W(why ? why.reach : pick), cls: ui.armed === "reach" ? "on" : "", pressed: ui.armed === "reach" }) : ""}
         ${specialButton(st, su, enemy ? null : o, why, pick, b, enemy)}
-        ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: W(why ? why.brace : pick), cls: ss && ss.braced ? "braced" : "", dot: ss && ss.braced ? "blue" : ss && ss.bracedLast ? "ring" : "", aria: ss && ss.braced ? "Brace, braced" : ss && ss.bracedLast ? "Brace, braced last turn" : "" })}</div>${turnRow}`;
+        ${b("brace", "brace", "Brace", { dis: !(o && o.brace), why: W(why ? why.brace : pick), cls: ss && ss.braced ? "brace-on" : ss && ss.bracedLast ? "brace-last" : "", aria: ss && ss.braced ? "Brace, braced" : ss && ss.bracedLast ? "Brace, braced last turn" : "" })}</div>${turnRow}`;
   }
-  /** §5: "Warm up <name>" (or "Warm up <name> again") on one line; if too long, "Warm up" (or "Warm up again"). */
-  function fitWarm(el, again) {
-    const t = el.querySelector('[data-act="warm-confirm"] .go-1'), b = t && t.closest("button");
-    if (t && b && b.scrollWidth > b.clientWidth + 0.5) t.textContent = again ? "Warm up again" : "Warm up";
-  }
-  /** The Special button (Brief 011, 5a): the unit's special by name, in its state. Older rule sets keep the greyed-out
-      "Special" button. Every reason comes from the engine (blockReasons). */
+  /** The Special button (Brief 011; Brief 026 §1): the unit's special by name in one of five looks, no state bar and no
+      cost. Unused (white), Warming up (dashed gold on yellow-grey), Charged (gold), Used (grey), Can't warm up this turn
+      (yellow-grey, no gold). Every look except a live one can be tapped for its reason. Older rule sets keep the greyed-out
+      "Special" button. Every reason comes from the engine (warmupBlock, fireBlock, blockReasons). */
   function specialButton(st, su, o, why, pick, b, enemy) {
     const ss = su && su.hp > 0 ? E.status(st, su) : null;
-    if (enemy && ss && ss.special) return b("special", "special", E.specialName(E.specialOf(st, su)), { dis: true, why: PICK });
     if (!ss || !ss.special) return b("special", "special", "Special", { dis: true, why: why ? why.special : pick || "No special actions in this rule set yet" });
     const name = E.specialName(E.specialOf(st, su)), mine = st.phase === "play" && su.team === st.toMove;
-    const sp = o && o.special, armed = App.ui.armed === "special";
-    if (ss.special === "Used") return b("special", "special", name, { dis: true, why: "Used", cls: "sp-used", aria: `${name}, used` });
-    if (ss.special === "Warming up") return b("special", "special", name, { dis: true, why: mine ? (why && why.special) || "Fire it next turn" : "Warming up: it can fire on its next turn", cls: "sp-warm", bar: "half", aria: `${name}, warming up` });
-    if (ss.special === "Charged") {
-      const can = sp && (sp.fire || sp.warmup);   // no target but it may warm up again
-      return b("special", "special", name, { dis: !can, why: why ? why.special : pick, cls: "sp-charged" + (armed ? " on" : ""), bar: "full", pressed: armed, aria: `${name}, charged` });
+    const sp = o && o.special, ctx = { name, moves: movesLeft(st, su) };
+    const look = { Unused: "", "Warming up": "sp-warm", Charged: "sp-charged", Used: "sp-used" }[ss.special];
+    const aria = `${name}, ${ss.special.toLowerCase()}`;
+    if (enemy || !mine) return b("special", "special", name, { dis: true, why: enemy ? PICK : (why && spWords(why.special, ctx)) || pick || PICK, cls: look, aria, pill: !enemy && !!why });
+    // Its own unit on its turn. A unit that has ended its turn (or may only evade) has no options, only a reason.
+    const reason = spWords((why && why.special) || (sp ? null : "No special actions now"), ctx);
+    if (ss.special === "Used") return b("special", "special", name, { dis: true, why: spWords("Used", ctx), cls: "sp-used", aria, pill: true });
+    if (ss.special === "Warming up") return b("special", "special", name, { dis: true, why: spWords("Fire it next turn", ctx), cls: "sp-warm", aria, pill: true });
+    if (ss.special === "Charged") return sp ? b("special", "special", name, { cls: "sp-charged" + (App.ui.spRow ? " on" : ""), pressed: !!App.ui.spRow, aria })
+      : b("special", "special", name, { dis: true, why: reason, cls: "sp-charged", aria, pill: true });
+    // Unused: one tap warms up (§2); when the engine forbids it, the Can't-warm-up look and its reason.
+    if (sp && sp.warmup) return b("special", "special", name, { aria });
+    return b("special", "special", name, { dis: true, why: sp ? spWords(E.warmupBlock(st, su), ctx) : reason, cls: "sp-blocked", aria: `${name}, can't warm up this turn`, pill: true });
+  }
+  /** Brief 026 §3–4: the special row. Big gold special (flex 2), Warm up, Cancel. Its second line: "N targets", the
+      Stamina it costs once the next tap fires, "No targets" or the engine's reason, or "Warming up instead". */
+  function specialRow(st, o, u, b, cancel) {
+    const ui = App.ui, sp = o.special, name = sp.name, ctx = { name, moves: movesLeft(st, u) };
+    const bolt = ic("special", 22);
+    const big = (act, cls, line2, attrs) => `<button type="button" class="act go spbig${cls}" data-act="${act}" data-uid="${u.uid}" style="flex:2 1 0"${attrs || ""}>${bolt}<span class="go-text"><span class="go-1">${esc(name)}</span><span class="go-2">${line2}</span></span></button>`;
+    let first;
+    if (sp.state === "Warming up") first = big("sp-big", " warmed", "Warming up instead", ` aria-disabled="true" aria-label="${esc(name)}: warming up instead"`);
+    else {
+      const chosen = ui.sheet && ui.sheet.kind === "special" && sp.targets.find((x) => x.target === ui.sheet.target);
+      if (chosen) first = big("special-confirm", "", `−${fmt(st.rs.game.attackCost)} Stamina ${stamSquares(u, u.stam, st.rs.game.attackCost, "ink")}`, ` data-target="${chosen.target}"`);
+      else if (sp.targets.length) first = big("sp-big", ui.armed === "special" ? " on" : "", sp.targets.length === 1 ? "1 target" : `${sp.targets.length} targets`);
+      else { const r = E.fireBlock(st, u); first = big("sp-big", " blocked", esc(spShort(r, ctx)), ` data-why="${esc(spWords(r, ctx))}"`); }
     }
-    return b("special", "special", name, { dis: !(sp && sp.warmup), why: why ? why.special : pick, aria: `${name}, unused` });
+    let warm;
+    if (sp.state === "Warming up") warm = b("sp-warm", "special", "Warm up", { dis: true, why: spWords("Fire it next turn", ctx), cls: "sp-warm", pill: true, aria: "Warm up, warming up" });
+    else if (sp.warmup) warm = b("sp-warm", "special", "Warm up", {});
+    else warm = b("sp-warm", "special", "Warm up", { dis: true, why: spWords(E.warmupBlock(st, u), ctx), cls: "sp-blocked", pill: true, aria: "Warm up, can't warm up this turn" });
+    return `<div class="arow"><span class="alabel">UNIT</span>${first}${warm}${cancel}</div>`;
   }
 
   /** A special's preview on `target` (the key behaves as the attack preview's). */
@@ -1774,29 +1830,26 @@
         ${faceSide(st, right, true)}</div>
       ${outcome}`;
   }
-  /** The special's preview (Brief 011, 5c): the attack preview's face-off and key, one exact outcome, and a row per
-      extra target (Arc Hit's others, Skewer's second). Every number from the engine (E.options().special). */
-  function renderSpecialPreview(st, u, t, p) {
-    const ui = App.ui, pv = UI.specialPreview(st, u, t, p);
-    const left = pv.attacker.team === "N" ? pv.attacker : pv.target, right = left === pv.attacker ? pv.target : pv.attacker;
-    const pointsLeft = pv.attacker.team === "S", sg = pv.segments[0];
-    const outcome = `<div class="ob" role="img" aria-label="Exactly −${fmt(sg.dmg)}${sg.kills ? " kills" : ""}, no dice">
-      <div class="ob-row ob-p" style="grid-template-columns:1fr"><div>100% · no dice</div></div>
-      <div class="ob-row ob-bar" style="grid-template-columns:1fr"><div class="first last" style="background:${sg.kills ? "var(--attack)" : "var(--ink)"}"></div></div>
-      <div class="ob-row ob-d" style="grid-template-columns:1fr"><div class="${sg.kills ? "kill" : ""}">−${fmt(sg.dmg)}</div></div></div>`;
-    const extra = pv.special.extra.map((x) => { const pct = x.maxHp ? Math.max(0, Math.min(100, (100 * x.hp) / x.maxHp)) : 0, xu = E.unitByUid(st, x.uid);
-      return `<div class="sp-extra">${tokenInline(iconKey(st.rs, xu.card), x.team, 24, xu.fk)}<span class="fo-name">${esc(x.name)}</span>
-        <div class="fo-bar" role="img" aria-label="HP ${fmt(x.hp)} of ${fmt(x.maxHp)}"><i style="width:${pct.toFixed(0)}%;background:${teamColor(x.team)}"></i></div><span class="fo-hp">${fmt(x.hp)}/${fmt(x.maxHp)}</span>
-        <b class="${x.kills ? "kill" : ""}">−${fmt(x.dmg)}</b></div>`; }).join("");
-    const keyOpen = !!ui.keyOpen;
-    const key = keyOpen ? `<div class="key" id="attackkey"><div class="key-h">IN THIS SPECIAL</div>${pv.rows.map((r) => `<div class="key-row">${ic(r.icon, 18, r.special ? "var(--gold)" : r.red || r.icon === "parry" ? "var(--attack)" : "var(--ink)")}<div>
-        <div class="key-1${r.red ? " hurt" : ""}">${esc(r.name)}</div><div class="key-2">${esc(r.means)}</div><div class="key-3">${esc(r.why)}</div></div></div>`).join("")}</div>` : "";
-    const hint = !keyOpen && ui.sheet.hint ? `<div class="key-hint">Pull up for the key</div>` : "";
-    return `<button type="button" class="handle" data-act="key-toggle" aria-expanded="${keyOpen}" aria-controls="attackkey" aria-label="${keyOpen ? "Hide" : "Show"} the key"><span></span></button>${hint}${key}
-      <div class="fo">${faceSide(st, left, false)}
-        <div class="fo-mid"><span>${esc(left === pv.attacker ? pv.from : pv.to)}</span>${ic("arrow", 16, "var(--gold)", pointsLeft ? ' style="transform:scaleX(-1)"' : "", 2.2)}<span>${esc(left === pv.attacker ? pv.to : pv.from)}</span></div>
-        ${faceSide(st, right, true)}</div>${extra ? `<div class="sp-extras">${extra}</div>` : ""}
-      ${outcome}`;
+  /** The special sheet (Brief 026 §6, Approved UI v6), phone and desktop alike, for every special, one target included:
+      the attacker line in gold (Strength and the multiplier, always, "Sure hit"), then one row per target in the engine's
+      hit order, mirrored as the defender's side of an attack preview, tied to the attacker by a thin gold rule. Every
+      number from the engine (UI.specialSheet reads E.options().special and E.killConsequences). */
+  function renderSpecialSheet(st, u, t, p) {
+    const ss = UI.specialSheet(st, u, t, p), pv = UI.specialPreview(st, u, t, p), keyOpen = !!App.ui.keyOpen, A = ss.attacker;
+    const mod = (m) => `<span class="m6${m.red ? " red" : ""}" role="img" aria-label="${esc(m.label)} ${esc(m.val)}">${ic(m.key, 13, m.red ? "var(--attack)" : "var(--muted)")}<span class="${m.struck ? "fo-old" : ""}">${esc(m.val)}</span></span>`;
+    const kpill = (e) => (e.type === "spear" ? `<span class="kpill hurt" role="img" aria-label="Set spear ${fmt(e.amount)}">${ic("setspear", 11, "#fff", "", 2.4)}${fmt(e.amount)}</span>` : `<span class="kpill" role="img" aria-label="Mark">${ic("mark", 11, "#fff", "", 2.4)}</span>`);
+    const rows = ss.rows.map((r) => {
+      const x = E.unitByUid(st, r.uid), pct = r.maxHp ? Math.max(0, Math.min(100, (100 * r.hp) / r.maxHp)) : 0, cut = r.maxHp ? (100 * Math.min(r.hp, r.dmg)) / r.maxHp : 0;
+      return `<div class="r6"><div class="r6-1"><span class="d6${r.kills ? " kill" : ""}">−${fmt(r.dmg)}</span>${r.pills.map(kpill).join("")}<span class="hp6">${fmt(r.hp)}/${fmt(r.maxHp)}</span><span class="sp6-gap"></span>
+        <span class="mods6">${r.mods.map(mod).join("")}</span><button type="button" class="nb6" data-act="card" data-uid="${r.uid}" aria-label="${esc(r.name)}: unit information">${ic("info", 14, "var(--muted)")}<span class="nm6">${esc(r.name)}</span>${tokenInline(iconKey(st.rs, x.card), r.team, 18, x.fk)}</button></div>
+        <div class="bar6" role="img" aria-label="HP ${fmt(r.hp)} of ${fmt(r.maxHp)}, −${fmt(r.dmg)}${r.kills ? ", kills" : ""}"><i style="width:${pct.toFixed(1)}%;background:${teamColor(r.team)}"></i><i class="hatch6" style="right:${(pct - cut).toFixed(1)}%;width:${cut.toFixed(1)}%"></i></div></div>`;
+    }).join("");
+    const notes = ss.notes.map((n) => `<div class="n6${n.red ? " red" : ""}">${ic(n.key, 13, n.red ? "var(--attack)" : "var(--muted)")}<span>${esc(n.text)}</span></div>`).join("");
+    return `<button type="button" class="handle6" data-act="key-toggle" aria-expanded="${keyOpen}" aria-controls="attackkey" aria-label="${keyOpen ? "Hide" : "Show"} the key"><span></span></button>
+      <div class="a6"><button type="button" class="nb6 me" data-act="card" data-uid="${u.uid}" aria-label="${esc(A.name)}: unit information"><span class="glow6">${tokenInline(iconKey(st.rs, u.card), u.team, 22, u.fk)}</span><span class="nm6 big">${esc(A.name)}</span>${ic("info", 14, "var(--muted)")}</button>
+        <span class="spn6">${ic("special", 13, "var(--gold)")}${esc(ss.name.toUpperCase())}</span><span class="sp6-gap"></span>
+        <span class="str6" role="img" aria-label="Strength ${esc(A.str)}, ${esc(A.mult)}">${ic("maul", 13, "var(--muted)")}${esc(A.str)}<b>${esc(A.mult)}</b></span><span class="sure6">Sure hit</span></div>
+      <div class="rows6">${rows}</div>${notes}${keyRows5("IN THIS SPECIAL", pv.rows, true)}`;
   }
   // ---------- The phone's sheet (Brief 025 §6, Approved UI v5) ----------
   /* One layout for the attack preview, the special preview and the flag pull: a name strip with the handle dead
@@ -1863,18 +1916,6 @@
     const pills = kc && kc.length ? kc.map((e) => e.type === "spear" ? `<span class="kpill hurt">${ic("setspear", 11, "#fff", "", 2.4)}${fmt(e.amount)}</span>` : `<span class="kpill">${ic("mark", 11, "#fff", "", 2.4)}</span>`).join("") : "";
     return face5(st, pv, "var(--attack)") + outcomes5(segs, n, `Outcomes: ${segs.map((sg) => `${UI.pct1(sg.p)} −${fmt(sg.dmg)}${sg.kills ? (pv.pooled ? " brings the flag down" : " kills") : ""}`).join(", ")}`) +
       results5(segs, n, pills) + keyRows5("IN THIS ATTACK", pv.rows);
-  }
-  function renderSpecialPhone(st, u, t, p) {
-    const pv = UI.specialPreview(st, u, t, p), sg = pv.segments[0];
-    const extra = pv.special.extra.map((x) => { const pct = x.maxHp ? Math.max(0, Math.min(100, (100 * x.hp) / x.maxHp)) : 0, xu = E.unitByUid(st, x.uid);
-      return `<div class="sp-extra">${tokenInline(iconKey(st.rs, xu.card), x.team, 24, xu.fk)}<span class="fo-name">${esc(x.name)}</span>
-        <div class="fo-bar" role="img" aria-label="HP ${fmt(x.hp)} of ${fmt(x.maxHp)}"><i style="width:${pct.toFixed(0)}%;background:${teamColor(x.team)}"></i></div><span class="fo-hp">${fmt(x.hp)}/${fmt(x.maxHp)}</span>
-        <b class="${x.kills ? "kill" : ""}">−${fmt(x.dmg)}</b></div>`; }).join("");
-    const outcome = `<div class="ob" role="img" aria-label="Exactly −${fmt(sg.dmg)}${sg.kills ? " kills" : ""}, no dice">
-      <div class="ob-row ob-p" style="grid-template-columns:1fr"><div>100% · no dice</div></div>
-      <div class="ob-row ob-bar" style="grid-template-columns:1fr"><div class="first last" style="background:${sg.kills ? "var(--attack)" : "var(--ink)"}"></div></div>
-      <div class="ob-row ob-d" style="grid-template-columns:1fr"><div class="${sg.kills ? "kill" : ""}">−${fmt(sg.dmg)}</div></div></div>`;
-    return face5(st, pv, "var(--gold)", UI.phoneSpecialStats(pv)) + (extra ? `<div class="sp-extras">${extra}</div>` : "") + outcome + keyRows5("IN THIS SPECIAL", pv.rows, true);
   }
   function renderPullPhone(st, u, pull) {
     const pv = UI.pullPreview(st, u, pull), segs = pv.segments, n = pull.cases.length;
@@ -1966,15 +2007,14 @@
     } else if (sh.kind === "special" && o && o.special) {
       const p = o.special.targets.find((x) => x.target === sh.target);
       if (!p) { ui.sheet = null; el.hidden = true; sc.hidden = true; return; }
-      el.className = phone ? "preview v5" : "preview"; sc.hidden = true;
-      el.innerHTML = phone ? renderSpecialPhone(st, u, E.unitByUid(st, p.target), p) : renderSpecialPreview(st, u, E.unitByUid(st, p.target), p);
-    } else if (sh.kind === "warm") { el.hidden = true; sc.hidden = true;
+      el.className = phone ? "preview v6" : "preview v6 wide6"; sc.hidden = true;
+      el.innerHTML = renderSpecialSheet(st, u, E.unitByUid(st, p.target), p);
     } else if (sh.kind === "pull" && o && o.pull && phone) {
       el.className = "preview v5"; sc.hidden = true;
       el.innerHTML = renderPullPhone(st, u, o.pull);
     } else if (sh.kind === "pull" && o && o.pull) {
       const left = g.poleHP - st.pole[E.foeOf(u.team)];
-      el.innerHTML = `${grab}<div style="font:700 20px/1.1 var(--display);letter-spacing:.02em">${esc(u.id)} pulls the ${sideName(E.foeOf(u.team))} flag <span class="muted" style="font:500 13px/1 var(--body)">flag HP ${left}</span></div>
+      el.innerHTML = `${grab}<div style="font:700 20px/1.1 var(--display);letter-spacing:.02em">${esc(UI.unitName(st, u))} pulls the ${sideName(E.foeOf(u.team))} flag <span class="muted" style="font:500 13px/1 var(--body)">flag HP ${left}</span></div>
         <div class="calc">${esc(o.pull.parts.join(" · "))} = <b>${fmt(o.pull.value)}</b></div>${diceRow(o.pull.value)}
         <div class="row" style="flex-wrap:nowrap"><button class="btn" data-act="sheet-close" style="flex:1">Cancel</button><button class="btn go" data-act="pull-confirm" style="flex:2">Pull</button></div>`;
     } else if (sh.kind === "info") {
@@ -2217,8 +2257,9 @@
     let t = "";
     if (o && ui.ghost && o.moves[ui.ghost]) {
       t = "";   // Brief 017: the route, its badges and the Move button say it all
-    } else if (o && ui.armed) t = "Tap a red ring";
-    else if (o && o.evading) { const tg = E.unitByUid(st, o.evading); t = Object.keys(o.moves).length ? `Evade: step further from ${tg ? tg.id : "the target"}, or End unit` : `Can't evade: ${E.whyNoMove(st, E.unitByUid(st, ui.sel))} · End unit`; }
+    } else if (o && ui.armed) t = "Tap a target";   // Brief 026: words name the thing, not the mark
+    else if (o && o.evading) { const tg = E.unitByUid(st, o.evading); t = Object.keys(o.moves).length ? `Evade: step further from ${tg ? UI.unitName(st, tg) : "the target"}, or End unit` : `Can't evade: ${spWords(E.whyNoMove(st, E.unitByUid(st, ui.sel)))} · End unit`; }
+    if (ui.pill && st && st.phase === "play") t = ui.pill;   // Brief 026: a tapped reason, for a moment
     el.hidden = !t || !!ui.sheet; el.textContent = t;
   }
 
@@ -2269,6 +2310,7 @@
     }
     ui.orientSet = true;
     if (App.st.phase !== "over") ui.lastMover = moverNow();
+    if (!ui.sel) ui.spRow = false;   // Brief 026: the special row belongs to the tapped unit
     renderTopbar(); renderBoard(); renderUnitbar(); renderActions(); renderSheet(); renderSide(); renderCover(); renderHint(); renderMenu();
     renderLog();   // the log panel first: it changes the field's width
     if (ui.deployView) deployFit();
@@ -2320,7 +2362,7 @@
         ui.ghost = hex; ui.sheet = null; render(); return;
       }
     }
-    ui.ghost = null; ui.armed = null; ui.sheet = null;
+    ui.ghost = null; ui.armed = null; ui.sheet = null; ui.spRow = false;
     if (o && o.evading && here && here.team === sel.team && here.uid !== sel.uid) endEvade(sel.uid);   // v3.3
     ui.sel = here ? (ui.sel === here.uid ? null : here.uid) : null;
     render();
@@ -2358,7 +2400,7 @@
     }
     if (!d.active && Math.hypot(e.clientX - d.x, e.clientY - d.y) > 8) {
       const o0 = selOptions(); if (o0 && o0.evading && App.ui.sel !== d.uid) endEvade(App.ui.sel);   // v3.3
-      d.active = true; App.ui.sel = d.uid; App.ui.ghost = null; App.ui.armed = null; App.ui.sheet = null; render();
+      d.active = true; App.ui.sel = d.uid; App.ui.ghost = null; App.ui.armed = null; App.ui.sheet = null; App.ui.spRow = false; render();
     }
     if (!d.active) return;
     e.preventDefault();
@@ -2384,8 +2426,8 @@
       toast("Swap needs a friend next to it and the Stamina for both moves.");
     } else if (here && targetsFor(o).some((a) => a.target === here.uid)) {
       App.ui.sheet = attackSheet(here.uid); render(); revealAbove(E.unitByUid(st, d.uid).hex); return;
-    } else if (here) toast(`${E.unitByUid(st, d.uid).id} cannot attack that unit from here.`);
-    else toast(`${E.unitByUid(st, d.uid).id} cannot reach ${h}.`);
+    } else if (here) toast(`${UI.unitName(st, E.unitByUid(st, d.uid))} cannot attack that unit from here.`);
+    else toast(`${UI.unitName(st, E.unitByUid(st, d.uid))} cannot reach ${h}.`);
     render();
   }
 
@@ -2491,7 +2533,7 @@
       case "deploy-done": {
         const t = deployTeam();
         const r = E.act(st, { type: "deploy", team: t, placements: ui.placements });
-        if (!r.ok) { toast(r.error); render(); break; }
+        if (!r.ok) { toast(named(st, r.error)); render(); break; }
         App.match.actions = E.clone(st.actions);
         ui.deploySel = null;
         beginDeploy(); Store.saveLive(App.match);
@@ -2505,18 +2547,33 @@
         if (ui.armed && list.length === 1) ui.sheet = attackSheet(list[0].target);
         render(); if (ui.sheet) revealAbove(E.unitByUid(st, ui.sel).hex); break;
       }
-      case "special": {   // Brief 011: Unused → the warm-up line; Charged → targets (or warm up again when none)
+      case "special": {   // Brief 026 §2–4: Unused → warms up at once; Charged → the special row
         const o = selOptions(); if (!o || !o.special) break;
-        if (o.special.state === "Charged" && o.special.fire) {
-          ui.armed = ui.armed === "special" ? null : "special"; ui.ghost = null; ui.sheet = null;
-          if (ui.armed && o.special.targets.length === 1) ui.sheet = specialSheet(o.special.targets[0].target);
+        if (o.special.state === "Charged") {
+          if (ui.spRow) { ui.spRow = false; ui.armed = null; ui.sheet = null; ui.ghost = null; render(); break; }   // a second tap closes it
+          ui.spRow = true; ui.armed = null; ui.ghost = null; ui.sheet = null;
+          if (o.special.targets.length === 1) { ui.armed = "special"; ui.sheet = specialSheet(o.special.targets[0].target); }   // one target: its sheet at once
           render(); if (ui.sheet) revealAbove(E.unitByUid(st, ui.sel).hex); break;
         }
-        if (o.special.warmup) { ui.armed = null; ui.ghost = null; ui.sheet = { kind: "warm" }; render(); }
+        if (o.special.state === "Unused" && o.special.warmup) act({ type: "warmup", uid: ui.sel });
         break;
       }
-      case "warm-confirm": act({ type: "warmup", uid: ui.sel }); break;
-      case "special-confirm": if (ui.sheet && ui.sheet.kind === "special") act({ type: "special", uid: ui.sel, target: ui.sheet.target }); break;
+      case "sp-big": {   // the big special: several targets → ring them; no target → the reason in the dark pill
+        const o = selOptions(); if (!o || !o.special || o.special.state !== "Charged") break;
+        if (!o.special.targets.length) { reasonPill(el.dataset.why); break; }
+        if (o.special.targets.length === 1) { ui.armed = "special"; ui.sheet = specialSheet(o.special.targets[0].target); render(); revealAbove(E.unitByUid(st, ui.sel).hex); break; }
+        ui.armed = ui.armed === "special" ? null : "special"; ui.sheet = null; ui.ghost = null; render(); break;
+      }
+      case "sp-warm": {   // Warm up in the special row: warms up at once and keeps the row open (§3)
+        const uid = ui.sel, r = act({ type: "warmup", uid });
+        if (r.ok && ui.sel === uid) { ui.spRow = true; render(); }
+        break;
+      }
+      case "special-confirm": {
+        const target = (el && el.dataset.target) || (ui.sheet && ui.sheet.kind === "special" && ui.sheet.target);
+        if (target) act({ type: "special", uid: ui.sel, target });
+        break;
+      }
       case "move-confirm": { const r = previewRoute(); if (r) act({ type: "move", uid: ui.sel, to: ui.ghost }); break; }
       case "attack-confirm": {
         // The red button carries the attack it shows (fourth review: a press that "did nothing"), so it never depends on
@@ -2538,7 +2595,7 @@
       case "info": if (ui.sel) { ui.sheet = { kind: "info", uid: ui.sel }; render(); } break;
       case "sheet-close":
         if (ui.sheet && ui.sheet.kind === "info" && ui.sheet.back) { ui.sheet = ui.sheet.back; render(); break; }   // back to the preview it was opened from
-        ui.sheet = null; ui.armed = null; ui.ghost = null; render(); break;
+        ui.sheet = null; ui.armed = null; ui.ghost = null; ui.spRow = false; render(); break;
       case "card": if (a && el && el.dataset.uid) { ui.sheet = { kind: "info", uid: el.dataset.uid, back: ui.sheet }; render(); } break;   // Brief 025 §6.1: a name in the sheet opens that unit's card
       // Options menu (Brief 009)
       case "options": if (ui.menu) closeMenu(); else openMenu(); break;
@@ -2854,7 +2911,7 @@
       const ui = App.ui;
       if (App.st.phase === "deploy") { if (ui.deploySel) { ui.deploySel = null; render(); } return; }
       const keep = ui.sheet && (ui.sheet.kind === "over" || ui.sheet.kind === "rematch");
-      if (ui.sel || ui.ghost || ui.armed || (ui.sheet && !keep)) { ui.sel = null; ui.ghost = null; ui.armed = null; if (ui.sheet && !keep) ui.sheet = null; render(); }
+      if (ui.sel || ui.ghost || ui.armed || (ui.sheet && !keep)) { ui.sel = null; ui.ghost = null; ui.armed = null; ui.spRow = false; if (ui.sheet && !keep) ui.sheet = null; render(); }
     });
     // A finger that starts on one of your units drags it instead of scrolling the field.
     $("board").addEventListener("touchstart", (e) => { if (App.ui.drag) e.preventDefault(); }, { passive: false });
@@ -2878,7 +2935,7 @@
     document.body.addEventListener("click", (e) => {
       const s = e.target.closest("[data-seg]"); if (s && !s.disabled) { onSeg(s.dataset.seg, s.dataset.val); return; }
       const b = e.target.closest("[data-act]");
-      if (b && b.getAttribute("aria-disabled") === "true") { if (b.dataset.why === PICK) pickNote(); else if (b.dataset.why) toast(b.dataset.why); return; }   // Brief 005: say why
+      if (b && b.getAttribute("aria-disabled") === "true") { if (b.dataset.why === PICK) pickNote(); else if (b.dataset.why && b.dataset.pill) reasonPill(b.dataset.why); else if (b.dataset.why) toast(b.dataset.why); return; }   // Brief 005: say why
       if (b && !b.disabled) { onAction(b.dataset.act, b); return; }
       const row = e.target.closest("#roster tr[data-uid]");
       if (row && App.st && App.st.phase !== "deploy") { Object.assign(App.ui, { sel: row.dataset.uid, ghost: null, armed: null, sheet: null }); render(); const u = E.unitByUid(App.st, row.dataset.uid); if (u) revealHex(u.hex); }
@@ -2964,6 +3021,6 @@
     if (spec) startWatch(spec, /[?&]fast=1/.test(location.search));
   }
   // For the build's screenshots only (a "?shots=1" link): lets a test script set up a position. Nothing reads it in play.
-  if (/[?&]shots=1/.test(location.search)) { window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D, revealHex, beginDeploy, startMatch, onAction, Store, rematchOf, liveSummary, renderHome }; window.GGLogRow = logRow; }
+  if (/[?&]shots=1/.test(location.search)) { window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D, revealHex, beginDeploy, startMatch, onAction, Store, rematchOf, liveSummary, renderHome, undo, SP_WORDS, spWords }; window.GGLogRow = logRow; }
   boot();
 })();
