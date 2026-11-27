@@ -30,9 +30,17 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      # Brief 031: the night's results are filed under main's counted version (or a pull request's label).
+      - name: Stamp the version
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: if [ -n "$PR" ]; then node tools/stamp-version.js --pr --pr-number "$PR"; else node tools/stamp-version.js; fi
       - name: test_v32.js (full double-knockout count, 400 + 400 games)
         id: v32
         continue-on-error: true

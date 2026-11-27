@@ -20,7 +20,7 @@ results/
 - the kind (below);
 - the topic: the job order's `id`, lowercase with hyphens.
 
-A second run of the same thing on the same day gets `-2`, then `-3`. The version folder is the board's game version (`board/version.js`) when the run started.
+A second run of the same thing on the same day gets `-2`, then `-3`. The version folder is the board's game version when the run started, as stamped by `tools/stamp-version.js` (Brief 031): main's counted number, or a pull request's label `<main's version>+NNN` (for example `v3.20.01+029`), which never changes, so nothing needs refiling.
 
 ## Kinds
 An open list: to add a kind, add a line here. No code refuses a kind it doesn't know.
@@ -29,7 +29,8 @@ An open list: to add a kind, add a line here. No code refuses a kind it doesn't 
 |---|---|
 | `screen` | A quick daytime look, up to about 200 games per side. Not enough to rule on (F23). |
 | `study` | A big run answering one question from a brief, usually overnight, 1,000+ games per side. |
-| `release` | A version's final exam: the baseline table at 1,000 games per format, newest rule set, default brain mirror. One per version. |
+| `release` | A version's final exam: the baseline table at 1,000 games per format, newest rule set, default brain mirror. One per version that changed a game file (Brief 031). |
+| `same` | A version with no release run of its own (screen-only, or no board change): one line in `results/same.csv` and the index, `same games as <last version with a release run>`, linking to that run (Brief 031). |
 | `nightly` | The health check on `main`. When `main` hasn't changed since the last passing night, only an INDEX line ("no change, passed"). |
 | `experiment` | Anything else, including tests of the lab itself. |
 

@@ -37,7 +37,7 @@ const facts = {
   ],
   prs: [
     { number: 31, title: "011 Rules · Special attacks (YY)", state: "open", draft: true, brief: "011", checks: "pass", review: "merge", game: "v3.09.01", size: "YY" },
-    { number: 33, title: "v3.10.00 · 019 Bot · Brain 7", state: "open", draft: false, brief: "019", checks: "running", review: null, game: "v3.10.00" },
+    { number: 33, title: "019 Bot · Brain 7 (YY)", state: "open", draft: false, brief: "019", checks: "running", review: null, size: "YY", waits: ["016", "018"] },
     { number: 28, title: "v3.09.01 · 016 Lab · Stall logging", state: "merged", mergedAt: "2026-11-19T07:22:24Z", brief: "016" }
   ],
   chats: [
@@ -56,12 +56,13 @@ console.log(b.text);
 check("header is in US Eastern time", b.header === "STATUS · updated 20 Nov 2026, 3:40 am ET", b.header);
 check("sections in order", b.sections.map((s) => s.title.split(" ")[0]).join(",") === "VERSION,RESULTS,FLAGS,BUILDS,CHATS");
 check("VERSION shows main", sec("VERSION")[0] === "On main: v3.09.01 · Build 13 · Rules v3.6 · Brain 5", sec("VERSION")[0]);
-check("VERSION Building: size until a number is taken, then the number", sec("VERSION")[1] === "Building: 011 → YY · 019 → v3.10.00", sec("VERSION")[1]);
+// Brief 031: no number in a pull request; the board says what it would be if merged next, and what it waits on.
+check("VERSION Building: the size, what it would be if merged next, and waits on", sec("VERSION")[1] === "Building: 011 → YY · would be v3.10.00 if merged next; 019 → YY · would be v3.10.00 if merged next · waits on 016, 018", sec("VERSION")[1]);
 check("a brief whose Waits on are all merged is Ready to start", after("Ready to start").includes("017 Move preview"), after("Ready to start").join(" | "));
 check("a brief waiting on an unmerged brief is Waiting and names it", after("Waiting").includes("014 Fields ← 011") && after("Waiting").includes("020 Victory values ← 011, 019"), after("Waiting").join(" | "));
 check("a missing Waits on row reads 'not stated'", after("Waiting").includes("018 Turn cue zoom ← not stated"), after("Waiting").join(" | "));
 check("a Draft pull request is Building", after("Building").some((l) => l.startsWith("011 Special attacks · PR #31 · Draft · checks pass · reviewed: merge")), after("Building").join(" | "));
-check("no review label reads 'not reviewed'", after("Building").some((l) => l === "019 Brain 7 · PR #33 · Ready · checks running · not reviewed"), after("Building").join(" | "));
+check("no review label reads 'not reviewed'; a pull request failing waits-on says what it waits on", after("Building").some((l) => l === "019 Brain 7 · PR #33 · Ready · checks running · not reviewed · waits on 016, 018"), after("Building").join(" | "));
 check("a building brief is not also Ready or Waiting", !after("Ready to start").concat(after("Waiting")).some((l) => l.startsWith("011")));
 check("Merged shows version and date", after("Merged (last 3)")[0] === "016 Stall logging · v3.09.01 · 19 Nov", after("Merged (last 3)").join(" | "));
 
@@ -126,7 +127,7 @@ check("changed() ignores the updated time", !B.changed(B.boardJson(b, {}), B.boa
 // ---------- Brief 023: needs sync, the marks, results shares, issue text ----------
 check("syncState: a conflicting pull request needs sync", B.syncState(false, []) === "conflict");
 check("syncState: behind main only by results/ and studies/ commits does not", B.syncState(true, ["results/INDEX.md", "results/v3.10.00/x/run.json", "studies/done/a.json"]) === null);
-check("syncState: behind main by anything else needs sync", B.syncState(true, ["results/INDEX.md", "board/engine.js"]) === "behind");
+check("syncState (Brief 031): behind main by anything else no longer needs sync (versions don't conflict)", B.syncState(true, ["results/INDEX.md", "board/engine.js", "board/version.js", "CHANGELOG.md"]) === null);
 check("syncState: mergeable unknown and nothing behind adds nothing", B.syncState(null, []) === null);
 const st = (o) => B.buildState(Object.assign({ draft: false, checks: "pass", review: null, sync: null }, o));
 check("mark order: Broken beats everything", st({ checks: "fail", sync: "conflict", review: "merge" }) === "broken");
@@ -158,7 +159,7 @@ check("BOARD.md: needs sync in place of Ready", b23.text.includes("014 Fields ·
 check("failed checks read Broken", row(37).state === "broken");
 check("a review: hold label reads On hold", row(38).state === "hold");
 check("a Draft reads Running", row(39).state === "running" && row(39).draft === true);
-check("a building row carries its play link and version", row(36).play === "https://productofdefiance.github.io/Flagfall/pr/36/" && row(36).version === "v3.12.00");
+check("a building row carries its play link and what it would be if merged next", row(36).play === "https://productofdefiance.github.io/Flagfall/pr/36/" && row(36).version === null && row(36).next === "v3.10.00", JSON.stringify(row(36)));
 const r1 = v.results.find((r) => r.kind === "release"), r2 = v.results.find((r) => r.kind === "study");
 check("results: the two shares from the run's own mirror matchups", Math.abs(r1.share5 - 0.367) < 1e-9 && Math.abs(r1.share7 - 0.414) < 1e-9);
 check("results: several matchups and no mirror fall back to a line", r2.share5 === null && r2.share7 === null && r2.line === "4 matchups, 4,000 games", JSON.stringify(r2));
@@ -207,6 +208,11 @@ check("a queue that can't be read says so", B.buildBoard(Object.assign({}, facts
 check("a board built without queue facts (old fixtures) has no Queue line", !b.text.includes("Queue:"));
 check(`BOARD.md with the Queue line is under 4 KB (${Buffer.byteLength(mb.text)} bytes, full board)`, Buffer.byteLength(B.buildBoard(Object.assign({}, many, { queue: { jobsWaiting: 99, oldestWaitMin: 999, labUsing: 20 } })).text) < 4096);
 const pageChecks = require("./test_page.js").run(check, B, b23, j23);
+
+// Brief 031: a merged build shows the number it got (counted, never typed in a title).
+const b31 = B.buildBoard(Object.assign({}, facts, { prs: [{ number: 70, title: "031 Lab · Version at merge (ZZ)", state: "merged", mergedAt: "2026-11-28T07:22:24Z", brief: "031", version: "v3.20.01" }] }));
+check("Merged shows the counted version", b31.sections.find((x) => x.title === "BUILDS").lines.some((l) => l.text === "031 Version at merge · v3.20.01 · 28 Nov"), b31.text);
+check("size none reads no version", B.buildBoard(Object.assign({}, facts, { prs: [{ number: 71, title: "032 Lab · Tooling (none)", state: "open", brief: "032", size: "none", checks: "pass" }] })).sections[0].lines[1].text === "Building: 032 → none · no version");
 
 pageChecks.catch((e) => check("page checks ran", false, e && e.stack)).then(() => {
   console.log(fails ? `\n${fails} check(s) failed.` : "\nAll status board checks passed.");

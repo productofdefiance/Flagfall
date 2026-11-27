@@ -50,7 +50,7 @@ function outcomes(list) {
 
 function writeRun(order, list) {
   const now = new Date(), started = opt.started ? new Date(opt.started) : now;
-  const version = V.game || `build-${V.build}`, kind = order.kind;
+  const version = V.game || (V.build ? `build-${V.build}` : "dev"), kind = order.kind;   // Brief 031: stamped by tools/stamp-version.js
   const base = `${nyDate(started)}_${kind}_${order.id}`;
   const vdir = path.join(results, version);
   fs.mkdirSync(vdir, { recursive: true });

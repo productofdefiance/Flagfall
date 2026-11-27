@@ -8,7 +8,7 @@ This repository holds the browser playtest board (rules engine and computer oppo
 
 | Folder / file | What it is |
 | --- | --- |
-| `board/` | The playtest board. `engine.js` is the rules (no screen code). `fields.js` holds the fields, one per format (Brief 014). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1 to v3.9). `bot.js` and `brain.js` are the computer opponent (Brain 8 is the default opponent since v3.15.00; Brain 5 plans its turn; Brain 6 knows the clock; Brain 7 keeps its lead; Brain 9 plays to finish). `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds the game version and the build number (the only place they are kept). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
+| `board/` | The playtest board. `engine.js` is the rules (no screen code). `fields.js` holds the fields, one per format (Brief 014). `data.js` holds the unit cards and the rule-set presets (match3, v1, v2, v3, v3.1 to v3.9). `bot.js` and `brain.js` are the computer opponent (Brain 8 is the default opponent since v3.15.00; Brain 5 plans its turn; Brain 6 knows the clock; Brain 7 keeps its lead; Brain 9 plays to finish). `app.js`, `ui.js`, `skin.js` and `index.html` are the screen (`ui.js` holds the attack preview's and unit card's wording and logic, with no drawing, so it can be tested). `version.js` holds no number in the repository: `tools/stamp-version.js` counts the game version and build from merge order and stamps them into the published copy (Brief 031). `watch.js` sets up and plays a Computer vs Computer match from its seed, for watch links and the lab. Open `index.html` in a browser to play, or use the play links below. |
 | `board/tests/` | Automatic pass/fail checks (see below). |
 | `sims/` | Scripts that play games and make results. `sims/lab/` is the lab: it plays job orders on GitHub and files the results (Brief 008). The older scripts (`baseline.js`, `h2h_*.js`, ...) still deal their old seeds, so old studies can be re-run. |
 | `results/` | Every simulation result, one folder per run (`results/README.md` says how). Start at `results/INDEX.md`. The studies from before the lab are in `results/pre-v3.05.00/`. |
@@ -38,6 +38,12 @@ This repository holds the browser playtest board (rules engine and computer oppo
 The `play-links` workflow publishes these to the `gh-pages` branch. GitHub Pages must be switched on once: Settings → Pages → Source: Deploy from a branch → `gh-pages` / root → Save.
 
 ## Running the checks
+
+First stamp the version into your working copy (Brief 031; it is never committed, so put `board/version.js` back with `git checkout board/version.js` before you commit):
+
+```
+node tools/stamp-version.js
+```
 
 From the `board/` folder, with Node.js:
 
@@ -88,6 +94,7 @@ node sims/lab/test_capacity.js
 node sims/lab/test_deliver.js
 node sims/lab/test_workflows.js
 node sims/status/test_board.js
+node tools/test_tools.js
 node sims/lab/board_check.js 10
 ```
 
@@ -97,7 +104,7 @@ node sims/lab/board_check.js 10
 
 ## The lab
 
-Simulations run on GitHub, not in a Claude session (Brief 008). Put a job order in `studies/queue/` (the format is in `results/README.md`) and the lab plays it: every night after the night checks, on demand (Actions tab → lab → Run workflow), or in a pull request that adds it. It splits the games over up to 20 machines, writes a run folder in `results/` and a line in `results/INDEX.md`, and gets them to `main` through a pull request that merges itself once the checks pass. Every game in a run's `games.csv` has a `replay` link that opens it on the board. A pull request that changes the game version also gets a `release` run: the baseline table at 1,000 games per format, posted as a comment, and filed after the merge.
+Simulations run on GitHub, not in a Claude session (Brief 008). Put a job order in `studies/queue/` (the format is in `results/README.md`) and the lab plays it: every night after the night checks, on demand (Actions tab → lab → Run workflow), or in a pull request that adds it. It splits the games over up to 20 machines, writes a run folder in `results/` and a line in `results/INDEX.md`, and gets them to `main` through a pull request that merges itself once the checks pass. Every game in a run's `games.csv` has a `replay` link that opens it on the board. A pull request that changes a game file (`engine.js`, `bot.js`, `brain.js`, `data.js`, `fields.js`, `watch.js`), or whose replay hashes differ from its base, also gets a `release` run: the baseline table at 1,000 games per format, posted as a comment, and filed after the merge under the version the build got. A screen-only build gets none; its version's index line says `same games as` the last version that had one (Brief 031).
 
 `regress_engine.js` prints one hash per rule set, leaving out only the newest preset. Run it on the board before and after a change: every rule set the change was not meant to alter must print the same hash.
 
@@ -119,6 +126,6 @@ For a build that must not change play at all, `node tests/regress_engine.js <boa
 
 `test_invariants.js` plays 30 bot games on the newest preset and fails on any impossible state.
 
-On GitHub, `checks` runs the quick set on every pull request, in parallel jobs, in a few minutes. `test_v32.js` runs there with a short count (`node tests/test_v32.js 40`). The `night-checks` workflow runs the full 400 + 400 count and 100 impossible-state games every night at 08:07 UTC. It can also be started from the Actions tab (night-checks → Run workflow), or by giving a pull request the label `full checks`. A failing night run opens a "Night checks failed" issue. A pull request that changes `board/` must raise the build number in `board/version.js` and change its game version (the brief states the new one).
+On GitHub, `checks` runs the quick set on every pull request, in parallel jobs, in a few minutes. `test_v32.js` runs there with a short count (`node tests/test_v32.js 40`). The `night-checks` workflow runs the full 400 + 400 count and 100 impossible-state games every night at 08:07 UTC. It can also be started from the Actions tab (night-checks → Run workflow), or by giving a pull request the label `full checks`. A failing night run opens a "Night checks failed" issue. A pull request that changes `board/` must add `releases/NNN.json` for its brief (at least ZZ) and `changelog/NNN.md`, and never writes a number in `board/version.js`: the number is counted at merge (`tools/check-release.js`, Brief 031). The `waits-on` check fails while a brief in the brief's `Waits on` row has not merged. A docs-only pull request skips the game jobs.
 
 Last full pass: 17 Nov 2026 (replay: 386 checks, 0 mismatches; match3, v1, v2 and v3 hashes identical to the previous board).

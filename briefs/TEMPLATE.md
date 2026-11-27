@@ -2,14 +2,14 @@
 
 | | |
 |---|---|
-| Game version | <size of the bump only, never a number: X (big system), YY (real change), ZZ (tuning or fix) or none. Code takes the number at its last sync before Ready for review> |
+| Game version | <size of the bump only (X, YY, ZZ or none); the number is counted at merge. X: big system, YY: real change, ZZ: tuning or fix> |
 | Lane | <Bot, Lab, Units, Rules or UI> |
 | Rule set | <new preset id, or "none" for tooling> |
 | Date | <date> |
 | Goal | <one line> |
 | Branch | Any branch your session may push to, started from `brief/NNN-short-name` |
 | Flags | <rows this build should close, e.g. F3, F4> |
-| Waits on | <"none", or brief numbers separated by commas: 011, 014> |
+| Waits on | <exactly "none", or three-digit brief numbers separated by commas: 011, 014. The waits-on check reads this row> |
 | Order | <can start now / alongside NNN / after NNN merges> |
 
 ## Context

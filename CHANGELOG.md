@@ -1,5 +1,7 @@
 # Changelog
 
+**Newer entries are in `changelog/`, numbered at publish (Brief 031).** This file is the record up to v3.20.00 · Build 25 and builds no longer edit it; the live site shows the assembled changelog (`changelog.html`) with the version table.
+
 Newest first. One entry per build, written for the Editor: what a player notices first, then what changed under the hood.
 
 ## Game versions

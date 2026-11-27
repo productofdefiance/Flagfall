@@ -40,6 +40,9 @@ function add(results, entry) { fs.mkdirSync(results, { recursive: true }); write
 // run.json (results/<version>/<run>/run.json) and from results/nightly.csv, the home of quiet nights ("no change,
 // passed"), which have no run folder. Order: newest date first; within a date, the run that finished last first.
 const NIGHTLY = "nightly.csv";
+// Brief 031: a version with no release run of its own (screen-only, or no board change) gets one line here, "same games
+// as <last version with a release run>", so every version points to its numbers.
+const SAME = "same.csv";
 function readCsvFile(f) {
   if (!fs.existsSync(f)) return [];
   const [head, ...rest] = parseCsv(fs.readFileSync(f, "utf8"));
@@ -71,7 +74,7 @@ function collect(results) {
       rows.push(row);
     }
   }
-  for (const n of readCsvFile(path.join(results, NIGHTLY))) { const row = Object.assign({}, n); row._finished = n.finished || ""; delete row.finished; rows.push(row); }
+  for (const file of [NIGHTLY, SAME]) for (const n of readCsvFile(path.join(results, file))) { const row = Object.assign({}, n); row._finished = n.finished || ""; delete row.finished; rows.push(row); }
   return rows;
 }
 /** Rewrite index.csv and INDEX.md from the folders and nightly.csv. Returns the rows written. */
@@ -83,15 +86,18 @@ function rebuild(results) {
   return rows;
 }
 /** A quiet night ("no change, passed"): a line in nightly.csv, then the rebuild. */
-function addNightly(results, entry) {
-  const f = path.join(results, NIGHTLY), list = readCsvFile(f);
+function addNightly(results, entry) { return addLine(results, NIGHTLY, entry); }
+/** A version that shares the last release run's games (Brief 031): a line in same.csv, then the rebuild. */
+function addSame(results, entry) { return addLine(results, SAME, entry); }
+function addLine(results, file, entry) {
+  const f = path.join(results, file), list = readCsvFile(f);
   list.unshift(Object.assign({ finished: new Date().toISOString() }, entry));
   const cols = COLS.concat(["commit", "finished"]);
   fs.mkdirSync(results, { recursive: true });
   fs.writeFileSync(f, cols.join(",") + "\n" + list.map((r) => cols.map((c) => cell(r[c])).join(",")).join("\n") + "\n");
   return rebuild(results);
 }
-module.exports = { add, read, write, rebuild, collect, addNightly, COLS };
+module.exports = { add, read, write, rebuild, collect, addNightly, addSame, COLS };
 // node sims/lab/index.js --rebuild [results folder]: rebuild both files (the lab's refresh of a stuck results pull request).
 if (require.main === module && process.argv[2] === "--rebuild") {
   const results = path.resolve(process.argv[3] || path.join(__dirname, "..", "..", "results"));

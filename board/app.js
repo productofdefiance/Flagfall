@@ -1452,7 +1452,7 @@
     const rsName = preset ? m.rs.id : m.rs.name;
     const brainNames = [...new Set(bots.map((t) => shortBrain(brainOf(t))))];
     const botPart = bots.length ? ` · ${bots.length > 1 ? "Bots" : "Bot"}: ${esc(brainNames.join(" vs "))}` : "";
-    const ver = [V.game || null, V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null].filter(Boolean).join(" · ");
+    const ver = [V.game || "dev", V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null].filter(Boolean).join(" · ");
     const live = st.phase === "play" && !isBot(st.toMove);
     const item = (act, icon, label, cls) => `<button type="button" role="menuitem" class="mi${cls ? " " + cls : ""}" data-act="${act}">${ic(icon, 20)}<span>${esc(label)}</span></button>`;
     el.innerHTML = `<div class="mh"><div class="mh-text">

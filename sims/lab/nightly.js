@@ -12,7 +12,7 @@ const V = require(path.join(root, "board", "version.js")), idx = require("./inde
 const checks = fs.readFileSync(opt.checks, "utf8").split("\n").filter(Boolean).map((l) => l.split("="));
 const passed = checks.every(([, o]) => o === "success");
 const nyDate = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-const version = V.game || `build-${V.build}`;
+const version = V.game || (V.build ? `build-${V.build}` : "dev");   // Brief 031: stamped by tools/stamp-version.js
 const last = idx.read(results).filter((r) => r.kind === "nightly")[0];   // newest first
 if (passed && last && last.commit === opt.commit && /passed/.test(last.answer)) {
   idx.addNightly(results, { id: `${nyDate}_nightly`, date: nyDate, version, kind: "nightly", brief: "", tags: "nightly", question: "Do main's full checks still pass?", answer: "no change, passed", path: "", commit: opt.commit });   // Brief 016: kept in results/nightly.csv, so a rebuild keeps it

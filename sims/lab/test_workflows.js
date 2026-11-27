@@ -55,7 +55,7 @@ ok(evaluate(play, build), "play-links: still runs on a build pull request");
 ok(evaluate(play, ev("push")), "play-links: still runs on a push to main");
 const playText = wf("play-links.yml");
 ok(!/^concurrency:/m.test(playText) && /^    concurrency:\n      group: play-links/m.test(playText), "play-links: the queue is on the job, so a skipped results run can't cancel a waiting publish");
-ok(/push:\n    branches: \[main\]\n    paths: \["board\/\*\*"\]/.test(playText), "play-links: main republishes only when a push changes board/ (a merged results pull request doesn't)");
+ok(/push:\n    branches: \[main\]\n    paths: \["board\/\*\*", "releases\/\*\*", "changelog\/\*\*"\]/.test(playText), "play-links: main republishes only when a push changes board/, releases/ or changelog/ (a merged results pull request doesn't; Brief 031: a new version does)");
 
 // 3. night-checks: never on a results pull request, even labelled; labelled build pull requests and nights unchanged.
 const night = jobIf(wf("night-checks.yml"), "full");
@@ -89,13 +89,41 @@ const labText = wf("lab.yml");
 const mat = labText.slice(labText.indexOf("  release-checks:"), labText.indexOf("    steps:", labText.indexOf("  release-checks:")));
 const jobs = [...mat.matchAll(/- \{ name: "([^"]+)", cmd: "/g)].map((m) => m[1]);
 ok(jobs.length === 5, `release checks: 5 jobs (was 16): ${jobs.join(", ")}`);
-const quick = fs.readFileSync(path.join(__dirname, "release_quick.txt"), "utf8").split("\n").filter(Boolean).map((l) => l.split("|"));
+// Brief 031: the quick list is built from board/tests/test_*.js (release_tests.js), not a hand-kept file.
+const RT = require("./release_tests.js");
+const quick = RT.quick().map((q) => [q.name, q.cmd]);
 const before = ["test_rules.js", "test_v1.js", "test_v3.js", "test_v31.js", "test_v32.js (400 + 400)", "test_v33.js", "test_v34.js", "test_reasons.js", "test_kitd.js (30)",
   "test_brain5.js (30)", "test_watch.js", "test_rng.js", "test_invariants.js (100)", "test_replay.js", "other brain tests (30)", "regression hashes"];
 const reported = [...quick.map(([n]) => n), ...jobs.filter((n) => n !== "quick checks")];
-ok(before.every((n) => reported.includes(n)) && reported.length === before.length, "release checks: all 16 checks still report pass or fail under the same names");
+ok(before.every((n) => reported.includes(n)), "release checks: all 16 checks of the runs before still report pass or fail under the same names");
+ok(RT.missing().length === 0, `release checks (Brief 031): every test file is in the release run or the commented skip list (missing: ${RT.missing().join(", ") || "none"})`);
 ok(quick.every(([n, c]) => n && /^node tests\/test_\w+\.js/.test(c || "")), "release checks: every quick line is name|command");
 ok(quick.every(([, c]) => fs.existsSync(path.join(ROOT, "board", c.split(" ")[1]))), "release checks: every quick check's test file exists");
+ok(!fs.existsSync(path.join(__dirname, "release_quick.txt")) && /release_tests\.js --quick/.test(labText), "release checks: the hand-kept list is gone; lab.yml builds it from the test folder");
+ok(/regress_engine\.js \. 3 all/.test(labText), "release checks: the regression hashes cover every preset, the newest included");
+ok(/matrix\.check\.cmd == 'quick'[\s\S]{0,200}playwright/.test(labText), "release checks: the quick job installs a headless browser for the four browser checks");
+
+// Brief 031: the release run starts on a game change, not a version change; every job is stamped.
+const labOn = labText.slice(labText.indexOf("\non:"), labText.indexOf("\npermissions:"));
+ok(/paths: \["studies\/queue\/\*\*", "board\/\*\*", "sims\/lab\/\*\*"\]/.test(labOn) && !/board\/version\.js/.test(labOn), "lab: a pull request touching board/ is planned (not version.js, which never changes now)");
+ok(/--release-base \$REL_BASE/.test(labText), "lab: the plan decides the release from what changed (release_files.js)");
+for (const [file, min] of [["lab.yml", 6], ["play-links.yml", 1], ["night-checks.yml", 1], ["checks.yml", 1]]) {
+  const t = wf(file), stamps = (t.match(/tools\/stamp-version\.js/g) || []).length;
+  ok(stamps >= min && /filter: blob:none/.test(t), `${file}: stamps the version straight after a blobless checkout (${stamps} stamp steps)`);
+}
+ok(/same:\n    name: same games as the last release/.test(labText), "lab: a version with no release run gets a same-games line on main");
+
+// Brief 031: docs-only pull requests skip the game jobs; checks still reports.
+const chk = wf("checks.yml");
+for (const job of ["rules", "invariants", "redteam", "board-check", "compare"]) ok(jobIf(chk, job) === "needs.changes.outputs.docs_only != 'true'", `checks: ${job} is skipped on a docs-only pull request`);
+ok(/needs: \[changes, rules, invariants, redteam, board-check, compare\]/.test(chk) && /Docs only: nothing to check\./.test(chk), "checks: the required job still runs and passes on a docs-only pull request");
+ok(/tools\/check-release\.js/.test(chk) && !fs.existsSync(path.join(ROOT, ".github", "check-build-number.sh")), "checks: the version check replaced check-build-number.sh");
+ok(/continue-on-error: \$\{\{ needs\.changes\.outputs\.screen_only != 'true' \}\}/.test(chk), "checks: replay hashes must match for a screen-only build");
+
+// Brief 031: waits-on sets a commit status on every open pull request when main moves.
+const wo = wf("waits-on.yml");
+ok(/push:\n    branches: \[main\]/.test(wo) && /gh pr list/.test(wo) && /context=waits-on/.test(wo) && /statuses: write/.test(wo), "waits-on: every push to main sets the status again on every open pull request");
+ok(/types: \[opened, synchronize, reopened, edited, ready_for_review\]/.test(wo), "waits-on: set on each push to the pull request and when its title changes");
 
 console.log(fails ? `\n${fails} check(s) FAILED` : "\nAll workflow checks passed.");
 process.exit(fails ? 1 : 0);

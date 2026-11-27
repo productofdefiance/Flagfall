@@ -9,10 +9,13 @@ name: play-links
 # play link: the job is skipped by a branch condition (GitHub's pull_request branch filter only matches the target
 # branch, so it can't be done in `on:`). For the same reason main is only republished when a push to it changes board/
 # (a merged results pull request changes only results/ and studies/).
+# Brief 031: the published board is stamped with the counted version (tools/stamp-version.js): main's number at the
+# root, "<main's version>+NNN" on a preview. main also republishes when a releases/ file is added (a new version with no
+# board change), and the site gets the assembled changelog (changelog.html, changelog.md) with the version table.
 on:
   push:
     branches: [main]
-    paths: ["board/**"]
+    paths: ["board/**", "releases/**", "changelog/**"]
   pull_request:
     types: [opened, synchronize, reopened, closed]
 
@@ -38,6 +41,13 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          filter: blob:none
+      - name: Stamp the version (Brief 031)
+        if: github.event.action != 'closed'
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then node tools/stamp-version.js; else node tools/stamp-version.js --pr --pr-number "$PR"; fi
+          echo "Board version: $(node -p 'require("./board/version.js").game')" >> "$GITHUB_STEP_SUMMARY"
       - name: Open the gh-pages branch (create it the first time)
         run: |
           git config user.name "github-actions[bot]"
@@ -52,7 +62,9 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
             # main lives at the root; keep the pull request previews under pr/ and the status page under status/ (Brief 021)
-            rsync -a --delete --exclude 'tests/' --exclude 'pr/' --exclude 'status/' --exclude '.nojekyll' --exclude '.git' board/ site/
+            rsync -a --delete --exclude 'tests/' --exclude 'pr/' --exclude 'status/' --exclude '.nojekyll' --exclude '.git' --exclude 'changelog.html' --exclude 'changelog.md' board/ site/
+            # The assembled changelog: numbered headings, newest first, and the version table (Brief 031).
+            node tools/changelog.js --md site/changelog.md --html site/changelog.html
           elif [ "${{ github.event.action }}" = "closed" ]; then
             rm -rf "site/pr/$PR"
           else

@@ -69,7 +69,7 @@ for (const file of orders) {
         after: (s, c, r) => { for (const x of ms) if (x.after) x.after(s, c, r); }
       });
       const res = st.result;
-      row = { order: order.id, matchup: mu.name, game: g.index, seed, version: V.game || "build " + V.build, rules: mu.rules, format: mu.format,
+      row = { order: order.id, matchup: mu.name, game: g.index, seed, version: V.game || (V.build ? "build " + V.build : "dev"), rules: mu.rules, format: mu.format,
         lineup_n: lineupText(m.opts.lineups.N), lineup_s: lineupText(m.opts.lineups.S), brain_n: sideOf("N").id, brain_s: sideOf("S").id, first: st.first,
         winner: res ? res.winner || "draw" : "unfinished", how: res ? res.how : "unfinished", turns: st.turn,
         flag_damage_n: +st.pole.S.toFixed(2), flag_damage_s: +st.pole.N.toFixed(2), units_lost_n: E.beingsLost(st, "N"), units_lost_s: E.beingsLost(st, "S"),

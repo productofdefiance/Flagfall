@@ -3,8 +3,12 @@
 # - every night, after main's night checks: whatever is queued in studies/queue/;
 # - on demand: Actions tab → "lab" → "Run workflow" (optionally naming the job orders to play);
 # - on a pull request that adds a job order: plays it and commits the run folder to that pull request;
-# - on a pull request that changes the game version: a `release` run (the version's final exam), posted as a comment;
-#   after the merge it runs again on main (same seeds, same games) and is filed under that version.
+# - on a pull request that changes a game file (sims/lab/release_files.js), or whose replay hashes differ from its base:
+#   a `release` run (the version's final exam), posted as a comment; after the merge it runs again on main (same seeds,
+#   same games) and is filed under the version the build actually got (Brief 031). A screen-only build gets no release
+#   run; on main its version gets one index line, "same games as <last version with a release run>" (sims/lab/same.js).
+# Every job stamps board/version.js straight after checkout (tools/stamp-version.js): main's counted number, or a pull
+# request's label "<main's version>+NNN". The stamp is never committed (deliver.sh adds only results/ and studies/).
 # Results reach main through an automatic pull request that may only change results/ and studies/ and merges itself
 # once the checks pass (sims/lab/deliver.sh).
 name: lab
@@ -26,10 +30,10 @@ on:
         required: false
         default: false
   pull_request:
-    paths: ["studies/queue/**", "board/version.js", "sims/lab/**"]
+    paths: ["studies/queue/**", "board/**", "sims/lab/**"]
   push:
     branches: [main]
-    paths: ["board/version.js", "studies/queue/**"]
+    paths: ["board/**", "releases/**", "studies/queue/**"]
 
 permissions:
   contents: write
@@ -61,6 +65,7 @@ jobs:
       matrix: ${{ steps.plan.outputs.matrix }}
       has_work: ${{ steps.plan.outputs.has_work }}
       release: ${{ steps.plan.outputs.release }}
+      same: ${{ steps.plan.outputs.same }}
       site: ${{ steps.where.outputs.site }}
       trigger: ${{ steps.where.outputs.trigger }}
       started: ${{ steps.where.outputs.started }}
@@ -81,9 +86,15 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref || (github.event_name == 'workflow_run' && 'main') || github.sha }}
           fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      - name: Stamp the version (Brief 031)
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          SHA: HEAD
+        run: if [ -n "$PR" ]; then node tools/stamp-version.js --pr --pr-number "$PR"; else node tools/stamp-version.js --ref "${SHA:-HEAD}"; fi
       - name: The commit this run plays
         id: sha
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -103,15 +114,16 @@ jobs:
         env:
           EV: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          # A release runs when the game version changes: against main when a pull request opens, and on later pushes
-          # only if that push changed it (so a pull request doesn't replay its release on every push).
+          # Brief 031: a release runs when a game file changed (or the replay hashes differ): against main when a pull
+          # request opens, and on later pushes only if that push changed one (so a pull request doesn't replay its
+          # release on every push). After the merge, the push to main compares with main before the merge.
           REL_BASE: ${{ (github.event.action == 'synchronize' && github.event.before) || github.event.pull_request.base.sha || github.event.before }}
           ORDERS: ${{ github.event.inputs.orders }}
         run: |
           rel=""
           if [ -n "$REL_BASE" ] && [ "$REL_BASE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$REL_BASE" 2>/dev/null; then
-            git show "$REL_BASE:board/version.js" > /tmp/version_before.js 2>/dev/null || echo "" > /tmp/version_before.js
-            rel="--release /tmp/version_before.js"
+            rel="--release-base $REL_BASE"
+            [ "$EV" = "push" ] && rel="$rel --main 1"
           fi
           if [ "$EV" = "pull_request" ]; then
             # only the job orders this pull request adds or changes
@@ -157,9 +169,16 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: ${{ needs.plan.outputs.sha }}
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      - name: Stamp the version (Brief 031)
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ needs.plan.outputs.sha }}
+        run: if [ -n "$PR" ]; then node tools/stamp-version.js --pr --pr-number "$PR"; else node tools/stamp-version.js --ref "${SHA:-HEAD}"; fi
       - uses: actions/download-artifact@v4
         with:
           name: orders
@@ -216,9 +235,16 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: ${{ needs.plan.outputs.sha }}
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      - name: Stamp the version (Brief 031)
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ needs.plan.outputs.sha }}
+        run: if [ -n "$PR" ]; then node tools/stamp-version.js --pr --pr-number "$PR"; else node tools/stamp-version.js --ref "${SHA:-HEAD}"; fi
       - uses: actions/download-artifact@v4
         with:
           name: orders
@@ -256,15 +282,28 @@ jobs:
         with:
           ref: ${{ needs.plan.outputs.sha }}
           fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      - name: Stamp the version (Brief 031)
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ needs.plan.outputs.sha }}
+        run: if [ -n "$PR" ]; then node tools/stamp-version.js --pr --pr-number "$PR"; else node tools/stamp-version.js --ref "${SHA:-HEAD}"; fi
+      # Brief 031: the quick checks include the four browser checks, so they need a headless browser.
+      - name: Install a headless browser (Playwright)
+        if: matrix.check.cmd == 'quick'
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm install --no-audit --no-fund playwright@1.49.1 > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
       - name: ${{ matrix.check.name }}
         working-directory: board
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
           NAME: ${{ matrix.check.name }}
           CMD: ${{ matrix.check.cmd }}
+          NODE_PATH: /tmp/pw/node_modules
         run: |
           mkdir -p ../out
           one() {  # one check: its own name=outcome file
@@ -274,15 +313,17 @@ jobs:
           if [ "$CMD" = "hashes" ]; then
             id=$(echo "$NAME" | tr -c 'a-zA-Z0-9' '_')
             : > ../out/hashes.txt
-            if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then mkdir -p /tmp/base && git -C .. archive "$BASE" board | tar -x -C /tmp/base; echo "Earlier board ($BASE):" >> ../out/hashes.txt; node tests/regress_engine.js /tmp/base/board 3 >> ../out/hashes.txt; fi
-            echo "This board:" >> ../out/hashes.txt; node tests/regress_engine.js . 3 >> ../out/hashes.txt && echo "$NAME=success" > "../out/check-$id.txt" || echo "$NAME=failure" > "../out/check-$id.txt"
+            # Brief 031: every preset, the newest included (regress_engine.js ... all).
+            if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then mkdir -p /tmp/base && git -C .. archive "$BASE" board | tar -x -C /tmp/base; echo "Earlier board ($BASE):" >> ../out/hashes.txt; node tests/regress_engine.js /tmp/base/board 3 all >> ../out/hashes.txt; fi
+            echo "This board:" >> ../out/hashes.txt; node tests/regress_engine.js . 3 all >> ../out/hashes.txt && echo "$NAME=success" > "../out/check-$id.txt" || echo "$NAME=failure" > "../out/check-$id.txt"
           elif [ "$CMD" = "quick" ]; then
-            # name|command, one per line, the same names as the 16-job runs before Brief 027
-            [ -f ../sims/lab/release_quick.txt ] || { echo "$NAME (list missing)=failure" > ../out/check-quick_missing.txt; exit 0; }
+            # name|command, one per line, built from board/tests/test_*.js (Brief 031, sims/lab/release_tests.js); the
+            # names of the checks that ran before stay the same
+            node ../sims/lab/release_tests.js --quick > /tmp/quick.txt || { echo "$NAME (list unreadable)=failure" > ../out/check-quick_missing.txt; exit 0; }
             while IFS='|' read -r n c; do
               [ -n "$n" ] || continue
               echo "::group::$n"; one "$n" "$c" < /dev/null; echo "::endgroup::"
-            done < ../sims/lab/release_quick.txt
+            done < /tmp/quick.txt
             cat ../out/check-*.txt
           else
             one "$NAME" "$CMD"
@@ -291,6 +332,38 @@ jobs:
         with:
           name: release-check-${{ strategy.job-index }}
           path: out/
+
+  # Brief 031: a new version on main with no release run (screen-only, or no board change) gets one results index line
+  # pointing to the last version that had one, so every version still points to its numbers.
+  same:
+    name: same games as the last release
+    needs: plan
+    if: needs.plan.outputs.same == 'true' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          token: ${{ secrets.LAB_TOKEN || github.token }}
+          fetch-depth: 0
+          filter: blob:none
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - name: Stamp the version (Brief 031)
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ needs.plan.outputs.sha }}
+        run: if [ -n "$PR" ]; then node tools/stamp-version.js --pr --pr-number "$PR"; else node tools/stamp-version.js --ref "${SHA:-HEAD}"; fi
+      - name: File the line
+        env:
+          GH_TOKEN: ${{ secrets.LAB_TOKEN || github.token }}
+          SHA: ${{ needs.plan.outputs.sha }}
+        run: |
+          node sims/lab/same.js --commit "$SHA" | tee -a "$GITHUB_STEP_SUMMARY"
+          git checkout -- board/version.js
+          bash sims/lab/deliver.sh main "Lab: same games as the last release ($(date -u +%Y-%m-%d))"
 
   merge:
     name: merge and file the results
@@ -304,9 +377,17 @@ jobs:
           # a pull request's own branch, so the run folder can be committed to it
           ref: ${{ github.event.pull_request.head.ref || 'main' }}
           token: ${{ secrets.LAB_TOKEN || github.token }}
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      # The version of the commit that was played (main may have moved on since the plan).
+      - name: Stamp the version (Brief 031)
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          SHA: ${{ needs.plan.outputs.sha }}
+        run: if [ -n "$PR" ]; then node tools/stamp-version.js --pr --pr-number "$PR"; else node tools/stamp-version.js --ref "${SHA:-HEAD}"; fi
       - uses: actions/download-artifact@v4
         with:
           name: orders

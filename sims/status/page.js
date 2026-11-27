@@ -88,7 +88,7 @@
     var m = d.main || {}, out = [];
     out.push(tile("On main", m.game || "?", [m.build ? "Build " + m.build : null, m.rules ? "Rules " + m.rules : null, m.brain || null].filter(Boolean).join(" · ")));
     var bl = (d.builds && d.builds.building) || [];
-    var names = bl.map(function (b) { return b.brief + " " + b.name + (b.version ? " · will be " + b.version : ""); }).join(", ");
+    var names = bl.map(function (b) { return b.brief + " " + b.name + (b.version ? " · will be " + b.version : b.next ? " · would be " + b.next : ""); }).join(", ");
     out.push(tile("Building", String(bl.length), bl.length ? names : "Nothing building", stateCounts(bl).map(function (s) {
       return pill(s.state === "merge" ? "merge" : s.state, countWord(s.state, s.n));
     })));
@@ -120,7 +120,9 @@
     var h = h3("Building", String(bl.length));
     if (!bl.length) h += none();
     bl.forEach(function (b) {
-      var line = ["PR #" + b.pr, b.version ? "will be " + b.version : b.size === "none" ? "no version" : b.size ? b.size + " bump" : null,
+      // Brief 031: no number until it merges; what it would be if merged next, and what it still waits on.
+      var line = ["PR #" + b.pr, b.version ? "will be " + b.version : b.size === "none" ? "no version" : b.next ? b.size + " · would be " + b.next + " if merged next" : b.size ? b.size + " bump" : null,
+        b.waitsOn ? "waits on " + b.waitsOn.join(", ") : null,
         b.sync === "conflict" ? "conflicts with main" : b.sync === "behind" ? "behind main" : null,
         b.checks === "pass" ? "checks pass" : b.checks === "fail" ? "checks failed" : b.checks === "running" ? "checks running" : "no checks yet",
         b.review === "hold" ? "review: hold" : null].filter(Boolean).join(" · ");
@@ -231,7 +233,7 @@
     ["merge", "Ready to merge", "A review said merge. Your move: do the hands-on check, then merge."],
     ["ask", "Needs an answer", "A flag is waiting on you or a design chat."],
     ["running", "Running", "In progress, or waiting its turn. Nothing for you to do."],
-    ["sync", "Needs sync", "A build has fallen behind main or conflicts with it. Your move: type sync in its Code chat."],
+    ["sync", "Needs sync", "A build conflicts with main (GitHub can't merge it). Your move: type sync in its Code chat."],
     ["heads", "Heads up", "A medium issue, such as a review that says hold."],
     ["broken", "Broken", "Something failed: checks on a build, or the nightly run."],
     ["pass", "Passing", "Checks pass."],
