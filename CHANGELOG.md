@@ -45,7 +45,7 @@ Rule set: none changed (v3.10 stays the newest). Default brain: Brain 8 (unchang
 - A match that ends clears the saved live match (this device and the database); Continue keeps one match in memory; New game never files a match Matches already holds as finished. Abandoning now also clears the database's live match.
 - `test_rematch.js` (49 checks, headless browser) in the checks; `sims/shots_029.js` makes the screenshots.
 
-**Flags:** opened F029-1.
+**Flags:** opened and closed F029-1 (names when ends swap, as built); opened F029-2 (version numbers with several pull requests open).
 ## v3.19.00 · Build 24 — Brief 028, rule set v3.10: Arrow Storm 1.5 times, minimum damage 0.5 (24 Nov 2026)
 Rule set: new **v3.10** (v3.9 with Arrow Storm 1.5 times a normal shot and minimum damage 0.5), the new-game default. Default brain: Brain 8 (unchanged). Game version **v3.19.00** (YY: a rule change; Brief 026 took v3.18.00 first).
 
