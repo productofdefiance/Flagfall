@@ -54,6 +54,7 @@ node tests/test_v36.js
 node tests/test_v37.js
 node tests/test_fields.js
 node tests/test_route.js
+node tests/test_v310.js
 node tests/test_stamina.js
 node tests/test_reasons.js
 node tests/test_kitd.js

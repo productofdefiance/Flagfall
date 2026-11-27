@@ -188,7 +188,15 @@
   V39.id = "v3.9"; V39.name = "v3.9 (2026-11-20)";
   V39.note = "v3.8 plus routes: a move walks the cheapest route to the hex you pick; it stops where it enters a Mark on the way and set spear can hit it on the way.";
   V39.switches.routeRule211 = true;
-  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35, V36, V37, V38, V39];
+  /* Rule set v3.10 (Brief 028, Game Laws 6.17 and 3.2, locked by the Editor 23 Nov; F022-9): v3.9 with Arrow Storm
+     1.5 times a normal shot (was 2), still ignoring Dodge, and minimum damage 0.5 (was 1): no hit, pull or special is
+     rounded up to a whole point any more. Nothing else changes. */
+  const V310 = JSON.parse(JSON.stringify(V39));
+  V310.id = "v3.10"; V310.name = "v3.10 (2026-11-23)";
+  V310.note = "v3.9 with Arrow Storm 1.5 times a normal shot (was 2), still ignoring Dodge, and minimum damage 0.5 (was 1)";
+  V310.specials.arrowStorm.mult = 1.5;
+  V310.game.minDamage = 0.5;
+  const PRESETS = [V1, V2, V3, V31, V32, V33, V34, V35, V36, V37, V38, V39, V310];
 
   const TRAITS = { tackle: "Tackle", reach: "Reach", ignoreArmor: "Ignores Armor", none: "None" };
   const BRACES = { parry: "Parry", dodgeDouble: "Dodge doubles", spike: "Set spear", zone: "Projects Zone of Control", fullStamina: "Full Stamina next turn", noSupport: "No Support against it", none: "None" };
