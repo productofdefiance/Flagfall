@@ -316,6 +316,26 @@ body.turned { transform: rotate(180deg); }
 .ls-bar { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 2px solid; padding: 12px 16px 18px; }
 .ls-1 { font: 700 16px/1 var(--display); letter-spacing: .06em; } .ls-2 { font: 500 12px/1.3 var(--body); color: #36403b; margin-top: 3px; }
 @media (min-width: 640px) { .lsheet { left: 50%; right: auto; width: 480px; transform: translateX(-50%); } }
+/* Brief 029 (Approved UI v7): the end-of-match and rematch sheets. */
+#sheet.endsheet { gap: 12px; }
+.endsheet .end-new { width: 100%; height: 48px; min-height: 48px; border-radius: 10px; font: 600 15px/1 var(--body); }
+.endsheet .end-row { display: flex; gap: 8px; margin-top: -4px; }
+.endsheet .end-row .btn, .endsheet .rm-btns .btn { flex: 1 1 0; min-width: 0; height: 44px; padding: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rm-rows { display: flex; flex-direction: column; }
+.rm-row { border-top: 1px solid #e3e6e0; padding: 10px 0; }
+.rm-main { display: flex; align-items: center; gap: 12px; }
+.rm-l { flex: 1; min-width: 0; }
+.rm-n { font: 600 15px/1.2 var(--body); color: var(--ink); }
+.rm-h { font: 400 12px/1.3 var(--body); color: var(--muted); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rm-seg { flex: 0 0 132px; width: 132px; }
+.rm-seg button { height: 40px; }
+.rm-seed { display: flex; gap: 8px; margin-top: 8px; }
+.rm-code { flex: 1; min-width: 0; height: 40px; border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 0 12px; display: flex; align-items: center; gap: 8px; font: 600 15px/1 var(--num); letter-spacing: .04em; white-space: nowrap; overflow: hidden; }
+.rm-code small { font: 600 11px/1 var(--body); letter-spacing: 0; color: var(--muted); }
+.rm-copy { width: 44px; height: 40px; border-color: var(--ink); }
+.endsheet .rm-btns { display: flex; gap: 10px; }
+.endsheet .rm-btns .btn { height: 52px; border-radius: 12px; }
+.endsheet .rm-btns .btn.primary { flex: 2 1 0; }
 .grab { align-self: center; width: 40px; height: 4px; border-radius: 2px; background: var(--line); }
 .calc { font: 500 13px/1.45 var(--num); background: var(--paper); border-radius: 8px; padding: 8px 10px; }
 .dice { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; text-align: center; }
@@ -402,6 +422,8 @@ body.turned { transform: rotate(180deg); }
   .uchip { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 3px; height: 17px; border-radius: 8.5px; padding: 0 7px; background: var(--ink); color: #fff; font: 700 11px/1 var(--num); }
   .uchip.hurt { background: var(--attack); }
   #view-play.sheet-up #unitbar { display: none; }
+  #view-play.end-up #unitbar, #view-play.end-up #actions { display: none; }   /* Brief 029: the end and rematch sheets take the bottom */
+  #view-play.end-up #sheet.endsheet { max-height: calc(100% - 14px); }
   #view-play.sheet-open .fbtn:not(#logbtn), #view-play.sheet-open #namesbtn { display: none; }
   /* 4. Action panel: 116 px, every button 48 px */
   #actions { padding: 6px 10px 8px; gap: 5px; }
