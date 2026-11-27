@@ -1,4 +1,4 @@
-STATUS · updated 27 Nov 2026, 3:34 am ET
+STATUS · updated 27 Nov 2026, 3:43 am ET
 
 VERSION
   On main: v3.20.00 · Build 25 · Rules v3.10 · Brain 8
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (26 Nov, 1:21 pm ET)
-  Queue: 8 jobs waiting, oldest 8 min · lab using 14 of 20
+  Queue: clear · lab using 5 of 20
   screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov
   release v3.20.00 · 5v5 25.9% · 7v7 15.4% on the turn limit · 27 Nov
   release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov
@@ -44,6 +44,7 @@ CHATS
   Open
     FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov
     FF Roadmap v3.19.00 - · roadmap for the run-up to Cavalry (012) and the stretch after it · opened 27 Nov
+    FF UI v3.19.00 - Attack UI · attack UI design (every attack, foot specials and Cavalry) and its brief · opened 27 Nov
   Closed (last 5)
     FF Docs v3.18.00 - v3.19.00 · closed 27 Nov · brief 031 pushed (version at merge, answers F029-2); 028 merged during the…
     FF Rules v3.14.01 - v3.19.00 · closed 27 Nov · Arrow Storm x1.5 and minimum damage 0.5 locked, brief 028 written (merged…
