@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-27T07:40:52.971Z",
- "board": "STATUS · updated 27 Nov 2026, 2:40 am ET\n\nVERSION\n  On main: v3.19.00 · Build 24 · Rules v3.10 · Brain 8\n  Building: 029 → v3.20.00\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (26 Nov, 1:21 pm ET)\n  Queue: 13 jobs waiting, oldest 0 min · lab using 13 of 20\n  screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov\n  release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov\n  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov\n\nFLAGS (open, newest first)\n  ! F029-2 · ASK · 27 Nov · Version numbers clash when several pull requests are open: each build takes \"the next…\n  ! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…\n  ! F029-1 · ASK · 26 Nov · Same sides: No moves each team's name to the other end (brief §3). But a name that is…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  +23 older in FLAGS.md\n\nBUILDS\n  Building\n    029 Rematch · PR #67 · needs sync · checks pass · not reviewed\n  Ready to start\n    012 Cavalry\n  Waiting\n    031 Version at merge ← 029\n  Merged (last 3)\n    028 Arrow storm · v3.19.00 · 27 Nov\n    026 Specials flow · v3.18.00 · 27 Nov\n    020 Victory values · v3.17.00 · 23 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov stale?\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov\n    FF Docs v3.18.00 - · version numbers at merge (F029-2), brief 031 · opened 27 Nov\n  Closed (last 5)\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-27T07:48:13.161Z",
+ "board": "STATUS · updated 27 Nov 2026, 2:48 am ET\n\nVERSION\n  On main: v3.19.00 · Build 24 · Rules v3.10 · Brain 8\n  Building: 029 → v3.20.00\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (26 Nov, 1:21 pm ET)\n  Queue: 16 jobs waiting, oldest 7 min · lab using 12 of 20\n  screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov\n  release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov\n  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov\n\nFLAGS (open, newest first)\n  ! F029-2 · ASK · 27 Nov · Version numbers clash when several pull requests are open: each build takes \"the next…\n  ! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  +22 older in FLAGS.md\n\nBUILDS\n  Building\n    029 Rematch · PR #67 · Ready · checks running · not reviewed\n  Ready to start\n    012 Cavalry\n  Waiting\n    031 Version at merge ← 029\n  Merged (last 3)\n    028 Arrow storm · v3.19.00 · 27 Nov\n    026 Specials flow · v3.18.00 · 27 Nov\n    020 Victory values · v3.17.00 · 23 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov stale?\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov\n  Closed (last 5)\n    FF Docs v3.18.00 - v3.19.00 · closed 27 Nov · brief 031 pushed (version at merge, answers F029-2); 028 merged during the…\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -26,7 +26,7 @@
      "mark": null
     },
     {
-     "text": "Queue: 13 jobs waiting, oldest 0 min · lab using 13 of 20",
+     "text": "Queue: 16 jobs waiting, oldest 7 min · lab using 12 of 20",
      "indent": 1,
      "mark": null
     },
@@ -57,11 +57,6 @@
     },
     {
      "text": "! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…",
-     "indent": 1,
-     "mark": "ask"
-    },
-    {
-     "text": "! F029-1 · ASK · 26 Nov · Same sides: No moves each team's name to the other end (brief §3). But a name that is…",
      "indent": 1,
      "mark": "ask"
     },
@@ -111,7 +106,12 @@
      "mark": "ask"
     },
     {
-     "text": "+23 older in FLAGS.md",
+     "text": "! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "+22 older in FLAGS.md",
      "indent": 1,
      "mark": null
     }
@@ -126,7 +126,7 @@
      "mark": null
     },
     {
-     "text": "029 Rematch · PR #67 · needs sync · checks pass · not reviewed",
+     "text": "029 Rematch · PR #67 · Ready · checks running · not reviewed",
      "indent": 2,
      "mark": null
     },
@@ -196,13 +196,13 @@
      "mark": null
     },
     {
-     "text": "FF Docs v3.18.00 - · version numbers at merge (F029-2), brief 031 · opened 27 Nov",
-     "indent": 2,
+     "text": "Closed (last 5)",
+     "indent": 1,
      "mark": null
     },
     {
-     "text": "Closed (last 5)",
-     "indent": 1,
+     "text": "FF Docs v3.18.00 - v3.19.00 · closed 27 Nov · brief 031 pushed (version at merge, answers F029-2); 028 merged during the…",
+     "indent": 2,
      "mark": null
     },
     {
@@ -224,11 +224,6 @@
      "text": "FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…",
      "indent": 2,
      "mark": null
-    },
-    {
-     "text": "FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…",
-     "indent": 2,
-     "mark": null
     }
    ]
   }
@@ -248,7 +243,7 @@
   }
  },
  "schema": 2,
- "updatedText": "27 Nov 2026, 2:40 am ET",
+ "updatedText": "27 Nov 2026, 2:48 am ET",
  "main": {
   "game": "v3.19.00",
   "build": 24,
@@ -256,11 +251,11 @@
   "brain": "Brain 8"
  },
  "queue": {
-  "text": "Queue: 13 jobs waiting, oldest 0 min · lab using 13 of 20",
+  "text": "Queue: 16 jobs waiting, oldest 7 min · lab using 12 of 20",
   "mark": null,
-  "jobsWaiting": 13,
-  "oldestWaitMin": 0,
-  "labUsing": 13
+  "jobsWaiting": 16,
+  "oldestWaitMin": 7,
+  "labUsing": 12
  },
  "nightly": {
   "state": "cancelled",
@@ -274,10 +269,10 @@
     "name": "Rematch",
     "pr": 67,
     "draft": false,
-    "checks": "pass",
+    "checks": "running",
     "review": null,
-    "sync": "conflict",
-    "state": "sync",
+    "sync": null,
+    "state": "running",
     "version": "v3.20.00",
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/67/"
@@ -377,14 +372,6 @@
    "next": "Recommended: leave 5v5 move order to the Cavalry build's Command comparison (F022-9) and add a lever there that does bind at 5v5, for example a smaller first-turn number for the second mover or a shorter deploy distance. Both are new rules for the Editor to agree, so none is built or screened here"
   },
   {
-   "name": "F029-1",
-   "status": "ASK",
-   "date": "26 Nov",
-   "issue": "Same sides: No moves each team's name to the other end (brief §3). But a name that is just the end's own (\"North\", the default) would then put \"North\" on the South end. Built: a typed name (\"Ann\") goes with the team; a default end name stays with the end",
-   "issueFull": "Same sides: No moves each team's name to the other end (brief §3). But a name that is just the end's own (\"North\", the default) would then put \"North\" on the South end. Built: a typed name (\"Ann\") goes with the team; a default end name stays with the end",
-   "next": "Recommended: keep as built. Alternative: names always follow the team, even \"North\""
-  },
-  {
    "name": "F028-3",
    "status": "ASK",
    "date": "24 Nov",
@@ -423,6 +410,14 @@
    "issue": "The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000 games, v3.9). Brain 9 against Brain 8: 5v5 424 won, 541 lost with it, 427 to 534 without (but more points, +0.78 against +0.54); 7v7 423 to 572 with it, 486 to 495 without. Brain 9 mirrors: first mover 77.0%…",
    "issueFull": "The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000 games, v3.9). Brain 9 against Brain 8: 5v5 424 won, 541 lost with it, 427 to 534 without (but more points, +0.78 against +0.54); 7v7 423 to 572 with it, 486 to 495 without. Brain 9 mirrors: first mover 77.0% (5v5) and 83.1% (7v7) of decisive games with it, 52.8% and 46.0% without",
    "next": "Applied in this build: Brain 9 ships with spendOpening 0, as brief 022 shipped A1 and A2 off; the switch stays for move-order studies. The Editor can reverse it (one number in brain.js)"
+  },
+  {
+   "name": "F020-3",
+   "status": "ASK",
+   "date": "23 Nov",
+   "issue": "F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run, which cancelled the one playing the three screens after 70 minutes. The cancelled run filed 30% of the games (6 of 20 parts) and moved all three job orders to studies/done/. The lab's paths filter doesn't protect a…",
+   "issueFull": "F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run, which cancelled the one playing the three screens after 70 minutes. The cancelled run filed 30% of the games (6 of 20 parts) and moved all three job orders to studies/done/. The lab's paths filter doesn't protect a pull request: GitHub checks it against everything the pull request changes, so every push to a pull request with a job order or a version change restarts the lab. Code re-queued the orders (the partial run folders stay as filed, marked Failed) and pushes nothing more until they finish",
+   "next": "Recommended: the lab fix brief F022-7 asks for also skips the cancel when the new push changes nothing under studies/queue/, board/ or sims/lab/"
   }
  ],
  "chats": {
@@ -444,15 +439,14 @@
     "subject": "review of brief 026, specials flow (pull request #59)",
     "opened": "24 Nov",
     "stale": false
-   },
-   {
-    "name": "FF Docs v3.18.00 -",
-    "subject": "version numbers at merge (F029-2), brief 031",
-    "opened": "27 Nov",
-    "stale": false
    }
   ],
   "closed": [
+   {
+    "name": "FF Docs v3.18.00 - v3.19.00",
+    "closed": "27 Nov",
+    "outcome": "brief 031 pushed (version at merge, answers F029-2); 028 merged during the chat; next: roadmap chat on the run-up to…"
+   },
    {
     "name": "FF UI v3.17.00",
     "closed": "25 Nov",
@@ -472,20 +466,15 @@
     "name": "FF UI v3.14.00",
     "closed": null,
     "outcome": "specials flow approved (UI tab items 1-15, Approved UI v6); specials brief next, after 018, before 012"
-   },
-   {
-    "name": "FF UI+Rules v3.12.00 - v3.13.00",
-    "closed": "20 Nov",
-    "outcome": "017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed (builds before 018); Approved UI v5; two route…"
    }
   ],
   "closedLimit": 5
  },
  "tiles": {
   "building": 1,
-  "flagsAsk": 14,
+  "flagsAsk": 13,
   "flagsNewest": "F029-2",
-  "flagsMoreAsk": 6,
+  "flagsMoreAsk": 5,
   "flagsMoreOpen": 21
  }
 }
