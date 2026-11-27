@@ -1,0 +1,7 @@
+matchup,games,late_behind_side,late_behind_finished,late_behind_comeback,late_guard_behind_n,late_guard_behind_s,late_guard_behind_turns_n,late_guard_behind_turns_s,late_guard_level_n,late_guard_level_s,late_guard_level_turns_n,late_guard_level_turns_s,late_guard_ahead_n,late_guard_ahead_s,late_guard_ahead_turns_n,late_guard_ahead_turns_s,late_ahead_side,late_ahead_attacks,late_ahead_sideturns,late_ahead_result,points_n,points_s,points2_n,points2_s,finish_win,turn1_cmd_first,turn1_cmd_second
+7v7-c10-f6,200,ended_earlier:171 level:15 S:9 N:5,0,0,0,0,25,45,0,0,75,75,0,0,45,25,ended_earlier:171 level:15 N:9 S:5,0,70,clock_win:14,169,173,82,89,171,1175,1880.5
+7v7-c10-f10,200,ended_earlier:171 S:5 level:14 N:10,0,0,0,0,50,25,10,3,70,70,0,0,25,50,ended_earlier:171 N:5 level:14 S:10,0,75,clock_win:15,140,202,48,123,171,1921.5,1898
+5v5-c10-f6,200,ended_earlier:152 level:38 N:8 S:2,1,0,0,0,35,10,5,0,190,190,0,0,10,36,ended_earlier:152 level:38 S:8 N:2,1,46,clock_win:9 finished:1,174,132,104,49,153,845.5,1973.5
+5v5-c10-f10,200,ended_earlier:152 level:38 N:8 S:2,1,0,0,0,35,10,5,0,190,190,0,0,10,36,ended_earlier:152 level:38 S:8 N:2,1,46,clock_win:9 finished:1,174,132,104,49,153,845.5,1973.5
+5v5-c8-f5,200,level:68 ended_earlier:120 N:6 S:6,2,0,0,0,20,30,0,0,340,340,0,0,30,21,level:68 ended_earlier:120 S:6 N:6,1,51,clock_win:10 finished:2,124,120,63,59,122,845.5,1455.5
+5v5-c8-f8,200,level:68 ended_earlier:120 N:6 S:6,2,0,0,0,20,30,0,0,340,340,0,0,30,21,level:68 ended_earlier:120 S:6 N:6,1,51,clock_win:10 finished:2,124,120,63,59,122,845.5,1455.5

@@ -1,0 +1,7 @@
+matchup,games,lead_lost,lead_lost_side,lead_lost_peak,lead_lost_first_turn,lead_unused,lead_unused_side
+7v7-c10-f6,200,5,N:3 S:2,10,45,18,S:10 N:8
+7v7-c10-f10,200,13,N:7 S:6,26,107,22,S:11 N:11
+5v5-c10-f6,200,3,S:3,6,25,42,S:20 N:22
+5v5-c10-f10,200,3,S:3,6,25,42,S:20 N:22
+5v5-c8-f5,200,5,N:4 S:1,7,28,59,S:35 N:24
+5v5-c8-f8,200,5,N:4 S:1,7,28,59,S:35 N:24

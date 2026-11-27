@@ -642,6 +642,41 @@ MEASURES.victory = {
   }
 };
 
+// Brief 028 (Game Laws 3.2, v3.10): how often the minimum damage raised a real hit, pull or special hit. Counted on the
+// played actions only (never the bot's look-ahead). md_*_floor: raised by this rule set's own minimum; md_*_under1: the
+// damage before the floor was under 1 (what the old 1-point floor would have raised), so v3.9 and v3.10 compare.
+MEASURES.mindamage = {
+  about: "Minimum damage (Brief 028): normal attacks, pulls and special hits actually made (md_attack, md_pull, md_special), how many of each the rule set's minimum damage raised (_floor), and how many came to under 1 before the floor (_under1: what a 1-point floor raises). Real actions only, not the bot's look-ahead.",
+  columns: ["md_attack", "md_attack_floor", "md_attack_under1", "md_pull", "md_pull_floor", "md_pull_under1", "md_special", "md_special_floor", "md_special_under1"],
+  make(ctx) {
+    const { E } = ctx, o = Object.fromEntries(MEASURES.mindamage.columns.map((k) => [k, 0]));
+    let pend = null;
+    const noFloor = (st) => Object.assign({}, st, { rs: Object.assign({}, st.rs, { game: Object.assign({}, st.rs.game, { minDamage: 0 }) }) });
+    const count = (st, kind, raw) => { o[`md_${kind}`]++; if (raw < st.rs.game.minDamage - 1e-9) o[`md_${kind}_floor`]++; if (raw < 1 - 1e-9) o[`md_${kind}_under1`]++; };
+    return {
+      before(st, c) {
+        const a = c.action, u = a.uid && E.unitByUid(st, a.uid); pend = null;
+        if (!u || u.hp <= 0) return;
+        try {
+          if (a.type === "attack") { const t = E.unitByUid(st, a.target); if (t) { const b = E.breakdown(st, u, t, u.hex); pend = { kind: "attack", value: b.value, dodge: b.dodge }; } }
+          else if (a.type === "pull") { pend = { kind: "pull", value: E.pullValue(st, u).value, dodge: 0 }; }
+          else if (a.type === "special") {
+            const t = E.unitByUid(st, a.target);
+            if (t && E.specialCanTarget(st, u, t)) pend = { kind: "special", raws: E.specialHits(st, u, t).map((h) => { const x = h.value * (1 - (h.dodgeIgnored ? 0 : h.dodge) / 100) * h.mult; return st.rs.switches.halfPoints ? E.half(x) : Math.round(x); }) };
+          }
+        } catch (e) { pend = null; }
+      },
+      after(st, c, r) {
+        if (!pend || !r || !r.ok || c.refusedEnd) { pend = null; return; }
+        if (pend.kind === "special") for (const raw of pend.raws) count(st, "special", raw);
+        else if (r.die !== undefined) count(st, pend.kind, E.applyDie(noFloor(st), pend.value, r.die, pend.dodge));
+        pend = null;
+      },
+      end() { return o; }
+    };
+  }
+};
+
 // Always collected: the outcome (it feeds the summary's key table), timing, (Brief 016) stall and (Brief 019) lead and alone.
 const ALWAYS = ["outcome", "timing", "stall", "lead", "alone", "victory"];
 module.exports = { MEASURES, ALWAYS };

@@ -137,7 +137,8 @@ const click = (page, sel) => page.evaluate((s) => { const b = document.querySele
     let s = await sheet();
     const seed = await page.evaluate(() => window.GGShots.App.match.opts.seed), brainName = await page.evaluate(() => window.GGShots.App.match.brains.S.name);
     ok(s.title === "Rematch" && s.pressed === "Yes,Yes,Yes", "rematch sheet: opens with all three on Yes");
-    ok(s.note === `5v5 Blitz · Rules v3.9 · Sixteen letters! vs Bot (${brainName}). Format and settings stay.`, "rematch sheet: note: " + s.note);
+    const newest = await page.evaluate(() => { const D = window.GGShots.D; return D.PRESETS[D.PRESETS.length - 1].id; });
+    ok(s.note === `5v5 Blitz · Rules ${newest} · Sixteen letters! vs Bot (${brainName}). Format and settings stay.`, "rematch sheet: note: " + s.note);
     ok(s.helps.join("|") === "Both sides keep their units.|Same ends. North moves first.|Same code: same moves, same rolls.", "rematch sheet: Yes help lines: " + s.helps.join("|"));
     ok(new Set(s.segX).size === 1 && s.segX[0].endsWith(":132"), "rematch sheet: switches in one 132 px column: " + s.segX.join(" "));
     ok(s.code === seed && !s.isNew && s.go === "Start rematch", "rematch sheet: Same dice Yes shows the match's seed; Start rematch");
