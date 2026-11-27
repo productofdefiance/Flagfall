@@ -1,8 +1,8 @@
-STATUS · updated 27 Nov 2026, 3:15 am ET
+STATUS · updated 27 Nov 2026, 3:18 am ET
 
 VERSION
-  On main: v3.19.00 · Build 24 · Rules v3.10 · Brain 8
-  Building: 029 → v3.20.00
+  On main: v3.20.00 · Build 25 · Rules v3.10 · Brain 8
+  Building: none
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (26 Nov, 1:21 pm ET)
@@ -28,15 +28,16 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    029 Rematch · PR #67 · Ready · checks pass · not reviewed
+    none
   Ready to start
     012 Cavalry
+    031 Version at merge
   Waiting
-    031 Version at merge ← 029
+    none
   Merged (last 3)
+    029 Rematch · v3.20.00 · 27 Nov
     028 Arrow storm · v3.19.00 · 27 Nov
     026 Specials flow · v3.18.00 · 27 Nov
-    020 Victory values · v3.17.00 · 23 Nov
 
 CHATS
   Open
