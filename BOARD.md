@@ -1,4 +1,4 @@
-STATUS · updated 27 Nov 2026, 4:24 am ET
+STATUS · updated 27 Nov 2026, 5:06 am ET
 
 VERSION
   On main: v3.20.00 · Build 25 · Rules v3.10 · Brain 8
@@ -30,7 +30,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    031 Version at merge · PR #73 · Draft · checks running · not reviewed
+    031 Version at merge · PR #73 · Draft · checks fail · not reviewed
   Ready to start
     012 Cavalry
   Waiting
