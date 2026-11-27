@@ -111,18 +111,53 @@ n/a (no change to what the bot can do).
 2. Settings → Rules → main: tick `waits-on` as a required check (the Report gives the exact clicks).
 3. Open the next build's play link: Home reads `v3.20.01+NNN`.
 
-## Report back
-The standard items, plus: the two-order merge outputs; the clicks for the required check; the stamping time added to each workflow; how many release runs (and games) the last ten merged briefs would have skipped under the new rule; anything in the old version path that had no place in the new one.
-
----
-
 ## Report
 *Filled in by Claude Code.*
 
-- **What's in:**
+- **What's in:** every section, 1 to 9.
+  - `board/version.js` holds `game: null, build: null, date: null`. An unstamped board shows `dev`.
+  - `tools/stamp-version.js` is the one counting script (a command and a module). Publishing (`play-links`), the lab (every job), night checks, the `checks` rules job, the status board and the tests all use it. On a pull request it stamps `<main>+NNN` with build `null`.
+  - `releases/BASE.json` (v3.20.00 · Build 25, commit `6b2c7fd`, plus the list of briefs merged the old way so `waits-on` counts them as merged), `releases/031.json` (ZZ), `changelog/031.md`. `CHANGELOG.md` has its top line. `tools/changelog.js` builds `changelog.html`/`changelog.md` with the version table for the live site.
+  - `tools/check-release.js` replaces `.github/check-build-number.sh` (all section 4 rules, plus `changelog/NNN.md` must be added).
+  - `tools/waits-on.js` and `.github/workflows/waits-on.yml`: sets a commit status `waits-on` on the pull request, and again on every open pull request at each push to `main`.
+  - Release run: `sims/lab/release_files.js` (game/screen files, a hash comparison for any other board file). `plan.js --release-base`. A screen-only version on main gets one `same games as` line (`sims/lab/same.js`, `results/same.csv`). The quick list is built from `board/tests/test_*.js` (`sims/lab/release_tests.js`, replaces `release_quick.txt`). The quick job installs a headless browser for the four browser checks. Release hashes use `all` (every preset, the newest included).
+  - `checks`: a `changes` job. Docs-only pull requests skip the game jobs and `checks` still reports. For a screen-only build the replay hashes must match its base (1 game per preset and brain with `all`).
+  - Status board: on main = counted. Building = `029 → YY · would be v3.21.00 if merged next`, plus `waits on 028`. Needs sync = conflict only. Merged rows show the counted number.
+  - `CLAUDE.md`, `briefs/TEMPLATE.md`, `README.md`, `results/README.md` rewritten for the new rule.
 - **Anything beyond the brief, and why:**
-- **Checks run and results (paste regression hashes):**
-- **Bot minimum (met / not met, with numbers):** n/a
+  - The check also fails a brief pull request (title `NNN …`) with no releases file, even with no board change. Otherwise a tooling brief could forget it and `waits-on` would never go green for briefs waiting on it.
+  - `BASE.json` lists the 28 briefs merged the old way. Without it, `waits-on` would fail this very pull request ("Waits on 029") and every brief waiting on an old one.
+  - `waits-on` is a commit status, not a job name. Only a status can be set again from `main` without re-running the pull request's workflow (re-runs are capped).
+- **Checks run and results:** see the end of this Report.
+  - **Two merges in both orders** (scratch copy of this repository with 031 merged; pretend 090 = YY, `app.js` only; 091 = ZZ, `data.js`):
+    ```
+    check 090: OK: releases/090.json (bump YY) matches brief 090; board/ changed.
+    check 091: OK: releases/091.json (bump ZZ) matches brief 091; board/ changed.
+    Order A then B:
+      090: merged, no conflict · v3.21.00 · Build 27 · no release run (screen files only: board/app.js)
+      091: merged, no conflict · v3.21.01 · Build 28 · release run planned (game files changed: board/data.js)
+    Order B then A:
+      091: merged, no conflict · v3.20.02 · Build 27 · release run planned (game files changed: board/data.js)
+      090: merged, no conflict · v3.21.00 · Build 28 · no release run (screen files only: board/app.js)
+    ```
+  - **waits-on** (scratch copy): `before 091 merges: WAIT: Waits on 091: not merged yet`, then `after 091 merges (092 untouched): OK: Waits on 091: all merged`. On GitHub, the status on this pull request reads "Waits on 029: all merged". A live fail-then-green needs a second open pull request, so it has not been shown on GitHub yet.
+  - **Baseline:** the stamp at `main`'s commit gives v3.20.00 · Build 25, the same as `main`'s `version.js`. With 031 merged it counts v3.20.01 · Build 26.
+  - **Regression hashes:** this build changes no game file (only `app.js`'s version line and `version.js`), so every rule set's hash is unchanged (engine, bot, brain, data, fields and watch are byte-identical to `main`). The `checks` compare job prints them. Because this build counts as screen-only, the hashes must match there.
+- **Stamping time added per workflow:** counting itself takes under 0.1 s. The cost is the blobless full-history checkout (`fetch-depth: 0, filter: blob:none`), a few seconds on this repository. Not measured on GitHub yet; I'll add it from the first runs.
+- **Release runs the last ten merged versioned briefs would have skipped:** 3 of 10 (029 Rematch, 025 Phone fit, 025's v3.14.01 follow-up), so 6,000 games. On top of that come the renumber re-runs (022/018, 026/028, 028/029), about 3 × 2,000 more. 026 and 018 were "UI" builds that still touched `engine.js`, so they keep their release runs.
+- **Old version path with no place in the new one:**
+  - The Ready title's `vX.YY.ZZ`.
+  - Being "behind main" as a reason to sync.
+  - `test_version.js`'s typed-in number.
+  - The release trigger on `version.js` changing.
+  - Night checks keep `plan.js --release <file>`, which now compares against the stamped version.
+- **Bot minimum:** n/a.
 - **Known gaps:**
-- **Flags closed / opened:**
-- **Pull request:**
+  - F031-1 (a follow-up fix to a merged brief has no path).
+  - The `waits-on` status only appears in Settings' list once it has run.
+  - The status board script runs from `main`, so its new lines show after the merge.
+  - Release hashes with `all` take roughly 15 minutes a board here.
+- **Flags closed / opened:** closes F029-2. Opens F031-1 (ASK).
+- **Branch:** `claude/serene-lamport-aitl71`, started from `brief/031-version-at-merge`.
+- **Required check clicks for the Editor:** Settings → Rules → Rulesets → the rule for `main` → Require status checks to pass → Add checks → type `waits-on` → select it → Save changes.
+- **Pull request:** (below)

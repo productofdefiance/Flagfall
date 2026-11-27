@@ -360,9 +360,10 @@ jobs:
         env:
           SCREEN_ONLY: ${{ needs.changes.outputs.screen_only }}
         run: |
-          all=""; [ "$SCREEN_ONLY" = "true" ] && all="all"
-          if [ -f base-commit/board/engine.js ]; then node board/tests/regress_engine.js base-commit/board 3 $all | tee regress-base.txt; fi
-          node board/tests/regress_engine.js board 3 $all | tee regress-head.txt
+          # every preset and every brain, 1 game each (3 games of `all` take about 15 minutes a board)
+          n=3; all=""; [ "$SCREEN_ONLY" = "true" ] && { n=1; all="all"; }
+          if [ -f base-commit/board/engine.js ]; then node board/tests/regress_engine.js base-commit/board $n $all | tee regress-base.txt; fi
+          node board/tests/regress_engine.js board $n $all | tee regress-head.txt
           if [ "$SCREEN_ONLY" = "true" ] && [ -f regress-base.txt ]; then
             if diff <(grep -v '^#' regress-base.txt) <(grep -v '^#' regress-head.txt); then echo "Screen-only build: every preset replays exactly as on its base."
             else echo "FAIL: a screen-only build changed how games replay (hashes above differ). It would need a release run: change a game file's classification or fix the leak."; exit 1; fi
