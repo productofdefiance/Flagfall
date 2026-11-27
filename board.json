@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-27T08:44:07.789Z",
- "board": "STATUS · updated 27 Nov 2026, 3:44 am ET\n\nVERSION\n  On main: v3.20.00 · Build 25 · Rules v3.10 · Brain 8\n  Building: 031 → ZZ\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (26 Nov, 1:21 pm ET)\n  Queue: clear · lab using 5 of 20\n  screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov\n  release v3.20.00 · 5v5 25.9% · 7v7 15.4% on the turn limit · 27 Nov\n  release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov\n  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov\n\nFLAGS (open, newest first)\n  ! F031-1 · ASK · 27 Nov · A follow-up fix to a brief that has already merged has no path. Every pull request that…\n  ! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n  +16 older in FLAGS.md\n\nBUILDS\n  Building\n    031 Version at merge · PR #73 · Draft · checks running · not reviewed\n  Ready to start\n    012 Cavalry\n  Waiting\n    none\n  Merged (last 3)\n    029 Rematch · v3.20.00 · 27 Nov\n    028 Arrow storm · v3.19.00 · 27 Nov\n    026 Specials flow · v3.18.00 · 27 Nov\n\nCHATS\n  Open\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov\n    FF Roadmap v3.19.00 - · roadmap for the run-up to Cavalry (012) and the stretch after it · opened 27 Nov\n    FF UI v3.19.00 - Attack UI · attack UI design (every attack, foot specials and Cavalry) and its brief · opened 27 Nov\n  Closed (last 5)\n    FF Docs v3.18.00 - v3.19.00 · closed 27 Nov · brief 031 pushed (version at merge, answers F029-2); 028 merged during the…\n    FF Rules v3.14.01 - v3.19.00 · closed 27 Nov · Arrow Storm x1.5 and minimum damage 0.5 locked, brief 028 written (merged…\n    FF Main v3.14.00 - v3.14.01 · closed 27 Nov · overnight results reviewed; Brain 8 default ruled; LAB_TOKEN added; briefs 012…\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n",
+ "updated": "2026-11-27T08:45:00.150Z",
+ "board": "STATUS · updated 27 Nov 2026, 3:45 am ET\n\nVERSION\n  On main: v3.20.00 · Build 25 · Rules v3.10 · Brain 8\n  Building: 031 → ZZ\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (26 Nov, 1:21 pm ET)\n  Queue: clear · lab using 4 of 20\n  screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov\n  release v3.20.00 · 5v5 25.9% · 7v7 15.4% on the turn limit · 27 Nov\n  release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov\n  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov\n\nFLAGS (open, newest first)\n  ! F031-1 · ASK · 27 Nov · A follow-up fix to a brief that has already merged has no path. Every pull request that…\n  ! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n  +16 older in FLAGS.md\n\nBUILDS\n  Building\n    031 Version at merge · PR #73 · Draft · checks running · not reviewed\n  Ready to start\n    012 Cavalry\n  Waiting\n    none\n  Merged (last 3)\n    029 Rematch · v3.20.00 · 27 Nov\n    028 Arrow storm · v3.19.00 · 27 Nov\n    026 Specials flow · v3.18.00 · 27 Nov\n\nCHATS\n  Open\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov\n    FF Roadmap v3.19.00 - · roadmap for the run-up to Cavalry (012) and the stretch after it · opened 27 Nov\n    FF UI v3.19.00 - Attack UI · attack UI design (every attack, foot specials and Cavalry) and its brief · opened 27 Nov\n  Closed (last 5)\n    FF Docs v3.18.00 - v3.19.00 · closed 27 Nov · brief 031 pushed (version at merge, answers F029-2); 028 merged during the…\n    FF Rules v3.14.01 - v3.19.00 · closed 27 Nov · Arrow Storm x1.5 and minimum damage 0.5 locked, brief 028 written (merged…\n    FF Main v3.14.00 - v3.14.01 · closed 27 Nov · overnight results reviewed; Brain 8 default ruled; LAB_TOKEN added; briefs 012…\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -26,7 +26,7 @@
      "mark": null
     },
     {
-     "text": "Queue: clear · lab using 5 of 20",
+     "text": "Queue: clear · lab using 4 of 20",
      "indent": 1,
      "mark": null
     },
@@ -248,7 +248,7 @@
   }
  },
  "schema": 2,
- "updatedText": "27 Nov 2026, 3:44 am ET",
+ "updatedText": "27 Nov 2026, 3:45 am ET",
  "main": {
   "game": "v3.20.00",
   "build": 25,
@@ -256,11 +256,11 @@
   "brain": "Brain 8"
  },
  "queue": {
-  "text": "Queue: clear · lab using 5 of 20",
+  "text": "Queue: clear · lab using 4 of 20",
   "mark": null,
   "jobsWaiting": 0,
   "oldestWaitMin": 0,
-  "labUsing": 5
+  "labUsing": 4
  },
  "nightly": {
   "state": "cancelled",
