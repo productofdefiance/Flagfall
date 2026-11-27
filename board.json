@@ -1,17 +1,17 @@
 {
- "updated": "2026-11-27T00:47:30.414Z",
- "board": "STATUS · updated 26 Nov 2026, 7:47 pm ET\n\nVERSION\n  On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8\n  Building: 026 → v3.18.00 · 028 → v3.18.00 · 029 → v3.18.00\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (26 Nov, 1:21 pm ET)\n  Queue: clear\n  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov\n\nFLAGS (open, newest first)\n  ! F029-1 · ASK · 26 Nov · Same sides: No moves each team's name to the other end (brief §3). But a name that is…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n  +21 older in FLAGS.md\n\nBUILDS\n  Building\n    026 Specials flow · PR #59 · Ready · checks pass · reviewed: hold\n    028 Arrow storm · PR #65 · needs sync · checks pass · not reviewed\n    029 Rematch · PR #67 · Draft · checks pass · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 026, 028\n  Merged (last 3)\n    020 Victory values · v3.17.00 · 23 Nov\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n    022 Safe approach · v3.15.00 · 22 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov stale?\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov\n  Closed (last 5)\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
+ "updated": "2026-11-27T05:49:21.169Z",
+ "board": "STATUS · updated 27 Nov 2026, 12:49 am ET\n\nVERSION\n  On main: v3.18.00 · Build 23 · Rules v3.9 · Brain 8\n  Building: 028 → YY · 029 → YY\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (26 Nov, 1:21 pm ET)\n  Queue: 12 jobs waiting, oldest 0 min · lab using 14 of 20\n  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov\n\nFLAGS (open, newest first)\n  ! F029-1 · ASK · 26 Nov · Same sides: No moves each team's name to the other end (brief §3). But a name that is…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-10 · ASK · 22 Nov · 5v5 and 7v7 are foot units only (no Cavalry), so their balance must come from other…\n  ! F022-8 · DECIDE · 22 Nov · New evidence on the default opponent (F022-5). Re-measured on v3.9 at the shipped…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n  +21 older in FLAGS.md\n\nBUILDS\n  Building\n    028 Arrow storm · PR #65 · needs sync · no checks yet · not reviewed\n    029 Rematch · PR #67 · needs sync · checks pass · not reviewed\n  Ready to start\n    none\n  Waiting\n    012 Cavalry ← 028\n  Merged (last 3)\n    026 Specials flow · v3.18.00 · 27 Nov\n    020 Victory values · v3.17.00 · 23 Nov\n    018 Turn cue zoom · v3.16.00 · 23 Nov\n\nCHATS\n  Open\n    FF Lab v3.14.00 - · overnight bot results review · opened 21 Nov stale?\n    FF Rules v3.14.01 - · brief 022 rulings (Brain 8 default, Arrow Storm x1.5, foot formats) · opened 22 Nov stale?\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov\n  Closed (last 5)\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n    FF Flags v3.11.00 - v3.15.00 · closed 22 Nov · flag list cleared in docs pull request #39 (merged); set spear on leaving and…\n    FF UI v3.14.00 · closed · specials flow approved (UI tab items 1-15, Approved UI v6); specials brief…\n    FF UI+Rules v3.12.00 - v3.13.00 · closed 20 Nov · 017 reviewed and merged (v3.13.00); phone fit approved, brief 025 pushed…\n",
  "sections": [
   {
    "title": "VERSION",
    "lines": [
     {
-     "text": "On main: v3.17.00 · Build 22 · Rules v3.9 · Brain 8",
+     "text": "On main: v3.18.00 · Build 23 · Rules v3.9 · Brain 8",
      "indent": 1,
      "mark": null
     },
     {
-     "text": "Building: 026 → v3.18.00 · 028 → v3.18.00 · 029 → v3.18.00",
+     "text": "Building: 028 → YY · 029 → YY",
      "indent": 1,
      "mark": null
     }
@@ -26,7 +26,7 @@
      "mark": null
     },
     {
-     "text": "Queue: clear",
+     "text": "Queue: 12 jobs waiting, oldest 0 min · lab using 14 of 20",
      "indent": 1,
      "mark": null
     },
@@ -116,17 +116,12 @@
      "mark": null
     },
     {
-     "text": "026 Specials flow · PR #59 · Ready · checks pass · reviewed: hold",
+     "text": "028 Arrow storm · PR #65 · needs sync · no checks yet · not reviewed",
      "indent": 2,
      "mark": null
     },
     {
-     "text": "028 Arrow storm · PR #65 · needs sync · checks pass · not reviewed",
-     "indent": 2,
-     "mark": null
-    },
-    {
-     "text": "029 Rematch · PR #67 · Draft · checks pass · not reviewed",
+     "text": "029 Rematch · PR #67 · needs sync · checks pass · not reviewed",
      "indent": 2,
      "mark": null
     },
@@ -146,7 +141,7 @@
      "mark": null
     },
     {
-     "text": "012 Cavalry ← 026, 028",
+     "text": "012 Cavalry ← 028",
      "indent": 2,
      "mark": null
     },
@@ -156,17 +151,17 @@
      "mark": null
     },
     {
+     "text": "026 Specials flow · v3.18.00 · 27 Nov",
+     "indent": 2,
+     "mark": null
+    },
+    {
      "text": "020 Victory values · v3.17.00 · 23 Nov",
      "indent": 2,
      "mark": null
     },
     {
      "text": "018 Turn cue zoom · v3.16.00 · 23 Nov",
-     "indent": 2,
-     "mark": null
-    },
-    {
-     "text": "022 Safe approach · v3.15.00 · 22 Nov",
      "indent": 2,
      "mark": null
     }
@@ -243,19 +238,19 @@
   }
  },
  "schema": 2,
- "updatedText": "26 Nov 2026, 7:47 pm ET",
+ "updatedText": "27 Nov 2026, 12:49 am ET",
  "main": {
-  "game": "v3.17.00",
-  "build": 22,
+  "game": "v3.18.00",
+  "build": 23,
   "rules": "v3.9",
   "brain": "Brain 8"
  },
  "queue": {
-  "text": "Queue: clear",
+  "text": "Queue: 12 jobs waiting, oldest 0 min · lab using 14 of 20",
   "mark": null,
-  "jobsWaiting": 0,
+  "jobsWaiting": 12,
   "oldestWaitMin": 0,
-  "labUsing": 0
+  "labUsing": 14
  },
  "nightly": {
   "state": "cancelled",
@@ -265,28 +260,15 @@
  "builds": {
   "building": [
    {
-    "brief": "026",
-    "name": "Specials flow",
-    "pr": 59,
-    "draft": false,
-    "checks": "pass",
-    "review": "hold",
-    "sync": null,
-    "state": "hold",
-    "version": "v3.18.00",
-    "size": "YY",
-    "play": "https://productofdefiance.github.io/Flagfall/pr/59/"
-   },
-   {
     "brief": "028",
     "name": "Arrow storm",
     "pr": 65,
     "draft": false,
-    "checks": "pass",
+    "checks": "none",
     "review": null,
     "sync": "conflict",
     "state": "sync",
-    "version": "v3.18.00",
+    "version": null,
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/65/"
    },
@@ -297,9 +279,9 @@
     "draft": true,
     "checks": "pass",
     "review": null,
-    "sync": null,
-    "state": "running",
-    "version": "v3.18.00",
+    "sync": "conflict",
+    "state": "sync",
+    "version": null,
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/67/"
    }
@@ -309,7 +291,6 @@
     "brief": "012",
     "name": "Cavalry",
     "waitsOn": [
-     "026",
      "028"
     ],
     "ready": false,
@@ -317,6 +298,13 @@
    }
   ],
   "merged": [
+   {
+    "brief": "026",
+    "name": "Specials flow",
+    "pr": 59,
+    "version": "v3.18.00",
+    "date": "27 Nov"
+   },
    {
     "brief": "020",
     "name": "Victory values",
@@ -330,13 +318,6 @@
     "pr": 54,
     "version": "v3.16.00",
     "date": "23 Nov"
-   },
-   {
-    "brief": "022",
-    "name": "Safe approach",
-    "pr": 41,
-    "version": "v3.15.00",
-    "date": "22 Nov"
    }
   ],
   "mergedLimit": 3
@@ -377,7 +358,7 @@
    "date": "24 Nov",
    "issue": "5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format, same seeds as v3.9): the first mover's share of decisive 5v5 games falls from 53.5% (v3.9) to 41.9% on v3.10 (766 decisive games; about 4.5 standard errors below even and 3 points under F12's 45% floor). 7v7…",
    "issueFull": "5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format, same seeds as v3.9): the first mover's share of decisive 5v5 games falls from 53.5% (v3.9) to 41.9% on v3.10 (766 decisive games; about 4.5 standard errors below even and 3 points under F12's 45% floor). 7v7 moves into range: 44.6% to 49.2%. FD49-3's 56.5% for 5v5 was measured at Command 8 (first turn 5); v3.10's 5v5 plays the preset's Command 10, first turn 6, so that prediction never applied to this rule set. That Command is the cause is likely, not isolated. Fighting also starts much earlier at 5v5 (first attack turn 4.3 to 1.3; turn-limit games 44.3% to 23.4%), likely because Brain 8 no longer holds back from a Storm that can't one-shot its archer",
-   "next": "Recommended: keep v3.10 as built (the Editor's ruling) and measure 5v5 Command (8 or 10, first turn equal against reduced) in the Cavalry build's Command comparison, as F022-9 plans. If 5v5 matters before then, a sim-only screen of 5v5 at first-turn Command 8 and 10 on v3.10 answers it in a day"
+   "next": "Recommended: keep v3.10 as built (the Editor's ruling) and measure 5v5 Command (8 or 10, first turn equal against reduced) in the Cavalry build's Command comparison, as F022-9 plans. If 5v5 matters before then, a sim-only screen of 5v5 at first-turn Command 8 and 10 on v3.10 answers it in a day. 27 Nov: the Editor asked about equal Command; screen command-v310-screen queued (200 games each: 7v7 and 5v5 at Command 10 with first turn 6 and 10; 5v5 at Command 8 with first turn 5 and 8). Promising settings go to a 1,000-game confirm overnight"
   },
   {
    "name": "F028-1",
@@ -471,7 +452,7 @@
   "closedLimit": 5
  },
  "tiles": {
-  "building": 3,
+  "building": 2,
   "flagsAsk": 12,
   "flagsNewest": "F029-1",
   "flagsMoreAsk": 5,
