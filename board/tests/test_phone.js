@@ -1,7 +1,7 @@
 // Phone fit checks (Brief 025, Approved UI v5): the play screen at 393 × 665 in a headless browser.
 // - under 900 px the play screen has no title bar and no "Pull up for the key" tab;
 // - the unit bar is the same height (63 px) with nothing tapped, a unit tapped, a move previewed, an enemy tapped and a
-//   warm-up open; the top bar is 84 px and the action panel 116 px;
+//   unit warming up (Brief 026: one tap); the top bar is 84 px and the action panel 116 px;
 // - with an attack, special or flag-pull sheet open, the unit bar is hidden;
 // - no action button's label wraps or spills out of its button, for any unit and state;
 // - every special's name in the newest preset fits its idle Special button on one line.
@@ -79,7 +79,7 @@ const labels = () => [...document.querySelectorAll("#actions .act")].filter((b) 
     "unit tapped": () => { const G = window.GGShots; G.App.ui.sel = "N-LR"; G.render(); },
     "move previewed": () => { const G = window.GGShots; G.App.ui.sel = "N-LR"; G.render(); G.onBoardTap("C10"); },
     "enemy tapped": () => { const G = window.GGShots; G.onBoardTap("H13"); },
-    "warm-up open": () => { const G = window.GGShots; G.App.ui.sel = "N-LR"; G.App.ui.sheet = { kind: "warm" }; G.render(); },
+    "warming up": () => { const G = window.GGShots; G.App.ui.sel = "N-LR"; G.render(); document.querySelector('#actions [data-act="special"]').click(); },
     "can't move": () => { const G = window.GGShots; G.E.unitByUid(G.App.st, "N-HM2").stam = 0; G.App.ui.sel = "N-HM2"; G.render(); }
   };
   for (const name in states) {
@@ -98,10 +98,11 @@ const labels = () => [...document.querySelectorAll("#actions .act")].filter((b) 
   };
   for (const name in sheets) {
     const m = await go(BASE, sheets[name]);
-    const kind = await page.evaluate(() => { const s = window.GGShots.App.ui.sheet; const el = document.getElementById("sheet"); return s && !el.hidden && el.classList.contains("v5") ? s.kind : null; });
-    ok(!!kind, `phone: the ${name} sheet opens in the v5 layout (${kind})`);
+    const want = name === "special" ? "v6" : "v5";   // Brief 026: the special has its own gold sheet (Approved UI v6)
+    const kind = await page.evaluate((w) => { const s = window.GGShots.App.ui.sheet; const el = document.getElementById("sheet"); return s && !el.hidden && el.classList.contains(w) ? s.kind : null; }, want);
+    ok(!!kind, `phone: the ${name} sheet opens in the ${want} layout (${kind})`);
     ok(m.unitbar === 0, `phone: unit bar hidden under the ${name} sheet (got ${m.unitbar})`);
-    const names = await page.evaluate(() => [...document.querySelectorAll("#sheet .nb")].map((e) => { const nm = e.querySelector(".nm"); return nm && nm.scrollWidth <= nm.clientWidth + 0.5 && e.getBoundingClientRect().left >= 0 && e.getBoundingClientRect().right <= innerWidth; }));
+    const names = await page.evaluate(() => [...document.querySelectorAll("#sheet .nb, #sheet .nb6")].map((e) => { const nm = e.querySelector(".nm, .nm6"); return nm && nm.scrollWidth <= nm.clientWidth + 0.5 && e.getBoundingClientRect().left >= 0 && e.getBoundingClientRect().right <= innerWidth; }));
     ok(names.length === 2 && names.every(Boolean), `phone: both names in the ${name} sheet show in full`);
   }
   // Closing a card opened from the sheet goes back to the preview.
@@ -118,10 +119,12 @@ const labels = () => [...document.querySelectorAll("#actions .act")].filter((b) 
     const uid = code === "HM" ? "N-HM2" : "N-" + code;
     const runs = {
       idle: `G.App.ui.sel = "${uid}"; G.render();`,
-      warm: `G.App.ui.sel = "${uid}"; G.App.ui.sheet = { kind: "warm" }; G.render();`,
-      warming: `G.E.unitByUid(G.App.st, "${uid}").sp = "warm"; G.App.ui.sel = "${uid}"; G.render();`,
+      warming: `G.App.ui.sel = "${uid}"; G.render(); document.querySelector('#actions [data-act="special"]').click();`,
       charged: `G.E.unitByUid(G.App.st, "${uid}").sp = "charged"; G.App.ui.sel = "${uid}"; G.render();`,
-      rewarm: `G.E.unitByUid(G.App.st, "${uid}").sp = "charged"; G.App.ui.sel = "${uid}"; G.App.ui.sheet = { kind: "warm" }; G.render();`,
+      row: `G.E.unitByUid(G.App.st, "${uid}").sp = "charged"; G.App.ui.sel = "${uid}"; G.render(); document.querySelector('#actions [data-act="special"]').click();`,
+      rowNone: `G.E.unitByUid(G.App.st, "${uid}").sp = "charged"; G.E.unitByUid(G.App.st, "${uid}").hex = "A6"; G.App.ui.sel = "${uid}"; G.render(); document.querySelector('#actions [data-act="special"]').click();`,
+      rowWarmed: `G.E.unitByUid(G.App.st, "${uid}").sp = "charged"; G.E.unitByUid(G.App.st, "${uid}").hex = "A6"; G.App.ui.sel = "${uid}"; G.render(); document.querySelector('#actions [data-act="special"]').click(); document.querySelector('#actions [data-act="sp-warm"]').click();`,
+      braced: `G.App.ui.sel = "${uid}"; G.act({ type: "brace", uid: "${uid}" }); G.App.ui.sel = "${uid}"; G.render();`,
       used: `G.E.unitByUid(G.App.st, "${uid}").sp = "used"; G.App.ui.sel = "${uid}"; G.render();`,
       enemy: `G.onBoardTap(G.E.unitByUid(G.App.st, "S-${code}").hex);`,
       confirmEnd: `G.App.ui.sel = "${uid}"; G.App.ui.confirmEnd = true; G.render();`
@@ -152,23 +155,19 @@ const labels = () => [...document.querySelectorAll("#actions .act")].filter((b) 
   // ---- Review of #47 ----
   const HA2 = { N: [["HM", "HM", true], ["HA", "HA"], ["HA2", "HA"], ["HR", "HR"], ["LR", "LR"], ["LM", "LM"], ["LA", "LA"]], S: LINE,
     place: { "N-HM": "E4", "N-HA": "F6", "N-HA2": "D9", "N-HR": "E7", "N-LR": "C9", "N-LM": "G9", "N-LA": "D7", "S-HM": "E16", "S-HM2": "E11", "S-LM": "B9", "S-HR": "H13", "S-LR": "G10", "S-HA": "G12", "S-LA": "C14" } };
-  // Fix 1: a note (warm-up, can't move) takes all of row 1 and never clips, with the longest names.
+  // Fix 1: a note (warming up, can't move) takes all of row 1 and never clips, with the longest names.
   const noteOf = () => { const n = document.querySelector("#unitbar .ub-note"), bar = document.getElementById("unitbar"); if (!n) return null;
     const r = n.getBoundingClientRect(), br = bar.getBoundingClientRect(), lh = parseFloat(getComputedStyle(n).lineHeight) || 11.5;
     return { text: n.textContent, clipped: n.scrollWidth > n.clientWidth + 0.5 || n.scrollHeight > n.clientHeight + 2, lines: Math.round(r.height / lh), inside: r.right <= br.right - 13 && r.bottom <= br.bottom, side: !!document.querySelector("#unitbar .ub-side") }; };
   for (const [lab, arg, uid] of [["Light Ranged", BASE, "N-LR"], ["Heavy Anti-Cavalry 2", HA2, "N-HA2"]]) {
-    for (const [what, run] of [["warm-up", `G.App.ui.sel = "${uid}"; G.App.ui.sheet = { kind: "warm" }; G.render();`], ["can't move", `G.E.unitByUid(G.App.st, "${uid}").stam = 0; G.App.ui.sel = "${uid}"; G.render();`],
-      ["re-warm", `G.E.unitByUid(G.App.st, "${uid}").sp = "charged"; G.E.unitByUid(G.App.st, "${uid}").hex = "A6"; G.App.ui.sel = "${uid}"; G.App.ui.sheet = { kind: "warm" }; G.render();`]]) {
+    for (const [what, run] of [["warm-up", `G.App.ui.sel = "${uid}"; G.render(); document.querySelector('#actions [data-act="special"]').click();`], ["can't move", `G.E.unitByUid(G.App.st, "${uid}").stam = 0; G.App.ui.sel = "${uid}"; G.render();`],
+      ["re-warm", `G.E.unitByUid(G.App.st, "${uid}").sp = "charged"; G.E.unitByUid(G.App.st, "${uid}").hex = "A6"; G.App.ui.sel = "${uid}"; G.render(); document.querySelector('#actions [data-act="special"]').click(); document.querySelector('#actions [data-act="sp-warm"]').click();`]]) {
       const m = await go(arg, new Function(`const G = window.GGShots; ${run}`)), nt = await page.evaluate(noteOf);
       ok(nt && !nt.clipped && nt.lines <= 2 && nt.inside && !nt.side, `${lab}, ${what}: the note shows in full across row 1, no hex or moves (${JSON.stringify(nt)})`);
       ok(m.unitbar === 63, `${lab}, ${what}: unit bar still 63 px (got ${m.unitbar})`);
       if (what === "can't move") ok(nt && nt.text === "No movement available this turn", `${lab}: "No movement available this turn" in full`);
-      if (what === "re-warm") {
-        ok(nt && nt.text === "No target in range · fires next turn", `${lab}: re-warm note (${nt && nt.text})`);
-        const t = await page.evaluate(() => { const g = document.querySelector('[data-act="warm-confirm"] .go-1'); return g && g.textContent; });
-        ok(/^Warm up (.+ )?again$/.test(t || ""), `${lab}: re-warm button says "again" (${t})`);
-      }
-      if (what === "warm-up") { const t = await page.evaluate(() => document.querySelector('[data-act="warm-confirm"] .go-1').textContent); ok(/^Warm up/.test(t) && !/again/.test(t), `${lab}: first warm-up button (${t})`); }
+      // Brief 026 §2: the only special note left is "Fires next turn · no attack or brace", for a first warm-up and a re-warm.
+      if (what !== "can't move") ok(nt && nt.text === "Fires next turn · no attack or brace", `${lab}, ${what}: the warming note (${nt && nt.text})`);
     }
   }
   // Fix 2: field buttons are never covered: hidden under a sheet or the key drawer; otherwise their bottom sits a fixed
@@ -184,13 +183,10 @@ const labels = () => [...document.querySelectorAll("#actions .act")].filter((b) 
     await go(BASE, fn); const b = await page.evaluate(fb), nm = b.find((x) => x.id === "namesbtn");
     ok(b.every((x) => x.vis && x.inField && !x.covered) && nm.gap === 116, `${k}: field buttons shown, inside the field, hex names 116 px above what is under it (${JSON.stringify(b)})`);
   }
-  // Fix 3: the Special button's state bar never touches its label or icon (Warming up, Charged).
-  for (const sp of ["warm", "charged"]) {
+  // Brief 026 §1 (replaces 025's fix 3): no state bar on the Special button in any state.
+  for (const sp of ["unused", "warm", "charged", "used"]) {
     await go(BASE, new Function(`const G = window.GGShots; G.E.unitByUid(G.App.st, "N-LR").sp = "${sp}"; G.App.ui.sel = "N-LR"; G.render();`));
-    const r = await page.evaluate(() => { const b = document.querySelector('#actions [data-act="special"]'), bar = b.querySelector(".spbar"), lab = b.querySelector(":scope > span"), icon = b.querySelector(":scope > svg");
-      const glyph = (() => { const rg = document.createRange(); rg.selectNodeContents(lab); return rg.getBoundingClientRect(); })();
-      return { bar: bar.getBoundingClientRect().top, label: Math.max(lab.getBoundingClientRect().bottom, glyph.bottom), icon: icon.getBoundingClientRect().bottom }; });
-    ok(r.bar - Math.max(r.label, r.icon) >= 1, `Special ${sp}: the state bar sits clear of the label and icon (${JSON.stringify(r)})`);
+    ok(await page.evaluate(() => !document.querySelector('#actions [data-act="special"] .spbar')), `Special ${sp}: no state bar`);
   }
   // F025-4: the visible handle bar is outside the card's tap area, with the longest name.
   await go(HA2, () => { const G = window.GGShots; G.App.ui.sel = "N-HA2"; G.render(); });

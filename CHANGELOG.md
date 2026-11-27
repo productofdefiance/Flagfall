@@ -6,6 +6,7 @@ Newest first. One entry per build, written for the Editor: what a player notices
 
 | Game version | Rule set (newest) | Default brain | UI | Build |
 |---|---|---|---|---|
+| v3.18.00 | v3.9 | Brain 8 | v6 + v5 + v4 | 23 |
 | v3.17.00 | v3.9 | Brain 8 | v5 + v4 | 22 |
 | v3.16.00 | v3.9 | Brain 8 | v5 + v4 | 21 |
 | v3.15.00 | v3.9 | Brain 8 | v5 | 20 |
@@ -24,6 +25,29 @@ Newest first. One entry per build, written for the Editor: what a player notices
 | v3.05.01 | v3.4 | Brain 5 | v1 | 7 |
 | v3.05.00 | v3.4 | Brain 5 | v1 | 6 |
 | v3.04.00 | v3.4 | Kit D | v1 | 5 |
+
+## v3.18.00 · Build 23 — Brief 026, no rule change: the specials flow, Approved UI v6 (23 Nov 2026)
+Rule set: none changed (v3.9 stays the new-game default). Default brain: Brain 8, unchanged. UI: **Approved UI v6** (the specials) on top of v5 and v4. Game version **v3.18.00** (YY: new screens; Brief 020 took v3.17.00 first).
+
+**What a player will notice (phone and desktop)**
+- **One tap warms up a special**, like Brace: no confirm step. The button turns dashed gold and the unit bar says "Fires next turn · no attack or brace". **Undo takes a warm-up back** (Stamina and Command too).
+- **The Special button has five looks** and no state bar: white (unused), dashed gold (warming up), gold (charged), grey (used), yellow-grey (can't warm up this turn). A used, warming or blocked special can be tapped for its reason.
+- **Tapping a charged special opens the special row:** the special big and gold where Attack sits ("2 targets", "No targets", the reason it can't fire, or "−1 Stamina" once the next tap fires), **Warm up** beside it (warm up again instead of firing; the big button then greys "Warming up instead"), and **Cancel**. One target opens its sheet at once.
+- **"Tap a target"** replaces "Tap a red ring". No target: "No targets available · move" (or just "No targets available" with no moves left). Reasons never show unit codes ("Ended its turn", not "LM has ended its turn"); the Evade hint names the unit in full.
+- **A new gold special sheet** for every special, one target included: the attacker with its Strength and the multiplier (always, ×1 too) and "Sure hit", then one short row per target with its damage, HP, its own modifiers and its HP bar. A modifier the special ignores is struck through (Arrow Storm's Dodge, Bullseye's Armor with Pierce). It is shorter: about 87 px for one target (was 137).
+- **A killing Pick Off now warns of a set spear** (the red spear pill on its row and the badge on the field), and of a Mark. The engine deals exactly that amount (checked).
+- **Brace button:** solid charcoal when braced this turn, dashed when braced last turn (the dots are gone).
+- **Not enough Command:** when only the side's Command is short, a special now says "Not enough Command" instead of "Not enough Stamina".
+- **No unit codes in sentences (F026-2, 25 Nov):** every greyed-out button's reason (Attack, Reach, Brace, End unit) is worded like the specials' ("Ended its turn", "Reloading this turn"). The field key names units in full ("Heavy Anti-Cavalry is braced.", "Where Light Melee can move this turn."). Desktop's unit list and the deploy chips keep their codes.
+- **The special sheet shows the right parry (F026-1, 25 Nov):** when an Arc Hit kills the first braced Heavy Melee in its arc and a second one survives, the sheet now shows the second one's parry in its row and "Parry: you take 2", as firing does.
+
+**Under the hood**
+- 25 Nov, the Editor's rulings: `engine.js` `specialPreview` picks the parry as `doSpecial`'s own loop does: the first braced Heavy Melee in the arc that survives its hit (display only; replay hashes identical). `app.js`: `SP_WORDS` words every button's reason and the Evade hint, `named()` swaps leftover unit codes for names (refusal toasts too), and the key lines use `UI.unitName`. Tests: `test_spengine.js` 24 checks (the flag's position, 400 seeded Arc Hits with two braced Heavy Melee), `test_spflow.js` 61 checks (no unit code in any reason, pill or key line).
+- `engine.js`: `warmupBlock` and `fireBlock` return "Not enough Command" when the unit has the Stamina but the side lacks the Command. A returned message only: every preset and brain replays with identical hashes.
+- `app.js`: the special row, one-tap warm-up, `"warmup"` added to Undo, the wording table (`SP_WORDS`), the reason pill, the new sheet. Retired: the warm-up confirm (`ui.sheet.kind === "warm"`), the state bar, desktop's warm-up line and the "No target in range · fires next turn" note. `ui.js`: `specialSheet()` reads the rows, struck modifiers, kill pills and parry from the engine.
+- New checks: `test_spflow.js` (the flow in a browser, phone and desktop), `test_spengine.js` (the message split; only Evade cards are told they may only evade; a killing Pick Off's spear against the sheet over 400 seeded positions). `test_phone.js` updated for the retired confirm and bar; `test_reasons.js` now expects "Not enough Command" where only Command is short.
+
+Flags: opened F026-1 to F026-3 (`flags/026.md`); on 25 Nov F026-1 and F026-2 fixed, F026-3 closed (kept as built).
 
 ## v3.17.00 · Build 22 — Brief 020, Brain 9: victory values, spent opening, per-format settings (23 Nov 2026)
 Rule set: none changed (v3.9 stays the newest; Brain 9 measured on v3.9). Default brain: Brain 8 (unchanged). Game version **v3.17.00** (YY: a new brain; brief 018 took v3.16.00 first).

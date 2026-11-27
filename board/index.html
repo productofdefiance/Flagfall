@@ -172,21 +172,54 @@ body.turned { transform: rotate(180deg); }
 .act:disabled, .act[aria-disabled="true"] { opacity: .35; cursor: help; }
 .act.reloading[aria-disabled="true"], .act.reloading:disabled { opacity: 1; border-color: rgba(31,36,33,.35); color: rgba(31,36,33,.35); }
 .act .dot { position: absolute; top: 5px; right: 5px; width: 10px; height: 10px; border-radius: 50%; }
-.act .dot.red { background: var(--attack); } .act .dot.blue { background: var(--brace); } .act .dot.ring { border: 2px solid var(--brace); }
-.act.braced { border: 2px solid var(--brace); }
+.act .dot.red { background: var(--attack); }
+/* Brief 026 §8: Brace braced this turn (solid charcoal) and braced last turn (light tint, dashed charcoal edge) */
+.act.brace-on, .act.brace-on[aria-disabled="true"], .act.brace-on:disabled { opacity: 1; background: #2e3338; border: 1px solid #2e3338; color: #fff; }
+.act.brace-last, .act.brace-last[aria-disabled="true"], .act.brace-last:disabled { opacity: 1; background: #e4e6e3; border: 2px dashed #2e3338; color: #2e3338; }
 /* Specials (Brief 011): gold #e2b53c, tint #f9eeda, Bolt icon */
 .act { position: relative; }
-.act .spbar { position: absolute; left: 6px; right: 6px; bottom: 3px; height: 5px; border-radius: 3px; background: rgba(226,181,60,.3); overflow: hidden; }
-.act .spbar.half { background: linear-gradient(90deg, #e2b53c 50%, rgba(226,181,60,.3) 50%); }
-.act .spbar.full { background: var(--ink); }
-.act.sp-warm { border: 2px solid var(--gold); background: var(--goldTint); }
-.act.sp-warm[aria-disabled="true"], .act.sp-warm:disabled { opacity: 1; }
-.act.sp-charged { background: var(--gold); border: 2px solid var(--ink); color: var(--ink); }
-.act.sp-charged.on { box-shadow: 0 0 0 3px var(--goldTint); }
-.act.sp-used[aria-disabled="true"], .act.sp-used:disabled { opacity: .35; }
-.act.go.gold { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+/* Brief 026 §1: the Special button's five looks (Unused is the plain button). Each is drawn at full strength: the look
+   itself says the state, so none is faded. The same warming look is Warm up's in the special row. */
+.act.sp-warm, .act.sp-warm[aria-disabled="true"] { opacity: 1; background: #ebe8d9; border: 2px dashed #e2b53c; color: #4b514d; }
+.act.sp-charged, .act.sp-charged[aria-disabled="true"] { opacity: 1; background: #e2b53c; border: 2px solid #1f2421; color: #1f2421; }
+.act.sp-used, .act.sp-used[aria-disabled="true"] { opacity: 1; background: #e3e5e0; border: 1px solid #c4c9c2; color: #9aa09b; }
+.act.sp-blocked, .act.sp-blocked[aria-disabled="true"] { opacity: 1; background: #ebe8d9; border: 1px solid #d6d1b8; color: #7d827e; }
+/* §3: the special row's big button (Attack's slot): gold, or grey once it warmed up instead */
+.act.go.spbig { background: #e2b53c; border: 2px solid #1f2421; color: #1f2421; }
+.act.go.spbig.on { box-shadow: 0 0 0 3px var(--goldTint); }
+.act.go.spbig.warmed, .act.go.spbig.warmed[aria-disabled="true"] { opacity: 1; background: #eef0ec; border: 1px solid #c4c9c2; color: #9aa09b; cursor: default; }
+.act.go.spbig .go-2 { opacity: 1; }
+/* §6: the special sheet, gold, one row per target (phone and desktop) */
+#sheet.preview.v6, #view-play > #sheet.preview.v6 { background: #fff; border-top: 3px solid #e2b53c; padding: 7px 14px 4px; gap: 0; }
+.v6 .handle6 { position: relative; display: flex; justify-content: center; align-items: center; height: 4px; margin: 0 auto 6px; width: 60px; border: 0; background: none; padding: 0; cursor: pointer; }
+.v6 .handle6::before { content: ""; position: absolute; left: 0; right: 0; top: -8px; bottom: -6px; }
+.v6 .handle6 span { display: block; width: 36px; height: 4px; border-radius: 2px; background: #b8beb6; }
+.v6 .a6 { display: flex; align-items: center; gap: 7px; height: 24px; min-width: 0; }
+.v6 .nb6 { display: inline-flex; align-items: center; gap: 7px; border: 0; background: none; padding: 0; color: var(--ink); flex: none; position: relative; }
+.v6 .nb6::before { content: ""; position: absolute; left: -4px; right: -4px; top: -10px; bottom: -10px; }
+.v6 .glow6 { display: inline-flex; border-radius: 50%; box-shadow: 0 0 0 3px rgba(226,181,60,.35), 0 0 12px 3px rgba(226,181,60,.55); }
+.v6 .nm6 { font: 700 13.5px/1 var(--display); white-space: nowrap; }
+.v6 .nm6.big { font-size: 14px; }
+.v6 .spn6 { display: inline-flex; align-items: center; gap: 3px; margin-left: 4px; font: 700 12px/1 var(--display); letter-spacing: .08em; color: #8a6410; white-space: nowrap; }
+.v6 .sp6-gap { flex: 1 1 auto; min-width: 0; }
+.v6 .str6 { display: inline-flex; align-items: center; gap: 2px; font: 600 12px/1 var(--num); color: var(--muted); white-space: nowrap; }
+.v6 .str6 b { margin-left: 3px; font-weight: 600; color: #8a6410; }
+.v6 .sure6 { margin-left: 6px; font: 600 11px/1 var(--body); color: #8a6410; white-space: nowrap; }
+.v6 .rows6 { margin: 4px 0 0 10px; padding-left: 8px; border-left: 2px solid #e2b53c; }
+.v6 .r6 { padding: 3px 0 4px; border-top: 1px solid #e3e6e0; }
+.v6 .r6-1 { display: flex; align-items: center; gap: 7px; height: 20px; min-width: 0; }
+.v6 .d6 { font: 700 15px/1 var(--num); color: var(--ink); white-space: nowrap; } .v6 .d6.kill { color: #c62828; }
+.v6 .hp6 { font: 600 11.5px/1 var(--num); color: var(--muted); white-space: nowrap; }
+.v6 .mods6 { display: inline-flex; gap: 7px; margin-right: 3px; flex: none; }
+.v6 .m6 { display: inline-flex; align-items: center; gap: 2px; font: 600 12px/1 var(--num); color: var(--muted); white-space: nowrap; }
+.v6 .m6.red { color: var(--attack); }
+.v6 .bar6 { position: relative; height: 4px; margin: 3px 46px 0 25px; border-radius: 2px; background: #dfe3dc; overflow: hidden; }
+.v6 .bar6 i { position: absolute; top: 0; bottom: 0; right: 0; }
+.v6 .bar6 i.hatch6 { background: repeating-linear-gradient(135deg, #d4a020 0 2px, #fff 2px 3.5px); }
+.v6 .n6 { display: flex; align-items: center; gap: 5px; margin: 2px 0 2px 20px; font: 500 11.5px/1.25 var(--body); color: var(--muted); }
+.v6 .n6.red { color: var(--attack); }
+.v6 > .key { margin-top: 8px; }
 .sq.k { width: 9px; height: 9px; border-color: var(--ink); background: transparent; } .sq.k.on { background: var(--ink); } .sq.k.cost { background: transparent; border-color: rgba(31,36,33,.45); }
-.warmline { display: flex; align-items: center; gap: 8px; padding: 6px 4px 8px; font: 500 13px/1.3 var(--body); color: var(--ink); }
 .sp-extras { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 2px; }
 .sp-extra { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .sp-extra .fo-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -308,7 +341,6 @@ body.turned { transform: rotate(180deg); }
 .rchip.hurt { color: var(--attack); }
 .ub-route .rline { font: 500 12px/1.2 var(--body); color: var(--muted); white-space: nowrap; }
 .act.go.blue { background: var(--move); border-color: var(--move); color: #fff; }
-.act.go.gold { border: 2px solid var(--ink); }
 .ob-k div { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; }
 .kpill { display: inline-flex; align-items: center; gap: 3px; height: 15px; border-radius: 7.5px; padding: 0 6px; background: var(--ink); color: #fff; font: 700 10px/1 var(--num); }
 .kpill.hurt { background: var(--attack); }
@@ -374,8 +406,6 @@ body.turned { transform: rotate(180deg); }
   /* 4. Action panel: 116 px, every button 48 px */
   #actions { padding: 6px 10px 8px; gap: 5px; }
   .act { height: 48px; }
-  .act.hasbar { padding-bottom: 9px; gap: 1px; }   /* the special's state bar sits under the label, never on it */
-  .act.hasbar .spbar { height: 4px; }
   /* 6. One sheet for attack, special and flag pull */
   #sheet.v5 { padding: 9px 14px 12px; gap: 0; }
   .v5 .strip { margin-top: 3px; display: grid; grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr); column-gap: 8px; align-items: center; min-height: 22px; cursor: pointer; touch-action: none; }
