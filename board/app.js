@@ -1,10 +1,10 @@
 /* Flagfall Arena — board app: screens, drawing, taps, data sheets and storage.
    Rules live in engine.js, numbers in the rule set (data.js / saved sets), looks in skin.js, the bot in bot.js + brain.js.
-   Screens: Home → Settings → Lineup (one per human side) → Play. Data screens: Unit data, Rules, Opponent, Matches.
-   Planned, not built: a Teams screen between Settings and Lineup (culture and era, bot skill and style). */
+   Screens: Home → New game (Game settings behind it) → Lineup (one per human side) → Play (Brief 030). Data screens:
+   Unit data, Rules, Opponent, Matches. */
 (function () {
   "use strict";
-  const E = window.GGEngine, D = window.GGData, SK = window.GGSkin, Bot = window.GGBot, BR = window.GGBrain;
+  const E = window.GGEngine, D = window.GGData, SK = window.GGSkin, Bot = window.GGBot, BR = window.GGBrain, Squad = window.GGSquad;
   const V = window.GGVersion || { game: null, build: null, preview: null };   // game version and build number: board/version.js is the only source
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -69,6 +69,13 @@
     mark: '<path d="M12 2.5 20.5 7.3v9.4L12 21.5 3.5 16.7V7.3z"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><path d="M12 6.5v2.8"/><path d="M10.8 8.2 12 9.4l1.2-1.2"/><path d="M12 17.5v-2.8"/><path d="M10.8 15.8 12 14.6l1.2 1.2"/><path d="M6.8 12h2.6"/><path d="M8.3 10.8 9.5 12l-1.2 1.2"/><path d="M17.2 12h-2.6"/><path d="M15.7 10.8 14.5 12l1.2 1.2"/>',
     setspear: '<path d="M4.5 20.5 16 9"/><path d="M14.2 6.2 19.8 4.2l-2 5.6-2.4.2-1.4-1.4z"/><path d="M3 20.5h8"/><path d="M8.5 16.5l2 2"/>'
   };
+  // Brief 030: the New game and Lineup screens
+  P.heart = '<path d="M12 20s-7.5-4.6-7.5-10A4.2 4.2 0 0 1 12 7.2 4.2 4.2 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>';
+  P.target = '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/>';
+  P.lock = '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>';
+  P.gear = '<circle cx="12" cy="12" r="3"/><path d="M12 2.5l1.6 2.6 3-.8.8 3 2.6 1.6-1.3 2.7 1.3 2.7-2.6 1.6-.8 3-3-.8L12 21.5l-1.6-2.6-3 .8-.8-3-2.6-1.6 1.3-2.7L4 9.6 6.6 8l.8-3 3 .8z"/>';
+  P.swap = '<path d="M8 19V5"/><path d="M4.5 8.5 8 5l3.5 3.5"/><path d="M16 5v14"/><path d="M12.5 15.5 16 19l3.5-3.5"/>';
+  P.fwd = '<path d="M9 5l7 7-7 7"/>';
   P.sword = P.attack; P.spear = P.reach; P.shield = P.brace;
   function ic(name, size, color, extra, sw) {
     return `<svg width="${size || 22}" height="${size || 22}" viewBox="0 0 24 24" fill="none" stroke="${color || "currentColor"}" stroke-width="${sw || 1.9}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra || ""}>${P[name]}</svg>`;
@@ -169,7 +176,7 @@
     },
     summary(match, st, how, winner) {
       return { id: match.id, started: match.started, finished: new Date().toISOString(), ruleset: match.rs.name, game: match.game || null, build: match.build || null, format: match.opts.format || null,
-        names: match.opts.names, winner, how, turn: st.turn, seed: match.opts.seed || null,
+        names: match.opts.names, winner, how, turn: st.turn, seed: match.opts.seed || null, squad: match.opts.squadRule || "open",
         pull: { N: st.pole.S, S: st.pole.N }, lost: { N: E.beingsLost(st, "N"), S: E.beingsLost(st, "S") } };
     },
     saveFinished(match, st) {
@@ -223,11 +230,6 @@
   }
   resetUi();
 
-  function defaultSetup() {
-    return { format: "std7", rulesetId: (D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id), first: "coin", seed: E.makeSeed(),
-      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: BR.DEFAULT_OPPONENT, name: "South", mix: "open" } } };   // the default opponent lives in brain.js (Brief 031)
-  }
-
   // ---------- Matches ----------
   const isBot = (t) => !!(App.match && App.match.opts.players && App.match.opts.players[t] && App.match.opts.players[t].type === "bot");
   const brainOf = (t) => (App.match && App.match.brains && App.match.brains[t]) || BR.DEFAULT_BRAINS.standard;
@@ -276,26 +278,38 @@
       App.ui.zoom = null;   // play starts at the default view
     }
   }
+  /** Start a match from the New game set-up. Every lineup passes the squad check first (Game Laws 2.2, 2.16): an
+      illegal lineup never starts, from any path. Returns false (and says why) if one is refused. */
   function startMatch() {
-    const s = App.setup, rs = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET, fm = formatOf(s.format);
+    const s = App.setup, rsId = rsIdOf(s), rs = App.rulesets[rsId] || D.DEFAULT_RULESET, fm = formatOf(s.format), rule = Squad.isRule(s.squad) ? s.squad : "open";
     const players = {}, brains = {}, names = {}, lineups = {}, mix = {};
     for (const t of ["N", "S"]) {
       const p = s.players[t];
+      let pick;
       if (p.type === "bot") {
-        const b = App.brains[p.brainId] || BR.DEFAULT_BRAINS.standard;
-        mix[t] = p.mix || "open";
+        const b = App.brains[brainIdOf(p)] || BR.DEFAULT_BRAINS.standard;
+        mix[t] = rule === "open" ? (p.mix || "open") : rule;   // the squad rule replaces the old mix (Brief 030 §6); kept so a rematch can draw again
         players[t] = { type: "bot", brainId: b.id }; brains[t] = E.clone(b); names[t] = p.name && p.name !== sideName(t) ? p.name : sideName(t);
-        lineups[t] = toLineup(rs, mixPick(rs, fm.size, p.mix || "open", t, p));   // Teams screen: Heavy, Light, Mixed, Open (the kit's squad) or Random
+        pick = App.botPicks && App.botPicks[t] ? App.botPicks[t] : WT.squadCounts(rs, fm.size, mix[t], s.seed, t, b);
       } else {
         players[t] = { type: "human" }; names[t] = (p.name || "").trim() || sideName(t);
-        lineups[t] = toLineup(rs, App.picks[t]);
+        if (rule === "random") { mix[t] = "random"; pick = WT.squadCounts(rs, fm.size, "random", s.seed, t, null); }
+        else pick = App.picks[t];
       }
+      const chk = pick ? Squad.check(rs, fm.size, pick, rule) : { status: "blocked", reason: "No lineup." };
+      if (chk.status === "blocked") { toast(`${sideName(t)}: ${chk.reason}`); return false; }
+      lineups[t] = toLineup(rs, pick);
     }
     App.match = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), game: V.game || null, build: V.build, rs: E.clone(rs),
-      opts: { first: "N", players, names, lineups, seed: s.seed, format: fm.id, coin: s.first === "coin" }, brains, actions: [], draws: 0,
+      opts: { first: "N", players, names, lineups, seed: s.seed, format: fm.id, coin: s.first === "coin", squadRule: rule }, brains, actions: [], draws: 0,
       view: s.view || "handoff" };   // Brief 018 §3: display only, kept beside the options; the engine never sees it
     if (Object.keys(mix).length) App.match.mix = mix;   // Brief 029: each bot side's mix, so a rematch can draw again (display only; the lineups are in opts)
+    // Brief 030: the set-up choices that are shown but not built go into the record (display only, unused by the game).
+    App.match.setup = { overtime: s.overtime || "none", rounds: s.rounds || 1, dice: s.dice === undefined ? 2 : s.dice, seedMode: s.seedMode || "new",
+      sides: { N: sideSetup(s.players.N), S: sideSetup(s.players.S) } };
     App.match.opts.first = s.first === "coin" ? (rand() < 0.5 ? "N" : "S") : s.first;
+    if (s.players) rememberGame(s);
+    App.botPicks = {};
     rebuild();
     resetUi();
     beginDeploy();
@@ -303,7 +317,9 @@
     App.live = App.match;
     if (App.match.opts.coin) toast(`Coin toss: ${sideName(App.st.first)} moves first.`);
     show("play");
+    return true;
   }
+  const sideSetup = (p) => { const o = { era: p.era || "TEST", region: p.region || "TEST" }; if (p.type === "bot") { o.difficulty = p.difficulty || "TEST"; o.personality = p.persona && p.persona.custom ? E.clone(p.persona.custom) : "default"; } return o; };
 
   // ---------- Rematch (Brief 029, Approved UI v7) ----------
   /** A lineup in the engine's form back to the Lineup screen's pick (the inverse of toLineup). */
@@ -331,18 +347,24 @@
       if (m.brains && m.brains[f]) brains[t] = E.clone(m.brains[f]);
       if (m.mix && m.mix[f]) mix[t] = m.mix[f];
       if (c.lineups) lineups[t] = E.clone(o.lineups[f]);
-      else if (p.type === "bot") lineups[t] = mix[t] ? toLineup(rs, WT.mixCounts(rs, fm.size, mix[t], seed, t, brains[t] || BR.DEFAULT_BRAINS.standard)) : E.clone(o.lineups[f]);
+      else if (p.type === "bot" || mix[t] === "random") lineups[t] = mix[t] ? toLineup(rs, WT.squadCounts(rs, fm.size, mix[t], seed, t, brains[t] || BR.DEFAULT_BRAINS.standard)) : E.clone(o.lineups[f]);   // Brief 030: inside the squad rule
       else lineups[t] = picks && picks[t] ? toLineup(rs, picks[t]) : E.clone(o.lineups[f]);
     }
     const r = { id: "m" + Date.now().toString(36), started: new Date().toISOString(), game: V.game || null, build: V.build, rs,
       opts: Object.assign(E.clone(o), { first: o.first, players, names, lineups, seed }), brains, actions: [], draws: 0, view: m.view || "handoff" };
     if (Object.keys(mix).length) r.mix = mix;
+    if (m.setup) r.setup = E.clone(m.setup);
     return r;
   }
   function startRematch(c, picks) {
     const m = App.rematch ? App.rematch.from : App.match;
+    const next = rematchOf(m, c, picks), size = formatOf(next.opts.format).size, rule = next.opts.squadRule || "open";
+    for (const t of ["N", "S"]) {   // Brief 030: the rematch re-checks both lineups against the squad rule
+      const chk = Squad.checkLineup(next.rs, size, next.opts.lineups[t], rule);
+      if (chk.status === "blocked") { toast(`${sideName(t)}: ${chk.reason}`); return false; }
+    }
     App.rematch = null;
-    App.match = rematchOf(m, c, picks);
+    App.match = next;
     // A coin-toss match tosses again whatever the dice: draw 0 is still taken (so every later roll keeps its draw
     // number and the same dice really repeat), but the side comes from a fresh toss. opts.first records it for replay.
     if (App.match.opts.coin) { rand(); App.match.opts.first = Math.random() < 0.5 ? "N" : "S"; }
@@ -353,6 +375,7 @@
     App.live = App.match;
     if (App.match.opts.coin) toast(`Coin toss: ${sideName(App.st.first)} moves first.`);
     show("play");
+    return true;
   }
   /** The rematch sheet's go button: straight in, or through the Lineup screen for each human side. */
   function rematchGo() {
@@ -360,11 +383,11 @@
     if (!c || c.kind !== "rematch" || !m) return;
     const from = (t) => (c.sides ? t : E.foeOf(t));
     const humans = ["N", "S"].filter((t) => !(m.opts.players && m.opts.players[from(t)] && m.opts.players[from(t)].type === "bot"));   // the ends they will play
-    if (c.lineups || !humans.length) { startRematch(c); return; }
+    if (c.lineups || !humans.length || m.opts.squadRule === "random") { startRematch(c); return; }   // Random: both lineups drawn again
     App.rematch = { from: m, c: E.clone(c), rs: m.rs, format: m.opts.format };
     App.picks = {};
     for (const t of humans) App.picks[t] = fromLineup(m.rs, m.opts.lineups[from(t)]);
-    App.lineupQueue = humans;
+    App.lineupQueue = humans; App.lineupMode = "human"; App.lineupKept = {};
     openLineup(humans[0]);
   }
 
@@ -380,6 +403,8 @@
     }
     App.match = WT.setupMatch(spec, { id: "w" + Date.now().toString(36), started: new Date().toISOString(), game: V.game || null, build: V.build });
     App.match.opts.names = { N: "North", S: "South" };
+    { const size = formatOf(App.match.opts.format).size, rule = App.match.opts.squadRule || "open";   // Brief 030: the squad check on a watch link too
+      for (const t of ["N", "S"]) { const chk = Squad.checkLineup(App.match.rs, size, App.match.opts.lineups[t], rule); if (chk.status === "blocked") { App.match = null; await dialog(`<h2>Can't play this game here</h2><p class="note">${sideName(t)}'s lineup breaks the squad rule: ${esc(chk.reason)}</p><button class="btn primary" data-dlg="ok">OK</button>`); return; } } }
     if (fast) for (const t of ["N", "S"]) App.match.brains[t].settings.pauseMs = 0;   // the board check only: pauses never change a choice
     rebuild();
     resetUi();
@@ -474,8 +499,10 @@
   const statLine = (c) => `HP ${c.hp} · Str ${c.str} · Armor ${c.armor} · Range ${c.range} · Move ${c.cap}`;
 
   // ---------- Navigation ----------
-  const VIEWS = ["home", "setup", "teams", "lineup", "play", "units", "rules", "opponent", "match"];
+  const VIEWS = ["home", "setup", "settings", "lineup", "play", "units", "rules", "opponent", "match"];
   function show(v) {
+    if (App.view === "setup" && v !== "setup") { const sc = $("view-setup").querySelector(".scroll"); App.setupScroll = sc ? sc.scrollTop : 0; }   // Brief 030: kept when you come back
+    if (v !== "setup" && App.personaSide) { App.personaSide = null; renderPersona(); }
     App.view = v;
     if (v !== "lineup" && App.lineupCard) { App.lineupCard = null; renderLineupCard(); }
     if (v !== "play" && App.ui.menu) { App.ui.menu = false; renderMenu(); }
@@ -484,14 +511,14 @@
     if (v !== "play") { document.body.classList.remove("turned"); App.ui.rot = false; App.ui.orientSet = false; }   // Brief 018: only the play screen turns
     if (v === "home") renderHome();
     else if (v === "setup") renderSetup();
-    else if (v === "teams") renderTeams();
+    else if (v === "settings") renderSettings();
     else if (v === "lineup") renderLineup();
     else if (v === "units") renderUnits();
     else if (v === "rules") renderRules();
     else if (v === "opponent") renderOpponent();
     else if (v === "match") renderMatchView();
     else if (v === "play") render();
-    if (v !== "play") { const sc = $("view-" + v).querySelector(".scroll"); if (sc) sc.scrollTop = 0; }
+    if (v !== "play") { const sc = $("view-" + v).querySelector(".scroll"); if (sc) sc.scrollTop = v === "setup" ? App.setupScroll || 0 : 0; }
   }
   const backbar = (title, target) => `<div class="backbar"><button type="button" class="iconbtn" data-act="go" data-to="${target || "home"}" aria-label="Back">${ic("back", 20)}</button><h2>${esc(title)}</h2></div>`;
 
@@ -540,190 +567,365 @@
     </div></div>`;
   }
 
-  // ---------- Settings ----------
-  const steps = (n) => `<div class="steps" aria-label="Step ${n} of 3">${["Settings", "Teams", "Lineup"].map((x, i) => `<span class="step ${n === i + 1 ? "on" : n > i + 1 ? "done" : ""}"><i>${i + 1}</i>${x}</span>`).join("")}</div>`;
-  const seg = (name, items, val) => `<div class="seg" role="group">${items.map(([v, label, dis]) => `<button type="button" data-seg="${name}" data-val="${v}" aria-pressed="${v === val}" ${dis ? "disabled" : ""}>${label}</button>`).join("")}</div>`;
-  /** Brief 018 §3: the Hot-seat view control (Settings step and the Options menu). Face to Face only under 900 px. */
-  function viewField(name, val) {
+  // ---------- New game (Brief 030, Approved UI v8) ----------
+  /* New game (both sides, moves first, squad rule, the settings line, the seed) → Lineup (always, your last lineup
+     filled in) → deployment. Game settings sits behind the settings line. Every choice is kept on this device for the
+     next game except the seed (unless kept) and the coin toss. Era, region, difficulty, personality, overtime, rounds
+     and dice are shown and saved but not built: the game ignores them. */
+  const seg = (name, items, val, cls) => `<div class="seg${cls ? " " + cls : ""}" role="group">${items.map(([v, label, dis]) => `<button type="button" data-seg="${name}" data-val="${v}" aria-pressed="${v === val}" ${dis ? "disabled" : ""}>${label}</button>`).join("")}</div>`;
+  const notBuilt = `<span class="nb-tag">Not built yet</span>`;
+  /** Brief 018 §3: the Hot-seat view control (Game settings and the Options menu). Face to Face only under 900 px. */
+  function viewField(name, val, off) {
     const opts = VIEWS3.filter(([v]) => v !== "table" || !wide());
     const cur = opts.some(([v]) => v === val) ? val : "handoff";
-    return `<div class="field"><span class="lab">Hot-seat view</span>${seg(name, opts.map(([v, l]) => [v, l]), cur)}<span class="hint">${esc(VIEWS3.find(([v]) => v === cur)[2])}</span></div>`;
+    return `<div class="field"><span class="lab">Hot-seat view</span>${seg(name, opts.map(([v, l]) => [v, l, off]), cur)}<span class="hint">${esc(off ? "Only when both sides are human." : VIEWS3.find(([v]) => v === cur)[2])}</span></div>`;
   }
+  const PERSONALITY = [["agg", "Aggression"], ["speed", "Speed vs Strength"], ["close", "Close vs Far"], ["flag", "Flag vs Fight"], ["together", "Together vs Spread"]];
+  const OVERTIME = [["none", "None", "No overtime"], ["golden", "Golden Flag", "Golden Flag"], ["flagoff", "Flag Off", "Flag Off"]];
+  const ROUNDS = [[1, "Best of 1", "1 round"], [3, "Best of 3", "Best of 3"], [5, "Best of 5", "Best of 5"]];
+  const DICE = [[0, "Zero"], [1, "One"], [2, "Two"]];
+  const newestId = () => (D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id);
+  /** The rule set a set-up plays: the newest preset while "Newest" is chosen (the default), else the one chosen. */
+  const rsIdOf = (s) => (!s.rulesetId || s.rulesetId === "newest" || !App.rulesets[s.rulesetId] ? newestId() : s.rulesetId);
+  /** A bot side's brain: the board's default opponent (brain.js) while "Default" is chosen, else the one chosen. */
+  const brainIdOf = (p) => (!p.brainId || p.brainId === "default" || !App.brains[p.brainId] ? BR.DEFAULT_OPPONENT : p.brainId);
+  const sizeLabel = (fm) => `${fm.size}v${fm.size}`;
+  const sidePlayer = (t) => ({ type: t === "N" ? "human" : "bot", name: sideName(t), brainId: "default", era: "TEST", region: "TEST", difficulty: "TEST", persona: { preset: "default", custom: null } });
+  /** Game settings' own defaults (its Reset). */
+  const SETTINGS_DEFAULTS = { format: "std7", rulesetId: "newest", overtime: "none", rounds: 1, dice: 2, view: "handoff", seedMode: "new" };
+  function defaultSetup() {
+    return Object.assign({ v: 30, first: "coin", squad: "open", seed: E.makeSeed(), keptSeed: null }, SETTINGS_DEFAULTS, { players: { N: sidePlayer("N"), S: sidePlayer("S") } });
+  }
+  /** The set-up for a new game: what this device kept, over the defaults. A set-up kept before Brief 030 keeps its
+      format, sides, names, moves first and view; its rule set and brain follow the newest and the default. */
+  function loadSetup() {
+    const d = defaultSetup(), k = Store.local("setup");
+    if (k && typeof k === "object") {
+      const keep = k.v === 30 ? k : { format: k.format, first: k.first, view: k.view };
+      for (const key of Object.keys(d)) if (key !== "players" && key !== "seed" && keep[key] !== undefined && keep[key] !== null) d[key] = keep[key];
+      if (k.v === 30 && k.keptSeed) d.keptSeed = k.keptSeed;
+      for (const t of ["N", "S"]) {
+        const p = k.players && k.players[t]; if (!p) continue;
+        if (p.type === "human" || p.type === "bot") d.players[t].type = p.type;
+        if (typeof p.name === "string") d.players[t].name = p.name;
+        if (k.v === 30) { for (const f of ["brainId", "era", "region", "difficulty"]) if (p[f]) d.players[t][f] = p[f]; if (p.persona) d.players[t].persona = E.clone(p.persona); }
+      }
+    }
+    if (!FORMATS.some((f) => f.id === d.format && !f.soon) && !(Squad.hasMounted(App.rulesets[rsIdOf(d)] || {}) && FORMATS.some((f) => f.id === d.format))) d.format = "std7";
+    if (!Squad.isRule(d.squad) || (d.squad === "cavalry" && !Squad.cavalryFormat(formatOf(d.format).size))) d.squad = "open";
+    d.seed = d.seedMode === "keep" && d.keptSeed ? d.keptSeed : E.makeSeed();
+    return d;
+  }
+  const saveSetup = () => Store.local("setup", App.setup);
+
+  /** The settings line's items: [key, text, value]. The value decides "different from your last game". */
+  function settingsItems(s0) {
+    const s = Object.assign({}, SETTINGS_DEFAULTS, s0);
+    const fm = formatOf(s.format), rsId = rsIdOf(s), follow = !s.rulesetId || s.rulesetId === "newest";
+    const out = [["format", sizeLabel(fm), s.format], ["rules", `Rules ${rsId}${follow ? " (newest)" : ""}`, rsId]];
+    for (const t of ["N", "S"]) {
+      const p = s.players[t]; if (p.type !== "bot") continue;
+      const id = brainIdOf(p);
+      out.push(["brain" + t, `${sideName(t)}: ${shortBrain(App.brains[id] || { name: id })}${!p.brainId || p.brainId === "default" ? " (default)" : ""}`, id]);
+    }
+    out.push(["overtime", OVERTIME.find((x) => x[0] === s.overtime)[2], s.overtime]);
+    out.push(["rounds", ROUNDS.find((x) => x[0] === s.rounds)[2], s.rounds]);
+    out.push(["dice", `Dice: ${DICE.find((x) => x[0] === s.dice)[1]}`, s.dice]);
+    out.push(["seedMode", s.seedMode === "keep" ? "Seed kept" : "New seed", s.seedMode]);
+    if (s.players.N.type === "human" && s.players.S.type === "human") out.push(["view", `View: ${VIEWS3.find(([v]) => v === s.view) ? VIEWS3.find(([v]) => v === s.view)[1] : "Handoff"}`, s.view]);
+    return out;
+  }
+  /** Nothing changes silently between games (the Editor, 27 Nov): an item that differs from the last game started on
+      this device is bold. The seed is never bold. */
+  function settingsLine(s) {
+    const last = Store.local("lastGame") || null;
+    let any = false;
+    const parts = settingsItems(s).map(([k, text, val]) => {
+      const bold = !!(last && Object.prototype.hasOwnProperty.call(last, k) && last[k] !== val);
+      if (bold) any = true;
+      return bold ? `<b>${esc(text)}</b>` : esc(text);
+    });
+    return { html: parts.join(" · "), any };
+  }
+  const rememberGame = (s) => { const o = {}; for (const [k, , v] of settingsItems(s)) o[k] = v; Store.local("lastGame", o); };
+
+  const picker = (label, value, act, t, tag, cog) => `<div class="pk"><div class="pk-l"><span>${label}</span>${tag ? notBuilt : ""}</div>
+    <div class="pk-row"><button type="button" class="pk-b" data-act="${act}" data-side="${t}" data-dir="-1" aria-label="Previous ${label.toLowerCase()}">${ic("back", 20)}</button>
+    <div class="pk-v" aria-label="${label}: ${esc(value)}">${esc(value)}</div>
+    ${cog ? `<button type="button" class="pk-b" data-act="persona-open" data-side="${t}" aria-label="${sideName(t)} personality settings">${ic("gear", 22)}</button>` : ""}
+    <button type="button" class="pk-b" data-act="${act}" data-side="${t}" data-dir="1" aria-label="Next ${label.toLowerCase()}">${ic("fwd", 20)}</button></div></div>`;
   function renderSetup() {
-    const s = App.setup;
-    const rsOpts = Object.values(App.rulesets).sort((a, b) => a.name.localeCompare(b.name)).map((r) => `<option value="${esc(r.id)}" ${r.id === s.rulesetId ? "selected" : ""}>${esc(r.name)}</option>`).join("");
-    const brainOpts = (sel) => Object.values(App.brains).sort((a, b) => a.name.localeCompare(b.name)).map((b) => `<option value="${esc(b.id)}" ${b.id === sel ? "selected" : ""}>${esc(b.name)}</option>`).join("");
+    const s = App.setup, fm = formatOf(s.format);
     const side = (t) => {
-      const p = s.players[t], col = teamColor(t);
-      return `<div class="side" style="border-color:${col}"><span class="nm" style="color:${col}">${sideName(t).toUpperCase()}</span>
-        ${seg("player-" + t, [["human", ic("person", 16) + "Human"], ["bot", ic("bot", 16) + "Bot"]], p.type)}
-        ${p.type === "human" ? `<input class="inp" data-setup="name-${t}" value="${esc(p.name || sideName(t))}" aria-label="${sideName(t)} name" maxlength="16">`
-          : `<div class="inp" style="display:flex;align-items:center;background:var(--card);color:var(--muted)">Kit and mix on the next screen</div>`}</div>`;
+      const p = s.players[t], col = teamColor(t), bot = p.type === "bot";
+      return `<div class="blk side-blk" style="border-color:${col}"><div class="sb-head"><span class="blk-t" style="color:${col}">${sideName(t).toUpperCase()}</span>
+          ${seg("player-" + t, [["human", ic("person", 16) + "Human"], ["bot", ic("bot", 16) + "Bot"]], p.type, "hb")}</div>
+        ${bot ? "" : `<input class="inp nm-inp" data-setup="name-${t}" value="${esc(p.name || sideName(t))}" aria-label="${sideName(t)} name" maxlength="16">`}
+        ${picker("ERA", p.era || "TEST", "pick-era", t)}${picker("REGION", p.region || "TEST", "pick-region", t)}
+        ${bot ? picker("DIFFICULTY", p.difficulty || "TEST", "pick-difficulty", t, true) + picker("PERSONALITY", p.persona && p.persona.custom ? "CUSTOM" : "DEFAULT", "pick-persona", t, true, true) : ""}</div>`;
     };
+    const firstHelp = s.first === "coin" ? "Tossed from the dice code." : `${sideName(s.first)} takes the first turn.`;
+    const cavOk = Squad.cavalryFormat(fm.size);
+    const sq = Squad.RULES.map((r) => [r.id, r.label, r.id === "cavalry" && !cavOk]);
+    const line = settingsLine(s);
     $("view-setup").innerHTML = `<div class="scroll" style="display:flex;flex-direction:column"><div class="wrap" style="flex:1">
-      ${backbar("New game")}${steps(1)}
-      <div class="field"><span class="lab">Format</span>${seg("format", FORMATS.map((f) => [f.id, f.label, f.soon]), s.format)}<span class="hint">9v9 and 13v13 come later.</span></div>
-      <div class="field"><span class="lab">Field</span><div class="inp" style="display:flex;align-items:center;background:var(--card)">Standard oval · 9 × 19</div></div>
-      <div class="field"><label for="setup-rs">Rule set</label><select class="inp" id="setup-rs" data-setup="rs">${rsOpts}</select><span class="hint">${(() => { const r0 = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET; return `${E.turnLimitFor(r0, formatOf(s.format).size)} turns per player at ${esc(formatOf(s.format).label)}`; })()}</span></div>
-      <div class="field"><span class="lab">Sides</span><div class="sides">${side("N")}${side("S")}</div></div>
-      <div class="field"><span class="lab">Moves first</span>${seg("first", [["N", "North"], ["S", "South"], ["coin", ic("coin", 16) + "Coin"]], s.first)}</div>
-      ${s.players.N.type === "human" && s.players.S.type === "human" ? viewField("view", s.view) : ""}
-      <div class="field"><label for="setup-seed">Game seed</label><div class="row" style="flex-wrap:nowrap">
-        <input class="inp mono" id="setup-seed" data-setup="seed" value="${esc(s.seed)}" spellcheck="false" autocomplete="off">
-        <button type="button" class="iconbtn" data-act="seed-copy" aria-label="Copy seed">${ic("copy", 20)}</button>
-        <button type="button" class="iconbtn" data-act="seed-new" aria-label="New seed">${ic("dice", 20)}</button></div>
-        <span class="hint">The same seed gives the same dice, coin toss and bot choices.</span></div>
-    </div><div class="footer"><button class="btn" data-act="go" data-to="home" style="flex:1">Back</button><button class="btn primary" data-act="setup-next" style="flex:2">Next: Teams</button></div></div>`;
+      ${backbar("New game")}
+      ${side("N")}
+      <div class="swaprow"><span class="hair"></span><span class="vs">VS</span><button type="button" class="swapbtn" data-act="swap-ends">${ic("swap", 18)}Swap ends</button><span class="hair"></span></div>
+      ${side("S")}
+      <div class="blk"><div class="blk-t">MOVES FIRST</div>${seg("first", [["N", "North"], ["S", "South"], ["coin", "Coin"]], s.first)}<span class="hint">${esc(firstHelp)}</span></div>
+      <div class="blk"><div class="blk-t">SQUAD RULES</div>${seg("squad", sq, s.squad, "sqr")}<span class="hint">${esc(Squad.ruleOf(s.squad).help)}${cavOk ? "" : " Cavalry only needs 9v9 or 13v13."}</span></div>
+      <div class="blk"><button type="button" class="gs-btn" data-act="go-settings"><span class="gs-main"><span class="gs-t">${ic("gear", 20)}GAME SETTINGS</span><span class="gs-line">${line.html}</span>${line.any ? `<span class="gs-key"><b>Bold</b>: different from your last game.</span>` : ""}</span>${ic("fwd", 18)}</button>
+        <div class="seedrow"><span class="pk-l"><span>SEED</span></span><div class="seedbox num" id="setup-seed" aria-label="Game seed">${esc(s.seed)}</div>
+        <button type="button" class="pk-b" data-act="seed-copy" aria-label="Copy seed">${ic("copy", 20)}</button>
+        <button type="button" class="pk-b" data-act="seed-new" aria-label="New random seed">${ic("dice", 20)}</button></div></div>
+    </div><div class="footer"><button class="btn" data-act="go" data-to="home" style="flex:1">Back</button><button class="btn primary" data-act="setup-next" style="flex:2">${s.squad === "random" || !(s.players.N.type === "human" || s.players.S.type === "human") ? "Start match" : "Next: Lineup"}</button></div></div>`;
   }
   function onSetupInput(e) {
     const t = e.target, s = App.setup, k = t.dataset.setup;
     if (!k) return;
-    if (k === "rs") s.rulesetId = t.value;
-    else if (k === "seed") s.seed = t.value.trim().toUpperCase();
+    if (k === "rs") { s.rulesetId = t.value; if (!Squad.hasMounted(App.rulesets[rsIdOf(s)]) && formatOf(s.format).soon) s.format = "std7"; saveSetup(); renderSettings(); return; }
     else if (k.startsWith("name-")) s.players[k.slice(5)].name = t.value;
-    else if (k.startsWith("brain-")) s.players[k.slice(6)].brainId = t.value;
-    Store.local("setup", s);
+    else if (k.startsWith("brain-")) { s.players[k.slice(6)].brainId = t.value; saveSetup(); renderSettings(); return; }
+    saveSetup();
   }
   function onSeg(name, val) {
     const s = App.setup;
-    if (name === "format") s.format = val;
-    else if (name === "first") s.first = val;
-    else if (name === "view") s.view = val;
-    else if (name === "hsview") { if (App.match) { App.match.view = val; Store.saveLive(App.match); } renderMenu(); render(); return; }
+    if (name === "hsview") { if (App.match) { App.match.view = val; Store.saveLive(App.match); } renderMenu(); render(); return; }
+    if (name === "first") s.first = val;
+    else if (name === "squad") s.squad = val;
     else if (name.startsWith("player-")) {
       const t = name.slice(7), p = s.players[t];
-      p.type = val; if (val === "bot" && !App.brains[p.brainId]) p.brainId = "brain8";
-    } else if (name === "keeper") { App.picks[App.lineupSide].keeper = val; renderLineup(); return; }
-    else if (name.startsWith("mix-")) { s.players[name.slice(4)].mix = val; Store.local("setup", s); renderTeams(); return; }
-    Store.local("setup", s);
+      if (p.type !== val) { p.type = val; if (App.botPicks) delete App.botPicks[t]; }
+    } else if (App.view === "settings") {
+      if (name === "format") { s.format = val; if (s.squad === "cavalry" && !Squad.cavalryFormat(formatOf(val).size)) s.squad = "open"; }
+      else if (name === "overtime") s.overtime = val;
+      else if (name === "rounds") s.rounds = +val;
+      else if (name === "dice") s.dice = +val;
+      else if (name === "view") s.view = val;
+      else if (name === "seedmode") { s.seedMode = val; s.keptSeed = val === "keep" ? s.seed : null; }
+      saveSetup(); renderSettings(); return;
+    }
+    saveSetup();
     renderSetup();
   }
+  /** Swap ends: everything set on the two sides changes ends (type, name, era, region, bot settings, lineups). A name
+      that is just its end's name ("North") stays with the end. */
+  function swapEnds() {
+    const s = App.setup, n = s.players.N, so = s.players.S;
+    const fix = (p, from, to) => { if (!p.name || p.name === sideName(from)) p.name = sideName(to); return p; };
+    s.players = { N: fix(so, "S", "N"), S: fix(n, "N", "S") };
+    if (App.botPicks) App.botPicks = { N: App.botPicks.S, S: App.botPicks.N };
+    const saved = Store.local("picks") || {}, out = {};
+    for (const k in saved) { const m = /^(.*):([NS])$/.exec(k); if (m) out[m[1] + ":" + (m[2] === "N" ? "S" : "N")] = saved[k]; else out[k] = saved[k]; }
+    Store.local("picks", out);
+    saveSetup(); renderSetup();
+  }
+  /** Next: Lineup (Start match under Random, or with no human side). */
   function setupNext() {
     const s = App.setup;
     if (!s.seed) s.seed = E.makeSeed();
-    for (const t of ["N", "S"]) if (!s.players[t].mix) s.players[t].mix = "open";
-    if (s.players.N.type === "bot" && !App.brains[s.players.N.brainId]) s.players.N.brainId = "brain8";
-    if (s.players.S.type === "bot" && !App.brains[s.players.S.brainId]) s.players.S.brainId = "brain8";
-    show("teams");
-  }
-
-  // ---------- Teams (test version: mix only; era and culture come later) ----------
-  const MIXES = [["heavy", "Heavy"], ["light", "Light"], ["mixed", "Mixed"], ["open", "Open"], ["random", "Random"]];
-  const PERSONALITY = ["Aggression", "Speed vs Strength", "Close vs Far", "Flag vs Fight", "Together vs Spread"];
-  /** Card counts for a mix. Heavy and Light fill the slots in turn (HM, HA, HR or LM, LA, LR), so 7 gives 3-2-2.
-      Open: a bot fields its kit's own squad (or the balanced lineup); a human keeps its last lineup. Random draws from the seed. */
-  function mixPick(rs, size, mix, t, p) {
-    if (mix === "open" && p.type !== "bot") {
-      const noK = noKeeper(rs), prev = (Store.local("picks") || {})[App.setup.format + ":" + t];
-      return prev && (noK ? !prev.keeper : rs.cards[prev.keeper]) && beingsOf(rs, prev) === size && Object.keys(prev.counts).every((c) => rs.cards[c]) ? E.clone(prev) : balancedCounts(rs, size);
-    }
-    return WT.mixCounts(rs, size, mix, App.setup.seed, t, App.brains[p.brainId]);
-  }
-  const countsText = (pick) => Object.keys(pick.counts).filter((c) => pick.counts[c]).map((c) => `${pick.counts[c]} ${c}`).join(" · ");
-  function renderTeams() {
-    const s = App.setup, rs = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET, size = formatOf(s.format).size;
-    const brainOpts = (sel) => Object.values(App.brains).sort((a, b) => a.name.localeCompare(b.name)).map((b) => `<option value="${esc(b.id)}" ${b.id === sel ? "selected" : ""}>${esc(b.name)}</option>`).join("");
-    const side = (t) => {
-      const p = s.players[t], col = teamColor(t), mix = p.mix || "open";
-      let hint;
-      if (mix === "random") hint = "Drawn when the match starts.";
-      else if (mix === "open" && p.type === "human") hint = "Your own pick on the next screen.";
-      else hint = countsText(mixPick(rs, size, mix, t, p)) + (mix === "open" ? " (the brain's choice)" : "");
-      return `<div class="side" style="border-color:${col}"><span class="nm" style="color:${col}">${p.type === "bot" ? "BOT" : (p.name && p.name !== sideName(t) ? esc(p.name).toUpperCase() : "HUMAN")} · ${sideName(t).toUpperCase()}</span>
-        <span class="hint">Era and culture come later. Test units for now.</span>
-        <span class="lab">Mix</span>${seg("mix-" + t, MIXES, mix).replace('class="seg"', 'class="seg wrap"')}<span class="hint">${hint}${p.type === "human" && mix !== "open" ? " You can adjust it on the next screen." : ""}</span>
-        ${p.type === "bot" ? `<label class="lab" for="kit-${t}">Brain</label><select class="inp" id="kit-${t}" data-setup="brain-${t}">${brainOpts(p.brainId)}</select>
-        <span class="lab">Personality</span>${PERSONALITY.map((n) => `<label class="hint" style="display:flex;align-items:center;gap:8px;justify-content:space-between">${n}<input type="range" min="1" max="5" value="3" disabled style="width:50%"></label>`).join("")}
-        <span class="hint">Personality sliders are not built yet; the middle notch is the brain as it is.</span>` : ""}</div>`;
-    };
-    const humans = ["N", "S"].filter((t) => s.players[t].type === "human");
-    $("view-teams").innerHTML = `<div class="scroll" style="display:flex;flex-direction:column"><div class="wrap" style="flex:1">
-      ${backbar("Teams", "setup")}${steps(2)}
-      <div class="field"><div class="sides stack">${side("N")}${side("S")}</div></div>
-    </div><div class="footer"><button class="btn" data-act="go" data-to="setup" style="flex:1">Back</button><button class="btn primary" data-act="teams-next" style="flex:2">${humans.length ? "Next: Lineup" : "Start match"}</button></div></div>`;
-  }
-  function teamsNext() {
-    const s = App.setup;
     App.rematch = null;
-    const rs = App.rulesets[s.rulesetId] || D.DEFAULT_RULESET, size = formatOf(s.format).size;
-    App.picks = {};
-    for (const t of ["N", "S"]) {
-      if (s.players[t].type !== "human") continue;
-      App.picks[t] = mixPick(rs, size, s.players[t].mix || "open", t, s.players[t]);
-    }
     const humans = ["N", "S"].filter((t) => s.players[t].type === "human");
-    if (!humans.length) { startMatch(); return; }
-    App.lineupQueue = humans;
+    if (s.squad === "random" || !humans.length) { startMatch(); return; }
+    App.picks = {}; App.lineupKept = {};
+    const rs = App.rulesets[rsIdOf(s)], size = formatOf(s.format).size;
+    for (const t of humans) {
+      const prev = (Store.local("picks") || {})[s.format + ":" + t];
+      const fits = prev && prev.counts && Object.keys(prev.counts).every((c) => rs.cards[c]) && (!!prev.keeper === !noKeeper(rs)) && (!prev.keeper || rs.cards[prev.keeper]);
+      App.picks[t] = fits ? E.clone(prev) : WT.squadCounts(rs, size, s.squad, s.seed, t, App.brains[BR.DEFAULT_OPPONENT]);
+      App.lineupKept[t] = !!fits;
+    }
+    App.lineupQueue = humans; App.lineupMode = "human";
     openLineup(humans[0]);
   }
+
+  // ---------- Game settings (Brief 030 §2) ----------
+  function renderSettings() {
+    const s = App.setup, rs = App.rulesets[rsIdOf(s)] || D.DEFAULT_RULESET, fm = formatOf(s.format), mounted = Squad.hasMounted(rs);
+    const lab = (t, tag) => `<div class="pk-l set-l"><span>${t}</span>${tag ? notBuilt : ""}</div>`;
+    const rsOpts = `<option value="newest" ${!s.rulesetId || s.rulesetId === "newest" ? "selected" : ""}>Newest (Rules ${esc(newestId())})</option>` + Object.values(App.rulesets).sort((a, b) => a.name.localeCompare(b.name)).map((r) => `<option value="${esc(r.id)}" ${r.id === s.rulesetId ? "selected" : ""}>${esc(r.name)}</option>`).join("");
+    const brainOpts = (sel) => `<option value="default" ${!sel || sel === "default" ? "selected" : ""}>Default (${esc(App.brains[BR.DEFAULT_OPPONENT] ? App.brains[BR.DEFAULT_OPPONENT].name : BR.DEFAULT_OPPONENT)})</option>` + Object.values(App.brains).sort((a, b) => a.name.localeCompare(b.name)).map((b) => `<option value="${esc(b.id)}" ${b.id === sel ? "selected" : ""}>${esc(b.name)}</option>`).join("");
+    const bots = ["N", "S"].filter((t) => s.players[t].type === "bot"), both = !bots.length;
+    $("view-settings").innerHTML = `<div class="scroll" style="display:flex;flex-direction:column"><div class="wrap" style="flex:1">
+      ${backbar("Game settings", "setup").replace('aria-label="Back"', 'aria-label="Back to New game"')}
+      <p class="note">Kept for your next game. Sides, moves first and squad rules are on the New game screen.</p>
+      <div class="blk"><div class="grp-t">MATCH</div>
+        <div class="field">${lab("Format")}${seg("format", FORMATS.map((f) => [f.id, sizeLabel(f), f.size >= 9 && !mounted]), s.format)}${mounted ? "" : `<span class="hint">9v9 and 13v13 come with Cavalry.</span>`}</div>
+        <div class="field"><label class="set-l" for="setup-rs">Rule set</label><select class="inp" id="setup-rs" data-setup="rs">${rsOpts}</select><span class="hint">${E.turnLimitFor(rs, fm.size)} turns per player at ${esc(sizeLabel(fm))}.</span></div>
+        <div class="field">${lab("Overtime", true)}${seg("overtime", OVERTIME.map(([v, l]) => [v, l]), s.overtime)}<span class="hint">${s.overtime === "none" ? "A level game is settled by the turn-limit order (Game Laws 2.7)." : "Not built yet: a level game is settled by the turn-limit order."}</span></div>
+        <div class="field">${lab("Rounds", true)}${seg("rounds", ROUNDS.map(([v, l]) => [v, l]), s.rounds)}<span class="hint">${s.rounds === 1 ? "One game." : "Not built yet: one game is played."}</span></div></div>
+      ${bots.length ? `<div class="blk"><div class="grp-t">BOT</div>${bots.map((t) => `<div class="field"><label class="set-l" for="brain-${t}">${sideName(t)} brain</label><select class="inp" id="brain-${t}" data-setup="brain-${t}">${brainOpts(s.players[t].brainId)}</select></div>`).join("")}<span class="hint">Difficulty and personality are on the New game screen.</span></div>` : ""}
+      <div class="blk"><div class="grp-t">PLAY</div><div class="field">${lab("Dice", true)}${seg("dice", DICE.map(([v, l]) => [v, l]), s.dice)}<span class="hint">Two is today's game. Zero and One: meanings to come.</span></div></div>
+      <div class="blk"><div class="grp-t">HOT SEAT</div>${viewField("view", s.view, !both).replace('<span class="lab">', '<span class="lab set-l">')}</div>
+      <div class="blk"><div class="grp-t">SEED</div><div class="field">${lab("Each game")}${seg("seedmode", [["new", "New seed"], ["keep", "Keep this seed"]], s.seedMode)}<span class="hint">New seed: new rolls, coin toss and bot choices every game. The seed itself is shown and copied on the New game screen.</span></div></div>
+    </div><div class="footer"><button class="btn" data-act="settings-reset" style="flex:1">Reset</button><button class="btn primary" data-act="go" data-to="setup" style="flex:2">Done</button></div></div>`;
+  }
+
+  // ---------- Personality sheet and the discard prompt (Brief 030 §3; display only) ----------
+  function renderPersona() {
+    const el = $("psheet"), dim = $("pscrim"), t = App.personaSide;
+    if (!t || App.view !== "setup") { el.hidden = true; dim.hidden = true; return; }
+    const p = App.setup.players[t], v = (p.persona && p.persona.custom) || {}, col = teamColor(t);
+    el.innerHTML = `<div class="handle"></div><div class="ps-head"><h2 style="color:${col}">${sideName(t).toUpperCase()} PERSONALITY</h2>${p.persona && p.persona.custom ? `<span class="ps-badge" style="color:${col};background:color-mix(in srgb, ${col} 10%, transparent)">CUSTOM</span>` : ""}</div>
+      <p class="hint">0 to 100; 50 is the brain as it is. Drag or type. Any change makes it Custom.</p>
+      ${PERSONALITY.map(([k, name]) => { const x = v[k] !== undefined ? v[k] : 50; return `<div class="ps-row"><label for="ps-${k}">${name}</label><div class="ps-ctl"><input type="range" id="ps-${k}" min="0" max="100" step="1" value="${x}" data-persona="${k}" style="accent-color:${col}"><input class="ps-num num" type="text" inputmode="numeric" value="${x}" data-persona-num="${k}" aria-label="${name}"></div></div>`; }).join("")}
+      <p class="hint">Not built yet: the bot plays as Default whatever these say.</p>
+      <div class="ps-btns"><button class="btn" data-act="persona-default">Back to Default</button><button class="btn primary" data-act="persona-done">Done</button></div>`;
+    el.hidden = false; dim.hidden = false;
+  }
+  function onPersonaInput(e) {
+    const t = App.personaSide; if (!t) return;
+    const p = App.setup.players[t], k = e.target.dataset.persona || e.target.dataset.personaNum;
+    if (!k) return;
+    const num = !!e.target.dataset.personaNum;
+    let x = Math.round(+e.target.value);
+    if (num && e.type === "input") { if (e.target.value.trim() === "" || isNaN(x) || x < 0 || x > 100) return; }   // a value outside 0 to 100 is clamped on leaving the box
+    x = isNaN(x) ? 50 : Math.max(0, Math.min(100, x));
+    const was = !!(p.persona && p.persona.custom);
+    p.persona = p.persona || { preset: "default", custom: null };
+    if (!p.persona.custom) { p.persona.custom = {}; for (const [kk] of PERSONALITY) p.persona.custom[kk] = 50; }
+    p.persona.custom[k] = x;
+    saveSetup();
+    const other = $("psheet").querySelector(num ? `[data-persona="${k}"]` : `[data-persona-num="${k}"]`); if (other) other.value = x;
+    if (num && e.type === "change") e.target.value = x;
+    if (!was) { renderPersona(); renderSetup(); const f = $("psheet").querySelector(num ? `[data-persona-num="${k}"]` : `[data-persona="${k}"]`); if (f) f.focus(); }
+  }
+  async function stepPersona(t) {
+    const p = App.setup.players[t];
+    if (p.persona && p.persona.custom) {
+      const v = await dialog(`<h2>DISCARD CUSTOM PERSONALITY?</h2><p class="note">${sideName(t)} goes to the next preset. Your slider settings are lost.</p><div class="dlg-row"><button class="btn" data-dlg="keep">Keep custom</button><button class="btn primary" data-dlg="discard">Discard</button></div>`);
+      if (v !== "discard") return;
+      p.persona = { preset: "default", custom: null }; saveSetup(); renderSetup(); return;
+    }
+    toast("DEFAULT is the only preset for now.");
+  }
+
+  // ---------- Lineup (Brief 030 §4–5) ----------
+  /** The rule set, format and squad rule the Lineup screen picks for: the finished match's during a rematch (Brief
+      029), else the New game screen's. */
+  const lineupCtx = () => (App.rematch ? { rs: App.rematch.rs, format: App.rematch.format, rule: App.rematch.from.opts.squadRule || "open" }
+    : { rs: App.rulesets[rsIdOf(App.setup)] || D.DEFAULT_RULESET, format: App.setup.format, rule: App.setup.squad || "open" });
+  /** The pick on screen: a human side's, or the bot lineup being picked for this game. */
+  const curPick = () => (App.lineupMode === "bot" ? App.botEdit : App.picks[App.lineupSide]);
+  const botSide = () => { if (App.rematch || !App.setup) return null; const b = ["N", "S"].filter((t) => App.setup.players[t].type === "bot"); return b.length === 1 && App.setup.squad !== "random" ? b[0] : null; };
   function openLineup(t) {
-    App.lineupSide = t;
+    App.lineupSide = t; App.lineupShortAt = 0;
     show("lineup");
-    if (App.lineupQueue.length > 1) {
+    if (App.lineupQueue.length > 1 && App.lineupMode !== "bot") {
       showCover(`<h2>${sideName(t)} lineup</h2><p>${sideName(E.foeOf(t))}, look away. ${sideName(t)} picks its units without the other side seeing.</p><button class="btn" data-act="cover-ok">I'm ${sideName(t)}</button>`);
     }
   }
-
-  // ---------- Lineup ----------
-  /** The rule set and format the Lineup screen picks for: the finished match's during a rematch (Brief 029), else Settings'. */
-  const lineupCtx = () => (App.rematch ? { rs: App.rematch.rs, format: App.rematch.format }
-    : { rs: App.rulesets[App.setup.rulesetId] || D.DEFAULT_RULESET, format: App.setup.format });
   /** The − / count / + stepper for one card, as on the Lineup row and the card's pinned bar. */
-  function stepper(rs, pick, code, used, size) {
+  function stepper(rs, pick, code, used, size, canAdd) {
     const c = rs.cards[code], n = pick.counts[code] || 0;
     return `<span class="stepper"><button type="button" class="step-btn" data-act="pick-minus" data-card="${code}" aria-label="One fewer ${esc(c.name)}" ${n ? "" : "disabled"}>−</button>
         <span class="cnt" aria-label="${n} ${esc(c.name)}">${n}</span>
-        <button type="button" class="step-btn" data-act="pick-plus" data-card="${code}" aria-label="One more ${esc(c.name)}" ${used + (c.beings || 1) <= size ? "" : "disabled"}>+</button></span>`;
+        <button type="button" class="step-btn" data-act="pick-plus" data-card="${code}" aria-label="One more ${esc(c.name)}" ${canAdd === undefined ? (used + (c.beings || 1) <= size ? "" : "disabled") : canAdd ? "" : "disabled"}>+</button></span>`;
   }
   /** The unit card over the Lineup screen (Brief 009 §5): the card's base numbers, its abilities, and a pinned bar with a live stepper. */
   function renderLineupCard() {
     const el = $("lsheet"), dim = $("lscrim"), code = App.lineupCard;
-    if (!code || App.view !== "lineup" || !App.picks[App.lineupSide]) { el.hidden = true; dim.hidden = true; return; }
-    const t = App.lineupSide, { rs, format } = lineupCtx(), size = formatOf(format).size;
+    if (!code || App.view !== "lineup" || !curPick()) { el.hidden = true; dim.hidden = true; return; }
+    const t = App.lineupSide, { rs, format, rule } = lineupCtx(), size = formatOf(format).size;
     const c = rs.cards[code]; if (!c) { App.lineupCard = null; el.hidden = true; dim.hidden = true; return; }
-    const pick = App.picks[t], used = beingsOf(rs, pick), r = UI.rangeStat(c);
+    const pick = curPick(), used = beingsOf(rs, pick), r = UI.rangeStat(c), st = Squad.row(rs, code, rule, size, pick);
     const keepScroll = el.querySelector(".ls-body") ? el.querySelector(".ls-body").scrollTop : 0;
     el.innerHTML = `<div class="ls-body card-sheet">${unitCardHtml(rs, code, { team: t, closeAct: "lineup-card-close",
         stats: [["HP", fmt(c.hp)], ["Str", fmt(c.str)], [r.label, fmt(r.val)], ["Move", fmt(c.cap)], ["Stamina", fmt(c.stamina !== undefined ? c.stamina : rs.game.stamina)]] })}</div>
       <div class="ls-bar" style="background:var(--${t === "N" ? "northArc" : "southArc"});border-top-color:${teamColor(t)}">
-        <div><div class="ls-1">IN YOUR LINEUP</div><div class="ls-2">${used} of ${size} unit cap</div></div>${stepper(rs, pick, code, used, size)}</div>`;
+        <div><div class="ls-1">${App.lineupMode === "bot" ? sideName(t).toUpperCase() + " LINEUP" : "IN YOUR LINEUP"}</div><div class="ls-2">${st.locked ? esc(st.locked) : `${used} of ${size} unit cap`}</div></div>${st.locked ? "" : stepper(rs, pick, code, used, size, st.canAdd)}</div>`;
     const wasHidden = el.hidden;
     el.hidden = false; dim.hidden = false;
     el.querySelector(".ls-body").scrollTop = keepScroll;
     if (wasHidden) { const b = el.querySelector('[data-act="lineup-card-close"]'); if (b) b.focus(); }
   }
+  /** One line of numbers: HP, Strength, Range (Ranged) or Reach (Anti-Cavalry) or nothing (melee, mounted), Move. */
+  function unitNums(rs, c) {
+    const kind = UI.typeOf(c), n = (icon, v, l) => `<span class="un" title="${l}">${ic(icon, 13)}<b>${fmt(v)}</b></span>`;
+    return n("heart", c.hp, "HP") + n("maul", c.str, "Strength") + (kind === "Ranged" ? n("target", c.range, "Range") : kind === "Anti-Cavalry" ? n("reach", UI.rangeStat(c).val, "Reach") : "") + n("arrow", c.cap, "Move")
+      + ((c.beings || 1) > 1 ? `<span class="uc-tag">${c.beings} UC</span>` : "");
+  }
   function renderLineup() {
-    const t = App.lineupSide, { rs, format } = lineupCtx(), size = formatOf(format).size;
-    const pick = App.picks[t], col = teamColor(t), used = beingsOf(rs, pick);
+    const t = App.lineupSide, { rs, format, rule } = lineupCtx(), size = formatOf(format).size;
+    const pick = curPick(), col = teamColor(t), used = beingsOf(rs, pick), bot = App.lineupMode === "bot";
     const kc = pick.keeper ? rs.cards[pick.keeper] : null;
     const cards = Object.keys(rs.cards);
-    const pips = Array.from({ length: size }, (_, i) => `<span class="${i < used ? "on" : ""}" style="${i < used ? `background:${col}` : ""}"></span>`).join("");
+    const pips = Array.from({ length: Math.max(size, used) }, (_, i) => `<span class="${i < used ? "on" : ""}" style="${i < used ? `background:${i < size ? col : "var(--attack)"}` : ""}"></span>`).join("");
     const rows = cards.map((code) => {
-      const c = rs.cards[code], n = pick.counts[code] || 0, open = App.lineupCard === code;
-      return `<div class="urow ${n || open ? "on" : ""}" style="${n || open ? `border-color:${col}` : ""}">
-        <button type="button" class="urow-open" data-act="lineup-card" data-card="${code}" aria-label="${esc(c.name)}: unit card">${tokenInline(iconKey(rs, code), t, 30)}
-        <span style="flex:1;min-width:0"><span class="nm">${esc(c.name)}</span><span class="st">${esc(UI.lineupStats(c))}</span></span></button>
-        ${stepper(rs, pick, code, used, size)}</div>`;
+      const c = rs.cards[code], n = pick.counts[code] || 0, st = Squad.row(rs, code, rule, size, pick);
+      const name = `<button type="button" class="un-name" data-act="lineup-card" data-card="${code}" aria-label="${esc(c.name)}: unit information">${esc(c.name)}${ic("info", 16, "var(--muted)")}</button>`;
+      if (st.locked && !n) return `<div class="urow locked"><span class="lock">${ic("lock", 14, "#fff")}</span><span class="un-main">${name}<span class="un-why">${esc(st.locked)}</span></span></div>`;
+      return `<div class="urow ${n ? "on" : ""}${st.locked ? " bad" : ""}" style="${n ? `border-color:${st.locked ? "var(--attack)" : col}` : ""}">${tokenInline(iconKey(rs, code), t, 26)}
+        <span class="un-main">${name}<span class="un-nums">${st.locked ? `<span class="un-why">${esc(st.locked)}</span>` : unitNums(rs, c)}</span></span>
+        ${stepper(rs, pick, code, used, size, st.canAdd)}</div>`;
     }).join("");
-    const last = App.lineupQueue[App.lineupQueue.length - 1] === t;
+    const chk = Squad.check(rs, size, pick, rule);
+    const kept = !bot && App.lineupKept && App.lineupKept[t] && !App.rematch;
+    const title = bot ? `${sideName(t)} lineup` : App.lineupQueue.length > 1 ? `${sideName(t)} lineup` : "Your lineup";
+    const last = bot || App.lineupQueue[App.lineupQueue.length - 1] === t;
+    const label = bot ? "Done" : last ? "Start match" : "Next: " + sideName(E.foeOf(t)) + " lineup";
+    const bs = !bot && last ? botSide() : null;
+    let botBlock = "";
+    if (bs) {
+      const bp = App.botPicks && App.botPicks[bs], bc = teamColor(bs);
+      botBlock = `<div class="lu-rule"></div>` + (bp ? `<div class="bp-blk" style="border-color:${bc};background:var(--${bs === "N" ? "northArc" : "southArc"})"><div class="bp-1" style="color:${bc}">${ic("bot", 18, bc)}${sideName(bs)} lineup: picked by you</div>
+          <div class="hint">${beingsOf(rs, bp)} of ${size} UC · ${esc(Squad.label(rule))}</div>
+          <div class="bp-chips">${cards.filter((c) => bp.counts[c]).map((c) => `<span class="bp-chip">${tokenInline(iconKey(rs, c), bs, 16)}${bp.counts[c]} ${esc(rs.cards[c].name)}</span>`).join("")}</div>
+          <div class="bp-btns"><button class="btn" data-act="botpick-edit">Edit</button><button class="btn" data-act="botpick-clear">Clear</button></div></div>`
+        : `<button type="button" class="bp-btn" data-act="botpick-open" style="border-color:${bc}">${ic("bot", 20, bc)}<span>Pick <b style="color:${bc}">${sideName(bs)}</b> lineup</span></button>`);
+    }
+    const back = bot ? backbar(title).replace('data-act="go" data-to="home" aria-label="Back"', 'data-act="botpick-back" aria-label="Back to Your lineup"')
+      : App.rematch ? backbar(title).replace('data-act="go" data-to="home"', 'data-act="rematch-back"') : backbar(title, "setup").replace('aria-label="Back"', 'aria-label="Back to New game"');
+    const blocked = chk.status === "blocked";
     $("view-lineup").innerHTML = `<div class="scroll" style="display:flex;flex-direction:column"><div class="wrap" style="flex:1">
-      ${App.rematch ? backbar(sideName(t) + " lineup").replace('data-act="go" data-to="home"', 'data-act="rematch-back"') : backbar(sideName(t) + " lineup", "teams")}${steps(3)}
+      ${back}
+      <p class="note">${sideName(t)} · Squad rule: ${esc(Squad.label(rule))}.${bot ? " For this game only." : kept ? ` Kept from your last ${esc(sizeLabel(formatOf(format)))} game.` : ""}</p>
       <div class="counter"><div class="row" style="justify-content:space-between"><span class="lab" style="font:600 13px/1 var(--body)">Unit cap (UC)</span><span class="num" style="font:600 15px/1 var(--num)">${used}/${size}</span></div><div class="pips">${pips}</div></div>
+      <div class="ikey">${[["heart", "HP"], ["maul", "Strength"], ["target", "Range"], ["reach", "Reach"], ["arrow", "Move"]].map(([i, l]) => `<span>${ic(i, 12)}${l}</span>`).join("")}</div>
       ${kc ? `<div class="field"><label for="keeper-pick">Flagkeeper</label>
         <div class="keeper">${tokenInline(iconKey(rs, pick.keeper), t, 34, true)}<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
           <select class="inp" id="keeper-pick" data-keeper="1" style="height:40px;font-weight:600">${cards.map((c) => `<option value="${c}" ${c === pick.keeper ? "selected" : ""}>${esc(rs.cards[c].name)}</option>`).join("")}</select>
           <span class="hint">${statLine(kc)}. Moves ${E.capOf({ rs }, { card: pick.keeper, fk: true })} as keeper.</span></div></div></div>` : ""}
-      <div class="field"><span class="lab">Units</span><span class="hint">${kc ? `Pick ${size - 1} more.` : `Pick ${size}. Any unit can hold the flag: place it on the flag hex when you deploy.`} Repeats are allowed.</span><div class="urows">${rows}</div></div>
-    </div><div class="footer"><button class="btn" data-act="lineup-reset" style="flex:1">Reset</button>
-      <button class="btn primary" data-act="lineup-next" style="flex:2" ${used === size ? "" : "disabled"}>${last ? "Start match" : "Next: " + sideName(E.foeOf(t)) + " lineup"}</button></div></div>`;
+      <div class="urows">${rows}</div>${botBlock}
+    </div><div class="lpill" id="lpill" role="status" hidden></div><div class="footer"><button class="btn" data-act="lineup-reset" style="flex:1">Reset</button>
+      <button class="btn primary${blocked ? " dis" : ""}" data-act="lineup-next" style="flex:2" ${blocked ? `aria-disabled="true" data-why="${esc(chk.reason)}"` : ""}>${label}</button></div></div>`;
   }
+  /** The board's dark pill above the Lineup footer, for 3 seconds. */
+  function lineupPill(msg) {
+    const el = $("lpill"); if (!el || !msg) return;
+    el.textContent = msg; el.hidden = false;
+    clearTimeout(lineupPill._t); lineupPill._t = setTimeout(() => { const x = $("lpill"); if (x) x.hidden = true; }, 3000);
+  }
+  /** Start match (or Done, or Next) on the Lineup screen: the squad check first; a short squad needs a second tap
+      within 4 seconds. */
   function lineupNext() {
-    const t = App.lineupSide, { format } = lineupCtx();
+    const t = App.lineupSide, { rs, format, rule } = lineupCtx(), size = formatOf(format).size, bot = App.lineupMode === "bot";
+    const chk = Squad.check(rs, size, curPick(), rule);
+    if (chk.status === "blocked") { lineupPill(chk.reason); return; }
+    if (chk.status === "short") {
+      const now = Date.now();
+      if (!App.lineupShortAt || now - App.lineupShortAt > 4000) {
+        App.lineupShortAt = now;
+        lineupPill(`You're ${chk.short} UC short. Tap ${bot ? "Done" : App.lineupQueue[App.lineupQueue.length - 1] === t ? "Start match" : "Next"} again to play short.`);
+        return;
+      }
+    }
+    App.lineupShortAt = 0;
+    if (bot) { App.botPicks = App.botPicks || {}; App.botPicks[t] = E.clone(App.botEdit); App.lineupMode = "human"; App.botEdit = null; App.lineupSide = App.botReturn; App.lineupCard = null; show("lineup"); return; }
     const saved = Store.local("picks") || {}; saved[format + ":" + t] = App.picks[t]; Store.local("picks", saved);
     const i = App.lineupQueue.indexOf(t);
     if (i < App.lineupQueue.length - 1) openLineup(App.lineupQueue[i + 1]);
     else if (App.rematch) startRematch(App.rematch.c, App.picks);
     else startMatch();
+  }
+  /** Pick <Side> lineup: the bot side's lineup for this game, starting from a picked one or the bot's own choice. */
+  function openBotPick() {
+    const s = App.setup, bs = botSide(); if (!bs) return;
+    const { rs, format, rule } = lineupCtx(), size = formatOf(format).size;
+    App.botReturn = App.lineupSide; App.lineupMode = "bot"; App.lineupSide = bs; App.lineupShortAt = 0;
+    App.botEdit = E.clone(App.botPicks && App.botPicks[bs] ? App.botPicks[bs] : WT.squadCounts(rs, size, rule, s.seed, bs, App.brains[brainIdOf(s.players[bs])]));
+    App.lineupCard = null; show("lineup");
   }
 
   // ---------- Board geometry ----------
@@ -2468,30 +2670,43 @@
           App.match = null; App.st = null; Store.clearLive();
         }
         App.rematch = null;
-        App.setup = Object.assign(defaultSetup(), Store.local("setup") || {}, { seed: E.makeSeed() });
-        { const latest = D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : null;
-          if (latest && Store.local("presetSeen") !== latest) { App.setup.rulesetId = latest; Store.local("presetSeen", latest); Store.local("setup", App.setup); } }
-        if (!App.rulesets[App.setup.rulesetId]) App.setup.rulesetId = App.editId;
+        App.setup = loadSetup(); App.botPicks = {}; App.setupScroll = 0;
         show("setup"); break;
       }
-      case "seed-new": App.setup.seed = E.makeSeed(); renderSetup(); break;
+      case "seed-new": App.setup.seed = E.makeSeed(); renderSetup(); toast("New seed."); break;   // this game only; Each game is unchanged (Round 16)
       case "seed-copy": {
         const v = App.setup.seed;
-        try { await navigator.clipboard.writeText(v); toast("Seed copied."); } catch (e) { const i = $("setup-seed"); i.select(); toast("Seed selected; copy it."); }
+        try { await navigator.clipboard.writeText(v); toast("Seed copied."); } catch (e) { toast("Seed: " + v); }
         break;
       }
       case "setup-next": setupNext(); break;
-      case "teams-next": teamsNext(); break;
-      case "pick-plus": { const p = App.picks[App.lineupSide]; p.counts[el.dataset.card] = (p.counts[el.dataset.card] || 0) + 1; renderLineup(); renderLineupCard(); break; }
-      case "pick-minus": { const p = App.picks[App.lineupSide]; p.counts[el.dataset.card] = Math.max(0, (p.counts[el.dataset.card] || 0) - 1); renderLineup(); renderLineupCard(); break; }
-      case "lineup-next": lineupNext(); break;
-      case "lineup-reset": {   // Brief 029 §5: every unit count to 0; the Flagkeeper stays; no confirm
-        const p = App.picks[App.lineupSide]; if (!p) break;
-        for (const c in p.counts) p.counts[c] = 0;
-        App.lineupCard = null; renderLineupCard(); renderLineup(); break;
+      case "go-settings": show("settings"); break;
+      case "settings-reset": {   // every Game settings choice back to its default, no confirm
+        Object.assign(App.setup, E.clone(SETTINGS_DEFAULTS), { keptSeed: null });
+        for (const t of ["N", "S"]) App.setup.players[t].brainId = "default";
+        saveSetup(); renderSettings(); break;
       }
+      case "swap-ends": swapEnds(); break;
+      case "pick-era": toast("TEST is the only era for now."); break;
+      case "pick-region": toast("TEST is the only region for now."); break;
+      case "pick-difficulty": toast("TEST is the only difficulty for now."); break;
+      case "pick-persona": stepPersona(el.dataset.side); break;
+      case "persona-open": App.personaSide = el.dataset.side; renderPersona(); break;
+      case "persona-done": App.personaSide = null; renderPersona(); break;
+      case "persona-default": { const p = App.setup.players[App.personaSide]; if (p) { p.persona = { preset: "default", custom: null }; saveSetup(); renderPersona(); renderSetup(); } break; }
+      case "pick-plus": { const p = curPick(); p.counts[el.dataset.card] = (p.counts[el.dataset.card] || 0) + 1; App.lineupShortAt = 0; renderLineup(); renderLineupCard(); break; }
+      case "pick-minus": { const p = curPick(); p.counts[el.dataset.card] = Math.max(0, (p.counts[el.dataset.card] || 0) - 1); App.lineupShortAt = 0; renderLineup(); renderLineupCard(); break; }
+      case "lineup-next": lineupNext(); break;
+      case "lineup-reset": {   // Brief 029 §5: every unit count to 0; an old preset's Flagkeeper stays; no confirm
+        const p = curPick(); if (!p) break;
+        for (const c in p.counts) p.counts[c] = 0;
+        App.lineupShortAt = 0; App.lineupCard = null; renderLineupCard(); renderLineup(); break;
+      }
+      case "botpick-open": case "botpick-edit": openBotPick(); break;
+      case "botpick-clear": { const bs = botSide(); if (bs && App.botPicks) delete App.botPicks[bs]; renderLineup(); break; }
+      case "botpick-back": App.lineupMode = "human"; App.botEdit = null; App.lineupSide = App.botReturn; App.lineupCard = null; show("lineup"); break;
       case "rematch-back": {   // Brief 029 §3: the Lineup screen's top arrow during a rematch: back to the sheet, choices as left
-        const r = App.rematch; if (!r) { show("teams"); break; }
+        const r = App.rematch; if (!r) { show("setup"); break; }
         App.rematch = null; $("cover").hidden = true;
         App.match = r.from; rebuild(); resetUi(); App.ui.sheet = r.c; show("play"); break;
       }
@@ -2883,7 +3098,7 @@
     if (m && st) {
       const status = st.phase === "over" ? (st.result.winner ? `${esc(st.names[st.result.winner])} won, ${esc(say(st.result.how))}` : "Draw") : st.phase === "deploy" ? "Deploying" : `Turn ${st.turn}, ${sideName(st.toMove)} to move`;
       const pl = (t) => (isBot(t) ? "bot (" + esc(brainOf(t).name) + ")" : "human");
-      h += `<div class="card"><h3>Current match</h3><p class="note">${esc(st.names.N)} (North, ${pl("N")}) vs ${esc(st.names.S)} (South, ${pl("S")}) · ${esc(m.rs.name)}${esc(buildNote(m))}${m.opts.format ? " · " + esc(formatOf(m.opts.format).label) : ""}${m.opts.seed ? ` · seed <span class="num">${esc(m.opts.seed)}</span>` : ""} · started ${new Date(m.started).toLocaleString()} · ${status}</p>
+      h += `<div class="card"><h3>Current match</h3><p class="note">${esc(st.names.N)} (North, ${pl("N")}) vs ${esc(st.names.S)} (South, ${pl("S")}) · ${esc(m.rs.name)}${esc(buildNote(m))}${m.opts.format ? " · " + esc(formatOf(m.opts.format).label) : ""}${m.opts.squadRule && m.opts.squadRule !== "open" ? " · Squad rule " + esc(Squad.label(m.opts.squadRule)) : ""}${m.opts.seed ? ` · seed <span class="num">${esc(m.opts.seed)}</span>` : ""} · started ${new Date(m.started).toLocaleString()} · ${status}</p>
         <div class="actions"><button class="btn" data-act="copy-record">Copy match record for Claude</button>${st.phase === "play" && !isBot(st.toMove) ? `<button class="btn danger" data-act="surrender">${sideName(st.toMove)} surrenders</button>` : ""}</div>
         <textarea id="record" class="copyarea" readonly hidden></textarea></div>`;
       h += `<div><h3>Match log</h3><div class="fulllog lgwrap">${logHtml(st)}</div></div>`;   // Brief 018 §10.6: the same rows
@@ -2892,7 +3107,7 @@
     if (!App.matches.length) h += `<p class="note">None saved yet.</p>`;
     else {
       h += `<div class="tablewrap"><table class="data"><thead><tr><th></th><th>Finished</th><th>Rule set</th><th>Result</th><th>Turn</th><th>Pull damage N–S</th><th>Unit cap lost N–S</th></tr></thead><tbody>`;
-      for (const x of App.matches) h += `<tr><td><button type="button" class="iconbtn" data-act="copy-finished" data-id="${esc(x.id)}" aria-label="Copy this match's record for Claude" title="Copy match record">${ic("copy", 18)}</button></td><td>${x.finished ? new Date(x.finished).toLocaleDateString() : ""}</td><td>${esc(x.ruleset)}${V.startedOn && V.startedOn(x) ? `<br><span class="muted">${esc(V.startedOn(x))}</span>` : ""}</td><td>${x.how === "abandoned" ? "Abandoned" : x.winner ? esc(x.names ? x.names[x.winner] : sideName(x.winner)) + " (" + sideName(x.winner) + "), " + esc(say(x.how)) : "Draw, " + esc(say(x.how))}</td><td class="num">${x.turn}</td><td class="num">${x.pull ? x.pull.N + "–" + x.pull.S : ""}</td><td class="num">${x.lost ? x.lost.N + "–" + x.lost.S : ""}</td></tr>`;
+      for (const x of App.matches) h += `<tr><td><button type="button" class="iconbtn" data-act="copy-finished" data-id="${esc(x.id)}" aria-label="Copy this match's record for Claude" title="Copy match record">${ic("copy", 18)}</button></td><td>${x.finished ? new Date(x.finished).toLocaleDateString() : ""}</td><td>${esc(x.ruleset)}${x.squad && x.squad !== "open" ? " · Squad rule " + esc(Squad.label(x.squad)) : ""}${V.startedOn && V.startedOn(x) ? `<br><span class="muted">${esc(V.startedOn(x))}</span>` : ""}</td><td>${x.how === "abandoned" ? "Abandoned" : x.winner ? esc(x.names ? x.names[x.winner] : sideName(x.winner)) + " (" + sideName(x.winner) + "), " + esc(say(x.how)) : "Draw, " + esc(say(x.how))}</td><td class="num">${x.turn}</td><td class="num">${x.pull ? x.pull.N + "–" + x.pull.S : ""}</td><td class="num">${x.lost ? x.lost.N + "–" + x.lost.S : ""}</td></tr>`;
       h += `</tbody></table></div><textarea id="record-finished" class="copyarea" readonly hidden></textarea>`;
     }
     h += `</div></div></div>`;
@@ -2935,6 +3150,7 @@
     document.body.addEventListener("click", (e) => {
       const s = e.target.closest("[data-seg]"); if (s && !s.disabled) { onSeg(s.dataset.seg, s.dataset.val); return; }
       const b = e.target.closest("[data-act]");
+      if (b && b.getAttribute("aria-disabled") === "true" && App.view === "lineup") { if (b.dataset.act === "lineup-next") lineupNext(); return; }   // Brief 030: the reason in the dark pill
       if (b && b.getAttribute("aria-disabled") === "true") { if (b.dataset.why === PICK) pickNote(); else if (b.dataset.why && b.dataset.pill) reasonPill(b.dataset.why); else if (b.dataset.why) toast(b.dataset.why); return; }   // Brief 005: say why
       if (b && !b.disabled) { onAction(b.dataset.act, b); return; }
       const row = e.target.closest("#roster tr[data-uid]");
@@ -2942,8 +3158,11 @@
     });
     $("view-setup").addEventListener("input", onSetupInput);
     $("view-setup").addEventListener("change", onSetupInput);
-    $("view-teams").addEventListener("change", (e) => { onSetupInput(e); if (e.target.dataset.setup && e.target.dataset.setup.startsWith("brain-")) renderTeams(); });
-    $("view-lineup").addEventListener("change", (e) => { if (e.target.dataset.keeper) { App.picks[App.lineupSide].keeper = e.target.value; renderLineup(); } });
+    $("view-settings").addEventListener("change", onSetupInput);
+    $("psheet").addEventListener("input", onPersonaInput);
+    $("psheet").addEventListener("change", onPersonaInput);
+    $("pscrim").addEventListener("click", () => { App.personaSide = null; renderPersona(); });
+    $("view-lineup").addEventListener("change", (e) => { if (e.target.dataset.keeper) { curPick().keeper = e.target.value; renderLineup(); } });
     ["view-units", "view-rules"].forEach((id) => { $(id).addEventListener("input", onSheetInput); $(id).addEventListener("change", (e) => {
       if (e.target.id === "rs-pick") {
         if (App.dirty) { e.target.value = App.editId; toast("Save or revert your changes before switching sets."); return; }
@@ -2964,6 +3183,7 @@
       }
       if (e.key !== "Escape") return;
       if (App.view === "play" && App.ui.menu) { closeMenu(); return; }
+      if (App.view === "setup" && App.personaSide) { App.personaSide = null; renderPersona(); return; }
       if (App.view === "lineup" && App.lineupCard) { const code = App.lineupCard; App.lineupCard = null; renderLineupCard(); const b = document.querySelector(`[data-act="lineup-card"][data-card="${code}"]`); if (b) b.focus(); return; }
       if (App.view === "play" && App.ui.sheet && App.ui.sheet.kind === "rematch") { App.ui.sheet = { kind: "over" }; render(); return; }   // Brief 029: Escape = Cancel
       if (App.view === "play" && App.ui.sheet && App.ui.sheet.kind !== "over") { App.ui.sheet = null; App.ui.armed = null; App.ui.ghost = null; render(); return; }
@@ -3021,6 +3241,6 @@
     if (spec) startWatch(spec, /[?&]fast=1/.test(location.search));
   }
   // For the build's screenshots only (a "?shots=1" link): lets a test script set up a position. Nothing reads it in play.
-  if (/[?&]shots=1/.test(location.search)) { window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D, revealHex, beginDeploy, startMatch, onAction, Store, rematchOf, liveSummary, renderHome, undo, SP_WORDS, spWords }; window.GGLogRow = logRow; }
+  if (/[?&]shots=1/.test(location.search)) { window.GGShots = { App, render, act, show, rebuild, resetUi, onBoardTap, E, D, revealHex, beginDeploy, startMatch, onAction, Store, rematchOf, liveSummary, renderHome, undo, SP_WORDS, spWords, startRematch, setupNext, lineupNext, loadSetup, Squad, WT, settingsItems }; window.GGLogRow = logRow; }
   boot();
 })();

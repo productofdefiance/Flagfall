@@ -20,7 +20,7 @@
 "use strict";
 const fs = require("fs"), os = require("os"), path = require("path"), cp = require("child_process");
 
-const GAME = ["engine.js", "bot.js", "brain.js", "data.js", "fields.js", "watch.js"].map((f) => `board/${f}`);
+const GAME = ["engine.js", "bot.js", "brain.js", "data.js", "fields.js", "watch.js", "squad.js"].map((f) => `board/${f}`);
 const SCREEN = ["app.js", "ui.js", "skin.js", "index.html"].map((f) => `board/${f}`);
 const KEYED = GAME.concat(["board/tests/rng.js", "sims/lab/play.js", "sims/lab/order.js", "sims/lab/plan.js"]);
 // Never part of a game: the stamped version line and the tests (rng.js is in the key on its own).

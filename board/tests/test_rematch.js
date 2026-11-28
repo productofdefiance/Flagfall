@@ -167,8 +167,8 @@ const click = (page, sel) => page.evaluate((s) => { const b = document.querySele
     ok(lu.pick.keeper === keeper && JSON.stringify(Object.entries(lu.pick.counts).filter(([, v]) => v).sort()) === JSON.stringify(Object.entries(W.counts).sort()), "Lineup screen starts from the lineup just played");
     ok(lu.reset === "Reset", "Lineup footer: Reset in place of Back");
     await click(page, '[data-act="lineup-reset"]');
-    const rs1 = await page.evaluate(() => { const G = window.GGShots, p = G.App.picks[G.App.lineupSide]; return { sum: Object.values(p.counts).reduce((a, b) => a + b, 0), keeper: p.keeper, dis: document.querySelector('[data-act="lineup-next"]').disabled }; });
-    ok(rs1.sum === 0 && rs1.keeper === keeper && rs1.dis, "Reset: every count 0, Flagkeeper kept, go disabled");
+    const rs1 = await page.evaluate(() => { const G = window.GGShots, p = G.App.picks[G.App.lineupSide]; return { sum: Object.values(p.counts).reduce((a, b) => a + b, 0), keeper: p.keeper, dis: document.querySelector('[data-act="lineup-next"]').getAttribute("aria-disabled") === "true" };   // Brief 030: greyed, and a tap says why });
+    ok(rs1.sum === 0 && rs1.keeper === keeper && rs1.dis, "Reset: every count 0, Flagkeeper kept, go greyed (no foot unit)");
     await click(page, '#view-lineup .backbar [data-act="rematch-back"]'); await page.waitForTimeout(80);
     s = await sheet();
     ok(await page.evaluate((i) => window.GGShots.App.view === "play" && window.GGShots.App.match.id === i, before.id) && s.pressed === "No,No,Yes", "Lineup top arrow during a rematch: back to the sheet, choices as left");
