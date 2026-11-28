@@ -11,8 +11,9 @@
  *
  *   node tools/run-tests.js --level quick|release|night [--job rules,slow] [--out <folder>]   run them
  *   node tools/run-tests.js --list [--level …] [--job …]                                       print the list
- *   node tools/run-tests.js --check                     fail if a test file has no @test line and isn't in SKIP
- * A run fails if any test fails, and also if it ran fewer tests than the list holds (a crash part-way is never a pass).
+ *   node tools/run-tests.js --check                     fail if a test file has no @test line (and isn't in SKIP),
+ *                                                       names a job that isn't one of the five, or runs at no level
+ * A run fails if any test fails, if no test matches, or if the list itself fails --check (every run checks it first).
  * With --out, each test writes <out>/check-<name>.txt holding "name=success|failure" (the lab's tables/checks.csv). */
 "use strict";
 const fs = require("fs"), path = require("path"), cp = require("child_process");
@@ -49,7 +50,7 @@ function header(text) {
   for (const tok of body.replace(/\bargs=.*$/, "").split(/\s+/).filter(Boolean)) {
     if (tok === "browser") h.browser = true;
     else if (tok === "special") h.special = true;
-    else { const [k, v] = tok.split("="); if (k in h) h[k] = v; }
+    else if (/^\w+=\S+$/.test(tok)) { const [k, v] = tok.split("="); if (k in h) h[k] = v; }   // other words are notes
   }
   return h;
 }
@@ -70,24 +71,36 @@ function select(level, jobs, root) {
 }
 /** Test files with no @test line that aren't in SKIP (should be none). */
 function missing(root) { return list(root).filter((t) => !t.h && !(t.file in SKIP)).map((t) => t.file); }
+/** Every problem with the list (review F2): no @test line, a job that isn't one of the five, or a test that runs at
+    no level (quick, release and night all "no"; a `special` script is run by its own job and is exempt). */
+function problems(root) {
+  const out = missing(root).map((f) => `${f}: no @test line and not in SKIP`);
+  for (const t of list(root)) {
+    if (!t.h) continue;
+    if (!JOBS.includes(t.h.job)) out.push(`${t.file}: job "${t.h.job}" is not one of ${JOBS.join(", ")}`);
+    if (!t.h.special && ["quick", "release", "night"].every((l) => !t.h[l] || t.h[l] === "no")) out.push(`${t.file}: runs at no level (quick, release and night are all "no")`);
+    for (const l of ["quick", "release", "night"]) if (!/^(\d+|yes|no)$/.test(String(t.h[l]))) out.push(`${t.file}: ${l}=${t.h[l]} is not a number, yes or no`);
+  }
+  return out;
+}
 
-module.exports = { discover, header, list, select, missing, SKIP, JOBS };
+module.exports = { discover, header, list, select, missing, problems, SKIP, JOBS };
 
 if (require.main === module) {
   const args = process.argv.slice(2), opt = {};
   for (let i = 0; i < args.length; i++) if (args[i].startsWith("--")) opt[args[i].slice(2)] = args[i + 1] !== undefined && !args[i + 1].startsWith("--") ? args[++i] : true;
   const root = path.resolve(opt.root || ROOT);
   if (opt.check) {
-    const m = missing(root);
-    if (m.length) { console.error(`No @test line and not in SKIP: ${m.join(", ")}`); process.exit(1); }
+    const m = problems(root);
+    if (m.length) { console.error(`The test list has problems:\n- ${m.join("\n- ")}`); process.exit(1); }
     console.log(`All ${discover(root).length} test files declare how they run (${Object.keys(SKIP).length} skipped).`);
     process.exit(0);
   }
   const level = opt.level || "quick", jobs = typeof opt.job === "string" ? opt.job.split(",") : null;
   const tests = select(level, jobs, root);
   if (opt.list) { for (const t of tests) console.log(`${t.name}\t${t.job}${t.browser ? " browser" : ""}\t${t.argv.join(" ")}`); process.exit(0); }
-  const m = missing(root);
-  if (m.length) { console.error(`No @test line and not in SKIP: ${m.join(", ")}`); process.exit(1); }
+  const m = problems(root);
+  if (m.length) { console.error(`The test list has problems:\n- ${m.join("\n- ")}`); process.exit(1); }
   if (opt.out) fs.mkdirSync(path.resolve(opt.out), { recursive: true });
   const results = [];
   for (const t of tests) {
@@ -100,11 +113,11 @@ if (require.main === module) {
     if (opt.out) fs.writeFileSync(path.join(path.resolve(opt.out), `check-${t.name.replace(/[^\w]+/g, "_")}.txt`), `${t.name}=${ok ? "success" : "failure"}\n`);
   }
   const failed = results.filter((r) => !r.ok);
-  const short = results.length < tests.length;
   const summary = [`## Tests: ${level}${jobs ? ` (${jobs.join(", ")})` : ""}`, "", "| Check | Result |", "| --- | --- |"]
     .concat(results.map((r) => `| ${r.name} | ${r.ok ? "pass" : "**FAIL**"} |`), "", `${results.length} of ${tests.length} ran, ${failed.length} failed.`).join("\n") + "\n";
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
   console.log(`\n${results.length} of ${tests.length} tests ran, ${failed.length} failed${failed.length ? `: ${failed.map((r) => r.name).join(", ")}` : ""}.`);
-  if (short) console.log("FAIL: fewer tests ran than the list holds.");
-  process.exit(failed.length || short || !tests.length ? 1 : 0);
+  // Every selected test gets a result (a runner crash exits non-zero by itself), so no separate count guard.
+  if (!tests.length) console.log("FAIL: no test matches this level and job.");
+  process.exit(failed.length || !tests.length ? 1 : 0);
 }

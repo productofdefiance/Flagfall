@@ -94,12 +94,39 @@ function filed(root, results) {
   }
   return { runs, same: new Set(rows.filter((x) => x.kind === "same").map((x) => x.version)) };
 }
+/** Release runs and same-games lines waiting in open results pull requests (lab/*), not yet merged into main
+    (review F1): counted as filed, so a lab run that plans before such a pull request merges doesn't play the same
+    version again. refs: git refs of those pull requests' heads. Returns { runs: [{ version, key, path }], same: [versions] }. */
+function pending(root, refs, main) {
+  const out = { runs: [], same: [] };
+  for (const ref of refs || []) {
+    let names = [];
+    try { names = git(root, ["diff", "--name-only", "--diff-filter=AM", `${main}...${ref}`, "--", "results/"]).split("\n").filter(Boolean); } catch (e) { continue; }
+    for (const f of names) {
+      if (/\/run\.json$/.test(f)) {
+        try {
+          const run = JSON.parse(git(root, ["show", `${ref}:${f}`]));
+          if (run.kind === "release") out.runs.push({ version: run.version, key: (run.extra && run.extra.game_key) || (run.commit ? gameKey(root, run.commit) : null), path: path.dirname(f).replace(/^results\//, ""), pending: true });
+        } catch (e) { /* not readable: ignore */ }
+      } else if (f === "results/same.csv") {
+        try {
+          const idx = require("./index.js"), tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ffsame-"));
+          fs.writeFileSync(path.join(tmp, "same.csv"), git(root, ["show", `${ref}:${f}`]));
+          for (const r of idx.collect(tmp)) if (r.kind === "same") out.same.push(r.version);
+        } catch (e) { /* ignore */ }
+      }
+    }
+  }
+  return out;
+}
 /** main's backlog: versions since the baseline with neither a filed release run nor a same line, oldest first.
-    Returns { same: [{ version, sha, to }], play: { version, build, date, sha, key } | null, more: bool }. */
-function backlog(root, results, ref) {
+    `waiting`: what open results pull requests already carry (pending()). Returns { same: [{ version, sha, to }],
+    play: { version, build, date, sha, key } | null, more: bool }. */
+function backlog(root, results, ref, waiting) {
   const SV = require(path.resolve(root, "tools", "stamp-version.js"));
   const c = SV.countAt(root, ref || "HEAD");
   const f = filed(root, results);
+  if (waiting) { f.runs.push(...waiting.runs); for (const v of waiting.same) f.same.add(v); }
   const versions = [], seenV = new Set();
   for (const h of c.history) {
     if (!h.brief || h.bump === "none" || seenV.has(h.game)) continue;
@@ -120,16 +147,16 @@ function backlog(root, results, ref) {
   return { same, play, more };
 }
 
-module.exports = { GAME, SCREEN, KEYED, classify, docsOnly, gameKey, decidePr, backlog, filed, hashes, boardAt };
+module.exports = { GAME, SCREEN, KEYED, classify, docsOnly, gameKey, decidePr, backlog, filed, pending, hashes, boardAt };
 
 /** The lab's plan step: what this run plays, written to $GITHUB_OUTPUT.
     pr: { number, main, keysDone: [keys of finished runs posted on the pull request] } or null (a run on main). */
-function plan(root, results, pr) {
+function plan(root, results, pr, waiting) {
   if (pr) {
     const d = decidePr(root, pr.main, "HEAD", (k) => (pr.keysDone || []).includes(k));
     return { release: d.release, why: d.why, key: d.key, sha: git(root, ["rev-parse", "HEAD"]).trim(), same: [], more: false, target: null };
   }
-  const b = backlog(root, results);
+  const b = backlog(root, results, "HEAD", waiting);
   return { release: !!b.play, why: b.play ? `${b.play.version} has no release run yet` : "every version has its release run or a same-games line", key: b.play ? b.play.key : "",
     sha: b.play ? b.play.sha : git(root, ["rev-parse", "HEAD"]).trim(), same: b.same, more: b.more, target: b.play };
 }
@@ -147,7 +174,17 @@ if (require.main === module) {
       try { bodies = cp.execFileSync("gh", ["api", "--paginate", `repos/${process.env.GITHUB_REPOSITORY}/issues/${opt.pr}/comments`, "--jq", ".[].body"], { encoding: "utf8", maxBuffer: 64 << 20 }); } catch (e) { bodies = ""; }
       pr = { number: opt.pr, main: typeof opt.main === "string" ? opt.main : "origin/main", keysDone: [...bodies.matchAll(/release-key: ([0-9a-f]{16})/g)].map((m) => m[1]) };
     }
-    const p = plan(root, path.join(root, "results"), pr);
+    // main: release runs already waiting in open results pull requests count as filed (review F1).
+    let waiting = null;
+    if (!pr) {
+      try {
+        const labs = JSON.parse(cp.execFileSync("gh", ["pr", "list", "--repo", process.env.GITHUB_REPOSITORY, "--state", "open", "--limit", "100", "--json", "number,headRefName"], { encoding: "utf8" })).filter((x) => /^lab\//.test(x.headRefName));
+        if (labs.length) git(root, ["fetch", "-q", "--filter=blob:none", "origin", ...labs.map((x) => `+refs/pull/${x.number}/head:refs/labpending/${x.number}`)]);
+        waiting = pending(root, labs.map((x) => `refs/labpending/${x.number}`), "origin/main");
+        if (labs.length) console.log(`Waiting in open results pull requests: ${waiting.runs.map((r) => r.version).concat(waiting.same).join(", ") || "no release runs"}`);
+      } catch (e) { console.log(`Could not read the open results pull requests (${e.message.split("\n")[0]}); planning from main alone.`); }
+    }
+    const p = plan(root, path.join(root, "results"), pr, waiting);
     const out = { release: String(p.release), why: p.why, key: p.key, sha: p.sha, same: JSON.stringify(p.same), more: String(p.more),
       target_game: p.target ? p.target.version : "", target_build: p.target ? String(p.target.build) : "", target_date: p.target ? p.target.date : "" };
     if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, Object.entries(out).map(([k, v]) => `${k}=${v}`).join("\n") + "\n");

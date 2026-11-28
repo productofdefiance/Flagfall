@@ -68,6 +68,7 @@ jobs:
       key: ${{ steps.rel.outputs.key }}
       same: ${{ steps.rel.outputs.same }}
       more: ${{ steps.rel.outputs.more }}
+      deferred: ${{ steps.plan.outputs.deferred }}
       game: ${{ steps.stamp.outputs.game }}
       build: ${{ steps.stamp.outputs.build }}
       date: ${{ steps.stamp.outputs.date }}
@@ -155,7 +156,12 @@ jobs:
           fi
           only=""
           # A missed version played at its own (older) commit: queued orders wait for the next run (it starts itself).
-          if [ -n "$TGAME" ] && [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then ORDERS=""; only="--release-only 1"; fi
+          if [ -n "$TGAME" ] && [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+            # review F4: queued job orders set aside for this run must get a run of their own, so the lab starts again
+            # (main's queue, not the older commit's)
+            if git ls-tree --name-only origin/main studies/queue/ | grep -q '\.json$' || [ -n "$ORDERS" ]; then echo "deferred=true" >> "$GITHUB_OUTPUT"; fi
+            ORDERS=""; only="--release-only 1"
+          fi
           if { [ "$EV" = "pull_request" ] || [ "$EV" = "push" ]; } && [ -z "$ORDERS" ]; then only="--release-only 1"; fi
           node sims/lab/plan.js --orders "$ORDERS" $rel --release-why "$WHY" $only
       # Brief 024: how many machines this run takes, from what started it, how big it is and how busy the repository
@@ -474,8 +480,8 @@ jobs:
           bash sims/lab/deliver.sh main "Lab results, $(date -u +%Y-%m-%d) (${{ needs.plan.outputs.trigger }})"
       # Brief 031 (B2): more versions on main still lack a release run: start the lab again (one waiting run per group
       # means a merge's own run can be dropped; this catches up).
-      - name: Start the lab again for the next missed version
-        if: github.event_name != 'pull_request' && needs.plan.outputs.more == 'true'
+      - name: Start the lab again (the next missed version, or job orders set aside)
+        if: github.event_name != 'pull_request' && (needs.plan.outputs.more == 'true' || needs.plan.outputs.deferred == 'true')
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh workflow run lab.yml --repo "$GITHUB_REPOSITORY" --ref main

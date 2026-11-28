@@ -71,6 +71,10 @@ jobs:
         run: |
           mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm install --no-audit --no-fund playwright@1.49.1 > /dev/null
           npx playwright install --with-deps chromium > /dev/null
+      # Review F2: the list itself, once per run: every test file has a @test line, a known job and at least one level.
+      - name: Check the test list
+        if: matrix.job == 'rules'
+        run: node tools/run-tests.js --check
       - name: Run the ${{ matrix.job }} tests from the generated list
         env:
           NODE_PATH: /tmp/pw/node_modules

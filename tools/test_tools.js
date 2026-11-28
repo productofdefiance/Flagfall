@@ -108,6 +108,19 @@ ok(RF.decidePr(tmp, "main", "HEAD", () => false).release, "B2: a change to the l
 g("checkout", "-q", "main");
 const brief = (num, bump, file) => { g("checkout", "-qB", `m${num}`, "main"); write(`releases/${num}.json`, JSON.stringify({ brief: num, bump, rules: null, brain: null, ui: null })); write(file, `// ${num}\n`); g("add", "-A"); g("commit", "-qm", num); g("checkout", "-q", "main"); g("merge", "-q", "--no-ff", "-m", `Merge ${num}`, `m${num}`); };
 brief("070", "YY", "board/engine.js"); brief("071", "ZZ", "board/app.js"); brief("072", "ZZ", "board/data.js");
+// Review F1: a release run sitting in an open results pull request (lab/*) counts as filed.
+{
+  const none = path.join(tmp, "no-results-yet");
+  const b1 = RF.backlog(tmp, none, "main");
+  g("checkout", "-qb", "lab/20261128-x", "main");
+  write(`results/${b1.play.version}/2026-11-28_release_x/run.json`, JSON.stringify({ id: "2026-11-28_release_x", kind: "release", version: b1.play.version, extra: { game_key: b1.play.key } }));
+  g("add", "-A"); g("commit", "-qm", "Lab results (open pull request)"); g("checkout", "-q", "main");
+  const again = RF.backlog(tmp, none, "main");
+  const b2 = RF.backlog(tmp, none, "main", RF.pending(tmp, ["lab/20261128-x"], "main"));
+  ok(again.play.version === b1.play.version && b2.play && b2.play.version !== b1.play.version,
+    `F1: planned twice with nothing filed, ${b1.play.version} is planned both times; counting the open results pull request, the second plan moves on (${b2.play && b2.play.version})`);
+  g("branch", "-D", "lab/20261128-x");
+}
 const results = path.join(tmp, "results"); fs.mkdirSync(results, { recursive: true });
 const file = (version, key) => { const dir = path.join(results, version, `2026-11-28_release_${version}`); fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(path.join(dir, "run.json"), JSON.stringify({ id: `2026-11-28_release_${version}`, kind: "release", version, extra: { game_key: key } })); };
 const steps = [];
@@ -148,6 +161,7 @@ ok(RT.missing().length === 0, `every test file declares how it runs, or is in th
 const quick = RT.select("quick").map((t) => t.name);
 ok(["test_phone.js", "test_route.js", "test_v310.js (4)", "test_page.js", "test_rematch.js", "self_test.js", "invariants-check.js (30)", "board_check.js (10)", "test_v32.js (40)"].every((n) => quick.includes(n)), "the quick list covers all three folders and the extras (test_page.js ran nowhere before)");
 ok(RT.header("// @test job=board quick=yes release=10 night=no browser args=a b").browser && RT.header("// @test job=board quick=yes release=10 night=no browser args=a b").args === "a b", "a test's @test line gives its counts, browser and arguments");
+ok(RT.header("// @test special job=slow (run by the compare job and the release run's hashes job)").job === "slow" && RT.header("// @test special job=slow (the release job)").release === "no", "words in a @test line's note are not read as settings");
 const fx = fs.mkdtempSync(path.join(os.tmpdir(), "ffrun-"));
 fs.mkdirSync(path.join(fx, "board", "tests"), { recursive: true }); fs.mkdirSync(path.join(fx, "tools"), { recursive: true });
 fs.writeFileSync(path.join(fx, "board", "tests", "test_good.js"), "// @test job=rules quick=yes release=yes night=no\nprocess.exit(0);\n");
@@ -159,7 +173,16 @@ fs.writeFileSync(path.join(fx, "board", "tests", "test_bad.js"), "// @test job=r
 ok(runIt().status === 0, "and green once it passes");
 fs.writeFileSync(path.join(fx, "board", "tests", "test_new.js"), "process.exit(0);\n");
 r = runIt();
-ok(r.status !== 0 && /No @test line/.test(r.stderr), "a new test file with no @test line (and not in the skip list) fails the run");
+ok(r.status !== 0 && /no @test line/.test(r.stderr), "a new test file with no @test line (and not in the skip list) fails the run");
+const check = () => cp.spawnSync("node", [path.join(__dirname, "run-tests.js"), "--root", fx, "--check"], { encoding: "utf8" });
+fs.writeFileSync(path.join(fx, "board", "tests", "test_new.js"), "// @test job=rule quick=yes release=yes night=no\nprocess.exit(0);\n");
+r = check();
+ok(r.status !== 0 && /job "rule" is not one of/.test(r.stderr), "F2: --check fails a job name that isn't one of the five (\"rule\")");
+fs.writeFileSync(path.join(fx, "board", "tests", "test_new.js"), "// @test job=rules quick=no release=no night=no\nprocess.exit(0);\n");
+r = check();
+ok(r.status !== 0 && /runs at no level/.test(r.stderr), "F2: --check fails a test that runs at no level");
+fs.writeFileSync(path.join(fx, "board", "tests", "test_new.js"), "// @test job=rules quick=yes release=no night=no\nprocess.exit(0);\n");
+ok(check().status === 0, "F2: and passes once the line is right");
 fs.rmSync(fx, { recursive: true, force: true });
 
 console.log(fails ? `\n${fails} check(s) FAILED` : "\nAll tool checks passed.");

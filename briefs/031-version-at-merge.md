@@ -166,6 +166,10 @@ The standard items, plus: the two-order merge outputs; the clicks for the requir
   - **F031-1:** follow-ups use `releases/NNN-2.json`, counted once, with the bump not compared with the brief; titles read `NNN-2`.
   - **A9:** "Build brief" brings in `main` first, then checks `Waits on`.
   - **A10:** a branch older than the baseline keeps its own typed number as its label.
+- **Fixes from the red team's review of the build (28 Nov):**
+  - **F1:** release runs and "same games as" lines sitting in an open `lab/*` results pull request now count as filed when `main`'s backlog is planned, so a second lab run doesn't replay the same version into the same folder. Test: planned twice with nothing filed, v3.21.00 is planned both times; counting the open results pull request, the second plan moves on.
+  - **F2:** `run-tests.js --check` now fails a job that isn't one of the five, a test that runs at no level, and a count that isn't a number, `yes` or `no`. Every run checks the list first, and `checks` runs `--check` once. The "fewer tests ran than the list holds" guard couldn't fail, so I removed it: every selected test gets a result, and a crash of the runner fails the run by itself. Words in a `@test` line's note are no longer read as settings (`regress_engine.js`'s note had been). Tests for each case are in `test_tools.js`.
+  - **F4:** when job orders queued on `main` are set aside so the lab can play a missed version at an older commit, the lab now starts again even if no other version is missing.
 - **Anything beyond the brief, and why:**
   - When several versions on `main` miss their release run, the lab plays one per run and then starts itself again (`gh workflow run lab.yml`). Playing several commits in one run would need a separate set of play jobs per commit; one per run keeps the jobs simple and drops nothing.
   - `waits-on` is a commit status, not a job name: a status can be set again from `main` without re-running the pull request's workflow.

@@ -110,7 +110,9 @@ ok(/paths: \["studies\/queue\/\*\*", "board\/\*\*", "sims\/lab\/\*\*"\]/.test(la
 ok(/release_files\.js --plan --pr "\$PR"/.test(labText) && /release_files\.js --plan;/.test(labText), "lab: the release is decided by the game key (pull request: against its merge-base; main: the backlog)");
 ok((labText.match(/stamp-version\.js --set "\$\{\{ needs\.plan\.outputs\.game \}\}"/g) || []).length >= 4, "lab: every job after the plan uses the plan's stamp (one stamp per version played)");
 ok(/<!-- release-key: \$KEY -->/.test(labText) && /FAILED/.test(labText), "lab: a finished release run on a pull request posts its game key");
-ok(/needs\.plan\.outputs\.more == 'true'[\s\S]{0,200}gh workflow run lab\.yml/.test(labText), "lab: if more versions miss a release run, the lab starts itself again");
+ok(/needs\.plan\.outputs\.more == 'true' \|\| needs\.plan\.outputs\.deferred == 'true'[\s\S]{0,200}gh workflow run lab\.yml/.test(labText), "lab: if more versions miss a release run, or job orders were set aside, the lab starts itself again");
+ok(/deferred=true/.test(labText) && /git ls-tree --name-only origin\/main studies\/queue\//.test(labText), "lab (review F4): job orders set aside to play an older version mark the run as deferred (main's queue)");
+ok(/matrix\.job == 'rules'\n        run: node tools\/run-tests\.js --check/.test(wf("checks.yml")), "checks (review F2): the test list is checked once per run");
 ok(/same:\n    name: same games as a filed release/.test(labText), "lab: versions with the same games get a same-games line");
 for (const [file, min] of [["lab.yml", 2], ["play-links.yml", 1], ["night-checks.yml", 1], ["checks.yml", 1]]) {
   const t = wf(file), stamps = (t.match(/tools\/stamp-version\.js/g) || []).length;
