@@ -1,4 +1,4 @@
-STATUS · updated 27 Nov 2026, 9:09 pm ET
+STATUS · updated 27 Nov 2026, 10:52 pm ET
 
 VERSION
   On main: v3.20.00 · Build 25 · Rules v3.10 · Brain 8
@@ -34,7 +34,7 @@ BUILDS
   Ready to start
     012 Cavalry
   Waiting
-    none
+    032 Version follow ups ← 031
   Merged (last 3)
     029 Rematch · v3.20.00 · 27 Nov
     028 Arrow storm · v3.19.00 · 27 Nov
