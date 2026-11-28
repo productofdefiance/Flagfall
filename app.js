@@ -225,7 +225,7 @@
 
   function defaultSetup() {
     return { format: "std7", rulesetId: (D.PRESETS && D.PRESETS.length ? D.PRESETS[D.PRESETS.length - 1].id : D.DEFAULT_RULESET.id), first: "coin", seed: E.makeSeed(),
-      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: "brain8", name: "South", mix: "open" } } };
+      players: { N: { type: "human", name: "North", mix: "open" }, S: { type: "bot", brainId: BR.DEFAULT_OPPONENT, name: "South", mix: "open" } } };   // the default opponent lives in brain.js (Brief 031)
   }
 
   // ---------- Matches ----------
@@ -1452,7 +1452,7 @@
     const rsName = preset ? m.rs.id : m.rs.name;
     const brainNames = [...new Set(bots.map((t) => shortBrain(brainOf(t))))];
     const botPart = bots.length ? ` · ${bots.length > 1 ? "Bots" : "Bot"}: ${esc(brainNames.join(" vs "))}` : "";
-    const ver = [V.game || null, V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null].filter(Boolean).join(" · ");
+    const ver = [V.game || "dev", V.build ? `Build ${V.build}` : null, V.preview ? `Preview of ${V.preview}` : null].filter(Boolean).join(" · ");
     const live = st.phase === "play" && !isBot(st.toMove);
     const item = (act, icon, label, cls) => `<button type="button" role="menuitem" class="mi${cls ? " " + cls : ""}" data-act="${act}">${ic(icon, 20)}<span>${esc(label)}</span></button>`;
     el.innerHTML = `<div class="mh"><div class="mh-text">
