@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-28T11:21:29.200Z",
- "board": "STATUS · updated 28 Nov 2026, 6:21 am ET\n\nVERSION\n  On main: v3.20.01 · Build 26 · Rules v3.10 · Brain 8\n  Building: 030 → YY · would be v3.21.00 if merged next\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (27 Nov, 1:05 pm ET)\n  Queue: 6 jobs waiting, oldest 0 min · lab using 6 of 20\n  release v3.20.01 · 5v5 26.5% · 7v7 13.2% on the turn limit · 28 Nov\n  screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov\n  release v3.20.00 · 5v5 21.6% · 7v7 14.1% on the turn limit · 27 Nov\n  release v3.20.00 · 5v5 25.9% · 7v7 15.4% on the turn limit · 27 Nov\n  release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov\n  nightly v3.20.00 · 5v5 15.0% · 7v7 15.0% on the turn limit · 27 Nov\n\nFLAGS (open, newest first)\n  ! F030-3 · ASK · 28 Nov · Game Laws 2.1 (mounted units only at 9v9 and 13v13) is in the squad check too. Under any…\n  ! F030-2 · ASK · 28 Nov · With two bot sides there is no Lineup screen to visit. Built: the New game footer reads…\n  ! F030-1 · ASK · 28 Nov · The brief says \"no flagkeeper picker\". Rule sets v3 and later have none. But the old…\n  ! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  +18 older in FLAGS.md\n\nBUILDS\n  Building\n    030 Game start · PR #76 · Draft · checks fail · not reviewed\n  Ready to start\n    012 Cavalry\n    032 Version follow ups\n  Waiting\n    none\n  Merged (last 3)\n    031 Version at merge · v3.20.01 · 28 Nov\n    029 Rematch · v3.20.00 · 27 Nov\n    028 Arrow storm · v3.19.00 · 27 Nov\n\nCHATS\n  Open\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov stale?\n    FF Roadmap v3.19.00 - · roadmap for the run-up to Cavalry (012) and the stretch after it · opened 27 Nov\n    FF UI v3.19.00 - Attack UI · attack UI design (every attack, foot specials and Cavalry) and its brief · opened 27 Nov\n  Closed (last 5)\n    FF Docs v3.18.00 - v3.19.00 · closed 27 Nov · brief 031 pushed (version at merge, answers F029-2); 028 merged during the…\n    FF Rules v3.14.01 - v3.19.00 · closed 27 Nov · Arrow Storm x1.5 and minimum damage 0.5 locked, brief 028 written (merged…\n    FF Main v3.14.00 - v3.14.01 · closed 27 Nov · overnight results reviewed; Brain 8 default ruled; LAB_TOKEN added; briefs 012…\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n",
+ "updated": "2026-11-28T11:30:31.426Z",
+ "board": "STATUS · updated 28 Nov 2026, 6:30 am ET\n\nVERSION\n  On main: v3.20.01 · Build 26 · Rules v3.10 · Brain 8\n  Building: 030 → YY · would be v3.21.00 if merged next; 032 → ZZ · would be v3.20.02 if merged next\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (27 Nov, 1:05 pm ET)\n  Queue: clear · lab using 4 of 20\n  release v3.20.01 · 5v5 26.5% · 7v7 13.2% on the turn limit · 28 Nov\n  screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov\n  release v3.20.00 · 5v5 21.6% · 7v7 14.1% on the turn limit · 27 Nov\n  release v3.20.00 · 5v5 25.9% · 7v7 15.4% on the turn limit · 27 Nov\n  release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov\n  nightly v3.20.00 · 5v5 15.0% · 7v7 15.0% on the turn limit · 27 Nov\n\nFLAGS (open, newest first)\n  ! F032-1 · ASK · 28 Nov · A merged build's +NNN lab row opens with no warning only while the board is still on the…\n  ! F030-3 · ASK · 28 Nov · Game Laws 2.1 (mounted units only at 9v9 and 13v13) is in the squad check too. Under any…\n  ! F030-2 · ASK · 28 Nov · With two bot sides there is no Lineup screen to visit. Built: the New game footer reads…\n  ! F030-1 · ASK · 28 Nov · The brief says \"no flagkeeper picker\". Rule sets v3 and later have none. But the old…\n  ! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n  +19 older in FLAGS.md\n\nBUILDS\n  Building\n    030 Game start · PR #76 · Draft · checks fail · not reviewed\n    032 Version follow ups · PR #78 · Draft · checks running · not reviewed\n  Ready to start\n    012 Cavalry\n  Waiting\n    none\n  Merged (last 3)\n    031 Version at merge · v3.20.01 · 28 Nov\n    029 Rematch · v3.20.00 · 27 Nov\n    028 Arrow storm · v3.19.00 · 27 Nov\n\nCHATS\n  Open\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov stale?\n    FF Roadmap v3.19.00 - · roadmap for the run-up to Cavalry (012) and the stretch after it · opened 27 Nov\n    FF UI v3.19.00 - Attack UI · attack UI design (every attack, foot specials and Cavalry) and its brief · opened 27 Nov\n  Closed (last 5)\n    FF Docs v3.18.00 - v3.19.00 · closed 27 Nov · brief 031 pushed (version at merge, answers F029-2); 028 merged during the…\n    FF Rules v3.14.01 - v3.19.00 · closed 27 Nov · Arrow Storm x1.5 and minimum damage 0.5 locked, brief 028 written (merged…\n    FF Main v3.14.00 - v3.14.01 · closed 27 Nov · overnight results reviewed; Brain 8 default ruled; LAB_TOKEN added; briefs 012…\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -11,7 +11,7 @@
      "mark": null
     },
     {
-     "text": "Building: 030 → YY · would be v3.21.00 if merged next",
+     "text": "Building: 030 → YY · would be v3.21.00 if merged next; 032 → ZZ · would be v3.20.02 if merged next",
      "indent": 1,
      "mark": null
     }
@@ -26,7 +26,7 @@
      "mark": null
     },
     {
-     "text": "Queue: 6 jobs waiting, oldest 0 min · lab using 6 of 20",
+     "text": "Queue: clear · lab using 4 of 20",
      "indent": 1,
      "mark": null
     },
@@ -65,6 +65,11 @@
   {
    "title": "FLAGS (open, newest first)",
    "lines": [
+    {
+     "text": "! F032-1 · ASK · 28 Nov · A merged build's +NNN lab row opens with no warning only while the board is still on the…",
+     "indent": 1,
+     "mark": "ask"
+    },
     {
      "text": "! F030-3 · ASK · 28 Nov · Game Laws 2.1 (mounted units only at 9v9 and 13v13) is in the squad check too. Under any…",
      "indent": 1,
@@ -121,12 +126,7 @@
      "mark": null
     },
     {
-     "text": "  F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "+18 older in FLAGS.md",
+     "text": "+19 older in FLAGS.md",
      "indent": 1,
      "mark": null
     }
@@ -146,17 +146,17 @@
      "mark": null
     },
     {
+     "text": "032 Version follow ups · PR #78 · Draft · checks running · not reviewed",
+     "indent": 2,
+     "mark": null
+    },
+    {
      "text": "Ready to start",
      "indent": 1,
      "mark": null
     },
     {
      "text": "012 Cavalry",
-     "indent": 2,
-     "mark": null
-    },
-    {
-     "text": "032 Version follow ups",
      "indent": 2,
      "mark": null
     },
@@ -263,7 +263,7 @@
   }
  },
  "schema": 2,
- "updatedText": "28 Nov 2026, 6:21 am ET",
+ "updatedText": "28 Nov 2026, 6:30 am ET",
  "main": {
   "game": "v3.20.01",
   "build": 26,
@@ -272,11 +272,11 @@
   "broken": null
  },
  "queue": {
-  "text": "Queue: 6 jobs waiting, oldest 0 min · lab using 6 of 20",
+  "text": "Queue: clear · lab using 4 of 20",
   "mark": null,
-  "jobsWaiting": 6,
+  "jobsWaiting": 0,
   "oldestWaitMin": 0,
-  "labUsing": 6
+  "labUsing": 4
  },
  "nightly": {
   "state": "cancelled",
@@ -299,19 +299,27 @@
     "waitsOn": null,
     "size": "YY",
     "play": "https://productofdefiance.github.io/Flagfall/pr/76/"
+   },
+   {
+    "brief": "032",
+    "name": "Version follow ups",
+    "pr": 78,
+    "draft": true,
+    "checks": "running",
+    "review": null,
+    "sync": null,
+    "state": "running",
+    "version": null,
+    "next": "v3.20.02",
+    "waitsOn": null,
+    "size": "ZZ",
+    "play": "https://productofdefiance.github.io/Flagfall/pr/78/"
    }
   ],
   "waiting": [
    {
     "brief": "012",
     "name": "Cavalry",
-    "waitsOn": null,
-    "ready": true,
-    "stated": true
-   },
-   {
-    "brief": "032",
-    "name": "Version follow ups",
     "waitsOn": null,
     "ready": true,
     "stated": true
@@ -407,6 +415,14 @@
  "resultsMore": 0,
  "flags": [
   {
+   "name": "F032-1",
+   "status": "ASK",
+   "date": "28 Nov",
+   "issue": "A merged build's +NNN lab row opens with no warning only while the board is still on the version that build got. The next merge that changes board/ moves main on (ZZ at least), and the row warns again, correctly by the brief's rule (it is a different version). Because almost every merge changes…",
+   "issueFull": "A merged build's +NNN lab row opens with no warning only while the board is still on the version that build got. The next merge that changes board/ moves main on (ZZ at least), and the row warns again, correctly by the brief's rule (it is a different version). Because almost every merge changes board/, the no-warning window is usually short: a row from 030 stays quiet only until the next build merges. The brief's hands-on check also can't be done as written today: no +NNN lab rows exist yet (031 only just merged)",
+   "next": "Recommended: keep it as built (the warning is honest; whether old games still play the same is the lab key reminder, L5, which the brief left out). Hands-on check for now: once 032 merges and before anything else does, open the hand-made link in the Report (a row labelled v3.20.01+032): no warning. If quiet rows across later versions are wanted, that needs the game key in the link (a new brief)"
+  },
+  {
    "name": "F030-3",
    "status": "ASK",
    "date": "28 Nov",
@@ -461,14 +477,6 @@
    "issue": "When a new push to a pull request cancels its lab run mid-play (Brief 024's cancel-in-progress), the \"merge and file the results\" step still ran: it filed an empty run (0 games, \"Failed: ... cancelled\") into results/, committed it to the pull request and moved the job order to studies/done/, so the…",
    "issueFull": "When a new push to a pull request cancels its lab run mid-play (Brief 024's cancel-in-progress), the \"merge and file the results\" step still ran: it filed an empty run (0 games, \"Failed: ... cancelled\") into results/, committed it to the pull request and moved the job order to studies/done/, so the next push played nothing. Seen on PR #65 (storm-v310). Brief 028 removed the empty folder and moved the order back to the queue by hand",
    "next": "Recommended: a later lab brief makes the merge step skip filing (and leave the order queued) when every play part was cancelled. Until then, a build with a job order should not push while its lab run is playing"
-  },
-  {
-   "name": "F020-5",
-   "status": "ASK",
-   "date": "23 Nov",
-   "issue": "Missing setting (harder to prove than the \"no effect\" list): late in the game neither side guards its flag. Guards (units other than the holder in or next to their own goal zone) average 0.00 to 0.05 per side-turn in the last 5 turns in every arm and setting (screen, 200 games each), so finished −1…",
-   "issueFull": "Missing setting (harder to prove than the \"no effect\" list): late in the game neither side guards its flag. Guards (units other than the holder in or next to their own goal zone) average 0.00 to 0.05 per side-turn in the last 5 turns in every arm and setting (screen, 200 games each), so finished −1 against −2 and guardBlocks can't show an effect: there is no guarding to keep or give up. Brain 9's guard test position passes (−2 keeps a guard, −1 doesn't), but real games rarely reach that position",
-   "next": "Suggested: a \"home guard\" weight (value of a unit standing in its own goal zone while the enemy can reach it), screened after the confirm"
   }
  ],
  "chats": {
@@ -522,10 +530,10 @@
   "closedLimit": 5
  },
  "tiles": {
-  "building": 1,
-  "flagsAsk": 13,
-  "flagsNewest": "F030-3",
-  "flagsMoreAsk": 5,
+  "building": 2,
+  "flagsAsk": 14,
+  "flagsNewest": "F032-1",
+  "flagsMoreAsk": 6,
   "flagsMoreOpen": 17
  }
 }
