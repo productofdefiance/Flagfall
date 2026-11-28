@@ -44,8 +44,13 @@ function sizeFromBrief(md) {
 }
 /** The numbers in board/version.js's source (null when they are null). */
 function versionNumbers(src) {
-  const get = (k) => { const m = new RegExp(`\\b${k}:\\s*(null|"[^"]*"|\\d+)`).exec(src); return m ? m[1] : undefined; };
-  return { game: get("game"), build: get("build"), date: get("date") };
+  const get = (k) => { const m = new RegExp(`\\b${k}:\\s*(null|"[^"]*"|\\d+|\\{)`).exec(src); return m ? m[1] : undefined; };
+  return { game: get("game"), build: get("build"), date: get("date"), briefs: get("briefs") };
+}
+/** The one-line answer to a deleted releases file (Brief 032, L2). "031" → releases/031-2.json, "031-2" → 031-3. */
+function revertLine(id) {
+  const m = /^(\d{3})(?:-(\d+))?$/.exec(id), next = `${m[1]}-${m[2] ? Number(m[2]) + 1 : 2}`;
+  return `A revert keeps releases/${id}.json and adds its own (releases/${next}.json, bump ZZ or larger).`;
 }
 
 /** The verdict, from plain facts (so the test can try every case without git).
@@ -61,8 +66,13 @@ function judge(f) {
   const resultsPr = String(f.headRef || "").startsWith("lab/");
 
   // Every pull request and push: releases files are append-only, and version.js holds no number.
-  for (const c of rel) if (c.status !== "A") fail(`${c.file} was ${c.status === "D" ? "deleted" : "edited"}. Files in releases/ are append-only: a version once given is never taken back (a revert keeps the file and adds its own).`);
+  for (const c of rel) if (c.status !== "A") {
+    const id = SV.briefOfFile(c.file);
+    if (c.status === "D" && id) fail(revertLine(id));   // Brief 032, L2: GitHub's Revert button deletes the file
+    else fail(`${c.file} was ${c.status === "D" ? "deleted" : "edited"}. Files in releases/ are append-only: a version once given is never taken back.${id ? " " + revertLine(id) : ""}`);
+  }
   const vn = versionNumbers(f.versionSrc || "");
+  if (vn.briefs !== undefined && vn.briefs !== "null") fail("board/version.js has a briefs map in it. It must stay null: the stamp writes it when published.");
   for (const k of ["game", "build", "date"]) if (vn[k] !== "null") fail(`board/version.js has ${k}: ${vn[k] === undefined ? "(missing)" : vn[k]}. It must stay null: the number is stamped when published, never written by hand.`);
   if (f.push) { if (!lines.length) note("OK: releases/ append-only and board/version.js holds no number."); return done(); }
 
@@ -75,7 +85,10 @@ function judge(f) {
     else note("releases/BASE.json: its commit is on main and its version there matches.");
   }
   const titled = briefFromTitle(f.title);
-  if (added.length > 1) fail(`it adds ${added.length} releases files (${added.map((c) => c.file).join(", ")}); a pull request adds exactly one, for its own brief. (A build started on top of another unmerged build carries both: start it from main or the brief branch instead.)`);
+  if (added.length > 1) {   // Brief 032, L6: say why
+    const ids = added.map((c) => SV.briefOfFile(c.file) || c.file), other = ids.filter((x) => x !== titled);
+    fail(`${added.length === 2 ? "Two" : added.length} releases files: this branch contains brief ${other.join(" and ")}'s unmerged work. Branch from main or the brief branch, never from another open pull request.`);
+  }
   if (!added.length) {
     if (resultsPr || exemptOnly(files)) note("Only results/, studies/, briefs/, flags/ or .md files changed: no releases file needed.");
     else fail(`no releases file was added. Every pull request that changes more than results, job orders, briefs, flags or .md files adds releases/${titled || "NNN"}.json (bump none for tooling) and changelog/${titled || "NNN"}.md.`);
@@ -107,7 +120,7 @@ function judge(f) {
   return done();
 }
 
-module.exports = { judge, briefFromTitle, sizeFromBrief, versionNumbers, exemptOnly };
+module.exports = { revertLine, judge, briefFromTitle, sizeFromBrief, versionNumbers, exemptOnly };
 
 if (require.main === module) {
   const args = process.argv.slice(2), opt = {};

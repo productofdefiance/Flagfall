@@ -374,8 +374,9 @@
   async function startWatch(spec, fast) {
     const why = WT.problem(spec, V.game);
     if (why) { await dialog(`<h2>Can't play this game here</h2><p class="note">${esc(why)} This board would play a different game, so it won't start one. Open the board of the version it was simulated on (${esc(spec.v || "unknown")}).</p><button class="btn primary" data-dlg="ok">OK</button>`); return; }
-    if (spec.v && V.game && spec.v !== V.game) {
-      const go = await confirmBox("A different version", `This game was simulated on ${spec.v}; this board is ${V.game}. If a brain or rule changed in between, it will play differently from the simulation.`, "Watch anyway");
+    if (window.GGVersion && window.GGVersion.differs(spec.v, V)) {   // a build's own "+NNN" label counts as the version that brief got once merged (Brief 032)
+      const became = window.GGVersion.resolve(spec.v, V), was = became !== spec.v ? `${spec.v} (merged as ${became})` : spec.v;
+      const go = await confirmBox("A different version", `This game was simulated on ${was}; this board is ${V.game}. If a brain or rule changed in between, it will play differently from the simulation.`, "Watch anyway");
       if (!go) return;
     }
     App.match = WT.setupMatch(spec, { id: "w" + Date.now().toString(36), started: new Date().toISOString(), game: V.game || null, build: V.build });

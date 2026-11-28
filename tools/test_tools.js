@@ -50,6 +50,18 @@ ok(judge(fu).ok, "F031-1: a follow-up releases/025-2.json (its own bump, not com
 ok(!judge(Object.assign({}, fu, { mergedOnMain: () => false })).ok, "F031-1: a follow-up to a brief that hasn't merged fails");
 ok(!judge(Object.assign({}, fu, { title: "025 UI · Strength fix (ZZ)" })).ok, "F031-1: a follow-up's title must read 025-2");
 ok(judge({ push: true, changes: [{ status: "A", file: "releases/040.json" }] }).ok && !judge({ push: true, versionSrc: 'game: "v1.00.00", build: 1, date: null' }).ok, "a push to main checks only append-only and the null version.js");
+// Brief 032: reverts (L2) and stacked branches (L6) say why and what to do, in one line
+{
+  const rv = judge({ title: "031-2 Lab · Revert (ZZ)", changes: [{ status: "M", file: "tools/x.js" }, { status: "D", file: "releases/031.json" }, { status: "D", file: "changelog/031.md" }] });
+  ok(!rv.ok && rv.lines.includes("FAIL: A revert keeps releases/031.json and adds its own (releases/031-2.json, bump ZZ or larger)."), "L2: a pretend revert pull request (GitHub's Revert button deletes releases/031.json) fails with the one-line answer", rv.lines.join(" | "));
+  const good = judge({ title: "031-2 Lab · Revert version at merge (ZZ)", changes: [{ status: "M", file: "board/app.js" }, { status: "A", file: "releases/031-2.json" }, { status: "A", file: "changelog/031-2.md" }],
+    releaseText: () => rel({ brief: "031-2", bump: "ZZ" }), briefText: () => null, mergedOnMain: (n) => n === "031", changelogAdded: (n) => n === "031-2" });
+  ok(good.ok, "L2: a pretend revert that keeps releases/031.json and adds releases/031-2.json passes", good.lines.join(" | "));
+  ok(CR.revertLine("031-2") === "A revert keeps releases/031-2.json and adds its own (releases/031-3.json, bump ZZ or larger).", "L2: reverting a follow-up points to the next follow-up number");
+  const two = judge({ changes: plus({ status: "A", file: "releases/039.json" }) });
+  ok(!two.ok && two.lines.includes("FAIL: Two releases files: this branch contains brief 039's unmerged work. Branch from main or the brief branch, never from another open pull request."), "L6: two releases files name the other brief and say what to do", two.lines.join(" | "));
+  ok(!judge({ versionSrc: 'const VERSION = { game: null, build: null, date: null, preview: null, briefs: {"031":"v3.20.01"} };' }).ok && judge({ versionSrc: "const VERSION = { game: null, build: null, date: null, preview: null, briefs: null };" }).ok, "M10: a stamped brief map in board/version.js fails like a number does; null passes");
+}
 ok(CR.briefFromTitle("031 Lab · Version at merge (ZZ)") === "031" && CR.briefFromTitle("025-2 UI · Fix (ZZ)") === "025-2" && CR.briefFromTitle("v3.20.00 · 029 UI · Rematch") === "029" && CR.briefFromTitle("Docs · tidy") === null, "titles: new, follow-up and old shapes");
 
 // ---------- the count: follow-ups ----------
