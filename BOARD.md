@@ -1,12 +1,12 @@
-STATUS · updated 28 Nov 2026, 5:50 am ET
+STATUS · updated 28 Nov 2026, 6:02 am ET
 
 VERSION
   On main: v3.20.01 · Build 26 · Rules v3.10 · Brain 8
-  Building: none
+  Building: 030 → YY · would be v3.21.00 if merged next
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (27 Nov, 1:05 pm ET)
-  Queue: clear · lab using 1 of 20
+  Queue: 1 job waiting, oldest 0 min · lab using 2 of 20
   screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov
   release v3.20.00 · 5v5 21.6% · 7v7 14.1% on the turn limit · 27 Nov
   release v3.20.00 · 5v5 25.9% · 7v7 15.4% on the turn limit · 27 Nov
@@ -14,6 +14,9 @@ RESULTS (last 24 hours)
   nightly v3.20.00 · 5v5 15.0% · 7v7 15.0% on the turn limit · 27 Nov
 
 FLAGS (open, newest first)
+  ! F030-3 · ASK · 28 Nov · Game Laws 2.1 (mounted units only at 9v9 and 13v13) is in the squad check too. Under any…
+  ! F030-2 · ASK · 28 Nov · With two bot sides there is no Lineup screen to visit. Built: the New game footer reads…
+  ! F030-1 · ASK · 28 Nov · The brief says "no flagkeeper picker". Rule sets v3 and later have none. But the old…
   ! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…
   ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…
   ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…
@@ -23,17 +26,13 @@ FLAGS (open, newest first)
   ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…
     F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…
     F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…
-  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…
-    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…
-    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…
-  +15 older in FLAGS.md
+  +18 older in FLAGS.md
 
 BUILDS
   Building
-    none
+    030 Game start · PR #76 · Draft · checks running · not reviewed
   Ready to start
     012 Cavalry
-    030 Game start
     032 Version follow ups
   Waiting
     none
