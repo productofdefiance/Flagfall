@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 /* Checks for the status page (Brief 023), no network: the page's own script is run in a sandbox with a fake fetch,
    a fake clock and a fake local storage. Called from test_board.js; also runs alone: node sims/status/test_page.js */
 "use strict";

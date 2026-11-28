@@ -1,3 +1,4 @@
+// @test job=invariants quick=30 release=100 night=100
 // Impossible-state check on the newest preset (Brief 002, F17). Follows the last entry in PRESETS automatically.
 // Plays seeded bot games and fails on anything redteam/invariants.js looks for: two units on one hex, HP outside
 // its range, a unit off the field or on the enemy flag, negative Stamina or Command, a flag out of range, a refused

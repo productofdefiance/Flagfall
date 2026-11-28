@@ -1,3 +1,4 @@
+// @test job=rules quick=2 release=2 night=no
 // v3.7 checks (Brief 011, Game Laws 6.16 and 6.17): the warm-up and the six foot specials. Every rule the brief lists
 // under "Rules it touches" is a check here, on v3.7, and the new actions are checked as refused on v3.6.
 // Ends with the double-knockout count (F20): seeded v3.7 games, default brain against itself, every action checked.

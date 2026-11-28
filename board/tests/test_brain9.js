@@ -1,3 +1,4 @@
+// @test job=brains quick=2 release=30 night=30
 // Brain 9 checks (Brief 020): with victory values and the spent opening off it plays exactly as Brain 8; the five test
 // positions of the brief's Bot minimum, each printing the model's reasoning; the spent opening; per-format settings; then
 // legal play over seeded games.

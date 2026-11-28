@@ -50,7 +50,9 @@ function outcomes(list) {
 
 function writeRun(order, list) {
   const now = new Date(), started = opt.started ? new Date(opt.started) : now;
-  const version = V.game || (V.build ? `build-${V.build}` : "dev"), kind = order.kind;   // Brief 031: stamped by tools/stamp-version.js
+  // Brief 031 (amendment 7, H5): no unstamped results, no build-<n> fallback.
+  if (!V.game) { console.error("board/version.js is not stamped: run tools/stamp-version.js first. Results are never filed without a version."); process.exit(1); }
+  const version = V.game, kind = order.kind;
   const base = `${nyDate(started)}_${kind}_${order.id}`;
   const vdir = path.join(results, version);
   fs.mkdirSync(vdir, { recursive: true });

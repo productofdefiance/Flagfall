@@ -1,3 +1,4 @@
+// @test job=rules quick=4 release=4 night=no
 // v3.6 checks (Brief 015, the flag rulings of 19 Nov, F8): a flag blocks the line (4.9), pulls at full Strength (4.6),
 // a pull counts for Reload (3.11), set spear punishes arriving (3.13); a Ranged unit that kills from next door stays put
 // (3.6, test only). Each changed rule is also checked as unchanged on v3.5. Ends with a double-knockout count on v3.6.

@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // v3.1 checks: the red team defects E1–E4 stay fixed, plus a North–South mirror test.
 // node tests/test_v31.js
 const E = require("../engine.js"); const { PRESETS } = require("../data.js");

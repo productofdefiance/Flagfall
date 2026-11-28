@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Lab self-test (Brief 008): a job order with an unknown kind, an unknown measure and an extra field plays without
 // errors and makes a complete run folder (SUMMARY.md, run.json, games.csv with the core columns, tables/, INDEX line).
 // node sims/lab/self_test.js

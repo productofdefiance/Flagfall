@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // v3.3 checks (Brief 004): Evade for Light units; tackle costs the leaving unit's hex cost and a hex of its cap.
 // Each new rule is also run on v3.2, where it must show the old behaviour (fails before, passes after).
 // node tests/test_v33.js

@@ -1,3 +1,4 @@
+// @test job=board quick=yes release=yes night=no browser
 // Brief 026 checks (Approved UI v6, the specials flow) in a headless browser at 393 × 665, and the desktop at 1280 × 800.
 // The Special button's five looks; one-tap warm-up and its Undo; the special row (big special, Warm up, Cancel) and its
 // second lines; "Tap a target"; the reason pills and their wording table; the gold special sheet for every special

@@ -1,3 +1,4 @@
+// @test job=rules quick=6 release=6 night=no
 // v3.5 checks (Brief 010, Game Laws 6.13): a little variety in normal rolls. Two dice totalling 4–5 take 10% off,
 // 9–10 add 10%; 2, 3, 6–8, 11 and 12 as v3.4. Average multiplier unchanged. Older presets roll exactly as before.
 // node tests/test_v35.js [botGames]

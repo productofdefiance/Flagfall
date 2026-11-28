@@ -78,13 +78,13 @@ function nameKey(name) {
 }
 /** The brief number a pull request title names: "v3.10.00 · 011 Rules · …", "019 Bot · … (YY)", "Brief 006: …". */
 function briefFromTitle(title) {
-  const m = /(?:^|·\s*|\bBrief\s+)(\d{3})(?=[\s:·]|$)/i.exec(String(title || ""));
+  const m = /(?:^|·\s*|\bBrief\s+)(\d{3}(?:-\d+)?)(?=[\s:·]|$)/i.exec(String(title || ""));   // NNN-2: a follow-up (Brief 031, A4)
   return m ? m[1] : null;
 }
 /** The short name after "NNN Lane · " in a title, without a trailing "(YY)". */
 function nameFromTitle(title) {
   const t = String(title || "");
-  const m = /\d{3}\s+\w+\s+·\s+(.+)$/.exec(t) || /Brief\s+\d{3}[^:]*:\s*(.+)$/i.exec(t);
+  const m = /\d{3}(?:-\d+)?\s+\w+\s+·\s+(.+)$/.exec(t) || /Brief\s+\d{3}[^:]*:\s*(.+)$/i.exec(t);
   return m ? m[1].replace(/\s*\((X|YY|ZZ|none)\)\s*$/i, "").trim() : t;
 }
 /** "victory-values" → "Victory values". */
@@ -235,7 +235,8 @@ function buildBoard(facts, opts) {
   const prs = (facts.prs || []).filter((p) => p.brief);
   const open = prs.filter((p) => p.state === "open").sort((a, b) => a.brief.localeCompare(b.brief) || a.number - b.number);
   const merged = prs.filter((p) => p.state === "merged").sort((a, b) => String(b.mergedAt).localeCompare(String(a.mergedAt)));
-  const mergedSet = new Set(merged.map((p) => p.brief));
+  // Merged: a merged pull request, or main's releases/ (and BASE.json's list of old-way briefs: Brief 031, B1).
+  const mergedSet = new Set(merged.map((p) => p.brief).concat(facts.mergedBriefs || []));
   const openSet = new Set(open.map((p) => p.brief));
   const briefName = (num, pr) => {
     const b = briefs.get(num);
@@ -251,8 +252,10 @@ function buildBoard(facts, opts) {
     const z = sizeOf(p), next = nextOf(p);
     return [`${p.brief} → ${z || "?"}`, z === "none" ? "no version" : next ? `would be ${next} if merged next` : null, p.waits && p.waits.length ? `waits on ${p.waits.join(", ")}` : null].filter(Boolean).join(" · ");
   });
+  const broken = facts.mainBroken ? [line(`! main broken since ${facts.mainBroken.since}`, 1, "ask")] : [];
   sections.push({ title: "VERSION", lines: [
     line(`On main: ${[m.game, m.build ? `Build ${m.build}` : null, m.rules ? `Rules ${m.rules}` : null, m.brain || null].filter(Boolean).join(" · ")}`),
+    ...broken,
     line(`Building: ${building.length ? building.join("; ") : "none"}`)
   ] });
 
@@ -349,7 +352,7 @@ function buildBoard(facts, opts) {
   const view = {
     schema: 2,
     updatedText: etTime(now),
-    main: { game: m.game || null, build: m.build || null, rules: m.rules || null, brain: m.brain || null },
+    main: { game: m.game || null, build: m.build || null, rules: m.rules || null, brain: m.brain || null, broken: facts.mainBroken ? facts.mainBroken.since : null },
     queue: queue ? { text: queue.text, mark: queue.mark, jobsWaiting: facts.queue ? facts.queue.jobsWaiting : null, oldestWaitMin: facts.queue ? facts.queue.oldestWaitMin : null, labUsing: facts.queue ? facts.queue.labUsing : null } : null,
     nightly: facts.nightly ? { state: facts.nightly.conclusion, time: facts.nightly.time, timeText: etTime(facts.nightly.time).replace(/^(\d+ \w+) \d{4},/, "$1,") } : null,
     builds: {
@@ -537,11 +540,7 @@ function gather(opts) {
         const hv = show(head, "board/version.js") || "";
         rec.game = (/game:\s*"([^"]+)"/.exec(hv) || [])[1] || null;
         const bf = ls(head, "briefs").find((f) => path.basename(f).startsWith(`${brief}-`));
-        // waits-on (Brief 031): the same verdict as the required check.
-        if (mergedOnMain.size) {
-          const v = WO.verdict({ title: p.title, headRef: p.head.ref, briefText: bf ? show(head, bf) : null, merged: (n) => mergedOnMain.has(n) });
-          rec.waits = v.state === "failure" && v.waits ? v.waits : null;
-        }
+        // waits-on (Brief 031): the same verdict as the required check, worked out below for every open pull request.
         rec.size = (briefs.find((b) => b.num === brief) || {}).size || (bf ? parseBrief(show(head, bf)).size : null);
         // Checks: the required `checks` job on the head commit.
         try {
@@ -623,8 +622,34 @@ function gather(opts) {
     }
   }
 
+  // waits-on (Brief 031, amendment 8): the same script and the same copy-of-the-brief rule as the required check.
+  try {
+    const briefRefMap = {};
+    for (const b of briefs) briefRefMap[b.num] = `${NS}/brief/${b.slug}`;
+    const open = openPrs.map((p) => ({ number: p.number, title: p.title, head: `${NS}/pr/${p.number}`, headRef: p.head.ref }));
+    const verdicts = WO.evaluate(repoDir, MAIN, open, briefRefMap);
+    for (const rec of prs) { const v = verdicts.get(rec.number); if (v && v.state === "failure") { rec.waits = v.waits && v.waits.length ? v.waits : null; rec.waitsWhy = v.description; } }
+  } catch (e) { /* left blank, never guessed */ }
+
+  // main broken (amendment 11, M6): the newest finished checks run on main failed. "since" is the brief whose merge
+  // started the run of failures (its releases file), else the commit.
+  let mainBroken = null;
+  try {
+    const runs = (api("actions/workflows/checks.yml/runs?branch=main&event=push&per_page=30").workflow_runs || []).filter((r) => r.status === "completed");
+    if (runs.length && runs[0].conclusion === "failure") {
+      let first = runs[0];
+      for (const r of runs) { if (r.conclusion !== "failure") break; first = r; }
+      let since = first.head_sha.slice(0, 7);
+      try {
+        const added = git("diff-tree", "--no-commit-id", "--name-only", "--diff-filter=A", "-r", "-m", "--first-parent", first.head_sha, "--", "releases/").split("\n").map(SV.briefOfFile).filter(Boolean);
+        if (added.length) since = added[0];
+      } catch (e) { /* the commit, then */ }
+      mainBroken = { since, run: first.html_url };
+    }
+  } catch (e) { mainBroken = null; }
+
   for (const p of prs) delete p.base;
-  return { facts: { now: (opts.now || new Date()).toISOString(), main, nightly, queue, results, flags, briefs, prs, chats }, cache, old };
+  return { facts: { now: (opts.now || new Date()).toISOString(), main, mainBroken, mergedBriefs: [...mergedOnMain].sort(), nightly, queue, results, flags, briefs, prs, chats }, cache, old };
 }
 
 /** Write a file through a temp file and a rename, so a failed run never leaves half a file. */

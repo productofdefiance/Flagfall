@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // The simulators' shared generator (tests/rng.js) must not loop and must roll fair dice; the active
 // simulators must use it. node tests/test_rng.js
 const fs = require("fs"), path = require("path");

@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Watch checks (Brief 008): watch links, the board's lineups and seeded matches. node tests/test_watch.js
 // The browser half (10 simulated games and the same games opened on the board, identical moves) is
 // sims/lab/board_check.js; it needs Playwright, so it runs in its own job.

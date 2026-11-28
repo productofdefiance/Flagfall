@@ -1,3 +1,4 @@
+// @test job=rules quick=2 release=2 night=no
 // Field checks (Brief 014, Game Laws 2.1, 2.4, 2.5): one field per format, rule set v3.8 (switch `fields`).
 // The fields match briefs/014-fields.json; deploy areas, gaps, goal zones and symmetry; the legacy field is the old
 // oval; hex positions are worked out from the middle column (parity flips on 7 and 11 columns); the turn-1 design

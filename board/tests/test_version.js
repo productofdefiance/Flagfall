@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Version checks (Brief 007, rewritten for Brief 031): the counted version, the stamp, the board's version line and
 // saved matches. The number is never typed in here: it comes from tools/stamp-version.js (on a fixture history, and on
 // this repository when its history is present).
@@ -78,6 +79,9 @@ const stamped = require(path.join(tmp, "board", "version.js"));
 ok(stamped.game === "v4.01.00+047" && stamped.build === null && stamped.line("v3.10") === "Playtest board · v4.01.00+047 · Rules v3.10", `the stamp writes the label into version.js: "${stamped.line("v3.10")}"`);
 ok(g("status", "--porcelain").includes("board/version.js") && g("log", "-1", "--format=%s") === "047", "the stamp never commits");
 // A brief that edits an old releases file is refused by the count's reader only through the check; a bad file stops the count
+// F031-1 (A4): a follow-up to a merged brief adds releases/045-2.json with its own bump, counted once
+g("checkout", "-q", "main"); brief("045-2", "ZZ", ["board/ui.js"])(); c = at();
+ok(c.game === "v4.01.01" && c.build === 33 && c.history.filter((h) => h.brief === "045-2").length === 1, `a follow-up (045-2, ZZ) counts its own bump once: ${c.game} · Build ${c.build}`);
 g("checkout", "-q", "main"); write("releases/048.json", "{\"brief\":\"048\",\"bump\":\"huge\"}"); g("add", "-A"); g("commit", "-qm", "bad");
 threw = false; try { at(); } catch (e) { threw = /bump/.test(e.message); } ok(threw, "a releases file with a bad bump stops the count with its reason");
 fs.rmSync(tmp, { recursive: true, force: true });

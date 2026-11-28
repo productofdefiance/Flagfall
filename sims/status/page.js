@@ -86,7 +86,8 @@
 
   function renderTiles(d) {
     var m = d.main || {}, out = [];
-    out.push(tile("On main", m.game || "?", [m.build ? "Build " + m.build : null, m.rules ? "Rules " + m.rules : null, m.brain || null].filter(Boolean).join(" · ")));
+    out.push(tile("On main", m.game || "?", [m.build ? "Build " + m.build : null, m.rules ? "Rules " + m.rules : null, m.brain || null].filter(Boolean).join(" · "),
+      m.broken ? [pill("broken", "main broken since " + m.broken)] : []));   // Brief 031 (M6)
     var bl = (d.builds && d.builds.building) || [];
     var names = bl.map(function (b) { return b.brief + " " + b.name + (b.version ? " · will be " + b.version : b.next ? " · would be " + b.next : ""); }).join(", ");
     out.push(tile("Building", String(bl.length), bl.length ? names : "Nothing building", stateCounts(bl).map(function (s) {

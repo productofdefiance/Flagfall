@@ -1,10 +1,10 @@
-# waits-on (Brief 031): a pull request can't merge while a brief it waits on hasn't merged.
-# It reads the `Waits on` row of the pull request's brief (tools/waits-on.js) and sets a commit status named `waits-on`
-# on the pull request's newest commit: "Waits on 028: not merged yet", "Waits on not stated in the brief", or green.
-# Every push to main sets it again for every open pull request, so it turns green by itself within a few minutes of
-# the last brief it waits on merging, with no push to the waiting pull request.
-# To make it block merging, the Editor ticks it once: Settings → Rules → the rule for main → Require status checks to
-# pass → Add checks → `waits-on`. Docs and results pull requests (no brief in the title, or lab/**) pass.
+# waits-on (Brief 031, amendments 8 and 10): a pull request can't merge while a brief it waits on hasn't merged, or
+# has merged but isn't in the branch yet ("028 merged: sync once to test on it").
+# One script (tools/waits-on.js) reads main live and posts the commit status `waits-on` on every open pull request,
+# results (lab/*) and docs pull requests included (they pass): on pull request events, on every push to main and
+# hourly, so no pull request is ever left without it.
+# To make it block merging, the Editor ticks it once, only after every open pull request shows it: Settings → Rules →
+# Rulesets → the rule for main → Require status checks to pass → Add checks → `waits-on` → Save changes.
 name: waits-on
 
 on:
@@ -12,6 +12,8 @@ on:
     types: [opened, synchronize, reopened, edited, ready_for_review]
   push:
     branches: [main]
+  schedule:
+    - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -20,48 +22,31 @@ permissions:
   pull-requests: read
 
 concurrency:
-  group: waits-on-${{ github.event.pull_request.number || 'main' }}
-  cancel-in-progress: true
+  group: waits-on
+  cancel-in-progress: false
 
 jobs:
   set:
-    # Not named `waits-on`: the required check is the commit status this job sets, which can be set again from main.
+    # Not named `waits-on`: the required check is the commit status this job sets on every open pull request.
     name: set the waits-on status
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: main   # main's script reads main live, whatever started the run
           fetch-depth: 0
           filter: blob:none
+      # Only before Brief 031 is on main: take the script from the pull request that adds it.
+      - name: Script not on main yet (Brief 031's own pull request)
+        if: hashFiles('tools/waits-on.js') == '' && github.event_name == 'pull_request'
+        run: |
+          git fetch -q --filter=blob:none origin "${{ github.event.pull_request.head.sha }}"
+          git checkout -q "${{ github.event.pull_request.head.sha }}" -- tools
       - uses: actions/setup-node@v5
         with:
           node-version: 20
-      - name: Set waits-on
+      - name: Set waits-on on every open pull request
         env:
           GH_TOKEN: ${{ github.token }}
-          EV: ${{ github.event_name }}
-          PR: ${{ github.event.pull_request.number }}
-          TITLE: ${{ github.event.pull_request.title }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          HEAD_REF: ${{ github.event.pull_request.head.ref }}
-          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          git fetch -q --filter=blob:none origin main:refs/remotes/origin/main 2>/dev/null || true
-          one() {  # number, title, head sha, head ref
-            git fetch -q --filter=blob:none origin "pull/$1/head" 2>/dev/null || true
-            out=$(node tools/waits-on.js --title "$2" --head "$3" --head-ref "$4" --main origin/main)
-            echo "#$1 $(echo "$out" | head -1)"
-            state=$(echo "$out" | tail -1 | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).state')
-            desc=$(echo "$out" | tail -1 | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).description.slice(0,138)')
-            gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$3" -f state="$state" -f context=waits-on -f description="$desc" -f target_url="$RUN" > /dev/null
-            echo "| #$1 | $state | $desc |" >> "$GITHUB_STEP_SUMMARY"
-          }
-          { echo "## waits-on"; echo; echo "| Pull request | State | Why |"; echo "| --- | --- | --- |"; } >> "$GITHUB_STEP_SUMMARY"
-          if [ "$EV" = "pull_request" ]; then
-            one "$PR" "$TITLE" "$HEAD_SHA" "$HEAD_REF"
-          else
-            gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 100 --json number,title,headRefOid,headRefName \
-              --jq '.[] | [.number, .headRefOid, .headRefName, .title] | @tsv' > open.tsv
-            while IFS=$'\t' read -r n sha ref title; do [ -n "$n" ] && one "$n" "$title" "$sha" "$ref" < /dev/null; done < open.tsv
-          fi
+        run: node tools/waits-on.js --all | tee -a "$GITHUB_STEP_SUMMARY"

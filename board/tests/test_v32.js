@@ -1,3 +1,4 @@
+// @test job=slow quick=40 release=400 night=400
 // v3.2 checks (Brief 002): dead units don't parry; parry once per enemy turn; a double knockout goes to the tiebreaks.
 // Each new rule is checked against v3.1 too: the v3.2 check fails on v3.1 and passes on v3.2.
 // Then the double-knockout count: seeded Kit B vs Kit B games on v3.2 (balanced lineups), expected 0.

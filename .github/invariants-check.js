@@ -1,3 +1,4 @@
+// @test job=invariants quick=30 release=30 night=no
 // Wrapper for redteam/invariants.js (Brief 001). That script prints its findings but always exits 0,
 // so this runs it, prints its output unchanged, and fails if it reports an impossible state or a bot error.
 // node .github/invariants-check.js [games]

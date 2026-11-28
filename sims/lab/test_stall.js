@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Brief 016 checks: the stall measure on hand-built games, merge.js totals from two parts equal one, record.js replays a
 // seeded bot game to the lab's row, and the results index rebuild (F35): byte for byte on today's results/, and two
 // results branches merged in either order end with both runs listed and no conflict left.
@@ -103,7 +104,7 @@ for (const [dir, parts] of [["one", 1], ["two", 2]]) {
   for (let p = 0; p < parts; p++) node([path.join(__dirname, "play.js"), "--part", String(p), "--parts", String(parts), "--out", path.join(tmp, dir, "parts", `p${p}.jsonl`), of]);
   node([path.join(__dirname, "merge.js"), "--results", path.join(tmp, dir, "results"), "--parts", path.join(tmp, dir, "parts"), of]);
 }
-const runDir = (dir) => { const v = path.join(tmp, dir, "results", V.game || (V.build ? `build-${V.build}` : "dev")); return path.join(v, fs.readdirSync(v)[0]); };
+const runDir = (dir) => { const v = path.join(tmp, dir, "results", V.game); return path.join(v, fs.readdirSync(v)[0]); };
 const stallOne = fs.readFileSync(path.join(runDir("one"), "tables", "stall.csv"), "utf8"), stallTwo = fs.readFileSync(path.join(runDir("two"), "tables", "stall.csv"), "utf8");
 ok(stallOne === stallTwo && /first_attack_turn_avg/.test(stallOne), "stall.csv from two parts equals the one from one part, with totals and averages");
 ok(/\*\*Stalls\*\*/.test(fs.readFileSync(path.join(runDir("one"), "SUMMARY.md"), "utf8")), "SUMMARY.md has the stall lines");

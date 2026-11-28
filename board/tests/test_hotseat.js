@@ -1,3 +1,4 @@
+// @test job=board quick=yes release=yes night=no browser
 // Turn cue, hot-seat views, field zoom and the match log (Brief 018, Approved UI v4), in a headless browser at 393 × 665.
 // - the hot-seat view never reaches the engine: one seeded human-vs-human action list replays to the same state in all
 //   three views;

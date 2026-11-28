@@ -1,3 +1,4 @@
+// @test job=board quick=yes release=yes night=no browser
 // Rematch, a clean New game after the end, and Reset on the Lineup screen (Brief 029, Approved UI v7), in a headless
 // browser at 393 × 665.
 // - the bug: a match continued after a reload, then finished: New game asks nothing, Matches keeps the result (not

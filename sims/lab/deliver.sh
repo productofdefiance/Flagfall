@@ -13,6 +13,9 @@ mode="$1"; title="$2"; target="${3:-}"
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 git add -A results studies
+# Brief 031 (amendment 3, H1): a build's branch never carries the results index; main's is rebuilt by the next results
+# pull request (merge.js and index.js --rebuild), so two builds with lab results can't collide in it.
+if [ "$mode" = "branch" ]; then git reset -q -- results/INDEX.md results/index.csv 2>/dev/null || true; git checkout -q -- results/INDEX.md results/index.csv 2>/dev/null || true; fi
 if git diff --cached --quiet; then echo "Nothing new in results/ or studies/: nothing to deliver."; exit 0; fi
 bad=$(git diff --cached --name-only | grep -v -E '^(results|studies)/' || true)
 if [ -n "$bad" ]; then echo "Refusing to deliver: these changes are outside results/ and studies/:"; echo "$bad"; exit 1; fi

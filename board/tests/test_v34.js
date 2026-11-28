@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // v3.4 checks (Brief 005): a turn limit per format (5v5 25, 7v7 35). Older presets keep 25 for every format.
 // node tests/test_v34.js
 const E = require("../engine.js"); const { PRESETS, DEFAULT_RULESET } = require("../data.js");

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @test job=rules quick=yes release=yes night=no
 /* Checks for the status board (Brief 021) and its page (Brief 023, test_page.js), on fixture data, no network. Run: node sims/status/test_board.js */
 "use strict";
 const B = require("./board.js");
@@ -213,6 +214,14 @@ const pageChecks = require("./test_page.js").run(check, B, b23, j23);
 const b31 = B.buildBoard(Object.assign({}, facts, { prs: [{ number: 70, title: "031 Lab · Version at merge (ZZ)", state: "merged", mergedAt: "2026-11-28T07:22:24Z", brief: "031", version: "v3.20.01" }] }));
 check("Merged shows the counted version", b31.sections.find((x) => x.title === "BUILDS").lines.some((l) => l.text === "031 Version at merge · v3.20.01 · 28 Nov"), b31.text);
 check("size none reads no version", B.buildBoard(Object.assign({}, facts, { prs: [{ number: 71, title: "032 Lab · Tooling (none)", state: "open", brief: "032", size: "none", checks: "pass" }] })).sections[0].lines[1].text === "Building: 032 → none · no version");
+
+// Brief 031 amendments: main broken (M6), a follow-up's title (A4), old-way briefs count as merged (B1).
+const bBroken = B.buildBoard(Object.assign({}, facts, { mainBroken: { since: "040" } }));
+check("main broken since <brief> shows under VERSION", bBroken.sections[0].lines.some((l) => l.text === "! main broken since 040"), bBroken.sections[0].lines.map((l) => l.text).join(" | "));
+check("and on the page's On main tile", B.renderHtml(bBroken, B.boardJson(bBroken, {})).includes("main broken since 040"));
+check("a follow-up's title reads NNN-2", B.briefFromTitle("025-2 UI · Strength fix (ZZ)") === "025-2" && B.nameFromTitle("025-2 UI · Strength fix (ZZ)") === "Strength fix");
+const bOld = B.buildBoard(Object.assign({}, facts, { mergedBriefs: ["019"] }));
+check("a brief merged the old way (BASE.json) counts as merged for Waiting", !bOld.sections.find((x) => x.title === "BUILDS").lines.some((l) => /020 Victory values ← .*019/.test(l.text)), bOld.text);
 
 pageChecks.catch((e) => check("page checks ran", false, e && e.stack)).then(() => {
   console.log(fails ? `\n${fails} check(s) failed.` : "\nAll status board checks passed.");

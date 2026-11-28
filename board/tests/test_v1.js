@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Unit checks for the v1 rules: dice, half points, room Dodge, Support per helper, parry %, pulls.
 const E = require("../engine.js"); const { PRESETS } = require("../data.js");
 const rs = PRESETS[0]; let fails = 0, n = 0;

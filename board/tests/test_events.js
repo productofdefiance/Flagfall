@@ -1,3 +1,4 @@
+// @test job=rules quick=2 release=2 night=no
 // The match log's facts (Brief 018 §10.8): st.events is display only.
 // - one entry per log line, in order, and each action's own entry carries its unit (and targets for attacks/specials);
 // - replaying a match's actions rebuilds exactly the same st.events;

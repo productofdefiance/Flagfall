@@ -1,14 +1,11 @@
 // The lab's planner (Brief 008): which job orders to play and how to split them over machines.
-// node sims/lab/plan.js [--orders "<paths>"] [--release-base <commit>] [--release <earlier version.js file>] [--out <folder>]
-// Writes GitHub outputs (orders, parts, matrix, has_work, release, same, why) to $GITHUB_OUTPUT when set, and prints them.
+// node sims/lab/plan.js [--orders "<paths>"] [--release 1 --release-key <key> --release-why <text>] [--out <folder>]
+// Writes GitHub outputs (orders, parts, matrix, has_work, release, why) to $GITHUB_OUTPUT when set, and prints them.
 // - orders: the given paths, or every *.json in studies/queue/ (sorted).
-// - release (Brief 031): a release order (the baseline table at 1,000 games per format, newest rule set, the default
-//   brain against itself) is generated when the board changed since --release-base in a way that can change a game:
-//   a game file changed (release_files.js), or a board file that is neither a game nor a screen file changed and the
-//   replay hashes differ. A screen-only change gets no release; on main its new version gets a "same games as" line
-//   instead (`same=true`, sims/lab/same.js).
-// - --release <file> (night checks' health run): generated whenever the stamped version differs from that file's.
-// The version comes from board/version.js as stamped (tools/stamp-version.js).
+// - release (Brief 031): with --release, a release order (the baseline table at 1,000 games per format, newest rule
+//   set, the default brain from brain.js against itself) for the board as checked out. Whether one is needed is
+//   decided before, by sims/lab/release_files.js (the game key); night checks' health run passes --release too.
+// The version comes from board/version.js as stamped (tools/stamp-version.js); an unstamped board stops the run.
 "use strict";
 const fs = require("fs"), path = require("path");
 const args = process.argv.slice(2), opt = {};
@@ -25,32 +22,25 @@ if (!orders.length && !opt["release-only"]) {
   orders = fs.existsSync(q) ? fs.readdirSync(q).filter((f) => f.endsWith(".json")).sort().map((f) => path.join("studies", "queue", f)) : [];
 }
 
-// A release: the game changed since --release-base (Brief 031), or (night checks) the version differs from a file's.
-let release = "", same = false, why = "";
-let wantRelease = false, before = null;
-if (opt["release-base"]) {
-  const RF = require("./release_files.js");
-  const d = RF.decide(root, opt["release-base"], "HEAD");
-  wantRelease = d.release; why = d.why;
-  before = d.beforeVersion;
-  // On main, a new version with no release run points to the last version that had one.
-  same = !d.release && !!opt.main && !!V.game && d.beforeVersion !== null && d.beforeVersion !== V.game;
-} else if (opt.release) {
-  try { const src = fs.readFileSync(opt.release, "utf8"); const m = /game:\s*"([^"]+)"/.exec(src); before = m ? m[1] : null; } catch (e) { before = null; }
-  wantRelease = !!V.game && V.game !== before; why = "the version changed";
-}
+// A release (Brief 031): the lab's plan step decides whether one is needed (release_files.js: the game key, the
+// pull request against its merge-base, main's backlog) and passes --release 1 with --release-key; night checks' health
+// run passes --release with a file name. The order is generated from the board as it is checked out (the planned commit).
+let release = "", why = opt["release-why"] || "";
+const wantRelease = !!opt.release;
+const before = null;
 {
   if (wantRelease) {
-    // The default opponent: the brain a new match gives the computer side (app.js defaultSetup).
-    const app = fs.readFileSync(path.join(board, "app.js"), "utf8"), m = /S:\s*\{\s*type:\s*"bot",\s*brainId:\s*"([\w-]+)"/.exec(app);
-    const brain = m && BR.DEFAULT_BRAINS[m[1]] ? m[1] : "brain5", rules = D.PRESETS[D.PRESETS.length - 1].id;
+    if (!V.game) { console.error("board/version.js is not stamped: run tools/stamp-version.js first (Brief 031: no unstamped results)."); process.exit(1); }
+    // The default opponent: brain.js's DEFAULT_OPPONENT (Brief 031, H4). No silent fallback: a missing one stops the run.
+    const brain = BR.DEFAULT_OPPONENT, rules = D.PRESETS[D.PRESETS.length - 1].id;
+    if (!brain || !BR.DEFAULT_BRAINS[brain]) { console.error(`board/brain.js has no usable DEFAULT_OPPONENT (${brain}): the release run can't tell which brain to play.`); process.exit(1); }
     const order = { id: `release-${V.game.replace(/[^\w]+/g, "-")}`, kind: "release", brief: null,
       question: `${V.game}'s final exam: how do games end with the default brain (${BR.DEFAULT_BRAINS[brain].name}) against itself, newest rule set ${rules}, 1,000 games per format?`,
       tags: ["release", brain, rules], measures: ["play", "evade", "light", "clock"],
       matchups: [
         { name: "5v5", a: brain, b: brain, rules, format: "blitz5", mix: "mixed", games: +(opt["release-games"] || 1000) },
         { name: "7v7", a: brain, b: brain, rules, format: "std7", mix: "mixed", games: +(opt["release-games"] || 1000) }
-      ], extra: { previous_version: before } };
+      ], extra: { previous_version: before, game_key: opt["release-key"] || null, why: why || null } };
     fs.mkdirSync(outDir, { recursive: true });
     release = path.join(outDir, order.id + ".json");
     fs.writeFileSync(release, JSON.stringify(order, null, 1) + "\n");
@@ -69,7 +59,7 @@ for (const f of all) {
 }
 // Up to 20 machines, at least about 25 games each.
 const parts = Math.max(1, Math.min(20, Math.ceil(games / 25)));
-const out = { orders: all.join(" "), parts, matrix: JSON.stringify({ part: Array.from({ length: parts }, (_, i) => i) }), has_work: all.length && !problems.length ? "true" : "false", release: release ? "true" : "false", same: same ? "true" : "false", why, games, problems: problems.join(" | ") };
+const out = { orders: all.join(" "), parts, matrix: JSON.stringify({ part: Array.from({ length: parts }, (_, i) => i) }), has_work: all.length && !problems.length ? "true" : "false", release: release ? "true" : "false", why, games, problems: problems.join(" | ") };
 if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, Object.entries(out).map(([k, v]) => `${k}=${v}`).join("\n") + "\n");
 console.log(JSON.stringify(out, null, 1));
 if (problems.length) { console.error("Job order problems:\n- " + problems.join("\n- ")); process.exit(1); }

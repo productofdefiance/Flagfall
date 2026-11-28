@@ -45,7 +45,7 @@ First stamp the version into your working copy (Brief 031; it is never committed
 node tools/stamp-version.js
 ```
 
-From the `board/` folder, with Node.js:
+Every test declares how it runs in its `// @test` line; `node tools/run-tests.js --level quick` runs them all (add `--job rules` for one group, `--list` to see them). Or one at a time, from the `board/` folder, with Node.js:
 
 ```
 node tests/test_rules.js
@@ -104,7 +104,7 @@ node sims/lab/board_check.js 10
 
 ## The lab
 
-Simulations run on GitHub, not in a Claude session (Brief 008). Put a job order in `studies/queue/` (the format is in `results/README.md`) and the lab plays it: every night after the night checks, on demand (Actions tab → lab → Run workflow), or in a pull request that adds it. It splits the games over up to 20 machines, writes a run folder in `results/` and a line in `results/INDEX.md`, and gets them to `main` through a pull request that merges itself once the checks pass. Every game in a run's `games.csv` has a `replay` link that opens it on the board. A pull request that changes a game file (`engine.js`, `bot.js`, `brain.js`, `data.js`, `fields.js`, `watch.js`), or whose replay hashes differ from its base, also gets a `release` run: the baseline table at 1,000 games per format, posted as a comment, and filed after the merge under the version the build got. A screen-only build gets none; its version's index line says `same games as` the last version that had one (Brief 031).
+Simulations run on GitHub, not in a Claude session (Brief 008). Put a job order in `studies/queue/` (the format is in `results/README.md`) and the lab plays it: every night after the night checks, on demand (Actions tab → lab → Run workflow), or in a pull request that adds it. It splits the games over up to 20 machines, writes a run folder in `results/` and a line in `results/INDEX.md`, and gets them to `main` through a pull request that merges itself once the checks pass. Every game in a run's `games.csv` has a `replay` link that opens it on the board. A pull request whose game key changes (the six game files, `board/tests/rng.js` and the lab's play scripts), whose releases file names new rules or a new brain, or whose replay hashes differ, also gets a `release` run: the baseline table at 1,000 games per format, posted as a comment with its game key, and filed after the merge under the version the build got. A screen-only build gets none; on `main` every version gets its release run or a `same games as` line (Brief 031).
 
 `regress_engine.js` prints one hash per rule set, leaving out only the newest preset. Run it on the board before and after a change: every rule set the change was not meant to alter must print the same hash.
 

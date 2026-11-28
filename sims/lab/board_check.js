@@ -1,3 +1,4 @@
+// @test job=board quick=10 release=10 night=no browser
 // Board check (Brief 008): N simulated games and the same N games opened on the board from their watch links must
 // play identical moves (same hash). node sims/lab/board_check.js [games, default 10] [board folder, default ../../board]
 // Needs Playwright with Chromium (pre-installed in Claude sessions; `npx playwright install chromium` elsewhere).

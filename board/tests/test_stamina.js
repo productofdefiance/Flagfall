@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Stamina model checks (Brief 013): base Stamina per card, next-turn modifiers that stack, the floor, and the rules
 // it touches (Brace, Second Wind, set spear, tackle at hex cost, Evade). No preset plays differently.
 // The floor check at the end tries every combination of the shipped modifiers on every card of every preset, so a
