@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-28T10:50:49.008Z",
- "board": "STATUS · updated 28 Nov 2026, 5:50 am ET\n\nVERSION\n  On main: v3.20.01 · Build 26 · Rules v3.10 · Brain 8\n  Building: none\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (27 Nov, 1:05 pm ET)\n  Queue: clear · lab using 1 of 20\n  screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov\n  release v3.20.00 · 5v5 21.6% · 7v7 14.1% on the turn limit · 27 Nov\n  release v3.20.00 · 5v5 25.9% · 7v7 15.4% on the turn limit · 27 Nov\n  release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov\n  nightly v3.20.00 · 5v5 15.0% · 7v7 15.0% on the turn limit · 27 Nov\n\nFLAGS (open, newest first)\n  ! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  ! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…\n    F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…\n    FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…\n  +15 older in FLAGS.md\n\nBUILDS\n  Building\n    none\n  Ready to start\n    012 Cavalry\n    030 Game start\n    032 Version follow ups\n  Waiting\n    none\n  Merged (last 3)\n    031 Version at merge · v3.20.01 · 28 Nov\n    029 Rematch · v3.20.00 · 27 Nov\n    028 Arrow storm · v3.19.00 · 27 Nov\n\nCHATS\n  Open\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov stale?\n    FF Roadmap v3.19.00 - · roadmap for the run-up to Cavalry (012) and the stretch after it · opened 27 Nov\n    FF UI v3.19.00 - Attack UI · attack UI design (every attack, foot specials and Cavalry) and its brief · opened 27 Nov\n  Closed (last 5)\n    FF Docs v3.18.00 - v3.19.00 · closed 27 Nov · brief 031 pushed (version at merge, answers F029-2); 028 merged during the…\n    FF Rules v3.14.01 - v3.19.00 · closed 27 Nov · Arrow Storm x1.5 and minimum damage 0.5 locked, brief 028 written (merged…\n    FF Main v3.14.00 - v3.14.01 · closed 27 Nov · overnight results reviewed; Brain 8 default ruled; LAB_TOKEN added; briefs 012…\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n",
+ "updated": "2026-11-28T11:02:51.223Z",
+ "board": "STATUS · updated 28 Nov 2026, 6:02 am ET\n\nVERSION\n  On main: v3.20.01 · Build 26 · Rules v3.10 · Brain 8\n  Building: 030 → YY · would be v3.21.00 if merged next\n\nRESULTS (last 24 hours)\n  Nightly checks: cancelled (27 Nov, 1:05 pm ET)\n  Queue: 1 job waiting, oldest 0 min · lab using 2 of 20\n  screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov\n  release v3.20.00 · 5v5 21.6% · 7v7 14.1% on the turn limit · 27 Nov\n  release v3.20.00 · 5v5 25.9% · 7v7 15.4% on the turn limit · 27 Nov\n  release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov\n  nightly v3.20.00 · 5v5 15.0% · 7v7 15.0% on the turn limit · 27 Nov\n\nFLAGS (open, newest first)\n  ! F030-3 · ASK · 28 Nov · Game Laws 2.1 (mounted units only at 9v9 and 13v13) is in the squad check too. Under any…\n  ! F030-2 · ASK · 28 Nov · With two bot sides there is no Lineup screen to visit. Built: the New game footer reads…\n  ! F030-1 · ASK · 28 Nov · The brief says \"no flagkeeper picker\". Rule sets v3 and later have none. But the old…\n  ! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…\n  ! F028-3 · ASK · 24 Nov · Bot minimum: at 5v5, Arrow Storm warm-ups that end unfired rise from 0 (v3.9) to 88 in…\n  ! F028-2 · ASK · 24 Nov · 5v5 now favours the second mover. storm-v310 (Brain 8 mirrors, 1,000 games per format…\n  ! F028-1 · ASK · 24 Nov · When a new push to a pull request cancels its lab run mid-play (Brief 024's…\n  ! F020-5 · ASK · 23 Nov · Missing setting (harder to prove than the \"no effect\" list): late in the game neither…\n  ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…\n  ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…\n    F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…\n    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…\n  +18 older in FLAGS.md\n\nBUILDS\n  Building\n    030 Game start · PR #76 · Draft · checks running · not reviewed\n  Ready to start\n    012 Cavalry\n    032 Version follow ups\n  Waiting\n    none\n  Merged (last 3)\n    031 Version at merge · v3.20.01 · 28 Nov\n    029 Rematch · v3.20.00 · 27 Nov\n    028 Arrow storm · v3.19.00 · 27 Nov\n\nCHATS\n  Open\n    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov stale?\n    FF Roadmap v3.19.00 - · roadmap for the run-up to Cavalry (012) and the stretch after it · opened 27 Nov\n    FF UI v3.19.00 - Attack UI · attack UI design (every attack, foot specials and Cavalry) and its brief · opened 27 Nov\n  Closed (last 5)\n    FF Docs v3.18.00 - v3.19.00 · closed 27 Nov · brief 031 pushed (version at merge, answers F029-2); 028 merged during the…\n    FF Rules v3.14.01 - v3.19.00 · closed 27 Nov · Arrow Storm x1.5 and minimum damage 0.5 locked, brief 028 written (merged…\n    FF Main v3.14.00 - v3.14.01 · closed 27 Nov · overnight results reviewed; Brain 8 default ruled; LAB_TOKEN added; briefs 012…\n    FF UI v3.17.00 · closed 25 Nov · brief 029 pushed (rematch, New game fix, Lineup Reset; Approved UI v7)…\n    FF UI+Lab v3.14.00 - v3.15.00 · closed · Brief 026 pushed with the reviewed reason wording; open pull requests checked…\n",
  "sections": [
   {
    "title": "VERSION",
@@ -11,7 +11,7 @@
      "mark": null
     },
     {
-     "text": "Building: none",
+     "text": "Building: 030 → YY · would be v3.21.00 if merged next",
      "indent": 1,
      "mark": null
     }
@@ -26,7 +26,7 @@
      "mark": null
     },
     {
-     "text": "Queue: clear · lab using 1 of 20",
+     "text": "Queue: 1 job waiting, oldest 0 min · lab using 2 of 20",
      "indent": 1,
      "mark": null
     },
@@ -60,6 +60,21 @@
   {
    "title": "FLAGS (open, newest first)",
    "lines": [
+    {
+     "text": "! F030-3 · ASK · 28 Nov · Game Laws 2.1 (mounted units only at 9v9 and 13v13) is in the squad check too. Under any…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "! F030-2 · ASK · 28 Nov · With two bot sides there is no Lineup screen to visit. Built: the New game footer reads…",
+     "indent": 1,
+     "mark": "ask"
+    },
+    {
+     "text": "! F030-1 · ASK · 28 Nov · The brief says \"no flagkeeper picker\". Rule sets v3 and later have none. But the old…",
+     "indent": 1,
+     "mark": "ask"
+    },
     {
      "text": "! F028-4 · ASK · 27 Nov · 5v5 needs a different lever for move order. On v3.10 the first mover takes about 34-42%…",
      "indent": 1,
@@ -106,22 +121,7 @@
      "mark": null
     },
     {
-     "text": "! F022-7 · ASK · 22 Nov · A lab run on a pull request that is cancelled by a newer push (brief 024's…",
-     "indent": 1,
-     "mark": "ask"
-    },
-    {
-     "text": "  F018-6 · OPEN · 22 Nov · Desktop match log, built as the Editor asked on 22 Nov (review of #54) as a stopgap: a…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "  FD49-4 · OPEN · 21 Nov · At 5v5 (v3.8, Command 8, Arrow Storm × 1.5) first-turn Command 5 and 8 played the same…",
-     "indent": 1,
-     "mark": null
-    },
-    {
-     "text": "+15 older in FLAGS.md",
+     "text": "+18 older in FLAGS.md",
      "indent": 1,
      "mark": null
     }
@@ -136,7 +136,7 @@
      "mark": null
     },
     {
-     "text": "none",
+     "text": "030 Game start · PR #76 · Draft · checks running · not reviewed",
      "indent": 2,
      "mark": null
     },
@@ -147,11 +147,6 @@
     },
     {
      "text": "012 Cavalry",
-     "indent": 2,
-     "mark": null
-    },
-    {
-     "text": "030 Game start",
      "indent": 2,
      "mark": null
     },
@@ -263,7 +258,7 @@
   }
  },
  "schema": 2,
- "updatedText": "28 Nov 2026, 5:50 am ET",
+ "updatedText": "28 Nov 2026, 6:02 am ET",
  "main": {
   "game": "v3.20.01",
   "build": 26,
@@ -272,11 +267,11 @@
   "broken": null
  },
  "queue": {
-  "text": "Queue: clear · lab using 1 of 20",
+  "text": "Queue: 1 job waiting, oldest 0 min · lab using 2 of 20",
   "mark": null,
-  "jobsWaiting": 0,
+  "jobsWaiting": 1,
   "oldestWaitMin": 0,
-  "labUsing": 1
+  "labUsing": 2
  },
  "nightly": {
   "state": "cancelled",
@@ -284,18 +279,27 @@
   "timeText": "27 Nov, 1:05 pm ET"
  },
  "builds": {
-  "building": [],
+  "building": [
+   {
+    "brief": "030",
+    "name": "Game start",
+    "pr": 76,
+    "draft": true,
+    "checks": "running",
+    "review": null,
+    "sync": null,
+    "state": "running",
+    "version": null,
+    "next": "v3.21.00",
+    "waitsOn": null,
+    "size": "YY",
+    "play": "https://productofdefiance.github.io/Flagfall/pr/76/"
+   }
+  ],
   "waiting": [
    {
     "brief": "012",
     "name": "Cavalry",
-    "waitsOn": null,
-    "ready": true,
-    "stated": true
-   },
-   {
-    "brief": "030",
-    "name": "Game start",
     "waitsOn": null,
     "ready": true,
     "stated": true
@@ -388,6 +392,30 @@
  "resultsMore": 0,
  "flags": [
   {
+   "name": "F030-3",
+   "status": "ASK",
+   "date": "28 Nov",
+   "issue": "Game Laws 2.1 (mounted units only at 9v9 and 13v13) is in the squad check too. Under any rule, a mounted unit at 5v5 or 7v7 is a locked row (\"Mounted units need 9v9 or 13v13\"). Brief 012 asks for the same thing (\"the lineup screen doesn't offer them\"), so 012 gets it for free. The wording is mine.",
+   "issueFull": "Game Laws 2.1 (mounted units only at 9v9 and 13v13) is in the squad check too. Under any rule, a mounted unit at 5v5 or 7v7 is a locked row (\"Mounted units need 9v9 or 13v13\"). Brief 012 asks for the same thing (\"the lineup screen doesn't offer them\"), so 012 gets it for free. The wording is mine.",
+   "next": "Recommend: keep it as built. 012 confirms the wording."
+  },
+  {
+   "name": "F030-2",
+   "status": "ASK",
+   "date": "28 Nov",
+   "issue": "With two bot sides there is no Lineup screen to visit. Built: the New game footer reads Start match, and both bots pick inside the squad rule. The brief says \"Lineup (always)\", which was written for games with a human.",
+   "issueFull": "With two bot sides there is no Lineup screen to visit. Built: the New game footer reads Start match, and both bots pick inside the squad rule. The brief says \"Lineup (always)\", which was written for games with a human.",
+   "next": "Recommend: keep Start match for bot vs bot. Picking both bots' lineups by hand can come with a later brief if wanted."
+  },
+  {
+   "name": "F030-1",
+   "status": "ASK",
+   "date": "28 Nov",
+   "issue": "The brief says \"no flagkeeper picker\". Rule sets v3 and later have none. But the old presets (Match 3, v1, v2) still need a Flagkeeper, and the Game settings rule-set list still offers them. Built: the Lineup screen shows the old Flagkeeper picker for those three only.",
+   "issueFull": "The brief says \"no flagkeeper picker\". Rule sets v3 and later have none. But the old presets (Match 3, v1, v2) still need a Flagkeeper, and the Game settings rule-set list still offers them. Built: the Lineup screen shows the old Flagkeeper picker for those three only.",
+   "next": "Recommend: keep it for the old presets (the alternative is dropping them from the list, which hides old rule sets)."
+  },
+  {
    "name": "F028-4",
    "status": "ASK",
    "date": "27 Nov",
@@ -426,30 +454,6 @@
    "issue": "Missing setting (harder to prove than the \"no effect\" list): late in the game neither side guards its flag. Guards (units other than the holder in or next to their own goal zone) average 0.00 to 0.05 per side-turn in the last 5 turns in every arm and setting (screen, 200 games each), so finished −1…",
    "issueFull": "Missing setting (harder to prove than the \"no effect\" list): late in the game neither side guards its flag. Guards (units other than the holder in or next to their own goal zone) average 0.00 to 0.05 per side-turn in the last 5 turns in every arm and setting (screen, 200 games each), so finished −1 against −2 and guardBlocks can't show an effect: there is no guarding to keep or give up. Brain 9's guard test position passes (−2 keeps a guard, −1 doesn't), but real games rarely reach that position",
    "next": "Suggested: a \"home guard\" weight (value of a unit standing in its own goal zone while the enemy can reach it), screened after the confirm"
-  },
-  {
-   "name": "F020-4",
-   "status": "DECIDE",
-   "date": "23 Nov",
-   "issue": "The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000 games, v3.9). Brain 9 against Brain 8: 5v5 424 won, 541 lost with it, 427 to 534 without (but more points, +0.78 against +0.54); 7v7 423 to 572 with it, 486 to 495 without. Brain 9 mirrors: first mover 77.0%…",
-   "issueFull": "The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000 games, v3.9). Brain 9 against Brain 8: 5v5 424 won, 541 lost with it, 427 to 534 without (but more points, +0.78 against +0.54); 7v7 423 to 572 with it, 486 to 495 without. Brain 9 mirrors: first mover 77.0% (5v5) and 83.1% (7v7) of decisive games with it, 52.8% and 46.0% without",
-   "next": "Applied in this build: Brain 9 ships with spendOpening 0, as brief 022 shipped A1 and A2 off; the switch stays for move-order studies. The Editor can reverse it (one number in brain.js)"
-  },
-  {
-   "name": "F020-3",
-   "status": "ASK",
-   "date": "23 Nov",
-   "issue": "F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run, which cancelled the one playing the three screens after 70 minutes. The cancelled run filed 30% of the games (6 of 20 parts) and moved all three job orders to studies/done/. The lab's paths filter doesn't protect a…",
-   "issueFull": "F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run, which cancelled the one playing the three screens after 70 minutes. The cancelled run filed 30% of the games (6 of 20 parts) and moved all three job orders to studies/done/. The lab's paths filter doesn't protect a pull request: GitHub checks it against everything the pull request changes, so every push to a pull request with a job order or a version change restarts the lab. Code re-queued the orders (the partial run folders stay as filed, marked Failed) and pushes nothing more until they finish",
-   "next": "Recommended: the lab fix brief F022-7 asks for also skips the cancel when the new push changes nothing under studies/queue/, board/ or sims/lab/"
-  },
-  {
-   "name": "F020-2",
-   "status": "OPEN",
-   "date": "23 Nov",
-   "issue": "The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays as the Editor saw it with Brain 5 (South wins the tiebreak at turn 35), but Brain 8 finishes it (South KO, turn 12) and Brain 9's spent opening changes the game from turn 1 (North KO, turn 11), before the…",
-   "issueFull": "The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays as the Editor saw it with Brain 5 (South wins the tiebreak at turn 35), but Brain 8 finishes it (South KO, turn 12) and Brain 9's spent opening changes the game from turn 1 (North KO, turn 11), before the victory values ever count. It isn't a test of pressing a late lead any more",
-   "next": "The Report picks late-lead games from the lab runs instead"
   }
  ],
  "chats": {
@@ -503,10 +507,10 @@
   "closedLimit": 5
  },
  "tiles": {
-  "building": 0,
-  "flagsAsk": 10,
-  "flagsNewest": "F028-4",
-  "flagsMoreAsk": 3,
-  "flagsMoreOpen": 16
+  "building": 1,
+  "flagsAsk": 13,
+  "flagsNewest": "F030-3",
+  "flagsMoreAsk": 5,
+  "flagsMoreOpen": 17
  }
 }
