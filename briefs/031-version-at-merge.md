@@ -170,7 +170,14 @@ The standard items, plus: the two-order merge outputs; the clicks for the requir
   - When several versions on `main` miss their release run, the lab plays one per run and then starts itself again (`gh workflow run lab.yml`). Playing several commits in one run would need a separate set of play jobs per commit; one per run keeps the jobs simple and drops nothing.
   - `waits-on` is a commit status, not a job name: a status can be set again from `main` without re-running the pull request's workflow.
   - The `checks` groups are now `tests (rules)`, `(slow)`, `(brains)`, `(invariants)` and `(board)`. The tests and their counts are the same as before. `test_page.js`, which no workflow ran, is now in.
-- **Checks run and results:** (session run, filled in below)
+- **Checks run and results:** every test in the generated list passed in this session (stamped board): `node tools/run-tests.js --level quick` ran 44 of 44 with 0 failed, browser tests and `board_check.js` (10) included. This was a session run; GitHub's `checks` must still pass.
+- **Replay hashes** (`regress_engine.js`, 3 games): `main`'s board (`94acfcb`) and this branch print identical hashes for every rule set (the newest, v3.10, is left out by this command; the release run's hashes job covers it with `all`):
+  ```
+  match3 37397ef2bd3ed86b · v1 7b25bca651c0cb31 · v2 ddbe5fc437ff4e9d · v3 26371927b53d4413 · v3.1 c71e4cd12fc984b0
+  v3.2 f62a061d2c147d83 · v3.3 e6151bf463d6c9f8 · v3.4 ee6ce003ac760250 · v3.5 fca989aecfaf21c9 · v3.6 a6bf327b54f7d5a1
+  v3.7 dd3c27d9dc9aafbb · v3.8 022a298c49a02540 · v3.9 b3c2d4464b363ba0
+  ```
+  Moving the default brain into `brain.js` changed no game. It still changes the game key, so this build gets a release run (it also changes the lab's `play.js` and `plan.js`).
 - **Two merges in both orders** (scratch copy of this repository with 031 merged). 090 is a YY screen-only change that adds a test file; 091 is a ZZ `data.js` change that carries its own lab result:
   ```
   090 release decision: no release run - screen files only: board/app.js
