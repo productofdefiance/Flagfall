@@ -5,7 +5,7 @@
    An unstamped board shows "dev" where the version goes, so a missed stamp is visible rather than wrong.
    `preview` also stays null here; the play-link workflow sets it (for example "PR #6") on preview copies only. */
 (function (root) {
-  const VERSION = { game: "v3.20.00+031", build: null, date: "2026-11-27", preview: "PR #73" };
+  const VERSION = { game: "v3.20.00+031", build: null, date: "2026-11-28", preview: "PR #73" };
   /** "Playtest board · v3.09.01 · Build 13 · Rules v3.6" (CLAUDE.md: the version, with the build in small type); a
       preview copy also says which pull request it is; an unstamped board says "dev". */
   VERSION.line = function (newestRules, V) {
