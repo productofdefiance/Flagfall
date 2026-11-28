@@ -1,4 +1,4 @@
-STATUS · updated 28 Nov 2026, 6:30 am ET
+STATUS · updated 28 Nov 2026, 6:34 am ET
 
 VERSION
   On main: v3.20.01 · Build 26 · Rules v3.10 · Brain 8
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (27 Nov, 1:05 pm ET)
-  Queue: clear · lab using 4 of 20
+  Queue: clear
   release v3.20.01 · 5v5 26.5% · 7v7 13.2% on the turn limit · 28 Nov
   screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov
   release v3.20.00 · 5v5 21.6% · 7v7 14.1% on the turn limit · 27 Nov
@@ -31,7 +31,7 @@ FLAGS (open, newest first)
 
 BUILDS
   Building
-    030 Game start · PR #76 · Draft · checks fail · not reviewed
+    030 Game start · PR #76 · Draft · checks running · not reviewed
     032 Version follow ups · PR #78 · Draft · checks running · not reviewed
   Ready to start
     012 Cavalry
