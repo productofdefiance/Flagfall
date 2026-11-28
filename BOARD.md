@@ -1,12 +1,12 @@
-STATUS · updated 28 Nov 2026, 6:21 am ET
+STATUS · updated 28 Nov 2026, 6:30 am ET
 
 VERSION
   On main: v3.20.01 · Build 26 · Rules v3.10 · Brain 8
-  Building: 030 → YY · would be v3.21.00 if merged next
+  Building: 030 → YY · would be v3.21.00 if merged next; 032 → ZZ · would be v3.20.02 if merged next
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (27 Nov, 1:05 pm ET)
-  Queue: 6 jobs waiting, oldest 0 min · lab using 6 of 20
+  Queue: clear · lab using 4 of 20
   release v3.20.01 · 5v5 26.5% · 7v7 13.2% on the turn limit · 28 Nov
   screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov
   release v3.20.00 · 5v5 21.6% · 7v7 14.1% on the turn limit · 27 Nov
@@ -15,6 +15,7 @@ RESULTS (last 24 hours)
   nightly v3.20.00 · 5v5 15.0% · 7v7 15.0% on the turn limit · 27 Nov
 
 FLAGS (open, newest first)
+  ! F032-1 · ASK · 28 Nov · A merged build's +NNN lab row opens with no warning only while the board is still on the…
   ! F030-3 · ASK · 28 Nov · Game Laws 2.1 (mounted units only at 9v9 and 13v13) is in the squad check too. Under any…
   ! F030-2 · ASK · 28 Nov · With two bot sides there is no Lineup screen to visit. Built: the New game footer reads…
   ! F030-1 · ASK · 28 Nov · The brief says "no flagkeeper picker". Rule sets v3 and later have none. But the old…
@@ -26,15 +27,14 @@ FLAGS (open, newest first)
   ! F020-4 · DECIDE · 23 Nov · The spent opening (item 6) costs Brain 9 wins and breaks the move order (confirm, 1,000…
   ! F020-3 · ASK · 23 Nov · F022-7 happened again on PR 60: a docs-only push (the Report) started a new lab run…
     F020-2 · OPEN · 23 Nov · The test game R28X-AJDH-DUP5 no longer stalls on the current brain line: it still replays…
-    F020-1 · OPEN · 23 Nov · The brief puts the victory settings in BRAIN_8.victory, but Brain 8 is frozen (Must not…
-  +18 older in FLAGS.md
+  +19 older in FLAGS.md
 
 BUILDS
   Building
     030 Game start · PR #76 · Draft · checks fail · not reviewed
+    032 Version follow ups · PR #78 · Draft · checks running · not reviewed
   Ready to start
     012 Cavalry
-    032 Version follow ups
   Waiting
     none
   Merged (last 3)
