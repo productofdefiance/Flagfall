@@ -274,6 +274,9 @@
     "plan5.perUnit": ["Choices per unit", "How many of each unit's best activations (move, attack, brace, Evade) it combines into plans."]
   };
 
-  const api = { DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5, brain6: BRAIN_6, brain7: BRAIN_7, brain8: BRAIN_8, brain9: BRAIN_9 }, BRAIN_LABELS: LABELS };
+  // The brain a new match gives the computer side, and the one the release run plays against itself (Brief 031,
+  // amendment 6, H4: moved here from app.js, so a screen change can't change the release exam).
+  const DEFAULT_OPPONENT = "brain8";
+  const api = { DEFAULT_OPPONENT, DEFAULT_BRAINS: { standard: STANDARD, easy: EASY, kitA: KIT_A, kitA2: KIT_A2, kitC: KIT_C, kitB: KIT_B, batchC: KIT_C2, kitD: KIT_D, brain5: BRAIN_5, brain6: BRAIN_6, brain7: BRAIN_7, brain8: BRAIN_8, brain9: BRAIN_9 }, BRAIN_LABELS: LABELS };
   if (typeof module !== "undefined") module.exports = api; else root.GGBrain = api;
 })(this);

@@ -1,3 +1,4 @@
+// @test job=brains quick=2 release=30 night=30
 // Brain 5 checks (Brief 006): three positions that show the model's reasoning, then legal play over seeded games.
 // node tests/test_brain5.js [games per format and lineup, default 30]
 const E = require("../engine.js"), Bot = require("../bot.js");

@@ -1,3 +1,4 @@
+// @test job=brains quick=2 release=30 night=30
 // Brain 8 checks (Brief 022): all four behaviours off plays exactly as Brain 5; the six test positions of the brief's
 // Bot minimum, each printing the model's reasoning; then legal play over seeded games.
 // node tests/test_brain8.js [games per format and lineup, default 30]
@@ -42,8 +43,10 @@ const B8A = variant({ safe: 1, respect: 1 });   // the positions for A1 and A2 s
 
 // ---- The default opponent (the Editor, 21 Nov, F022-5): a new match's computer side plays Brain 8 as shipped ----
 { const app = require("fs").readFileSync(require("path").join(__dirname, "..", "app.js"), "utf8");
-  const m = /S:\s*\{\s*type:\s*"bot",\s*brainId:\s*"([\w-]+)"/.exec(app);   // the same reading the lab's release run makes (sims/lab/plan.js)
-  ok(m && m[1] === "brain8", `a new match's computer opponent is Brain 8 (found ${m && m[1]})`);
+  // Brief 031 (H4): the default opponent lives in brain.js; the app and the lab's release run both read it from there.
+  const BRm = require("../brain.js");
+  ok(BRm.DEFAULT_OPPONENT === "brain8", `a new match's computer opponent is Brain 8 (found ${BRm.DEFAULT_OPPONENT})`);
+  ok(/brainId: BR\.DEFAULT_OPPONENT/.test(app), "the app's new-match set-up reads brain.js's DEFAULT_OPPONENT");
   ok(!/brainId = "brain5"/.test(app), "a missing saved brain falls back to Brain 8, not Brain 5");
 }
 

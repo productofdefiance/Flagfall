@@ -3,8 +3,12 @@
 # - every night, after main's night checks: whatever is queued in studies/queue/;
 # - on demand: Actions tab → "lab" → "Run workflow" (optionally naming the job orders to play);
 # - on a pull request that adds a job order: plays it and commits the run folder to that pull request;
-# - on a pull request that changes the game version: a `release` run (the version's final exam), posted as a comment;
-#   after the merge it runs again on main (same seeds, same games) and is filed under that version.
+# - on a pull request that changes a game file (sims/lab/release_files.js), or whose replay hashes differ from its base:
+#   a `release` run (the version's final exam), posted as a comment; after the merge it runs again on main (same seeds,
+#   same games) and is filed under the version the build actually got (Brief 031). A screen-only build gets no release
+#   run; on main its version gets one index line, "same games as <last version with a release run>" (sims/lab/same.js).
+# Every job stamps board/version.js straight after checkout (tools/stamp-version.js): main's counted number, or a pull
+# request's label "<main's version>+NNN". The stamp is never committed (deliver.sh adds only results/ and studies/).
 # Results reach main through an automatic pull request that may only change results/ and studies/ and merges itself
 # once the checks pass (sims/lab/deliver.sh).
 name: lab
@@ -26,10 +30,10 @@ on:
         required: false
         default: false
   pull_request:
-    paths: ["studies/queue/**", "board/version.js", "sims/lab/**"]
+    paths: ["studies/queue/**", "board/**", "sims/lab/**"]
   push:
     branches: [main]
-    paths: ["board/version.js", "studies/queue/**"]
+    paths: ["board/**", "releases/**", "studies/queue/**"]
 
 permissions:
   contents: write
@@ -61,6 +65,13 @@ jobs:
       matrix: ${{ steps.plan.outputs.matrix }}
       has_work: ${{ steps.plan.outputs.has_work }}
       release: ${{ steps.plan.outputs.release }}
+      key: ${{ steps.rel.outputs.key }}
+      same: ${{ steps.rel.outputs.same }}
+      more: ${{ steps.rel.outputs.more }}
+      deferred: ${{ steps.plan.outputs.deferred }}
+      game: ${{ steps.stamp.outputs.game }}
+      build: ${{ steps.stamp.outputs.build }}
+      date: ${{ steps.stamp.outputs.date }}
       site: ${{ steps.where.outputs.site }}
       trigger: ${{ steps.where.outputs.trigger }}
       started: ${{ steps.where.outputs.started }}
@@ -81,9 +92,37 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref || (github.event_name == 'workflow_run' && 'main') || github.sha }}
           fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      # Brief 031 (amendment 2, B2): what this run must play. A pull request: from the whole pull request against its
+      # merge-base, every run, by the game key (skipped only when a finished run with that key was posted here). main:
+      # every version since the baseline with neither a release run nor a "same games as" line; the oldest that needs
+      # one is played at its own commit, the ones whose games are the same get their line, and if more are left the
+      # lab starts itself again.
+      - name: Release decision
+        id: rel
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          git fetch -q --filter=blob:none origin +refs/heads/main:refs/remotes/origin/main || true
+          if [ -n "$PR" ]; then node sims/lab/release_files.js --plan --pr "$PR" --main origin/main; else node sims/lab/release_files.js --plan; fi
+      # Amendment 5 (H3): one stamp per version played, at the commit played; every later job gets it from here.
+      - name: Go to the commit this run plays, and stamp it
+        id: stamp
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          TARGET: ${{ steps.rel.outputs.sha }}
+          TGAME: ${{ steps.rel.outputs.target_game }}
+          TBUILD: ${{ steps.rel.outputs.target_build }}
+          TDATE: ${{ steps.rel.outputs.target_date }}
+        run: |
+          [ "$(git rev-parse HEAD)" = "$TARGET" ] || git checkout -q --detach "$TARGET"
+          if [ -n "$PR" ]; then node tools/stamp-version.js --pr --pr-number "$PR" --github-output
+          elif [ -n "$TGAME" ]; then node tools/stamp-version.js --set "$TGAME" --build "$TBUILD" --date "$TDATE" --github-output
+          else node tools/stamp-version.js --github-output; fi
       - name: The commit this run plays
         id: sha
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -103,24 +142,28 @@ jobs:
         env:
           EV: ${{ github.event_name }}
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          # A release runs when the game version changes: against main when a pull request opens, and on later pushes
-          # only if that push changed it (so a pull request doesn't replay its release on every push).
-          REL_BASE: ${{ (github.event.action == 'synchronize' && github.event.before) || github.event.pull_request.base.sha || github.event.before }}
           ORDERS: ${{ github.event.inputs.orders }}
+          RELEASE: ${{ steps.rel.outputs.release }}
+          KEY: ${{ steps.rel.outputs.key }}
+          WHY: ${{ steps.rel.outputs.why }}
+          TGAME: ${{ steps.rel.outputs.target_game }}
         run: |
-          rel=""
-          if [ -n "$REL_BASE" ] && [ "$REL_BASE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$REL_BASE" 2>/dev/null; then
-            git show "$REL_BASE:board/version.js" > /tmp/version_before.js 2>/dev/null || echo "" > /tmp/version_before.js
-            rel="--release /tmp/version_before.js"
+          rel=""; [ "$RELEASE" = "true" ] && rel="--release 1 --release-key $KEY"
+          if [ "$EV" = "pull_request" ] || [ "$EV" = "push" ]; then
+            # only the job orders this pull request (or push) adds or changes
+            ORDERS=""
+            if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then ORDERS=$(git diff --name-only --diff-filter=AM "$BASE" HEAD -- 'studies/queue/*.json' | tr '\n' ' '); fi
           fi
-          if [ "$EV" = "pull_request" ]; then
-            # only the job orders this pull request adds or changes
-            ORDERS=$(git diff --name-only --diff-filter=AM "$BASE" HEAD -- 'studies/queue/*.json' | tr '\n' ' ')
+          only=""
+          # A missed version played at its own (older) commit: queued orders wait for the next run (it starts itself).
+          if [ -n "$TGAME" ] && [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
+            # review F4: queued job orders set aside for this run must get a run of their own, so the lab starts again
+            # (main's queue, not the older commit's)
+            if git ls-tree --name-only origin/main studies/queue/ | grep -q '\.json$' || [ -n "$ORDERS" ]; then echo "deferred=true" >> "$GITHUB_OUTPUT"; fi
+            ORDERS=""; only="--release-only 1"
           fi
-          if [ "$EV" = "push" ]; then
-            ORDERS=$(git diff --name-only --diff-filter=AM "$BASE" HEAD -- 'studies/queue/*.json' | tr '\n' ' ')
-          fi
-          node sims/lab/plan.js --orders "$ORDERS" $rel $( [ "$EV" = "pull_request" ] || [ "$EV" = "push" ] && [ -z "$ORDERS" ] && echo "--release-only 1" )
+          if { [ "$EV" = "pull_request" ] || [ "$EV" = "push" ]; } && [ -z "$ORDERS" ]; then only="--release-only 1"; fi
+          node sims/lab/plan.js --orders "$ORDERS" $rel --release-why "$WHY" $only
       # Brief 024: how many machines this run takes, from what started it, how big it is and how busy the repository
       # is (numbers in sims/lab/capacity.json). Big daytime runs play in two waves; the second wave chooses again.
       - name: Share of machines
@@ -157,9 +200,13 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: ${{ needs.plan.outputs.sha }}
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      - name: Stamp the version the plan worked out (Brief 031, H3)
+        run: node tools/stamp-version.js --set "${{ needs.plan.outputs.game }}" --build "${{ needs.plan.outputs.build }}" --date "${{ needs.plan.outputs.date }}"
       - uses: actions/download-artifact@v4
         with:
           name: orders
@@ -216,9 +263,13 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: ${{ needs.plan.outputs.sha }}
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      - name: Stamp the version the plan worked out (Brief 031, H3)
+        run: node tools/stamp-version.js --set "${{ needs.plan.outputs.game }}" --build "${{ needs.plan.outputs.build }}" --date "${{ needs.plan.outputs.date }}"
       - uses: actions/download-artifact@v4
         with:
           name: orders
@@ -241,56 +292,86 @@ jobs:
     if: needs.plan.outputs.release == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    # Brief 031 (amendment 9): the same generated test list as `checks` and night checks (tools/run-tests.js), at
+    # each test's release count, one machine per group, plus the replay hashes of every preset, the newest included.
     strategy:
       fail-fast: false
       max-parallel: ${{ fromJSON(needs.plan.outputs.release_parallel) }}
       matrix:
         check:
-          - { name: "quick checks", cmd: "quick" }
-          - { name: "test_v32.js (400 + 400)", cmd: "node tests/test_v32.js 400" }
-          - { name: "test_invariants.js (100)", cmd: "node tests/test_invariants.js 100" }
-          - { name: "other brain tests (30)", cmd: "for t in tests/test_brain*.js; do [ \"$(basename $t)\" = test_brain5.js ] || node $t 30 || exit 1; done" }
+          - { name: "rules", cmd: "rules" }
+          - { name: "slow", cmd: "slow" }
+          - { name: "brains", cmd: "brains" }
+          - { name: "invariants", cmd: "invariants" }
+          - { name: "board", cmd: "board" }
           - { name: "regression hashes", cmd: "hashes" }
     steps:
       - uses: actions/checkout@v5
         with:
           ref: ${{ needs.plan.outputs.sha }}
           fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      - name: Stamp the version the plan worked out (Brief 031, H3)
+        run: node tools/stamp-version.js --set "${{ needs.plan.outputs.game }}" --build "${{ needs.plan.outputs.build }}" --date "${{ needs.plan.outputs.date }}"
+      - name: Install a headless browser (Playwright)
+        if: matrix.check.cmd == 'board'
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm install --no-audit --no-fund playwright@1.49.1 > /dev/null
+          npx playwright install --with-deps chromium > /dev/null
       - name: ${{ matrix.check.name }}
-        working-directory: board
         env:
-          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
           NAME: ${{ matrix.check.name }}
           CMD: ${{ matrix.check.cmd }}
+          EV: ${{ github.event_name }}
+          NODE_PATH: /tmp/pw/node_modules
         run: |
-          mkdir -p ../out
-          one() {  # one check: its own name=outcome file
-            local id; id=$(echo "$1" | tr -c 'a-zA-Z0-9' '_')
-            if bash -c "$2"; then echo "$1=success" > "../out/check-$id.txt"; else echo "$1=failure" > "../out/check-$id.txt"; fi
-          }
+          mkdir -p out
           if [ "$CMD" = "hashes" ]; then
-            id=$(echo "$NAME" | tr -c 'a-zA-Z0-9' '_')
-            : > ../out/hashes.txt
-            if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then mkdir -p /tmp/base && git -C .. archive "$BASE" board | tar -x -C /tmp/base; echo "Earlier board ($BASE):" >> ../out/hashes.txt; node tests/regress_engine.js /tmp/base/board 3 >> ../out/hashes.txt; fi
-            echo "This board:" >> ../out/hashes.txt; node tests/regress_engine.js . 3 >> ../out/hashes.txt && echo "$NAME=success" > "../out/check-$id.txt" || echo "$NAME=failure" > "../out/check-$id.txt"
-          elif [ "$CMD" = "quick" ]; then
-            # name|command, one per line, the same names as the 16-job runs before Brief 027
-            [ -f ../sims/lab/release_quick.txt ] || { echo "$NAME (list missing)=failure" > ../out/check-quick_missing.txt; exit 0; }
-            while IFS='|' read -r n c; do
-              [ -n "$n" ] || continue
-              echo "::group::$n"; one "$n" "$c" < /dev/null; echo "::endgroup::"
-            done < ../sims/lab/release_quick.txt
-            cat ../out/check-*.txt
+            # Against the board this version started from: the merge-base with main (a pull request), or the commit
+            # before it (a version on main). Every preset, the newest included (regress_engine.js ... all).
+            git fetch -q --filter=blob:none origin +refs/heads/main:refs/remotes/origin/main || true
+            if [ "$EV" = "pull_request" ]; then BASE=$(git merge-base origin/main HEAD); else BASE=$(git rev-parse HEAD^1); fi
+            : > out/hashes.txt
+            mkdir -p /tmp/base && git archive "$BASE" board | tar -x -C /tmp/base
+            echo "Earlier board ($BASE):" >> out/hashes.txt; node board/tests/regress_engine.js /tmp/base/board 3 all >> out/hashes.txt
+            echo "This board:" >> out/hashes.txt
+            if node board/tests/regress_engine.js board 3 all >> out/hashes.txt; then echo "$NAME=success" > out/check-hashes.txt; else echo "$NAME=failure" > out/check-hashes.txt; fi
           else
-            one "$NAME" "$CMD"
+            node tools/run-tests.js --level release --job "$CMD" --out out || true   # each test writes its own name=outcome
+            ls out/check-*.txt > /dev/null 2>&1 || echo "$NAME (no test ran)=failure" > out/check-none-$CMD.txt
           fi
+          cat out/check-*.txt
       - uses: actions/upload-artifact@v4
         with:
           name: release-check-${{ strategy.job-index }}
           path: out/
+
+  # Brief 031 (amendment 2): versions on main whose games are the same as a filed release run (same game key, no new
+  # rules or brain) get one results index line, "same games as <that version>", so every version points to its numbers.
+  same:
+    name: same games as a filed release
+    needs: plan
+    if: needs.plan.outputs.same != '' && needs.plan.outputs.same != '[]' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          token: ${{ secrets.LAB_TOKEN || github.token }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+      - name: File the lines
+        env:
+          GH_TOKEN: ${{ secrets.LAB_TOKEN || github.token }}
+          SAME: ${{ needs.plan.outputs.same }}
+        run: |
+          node sims/lab/same.js --list "$SAME" | tee -a "$GITHUB_STEP_SUMMARY"
+          bash sims/lab/deliver.sh main "Lab: same games as a filed release ($(date -u +%Y-%m-%d))"
 
   merge:
     name: merge and file the results
@@ -304,9 +385,14 @@ jobs:
           # a pull request's own branch, so the run folder can be committed to it
           ref: ${{ github.event.pull_request.head.ref || 'main' }}
           token: ${{ secrets.LAB_TOKEN || github.token }}
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      # The version of the commit that was played (main may have moved on since the plan): never re-read main's tip.
+      - name: Stamp the version the plan worked out (Brief 031, H3)
+        run: node tools/stamp-version.js --set "${{ needs.plan.outputs.game }}" --build "${{ needs.plan.outputs.build }}" --date "${{ needs.plan.outputs.date }}"
       - uses: actions/download-artifact@v4
         with:
           name: orders
@@ -370,9 +456,15 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
+          KEY: ${{ needs.plan.outputs.key }}
+          FAILED: ${{ steps.merge.outputs.failed }}
         run: |
           d=$(head -1 release-written.txt)
-          { echo "**Release run for this version.** It is filed under \`results/\` after the merge, when it runs again on \`main\` with the same seeds (the same games)."; echo; cat "$d/SUMMARY.md"; } > comment.md
+          { echo "**Release run for this version.** It is filed under \`results/\` after the merge, when it runs again on \`main\` with the same seeds (the same games)."; echo; cat "$d/SUMMARY.md"
+            # Brief 031 (B2): the game key of a finished run, so a later push with the same game doesn't play it again.
+            # A run whose machines failed carries no key, so the next push plays it again.
+            if [ "$FAILED" != "true" ]; then echo; echo "<!-- release-key: $KEY -->"; fi
+          } > comment.md
           gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body-file comment.md
       - name: Deliver to the pull request
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
@@ -386,6 +478,13 @@ jobs:
           GH_TOKEN: ${{ secrets.LAB_TOKEN || github.token }}
         run: |
           bash sims/lab/deliver.sh main "Lab results, $(date -u +%Y-%m-%d) (${{ needs.plan.outputs.trigger }})"
+      # Brief 031 (B2): more versions on main still lack a release run: start the lab again (one waiting run per group
+      # means a merge's own run can be dropped; this catches up).
+      - name: Start the lab again (the next missed version, or job orders set aside)
+        if: github.event_name != 'pull_request' && (needs.plan.outputs.more == 'true' || needs.plan.outputs.deferred == 'true')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run lab.yml --repo "$GITHUB_REPOSITORY" --ref main
       # Brief 024: one line per run in the queue log, on the status branch (not the results pull request, where two
       # runs appending to one file would conflict): the data for tuning the share rules.
       - name: Queue log

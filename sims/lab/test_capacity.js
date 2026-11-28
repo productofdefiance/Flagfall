@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @test job=rules quick=yes release=yes night=no
 /* Checks for the lab's share of machines (Brief 024), no network. Run: node sims/lab/test_capacity.js
    1. The share rules (sims/lab/capacity.js): each row of the brief's table, the floor of 2, the reserve, rush, the night
       window in US Eastern across a daylight-saving change, waves, and the Queue line.

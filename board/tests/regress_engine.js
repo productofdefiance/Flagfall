@@ -1,3 +1,4 @@
+// @test special job=slow (run by the compare job and the release run's hashes job, against an earlier board)
 // Engine regression: plays seeded bot-vs-bot games and prints one hash per rule set, covering every log line,
 // action and result. Run it against two copies of the board (before and after a change); rule sets that should
 // not have changed must print the same hash.

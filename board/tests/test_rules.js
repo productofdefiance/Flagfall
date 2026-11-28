@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Small rule checks for things match 3 never exercised.
 const E = require("../engine.js");
 const { DEFAULT_RULESET } = require("../data.js");

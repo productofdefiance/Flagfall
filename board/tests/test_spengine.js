@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Brief 026 engine checks (the one engine change, and section 10). Newest preset unless named.
 // - warmupBlock / fireBlock say "Not enough Stamina" when the unit's Stamina is short and "Not enough Command" when only
 //   the side's Command is short (a returned message only; no rule changes);

@@ -1,3 +1,4 @@
+// @test job=brains quick=2 release=30 night=30
 // Brain 7 checks (Brief 019): all five behaviours off plays exactly as Brain 5; the five test positions, each printing
 // the model's reasoning; then legal play over seeded games. node tests/test_brain7.js [games per format and lineup, default 30]
 const E = require("../engine.js"), Bot = require("../bot.js");

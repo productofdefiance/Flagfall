@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // v3 flag-holder checks: pooled damage, the gate, pulls on an empty flag, KO when the pool falls.
 const E = require("../engine.js"); const { PRESETS } = require("../data.js");
 const rs = PRESETS.find((p) => p.id === "v3"); let fails = 0, n = 0;

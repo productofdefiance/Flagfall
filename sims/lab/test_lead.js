@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Brief 019's three measures (lead, alone) checked on saved games: five balanced Brain 5 mirror games from the stall
 // "before" run (results/v3.08.01/2026-11-19_study_stall-before, v3.5, 5v5), each replayed from its watch link. Every
 // expected value below was checked by hand against a turn-by-turn trace (each side-turn's non-holder units, which units

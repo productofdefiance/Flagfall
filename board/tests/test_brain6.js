@@ -1,3 +1,4 @@
+// @test job=brains quick=2 release=30 night=30
 // Brain 6 checks (Brief 007): the clock in two positions, the Evade-step cost, then legal play over seeded games.
 // node tests/test_brain6.js [games per format and lineup, default 30]
 const E = require("../engine.js"), Bot = require("../bot.js");

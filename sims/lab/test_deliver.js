@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @test job=rules quick=yes release=yes night=no
 /* Brief 027 (F024-2): the delivery and the refresh start checks.yml themselves only when the workflow's own token is in
  * use. With the Editor's key (LAB_TOKEN) the pull request's own checks run is the only one.
  * Runs deliver.sh for real against a local git remote, with a stand-in `gh` that records what it was asked to do and

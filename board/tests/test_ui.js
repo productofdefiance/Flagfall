@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // UI v2 checks (Brief 009): the attack preview's outcome bar, changed numbers, Evade, the unit card text, and
 // "unit cap (UC)", never the old word, in anything the board can show.
 // node tests/test_ui.js

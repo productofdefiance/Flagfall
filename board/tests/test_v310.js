@@ -1,3 +1,4 @@
+// @test job=rules quick=4 release=4 night=no
 // v3.10 checks (Brief 028, Game Laws 6.17 and 3.2, locked by the Editor 23 Nov; F022-9): Arrow Storm 1.5 times a
 // normal shot (was 2), still ignoring Dodge, and minimum damage 0.5 (was 1). Every rule the brief lists under "Rules it
 // touches" is a check here on v3.10, and each is checked against v3.9 in the same position: the only difference is the

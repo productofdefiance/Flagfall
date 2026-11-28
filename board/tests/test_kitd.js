@@ -1,3 +1,4 @@
+// @test job=rules quick=6 release=30 night=30
 // Kit D checks (Brief 005): over seeded games on the newest preset, Kit D only ever picks actions the engine accepts,
 // never throws, and every game finishes. Also checks the planner's switches exist and Kit B is unchanged.
 // node tests/test_kitd.js [games per format, default 30]

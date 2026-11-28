@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Brief 005 item 4: the Evade preview never promises a step that won't exist, and every greyed-out action says why.
 // All reasons come from the engine (whyNoMove, blockReasons, the attack preview's evade field).
 // node tests/test_reasons.js

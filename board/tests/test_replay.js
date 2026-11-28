@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no args=../data/match3_log.txt
 // Replays the match 3 log through the engine with the recorded dice and checks every result.
 const fs = require("fs");
 const E = require("../engine.js");

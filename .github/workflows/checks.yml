@@ -1,6 +1,8 @@
 # Quick checks on every pull request and every push to main (Brief 001, split in Brief 003).
 # The slow checks (the full 400 + 400 double-knockout count) run at night instead: see night-checks.yml.
 # The jobs run side by side; the last job is named `checks` and is the one the protection rule on main requires.
+# Brief 031 (amendments 3 and 9): the tests come from one generated list (tools/run-tests.js reads each test file's
+# `@test` line), so no step or name per test is kept here and two builds that add tests never collide in this file.
 name: checks
 
 on:
@@ -14,262 +16,81 @@ on:
 
 permissions:
   contents: read
+  issues: write   # Brief 031 (amendment 11, M6): a failing run on main opens a "Main broken" issue
 
 jobs:
-  rules:
-    name: rule tests
+  # Brief 031: a docs-only pull request (only briefs/, flags/ or .md files outside board/ and sims/) skips the game
+  # jobs below. The `checks` job still runs and reports, so the required check is never skipped.
+  changes:
+    name: what changed
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.c.outputs.docs_only }}
+      screen_only: ${{ steps.c.outputs.screen_only }}
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
         with:
-          node-version: 20
-      # Each test keeps going on failure so every result shows up in the summary; the last step fails the job.
-      - name: test_rules.js
-        id: rules
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_rules.js
-      - name: test_v1.js
-        id: v1
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_v1.js
-      - name: test_v3.js
-        id: v3
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_v3.js
-      - name: test_v31.js
-        id: v31
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_v31.js
-      - name: test_v32.js (rule checks, short double-knockout count of 40 games per format)
-        id: v32
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_v32.js 40
-      - name: test_v33.js
-        id: v33
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_v33.js
-      - name: test_v34.js
-        id: v34
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_v34.js
-      - name: test_v35.js (dice variety - the bands, rounding, Dodge after, pulls and the pooled flag)
-        id: v35
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_v35.js 6
-      - name: test_v36.js (flag rulings - flag blocks the line, full-Strength pulls, pull Reload, set spear on arrival)
-        id: v36
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_v36.js 4
-      - name: test_v37.js (specials - warm-up, the six foot specials, flag rulings, parry, Evade, the bot)
-        id: v37
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_v37.js 2
-      - name: test_fields.js (one field per format - data, deploy areas, turn-1 rule, geometry on 7 columns, the bot)
-        id: fields
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_fields.js 2
-      - name: test_route.js (routes, Game Laws 2.11 - the brief's set-ups mirrored, preview agrees with the move on 1,000 random moves)
-        id: route
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_route.js
-      - name: test_v310.js (rule set v3.10 - Arrow Storm 1.5 times, minimum damage 0.5; 4 seeded games per format)
-        id: v310
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_v310.js 4
-      - name: test_stamina.js (Stamina model; the floor check on every card of every preset)
-        id: stamina
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_stamina.js
-      - name: test_reasons.js
-        id: reasons
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_reasons.js
-      - name: test_spengine.js (Brief 026 - Not enough Command, a killing Pick Off's set spear)
-        id: spengine
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_spengine.js
-      - name: test_kitd.js (Kit D legal actions, 6 games per format)
-        id: kitd
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_kitd.js 6
-      - name: test_brain5.js (three positions; legal play, 2 games per format and lineup)
-        id: brain5
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_brain5.js 2
-      - name: test_brain6.js (clock and Evade positions; legal play, 2 games per format and lineup)
-        id: brain6
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_brain6.js 2
-      - name: test_brain7.js (all off = Brain 5; five lead positions; legal play, 2 games per format and lineup)
-        id: brain7
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_brain7.js 2
-      - name: test_brain8.js (all off = Brain 5; six approach positions; legal play, 2 games per format and lineup)
-        id: brain8
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_brain8.js 2
-      - name: test_brain9.js (both off = Brain 8; five victory positions; spent opening; per-format settings; legal play, 2 games per format and lineup)
-        id: brain9
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_brain9.js 2
-      - name: test_version.js (game version on the board, saved matches, version check)
-        id: version
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_version.js
-      - name: test_watch.js (watch links, the board's lineups and seeded matches)
-        id: watch
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_watch.js
-      - name: test_ui.js (UI v2 - outcome bar, changed numbers, Evade in the preview, unit card text, no being on screen)
-        id: ui
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_ui.js
-      - name: test_events.js (Brief 018 - the match log's facts are display only, rebuilt on replay, never saved)
-        id: events
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_events.js 2
-      - name: lab self-test (an odd job order makes a complete run folder)
-        id: lab
-        continue-on-error: true
-        run: node sims/lab/self_test.js
-      - name: test_stall.js (stall measure, merge totals, record replay, results index rebuild)
-        id: stall
-        continue-on-error: true
-        run: node sims/lab/test_stall.js
-      - name: test_lead.js (lead and alone measures on five saved games, checked by hand)
-        id: lead
-        continue-on-error: true
-        run: node sims/lab/test_lead.js
-      - name: test_capacity.js (the lab's share of machines, and waves change no result; no network)
-        id: capacity
-        continue-on-error: true
-        run: node sims/lab/test_capacity.js
-      - name: test_deliver.js (Brief 027 - one checks run per results pull request with the lab's key; no network)
-        id: deliver
-        continue-on-error: true
-        run: node sims/lab/test_deliver.js
-      - name: test_workflows.js (Brief 027 - results pull requests skip play links, night checks and the lab; 5 release jobs)
-        id: workflows
-        continue-on-error: true
-        run: node sims/lab/test_workflows.js
-      - name: test_board.js (status board, fixture data, no network)
-        id: statusboard
-        continue-on-error: true
-        run: node sims/status/test_board.js
-      - name: test_rng.js
-        id: rng
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_rng.js
-      - name: test_replay.js (Match 3)
-        id: replay
-        continue-on-error: true
-        working-directory: board
-        run: node tests/test_replay.js ../data/match3_log.txt
-      - name: Summary
-        if: always()
+          fetch-depth: 0
+          filter: blob:none
+      - id: c
         env:
-          R: "test_rules.js=${{ steps.rules.outcome }} test_v1.js=${{ steps.v1.outcome }} test_v3.js=${{ steps.v3.outcome }} test_v31.js=${{ steps.v31.outcome }} test_v32.js(40-game-count)=${{ steps.v32.outcome }} test_v33.js=${{ steps.v33.outcome }} test_v34.js=${{ steps.v34.outcome }} test_v35.js(6-games)=${{ steps.v35.outcome }} test_v36.js=${{ steps.v36.outcome }} test_v37.js=${{ steps.v37.outcome }} test_fields.js=${{ steps.fields.outcome }} test_route.js=${{ steps.route.outcome }} test_v310.js=${{ steps.v310.outcome }} test_stamina.js=${{ steps.stamina.outcome }} test_reasons.js=${{ steps.reasons.outcome }} test_spengine.js=${{ steps.spengine.outcome }} test_kitd.js(6-games)=${{ steps.kitd.outcome }} test_brain5.js(2-games)=${{ steps.brain5.outcome }} test_version.js=${{ steps.version.outcome }} test_brain6.js(2-games)=${{ steps.brain6.outcome }} test_brain7.js(2-games)=${{ steps.brain7.outcome }} test_brain8.js(2-games)=${{ steps.brain8.outcome }} test_brain9.js(2-games)=${{ steps.brain9.outcome }} test_watch.js=${{ steps.watch.outcome }} test_ui.js=${{ steps.ui.outcome }} test_events.js=${{ steps.events.outcome }} lab-self-test=${{ steps.lab.outcome }} test_stall.js=${{ steps.stall.outcome }} test_board.js=${{ steps.statusboard.outcome }} test_capacity.js=${{ steps.capacity.outcome }} test_deliver.js=${{ steps.deliver.outcome }} test_workflows.js=${{ steps.workflows.outcome }} test_lead.js=${{ steps.lead.outcome }} test_rng.js=${{ steps.rng.outcome }} test_replay.js=${{ steps.replay.outcome }}"
+          BASE: ${{ github.event.pull_request.base.sha }}
         run: |
-          { echo "## Rule tests"; echo; echo "| Check | Result |"; echo "| --- | --- |"
-            for kv in $R; do o="${kv#*=}"; echo "| ${kv%%=*} | $( [ "$o" = success ] && echo pass || echo "**FAIL** ($o)" ) |"; done
-          } >> "$GITHUB_STEP_SUMMARY"
-          for kv in $R; do [ "${kv#*=}" = success ] || { echo "At least one rule test failed (see the Summary)."; exit 1; }; done
+          if [ -z "$BASE" ]; then echo "docs_only=false" >> "$GITHUB_OUTPUT"; echo "screen_only=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+          git diff --name-only "$BASE"...HEAD > changed.txt
+          node -e 'const R=require("./sims/lab/release_files.js"),f=require("fs").readFileSync("changed.txt","utf8").split("\n").filter(Boolean),c=R.classify(f);
+            const docs=R.docsOnly(f), screen=c.screen.length>0&&!c.game.length&&!c.other.length;
+            console.log(`docs_only=${docs}\nscreen_only=${screen}`)' | tee -a "$GITHUB_OUTPUT"
 
-  invariants:
-    name: impossible states (newest preset)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 20
-      - name: test_invariants.js (newest preset, 30 games)
-        working-directory: board
-        run: node tests/test_invariants.js 30
-
-  redteam:
-    name: impossible states (v3 red team)
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 20
-      - name: redteam invariants (v3, 30 games)
-        run: node .github/invariants-check.js 30
-
-  # Brief 008: 10 simulated games and the same 10 games opened on the board from their watch links play identical moves.
-  board-check:
-    name: simulated games replay on the board
+  tests:
+    name: tests (${{ matrix.job }})
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        job: [rules, slow, brains, invariants, board]
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
+      # The board reads the counted version (main's number, or "<version>+NNN" on a pull request).
+      - name: Stamp the version
+        env:
+          PR: ${{ github.event.pull_request.number }}
+        run: if [ -n "$PR" ]; then node tools/stamp-version.js --pr --pr-number "$PR"; else node tools/stamp-version.js; fi
       - name: Install a headless browser (Playwright)
+        if: matrix.job == 'board'
         run: |
           mkdir -p /tmp/pw && cd /tmp/pw && npm init -y > /dev/null && npm install --no-audit --no-fund playwright@1.49.1 > /dev/null
           npx playwright install --with-deps chromium > /dev/null
-      - name: board_check.js (10 games)
+      # Review F2: the list itself, once per run: every test file has a @test line, a known job and at least one level.
+      - name: Check the test list
+        if: matrix.job == 'rules'
+        run: node tools/run-tests.js --check
+      - name: Run the ${{ matrix.job }} tests from the generated list
         env:
           NODE_PATH: /tmp/pw/node_modules
-        run: node sims/lab/board_check.js 10
-      - name: test_phone.js (Brief 025 - the play screen at 393 x 665)
-        env:
-          NODE_PATH: /tmp/pw/node_modules
-        run: node board/tests/test_phone.js
-      - name: test_hotseat.js (Brief 018 - turn cue, hot-seat views, zoom, gestures, match log)
-        env:
-          NODE_PATH: /tmp/pw/node_modules
-        run: node board/tests/test_hotseat.js
-      - name: test_spflow.js (Brief 026 - the specials flow, phone and desktop)
-        env:
-          NODE_PATH: /tmp/pw/node_modules
-        run: node board/tests/test_spflow.js
-      - name: test_rematch.js (Brief 029 - rematch, New game after the end, Lineup Reset)
-        env:
-          NODE_PATH: /tmp/pw/node_modules
-        run: node board/tests/test_rematch.js
+        run: node tools/run-tests.js --level quick --job ${{ matrix.job }}
 
   compare:
-    name: build number and replay hashes
+    name: version check and replay hashes
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v5
         with:
           node-version: 20
@@ -287,23 +108,43 @@ jobs:
         with:
           ref: ${{ steps.base.outputs.sha }}
           path: base-commit
-      # Brief 003: a change to board/ must raise the build number in board/version.js (Brief 007: and change the game version).
-      - name: Build number went up and game version changed
+      # Brief 031 (replaces check-build-number.sh): no number in the pull request; it adds releases/NNN.json matching its
+      # brief, releases/ is append-only, and board/version.js stays null. The number is counted at merge.
+      - name: Version check (releases/NNN.json, no number in version.js)
         id: build
         shell: bash   # bash with pipefail, so a failing check is not hidden by tee
-        run: bash .github/check-build-number.sh base-commit . | tee build-number.txt
-      # Report only: a rule change is meant to change one rule set's hash.
-      - name: Replay regression hashes (report only)
-        id: regress
-        continue-on-error: true
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
-          if [ -f base-commit/board/engine.js ]; then node board/tests/regress_engine.js base-commit/board 3 | tee regress-base.txt; fi
-          node board/tests/regress_engine.js board 3 | tee regress-head.txt
+          if [ -z "${{ steps.base.outputs.sha }}" ]; then echo "No earlier commit to compare against." | tee build-number.txt; exit 0; fi
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            node tools/check-release.js --base "${{ steps.base.outputs.sha }}" --title "$TITLE" --head-ref "$HEAD_REF" | tee build-number.txt
+          else
+            node tools/check-release.js --base "${{ steps.base.outputs.sha }}" --push | tee build-number.txt
+          fi
+      # Report only for a build that changes a game file (a rule change is meant to change one rule set's hash).
+      # Brief 031: must pass for a screen-only build (app.js, ui.js, skin.js, index.html): every preset, the newest
+      # included, must replay exactly as on its base, since it gets no release run.
+      - name: Replay regression hashes
+        id: regress
+        continue-on-error: ${{ needs.changes.outputs.screen_only != 'true' }}
+        env:
+          SCREEN_ONLY: ${{ needs.changes.outputs.screen_only }}
+        run: |
+          # every preset and every brain, 1 game each (3 games of `all` take about 15 minutes a board)
+          n=3; all=""; [ "$SCREEN_ONLY" = "true" ] && { n=1; all="all"; }
+          if [ -f base-commit/board/engine.js ]; then node board/tests/regress_engine.js base-commit/board $n $all | tee regress-base.txt; fi
+          node board/tests/regress_engine.js board $n $all | tee regress-head.txt
+          if [ "$SCREEN_ONLY" = "true" ] && [ -f regress-base.txt ]; then
+            if diff <(grep -v '^#' regress-base.txt) <(grep -v '^#' regress-head.txt); then echo "Screen-only build: every preset replays exactly as on its base."
+            else echo "FAIL: a screen-only build changed how games replay (hashes above differ). It would need a release run: change a game file's classification or fix the leak."; exit 1; fi
+          fi
       - name: Summary
         if: always()
         run: |
-          { echo "## Build number"; echo; echo '```'; cat build-number.txt 2>/dev/null; echo '```'
-            echo "## Replay regression hashes (report only)"; echo
+          { echo "## Version check"; echo; echo '```'; cat build-number.txt 2>/dev/null; echo '```'
+            echo "## Replay regression hashes (must match for a screen-only build; report only otherwise)"; echo
             echo "A rule change is meant to change one rule set's hash. Every other rule set should print the same hash."; echo
             if [ -f regress-base.txt ]; then echo "**Earlier commit** \`${{ steps.base.outputs.sha }}\`"; echo '```'; cat regress-base.txt; echo '```'; else echo "No earlier board to compare against."; fi
             if [ -f regress-head.txt ]; then echo "**This commit**"; echo '```'; cat regress-head.txt; echo '```'; fi
@@ -314,26 +155,52 @@ jobs:
   checks:
     name: checks
     if: always()
-    needs: [rules, invariants, redteam, board-check, compare]
+    needs: [changes, tests, compare]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: All quick checks passed
         env:
-          RULES: ${{ needs.rules.result }}
-          INV: ${{ needs.invariants.result }}
-          RED: ${{ needs.redteam.result }}
+          TESTS: ${{ needs.tests.result }}
           CMP: ${{ needs.compare.result }}
-          BOARD: ${{ needs.board-check.result }}
+          CHANGES: ${{ needs.changes.result }}
+          DOCS: ${{ needs.changes.outputs.docs_only }}
         run: |
           mark() { [ "$1" = success ] && echo pass || echo "**FAIL** ($1)"; }
+          # Brief 031: a docs-only pull request skips the game jobs; this job still reports, so the check is never skipped.
+          if [ "$CHANGES" = success ] && [ "$DOCS" = true ]; then
+            { echo "## Quick checks"; echo; echo "Docs-only pull request (briefs/, flags/ or .md files outside board/ and sims/): the game jobs were skipped."; } >> "$GITHUB_STEP_SUMMARY"
+            echo "Docs only: nothing to check."; exit 0
+          fi
+          [ "$CHANGES" = success ] || { echo "Could not tell what changed."; exit 1; }
           { echo "## Quick checks"; echo; echo "| Job | Result |"; echo "| --- | --- |"
-            echo "| Rule tests (incl. 40-game double-knockout count) | $(mark "$RULES") |"
-            echo "| Impossible states, newest preset | $(mark "$INV") |"
-            echo "| Impossible states, v3 red team | $(mark "$RED") |"
-            echo "| Simulated games replay on the board (10 games) | $(mark "$BOARD") |"
-            echo "| Build number went up, game version changed (and replay hashes, report only) | $(mark "$CMP") |"
-            echo; echo "The full 400 + 400 double-knockout count runs every night (night-checks)."
+            echo "| Tests from the generated list (rules, slow, brains, invariants, board) | $(mark "$TESTS") |"
+            echo "| Version check (releases/NNN.json, no number in version.js) and replay hashes | $(mark "$CMP") |"
+            echo; echo "The full counts run every night (night-checks)."
           } >> "$GITHUB_STEP_SUMMARY"
-          for r in "$RULES" "$INV" "$RED" "$BOARD" "$CMP"; do [ "$r" = success ] || { echo "A quick check failed: see the jobs above."; exit 1; }; done
+          for r in "$TESTS" "$CMP"; do [ "$r" = success ] || { echo "A quick check failed: see the jobs above."; exit 1; }; done
           echo "All quick checks passed."
+
+  # Brief 031 (amendment 11, M6): main is tested as merged only after the merge, so a failing run on main raises the
+  # alarm: an issue "Main broken" (the status board shows "main broken since <brief>"), closed again when main passes.
+  alarm:
+    name: main broken alarm
+    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [checks]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Open, add to or close the Main broken issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ needs.checks.result }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          SHA: ${{ github.sha }}
+        run: |
+          n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search 'in:title "Main broken"' --json number --jq '.[0].number')
+          if [ "$RESULT" = success ]; then
+            [ -z "$n" ] || gh issue close "$n" --repo "$GITHUB_REPOSITORY" --comment "main passes its checks again at ${SHA::7} ($RUN)."
+            exit 0
+          fi
+          body="The checks failed on \`main\` at ${SHA::7}: $RUN. Opened automatically by the checks workflow (Brief 031); it closes itself when main passes again."
+          if [ -n "$n" ]; then gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "$body"; else gh issue create --repo "$GITHUB_REPOSITORY" --title "Main broken" --body "$body"; fi

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// @test job=rules quick=yes release=yes night=no
 /* Brief 027: the workflow conditions it changed, tried on sample events with no network.
  * Each `if:` is read from the workflow file and evaluated by a small stand-in for GitHub's expression language
  * (enough for ==, !=, &&, ||, !, startsWith, contains and labels.*.name), so the test checks the real text.
@@ -55,7 +56,7 @@ ok(evaluate(play, build), "play-links: still runs on a build pull request");
 ok(evaluate(play, ev("push")), "play-links: still runs on a push to main");
 const playText = wf("play-links.yml");
 ok(!/^concurrency:/m.test(playText) && /^    concurrency:\n      group: play-links/m.test(playText), "play-links: the queue is on the job, so a skipped results run can't cancel a waiting publish");
-ok(/push:\n    branches: \[main\]\n    paths: \["board\/\*\*"\]/.test(playText), "play-links: main republishes only when a push changes board/ (a merged results pull request doesn't)");
+ok(/push:\n    branches: \[main\]\n    paths: \["board\/\*\*", "releases\/\*\*", "changelog\/\*\*"\]/.test(playText), "play-links: main republishes only when a push changes board/, releases/ or changelog/ (a merged results pull request doesn't; Brief 031: a new version does)");
 
 // 3. night-checks: never on a results pull request, even labelled; labelled build pull requests and nights unchanged.
 const night = jobIf(wf("night-checks.yml"), "full");
@@ -84,18 +85,55 @@ const on = sbText.slice(sbText.indexOf("\non:"), sbText.indexOf("\npermissions:"
 ok(!/workflow_run/.test(on), "status board: no longer starts when checks / night-checks / lab finish");
 ok(/schedule:\n\s+- cron: "41 \* \* \* \*"/.test(on) && /pull_request:/.test(on) && /push:/.test(on) && /workflow_dispatch:/.test(on), "status board: hourly, pull request, push and by-hand starts stay");
 
-// 1. release checks: 5 jobs, and every check of the 16-job runs still reports by name.
+// Release checks (Brief 031, amendment 9): one machine per test group from the generated list, plus the hashes.
 const labText = wf("lab.yml");
 const mat = labText.slice(labText.indexOf("  release-checks:"), labText.indexOf("    steps:", labText.indexOf("  release-checks:")));
-const jobs = [...mat.matchAll(/- \{ name: "([^"]+)", cmd: "/g)].map((m) => m[1]);
-ok(jobs.length === 5, `release checks: 5 jobs (was 16): ${jobs.join(", ")}`);
-const quick = fs.readFileSync(path.join(__dirname, "release_quick.txt"), "utf8").split("\n").filter(Boolean).map((l) => l.split("|"));
-const before = ["test_rules.js", "test_v1.js", "test_v3.js", "test_v31.js", "test_v32.js (400 + 400)", "test_v33.js", "test_v34.js", "test_reasons.js", "test_kitd.js (30)",
-  "test_brain5.js (30)", "test_watch.js", "test_rng.js", "test_invariants.js (100)", "test_replay.js", "other brain tests (30)", "regression hashes"];
-const reported = [...quick.map(([n]) => n), ...jobs.filter((n) => n !== "quick checks")];
-ok(before.every((n) => reported.includes(n)) && reported.length === before.length, "release checks: all 16 checks still report pass or fail under the same names");
-ok(quick.every(([n, c]) => n && /^node tests\/test_\w+\.js/.test(c || "")), "release checks: every quick line is name|command");
-ok(quick.every(([, c]) => fs.existsSync(path.join(ROOT, "board", c.split(" ")[1]))), "release checks: every quick check's test file exists");
+const jobs = [...mat.matchAll(/- \{ name: "([^"]+)", cmd: "([^"]+)" \}/g)].map((m) => m[2]);
+const RT = require(path.join(ROOT, "tools", "run-tests.js"));
+ok(JSON.stringify(jobs) === JSON.stringify(RT.JOBS.concat(["hashes"])), `release checks: one job per test group plus the hashes (${jobs.join(", ")})`);
+ok(/run-tests\.js --level release --job "\$CMD"/.test(labText) && !fs.existsSync(path.join(__dirname, "release_quick.txt")) && !fs.existsSync(path.join(__dirname, "release_tests.js")), "release checks: run from the generated list; no hand-kept list left");
+ok(/regress_engine\.js board 3 all/.test(labText), "release checks: the regression hashes cover every preset, the newest included");
+ok(/matrix\.check\.cmd == 'board'[\s\S]{0,200}playwright/.test(labText), "release checks: the board group gets a headless browser");
+ok(RT.missing().length === 0, `every test file declares how it runs, or is in the commented skip list (missing: ${RT.missing().join(", ") || "none"})`);
+const names = ["test_rules.js", "test_v1.js", "test_v3.js", "test_v31.js", "test_v33.js", "test_v34.js", "test_reasons.js", "test_kitd.js (30)", "test_brain5.js (30)", "test_watch.js",
+  "test_rng.js", "test_replay.js", "test_v32.js (400)", "test_invariants.js (100)", "test_phone.js", "test_rematch.js", "test_page.js", "self_test.js", "invariants-check.js (30)", "board_check.js (10)"];
+const rel = RT.select("release").map((t) => t.name);
+ok(names.every((n) => rel.includes(n)), `the release run covers the old 16 checks and the ones it missed (${names.filter((n) => !rel.includes(n)).join(", ") || "all there"})`);
+const nightList = RT.select("night").map((t) => t.name);
+ok(["test_brain5.js (30)", "test_brain9.js (30)", "test_v32.js (400)", "test_invariants.js (100)", "test_kitd.js (30)"].every((n) => nightList.includes(n)), "night checks: the brain tests come from the list (a new brain's test is picked up the day it is added)");
+const nightText = wf("night-checks.yml");
+ok(/run-tests\.js --level night/.test(nightText) && !/test_brain6\.js/.test(nightText), "night checks: no hand list of tests");
+
+// Brief 031: the release decision and the stamp.
+const labOn = labText.slice(labText.indexOf("\non:"), labText.indexOf("\npermissions:"));
+ok(/paths: \["studies\/queue\/\*\*", "board\/\*\*", "sims\/lab\/\*\*"\]/.test(labOn) && /paths: \["board\/\*\*", "releases\/\*\*", "studies\/queue\/\*\*"\]/.test(labOn), "lab: planned on pull requests touching board/ or the lab, and on main when a version is added");
+ok(/release_files\.js --plan --pr "\$PR"/.test(labText) && /release_files\.js --plan;/.test(labText), "lab: the release is decided by the game key (pull request: against its merge-base; main: the backlog)");
+ok((labText.match(/stamp-version\.js --set "\$\{\{ needs\.plan\.outputs\.game \}\}"/g) || []).length >= 4, "lab: every job after the plan uses the plan's stamp (one stamp per version played)");
+ok(/<!-- release-key: \$KEY -->/.test(labText) && /FAILED/.test(labText), "lab: a finished release run on a pull request posts its game key");
+ok(/needs\.plan\.outputs\.more == 'true' \|\| needs\.plan\.outputs\.deferred == 'true'[\s\S]{0,200}gh workflow run lab\.yml/.test(labText), "lab: if more versions miss a release run, or job orders were set aside, the lab starts itself again");
+ok(/deferred=true/.test(labText) && /git ls-tree --name-only origin\/main studies\/queue\//.test(labText), "lab (review F4): job orders set aside to play an older version mark the run as deferred (main's queue)");
+ok(/matrix\.job == 'rules'\n        run: node tools\/run-tests\.js --check/.test(wf("checks.yml")), "checks (review F2): the test list is checked once per run");
+ok(/same:\n    name: same games as a filed release/.test(labText), "lab: versions with the same games get a same-games line");
+for (const [file, min] of [["lab.yml", 2], ["play-links.yml", 1], ["night-checks.yml", 1], ["checks.yml", 1]]) {
+  const t = wf(file), stamps = (t.match(/tools\/stamp-version\.js/g) || []).length;
+  ok(stamps >= min && /filter: blob:none/.test(t), `${file}: stamps the version after a blobless checkout (${stamps} stamp steps)`);
+}
+ok(/Still main's newest commit\?[\s\S]{0,400}skip=true/.test(wf("play-links.yml")), "play-links: an overtaken publish of main skips itself");
+ok(/git reset -q -- results\/INDEX\.md results\/index\.csv/.test(fs.readFileSync(path.join(__dirname, "deliver.sh"), "utf8")), "deliver: a build's branch never gets the results index");
+
+// checks.yml: the generated list, docs-only skips, the version check, the alarm.
+const chk = wf("checks.yml");
+for (const job of ["tests", "compare"]) ok(jobIf(chk, job) === "needs.changes.outputs.docs_only != 'true'", `checks: ${job} is skipped on a docs-only pull request`);
+ok(/job: \[rules, slow, brains, invariants, board\]/.test(chk) && /run-tests\.js --level quick --job \$\{\{ matrix\.job \}\}/.test(chk) && !/test_v32\.js/.test(chk) && !/\bR: "/.test(chk), "checks: tests come from the generated list; no step or R: entry per test");
+ok(/needs: \[changes, tests, compare\]/.test(chk) && /Docs only: nothing to check\./.test(chk), "checks: the required job still runs and passes on a docs-only pull request");
+ok(/tools\/check-release\.js/.test(chk) && !fs.existsSync(path.join(ROOT, ".github", "check-build-number.sh")), "checks: the version check replaced check-build-number.sh");
+ok(/continue-on-error: \$\{\{ needs\.changes\.outputs\.screen_only != 'true' \}\}/.test(chk), "checks: replay hashes must match for a screen-only build");
+ok(/alarm:[\s\S]*Main broken/.test(chk) && /issues: write/.test(chk), "checks: a failing run on main opens the Main broken issue (and closes it when main passes)");
+
+// waits-on: one script, every open pull request, on pull request events, every push to main and hourly.
+const wo = wf("waits-on.yml");
+ok(/push:\n    branches: \[main\]/.test(wo) && /schedule:/.test(wo) && /tools\/waits-on\.js --all/.test(wo) && /statuses: write/.test(wo), "waits-on: one script sets it on every open pull request, on events, pushes to main and hourly");
+ok(/types: \[opened, synchronize, reopened, edited, ready_for_review\]/.test(wo), "waits-on: set on each push to a pull request and when its title changes");
 
 console.log(fails ? `\n${fails} check(s) FAILED` : "\nAll workflow checks passed.");
 process.exit(fails ? 1 : 0);

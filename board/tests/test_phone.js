@@ -1,3 +1,4 @@
+// @test job=board quick=yes release=yes night=no browser
 // Phone fit checks (Brief 025, Approved UI v5): the play screen at 393 × 665 in a headless browser.
 // - under 900 px the play screen has no title bar and no "Pull up for the key" tab;
 // - the unit bar is the same height (63 px) with nothing tapped, a unit tapped, a move previewed, an enemy tapped and a

@@ -1,3 +1,4 @@
+// @test job=rules quick=yes release=yes night=no
 // Route checks (Brief 017, Game Laws 2.11, rule set v3.9, switch `routeRule211`).
 // The brief's set-ups (7v7 on the v3.9 field), each mirrored top to bottom; older rule sets still jump; the preview
 // agrees with the move (route().end is where the move ends, and its events are what the move does) on 1,000 random

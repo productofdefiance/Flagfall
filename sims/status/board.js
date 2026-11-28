@@ -16,6 +16,8 @@ const { execFileSync } = require("child_process");
 const LIMITS = { results: 8, flags: 12, pageFlags: 8, issueChars: 300, merged: 3, closedChats: 5, staleDays: 3, maxBytes: 4096 };
 const PAGE = require("./page.js");
 const CAP = require("../lab/capacity.js");
+const SV = require("../../tools/stamp-version.js");   // Brief 031: the one counting script
+const WO = require("../../tools/waits-on.js");
 const FLAG_OPEN = ["OPEN", "ASK", "DECIDE", "TEST"];
 const FLAG_BANG = ["ASK", "DECIDE"];
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -76,13 +78,13 @@ function nameKey(name) {
 }
 /** The brief number a pull request title names: "v3.10.00 · 011 Rules · …", "019 Bot · … (YY)", "Brief 006: …". */
 function briefFromTitle(title) {
-  const m = /(?:^|·\s*|\bBrief\s+)(\d{3})(?=[\s:·]|$)/i.exec(String(title || ""));
+  const m = /(?:^|·\s*|\bBrief\s+)(\d{3}(?:-\d+)?)(?=[\s:·]|$)/i.exec(String(title || ""));   // NNN-2: a follow-up (Brief 031, A4)
   return m ? m[1] : null;
 }
 /** The short name after "NNN Lane · " in a title, without a trailing "(YY)". */
 function nameFromTitle(title) {
   const t = String(title || "");
-  const m = /\d{3}\s+\w+\s+·\s+(.+)$/.exec(t) || /Brief\s+\d{3}[^:]*:\s*(.+)$/i.exec(t);
+  const m = /\d{3}(?:-\d+)?\s+\w+\s+·\s+(.+)$/.exec(t) || /Brief\s+\d{3}[^:]*:\s*(.+)$/i.exec(t);
   return m ? m[1].replace(/\s*\((X|YY|ZZ|none)\)\s*$/i, "").trim() : t;
 }
 /** "victory-values" → "Victory values". */
@@ -160,13 +162,14 @@ function shortChatDate(s) {
 
 // ---------- Brief 023: needs sync, build state, results shares ----------
 
-/** Paths that never make a build "behind main": lab results merge to main all day. */
+/** Paths that never make a build "behind main": lab results merge to main all day. (Kept for old callers; since
+    Brief 031 being behind main is no reason to sync: versions no longer conflict.) */
 const SYNC_IGNORE = /^(results|studies)\//;
-/** "conflict" when GitHub says the pull request can't merge cleanly, "behind" when main has changed anything outside
-    results/ and studies/ since the pull request last met main, else null. mergeable: true | false | null (unknown). */
-function syncState(mergeable, behindFiles) {
+/** "conflict" when GitHub says the pull request can't merge cleanly (a real conflict, or a branch behind main that
+    GitHub can't merge), else null. Brief 031: being behind main no longer means "Needs sync": no pull request carries a
+    version number, so builds merge in any order. mergeable: true | false | null (unknown); behindFiles is ignored. */
+function syncState(mergeable, behindFiles) {   // eslint-disable-line no-unused-vars
   if (mergeable === false) return "conflict";
-  if ((behindFiles || []).some((f) => !SYNC_IGNORE.test(f))) return "behind";
   return null;
 }
 /** One state per building row, in the brief's order: Broken, Needs sync, On hold, Ready to merge, Review, Running. */
@@ -232,23 +235,28 @@ function buildBoard(facts, opts) {
   const prs = (facts.prs || []).filter((p) => p.brief);
   const open = prs.filter((p) => p.state === "open").sort((a, b) => a.brief.localeCompare(b.brief) || a.number - b.number);
   const merged = prs.filter((p) => p.state === "merged").sort((a, b) => String(b.mergedAt).localeCompare(String(a.mergedAt)));
-  const mergedSet = new Set(merged.map((p) => p.brief));
+  // Merged: a merged pull request, or main's releases/ (and BASE.json's list of old-way briefs: Brief 031, B1).
+  const mergedSet = new Set(merged.map((p) => p.brief).concat(facts.mergedBriefs || []));
   const openSet = new Set(open.map((p) => p.brief));
   const briefName = (num, pr) => {
     const b = briefs.get(num);
     return (b && b.slug ? nameFromSlug(b.slug) : "") || (pr ? nameFromTitle(pr.title) : "");
   };
 
-  // VERSION
+  // VERSION. Brief 031: a pull request carries no number; the board says what it would get if it merged next (the same
+  // counting as tools/stamp-version.js), and what it still waits on.
   const m = facts.main || {};
+  const sizeOf = (p) => p.size || (briefs.get(p.brief) || {}).size || null;
+  const nextOf = (p) => { const z = sizeOf(p); try { return z && z !== "none" && m.game ? SV.bump(m.game, z) : null; } catch (e) { return null; } };
   const building = open.map((p) => {
-    const taken = p.game && verGreater(p.game, m.game);
-    const size = p.size || (briefs.get(p.brief) || {}).size;
-    return `${p.brief} → ${taken ? p.game : size || "?"}`;
+    const z = sizeOf(p), next = nextOf(p);
+    return [`${p.brief} → ${z || "?"}`, z === "none" ? "no version" : next ? `would be ${next} if merged next` : null, p.waits && p.waits.length ? `waits on ${p.waits.join(", ")}` : null].filter(Boolean).join(" · ");
   });
+  const broken = facts.mainBroken ? [line(`! main broken since ${facts.mainBroken.since}`, 1, "ask")] : [];
   sections.push({ title: "VERSION", lines: [
     line(`On main: ${[m.game, m.build ? `Build ${m.build}` : null, m.rules ? `Rules ${m.rules}` : null, m.brain || null].filter(Boolean).join(" · ")}`),
-    line(`Building: ${building.length ? building.join(" · ") : "none"}`)
+    ...broken,
+    line(`Building: ${building.length ? building.join("; ") : "none"}`)
   ] });
 
   // RESULTS
@@ -296,7 +304,7 @@ function buildBoard(facts, opts) {
   bl.push(line("Building"));
   for (const p of open) {
     const review = p.review ? `reviewed: ${p.review}` : "not reviewed";
-    bl.push(line(`${p.brief} ${briefName(p.brief, p)} · PR #${p.number} · ${p.sync ? "needs sync" : p.draft ? "Draft" : "Ready"} · ${p.checks && p.checks !== "none" ? `checks ${p.checks}` : "no checks yet"} · ${review}`, 2));
+    bl.push(line(`${p.brief} ${briefName(p.brief, p)} · PR #${p.number} · ${p.sync ? "needs sync" : p.draft ? "Draft" : "Ready"} · ${p.checks && p.checks !== "none" ? `checks ${p.checks}` : "no checks yet"} · ${review}${p.waits && p.waits.length ? ` · waits on ${p.waits.join(", ")}` : ""}`, 2));
   }
   if (!open.length) bl.push(line("none", 2));
   const ready = [], waiting = [];
@@ -313,8 +321,10 @@ function buildBoard(facts, opts) {
   bl.push(line(`Merged (last ${LIMITS.merged})`));
   const lastMerged = [];
   for (const p of merged) { if (!lastMerged.find((x) => x.brief === p.brief)) lastMerged.push(p); if (lastMerged.length >= LIMITS.merged) break; }
+  // Merged builds show the number they got: counted (Brief 031), or the one in an old-way title.
+  const mergedVersion = (p) => p.version || (/\bv\d+\.\d+\.\d+\b/.exec(p.title) || /\bBuild \d+\b/.exec(p.title) || [])[0] || null;
   for (const p of lastMerged) {
-    const v = (/\bv\d+\.\d+\.\d+\b/.exec(p.title) || /\bBuild \d+\b/.exec(p.title) || [])[0];
+    const v = mergedVersion(p);
     bl.push(line([`${p.brief} ${briefName(p.brief, p)}`, v, p.mergedAt ? etDay(p.mergedAt) : null].filter(Boolean).join(" · "), 2));
   }
   if (!lastMerged.length) bl.push(line("none", 2));
@@ -342,14 +352,13 @@ function buildBoard(facts, opts) {
   const view = {
     schema: 2,
     updatedText: etTime(now),
-    main: { game: m.game || null, build: m.build || null, rules: m.rules || null, brain: m.brain || null },
+    main: { game: m.game || null, build: m.build || null, rules: m.rules || null, brain: m.brain || null, broken: facts.mainBroken ? facts.mainBroken.since : null },
     queue: queue ? { text: queue.text, mark: queue.mark, jobsWaiting: facts.queue ? facts.queue.jobsWaiting : null, oldestWaitMin: facts.queue ? facts.queue.oldestWaitMin : null, labUsing: facts.queue ? facts.queue.labUsing : null } : null,
     nightly: facts.nightly ? { state: facts.nightly.conclusion, time: facts.nightly.time, timeText: etTime(facts.nightly.time).replace(/^(\d+ \w+) \d{4},/, "$1,") } : null,
     builds: {
       building: open.map((p) => {
-        const taken = p.game && verGreater(p.game, m.game);
         return { brief: p.brief, name: briefName(p.brief, p), pr: p.number, draft: !!p.draft, checks: p.checks || "none", review: p.review || null,
-          sync: p.sync || null, state: buildState(p), version: taken ? p.game : null, size: p.size || (briefs.get(p.brief) || {}).size || null,
+          sync: p.sync || null, state: buildState(p), version: null, next: nextOf(p), waitsOn: p.waits && p.waits.length ? p.waits : null, size: sizeOf(p),
           play: `https://productofdefiance.github.io/Flagfall/pr/${p.number}/` };
       }),
       waiting: nums.map((n) => {
@@ -358,7 +367,7 @@ function buildBoard(facts, opts) {
         return { brief: n, name: briefName(n), waitsOn: w && w.length ? w : null, ready: !!(w && !w.length), stated: !!w };
       }).sort((a, b) => Number(a.ready) - Number(b.ready) || a.brief.localeCompare(b.brief)),
       merged: lastMerged.map((p) => ({ brief: p.brief, name: briefName(p.brief, p), pr: p.number,
-        version: (/\bv\d+\.\d+\.\d+\b/.exec(p.title) || /\bBuild \d+\b/.exec(p.title) || [])[0] || null, date: p.mergedAt ? etDay(p.mergedAt) : null })),
+        version: mergedVersion(p), date: p.mergedAt ? etDay(p.mergedAt) : null })),
       mergedLimit: LIMITS.merged
     },
     results: recent.slice(0, LIMITS.results).map((r) => ({ id: r.id, kind: r.kind || null, version: r.version || null, date: r.date, dateText: isoDay(r.date),
@@ -466,9 +475,12 @@ function gather(opts) {
   try { git("fetch", "-q", "--no-tags", "origin", `+refs/heads/status:${NS}/status`); } catch (e) { hasStatus = false; }
   const MAIN = `${NS}/main`;
 
-  // main: game version, build, newest rule set, default brain.
+  // main: game version, build, newest rule set, default brain. Brief 031: counted from merge order (tools/stamp-version.js,
+  // the one counting script); a main from before Brief 031 still has its number in board/version.js.
   const vjs = show(MAIN, "board/version.js") || "";
   const main = { game: (/game:\s*"([^"]+)"/.exec(vjs) || [])[1], build: Number((/build:\s*(\d+)/.exec(vjs) || [])[1]) || null, rules: null, brain: null };
+  let counted = null;
+  try { counted = SV.countAt(repoDir, MAIN, MAIN); main.game = counted.game; main.build = counted.build; } catch (e) { counted = null; }
   try {
     const tmp = fs.mkdtempSync(path.join(require("os").tmpdir(), "sb-"));
     fs.writeFileSync(path.join(tmp, "data.js"), show(MAIN, "board/data.js"));
@@ -479,6 +491,16 @@ function gather(opts) {
   const cl = show(MAIN, "CHANGELOG.md") || "";
   const vrow = cl.split("\n").find((l) => main.game && l.startsWith(`| ${main.game} |`));
   if (vrow) main.brain = vrow.split("|").map((x) => x.trim())[3] || null;
+  // After Brief 031: the newest brain a releases file names, else the last row of CHANGELOG.md's table.
+  if (!vrow && counted) {
+    const named = counted.history.filter((h) => h.brain).pop();
+    const first = cl.split("\n").find((l) => /^\|\s*v\d/.test(l));
+    main.brain = named ? named.brain : first ? first.split("|").map((x) => x.trim())[3] || null : null;
+  }
+  const versionOfBrief = new Map(((counted && counted.history) || []).filter((h) => h.brief && h.bump !== "none").map((h) => [h.brief, h.game]));
+  /** Which briefs main has merged (releases/NNN.json, plus BASE.json's list of old-way briefs). */
+  let mergedOnMain = new Set();
+  try { mergedOnMain = WO.mergedOnMain(repoDir, MAIN); } catch (e) { mergedOnMain = new Set(); }
 
   // Briefs on brief/NNN-* branches.
   const briefRefs = git("for-each-ref", "--format=%(refname)", `${NS}/brief/`).split("\n").filter(Boolean);
@@ -514,9 +536,11 @@ function gather(opts) {
       if (!brief && base) brief = addedBrief(git("diff", "--name-only", "--diff-filter=A", base, head, "--", "briefs/").split("\n").filter(Boolean));
       rec.brief = brief;
       if (brief) {
+        // An old-way pull request (opened before Brief 031) may still carry a number in version.js.
         const hv = show(head, "board/version.js") || "";
         rec.game = (/game:\s*"([^"]+)"/.exec(hv) || [])[1] || null;
         const bf = ls(head, "briefs").find((f) => path.basename(f).startsWith(`${brief}-`));
+        // waits-on (Brief 031): the same verdict as the required check, worked out below for every open pull request.
         rec.size = (briefs.find((b) => b.num === brief) || {}).size || (bf ? parseBrief(show(head, bf)).size : null);
         // Checks: the required `checks` job on the head commit.
         try {
@@ -549,6 +573,7 @@ function gather(opts) {
         brief = cache.prBrief[k];
       }
       rec.brief = brief;
+      if (brief && versionOfBrief.has(brief)) rec.version = versionOfBrief.get(brief);
     }
     prs.push(rec);
   }
@@ -597,8 +622,34 @@ function gather(opts) {
     }
   }
 
+  // waits-on (Brief 031, amendment 8): the same script and the same copy-of-the-brief rule as the required check.
+  try {
+    const briefRefMap = {};
+    for (const b of briefs) briefRefMap[b.num] = `${NS}/brief/${b.slug}`;
+    const open = openPrs.map((p) => ({ number: p.number, title: p.title, head: `${NS}/pr/${p.number}`, headRef: p.head.ref }));
+    const verdicts = WO.evaluate(repoDir, MAIN, open, briefRefMap);
+    for (const rec of prs) { const v = verdicts.get(rec.number); if (v && v.state === "failure") { rec.waits = v.waits && v.waits.length ? v.waits : null; rec.waitsWhy = v.description; } }
+  } catch (e) { /* left blank, never guessed */ }
+
+  // main broken (amendment 11, M6): the newest finished checks run on main failed. "since" is the brief whose merge
+  // started the run of failures (its releases file), else the commit.
+  let mainBroken = null;
+  try {
+    const runs = (api("actions/workflows/checks.yml/runs?branch=main&event=push&per_page=30").workflow_runs || []).filter((r) => r.status === "completed");
+    if (runs.length && runs[0].conclusion === "failure") {
+      let first = runs[0];
+      for (const r of runs) { if (r.conclusion !== "failure") break; first = r; }
+      let since = first.head_sha.slice(0, 7);
+      try {
+        const added = git("diff-tree", "--no-commit-id", "--name-only", "--diff-filter=A", "-r", "-m", "--first-parent", first.head_sha, "--", "releases/").split("\n").map(SV.briefOfFile).filter(Boolean);
+        if (added.length) since = added[0];
+      } catch (e) { /* the commit, then */ }
+      mainBroken = { since, run: first.html_url };
+    }
+  } catch (e) { mainBroken = null; }
+
   for (const p of prs) delete p.base;
-  return { facts: { now: (opts.now || new Date()).toISOString(), main, nightly, queue, results, flags, briefs, prs, chats }, cache, old };
+  return { facts: { now: (opts.now || new Date()).toISOString(), main, mainBroken, mergedBriefs: [...mergedOnMain].sort(), nightly, queue, results, flags, briefs, prs, chats }, cache, old };
 }
 
 /** Write a file through a temp file and a rename, so a failed run never leaves half a file. */
