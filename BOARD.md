@@ -1,4 +1,4 @@
-STATUS · updated 28 Nov 2026, 6:39 am ET
+STATUS · updated 28 Nov 2026, 6:43 am ET
 
 VERSION
   On main: v3.20.01 · Build 26 · Rules v3.10 · Brain 8
@@ -6,7 +6,7 @@ VERSION
 
 RESULTS (last 24 hours)
   Nightly checks: cancelled (27 Nov, 1:05 pm ET)
-  Queue: 1 job waiting, oldest 0 min
+  Queue: clear
   release v3.20.01 · 5v5 26.5% · 7v7 13.2% on the turn limit · 28 Nov
   screen v3.19.00 · 5v5 23.5% · 7v7 14.5% on the turn limit · 27 Nov
   release v3.20.00 · 5v5 21.6% · 7v7 14.1% on the turn limit · 27 Nov
