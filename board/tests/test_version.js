@@ -104,6 +104,18 @@ ok(/started: new Date\(\)\.toISOString\(\), game: V\.game/.test(app), "a new mat
 ok(/game: match\.game \|\| null, build: match\.build/.test(app), "a finished match's summary keeps it next to build");
 ok(/game: m\.game \|\| null, build: m\.build/.test(app), "the copied match record keeps it next to build");
 
+// ---- Brief 032 (M10): a build's own "+NNN" label once that brief has merged ----
+{
+  const B = { game: "v3.21.00", build: 27, briefs: { "031": "v3.20.01", "030": "v3.21.00" } };
+  ok(V.resolve("v3.20.01+030", B) === "v3.21.00" && !V.differs("v3.20.01+030", B), "a watch link labelled v3.20.01+030 opens with no warning once 030 merged as v3.21.00");
+  ok(V.differs("v3.20.01+033", B) && V.resolve("v3.20.01+033", B) === "v3.20.01+033", "a label from a brief that never merged keeps the warning");
+  ok(V.differs("v3.20.01+031", B), "a merged brief that got another version still warns (031 = v3.20.01, this board v3.21.00)");
+  ok(!V.differs("v3.21.00", B) && V.differs("v3.20.01", B) && !V.differs("v3.21.00+pr7", { game: "v3.21.00+pr7", briefs: null }), "plain versions compare as before; a preview's own label matches itself");
+  ok(!V.differs("v3.20.01+030", { game: null, briefs: null }) && !V.differs(undefined, B), "an unstamped board or a link with no version never warns (as before)");
+  ok(V.differs("v3.20.01+030", { game: "v3.21.00", briefs: null }), "a board stamped before the brief map existed warns as before");
+  ok(V.briefs === null || typeof V.briefs === "object", "version.js carries a briefs field (null in the repository)");
+}
+
 // ---- This repository: the board reads what the stamp counts ----
 let here = null;
 try { here = SV.countAt(ROOT, "HEAD"); } catch (e) { console.log(`  (this clone has no history back to the baseline: ${e.message.split(":")[0]}; repository count skipped)`); }

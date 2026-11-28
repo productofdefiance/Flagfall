@@ -22,6 +22,13 @@
  *   node tools/stamp-version.js --history       print every version since the baseline, as JSON
  *   options: --ref <commit> (default HEAD; with --pr, the main to count: origin/main), --repo <dir>, --pr-number <n>,
  *            --github-output (also write game, build and date to $GITHUB_OUTPUT)
+ *            --local (Brief 032, L3): stamping outside a GitHub workflow is refused without it, so a Code session can't
+ *            stamp and then commit the number by accident; --print and --history write nothing and need no --local
+ *
+ * The stamp also writes `briefs`, the version each merged brief got since the baseline ({ "031": "v3.20.01", … },
+ * Brief 032, M10), counted on main (for --pr, main's tip, not the merge-base). The board reads it so a replay link
+ * labelled "<main>+NNN" from a build's own lab run counts as the version brief NNN got once it has merged. --set leaves
+ * it null (the lab's jobs play games; they never compare labels).
  *
  * Needs the history from the baseline commit on. The script fetches it itself (blobless) when the clone is shallow or
  * lacks main, and stops with an error when it still can't reach the baseline (amendment 7, H5): a missed stamp is never
@@ -77,8 +84,8 @@ function count(base, commits, read) {
     const briefs = c.added.map(briefOfFile).filter(Boolean).sort().filter((b) => !seen.has(b));
     let changed = false;
     for (const b of briefs) {
-      seen.add(b);   // each releases file counts once, even if re-added after a revert
-      const rel = read(`releases/${b}.json`);
+      seen.add(b);   // each releases file counts once, even if re-added after a revert (Brief 032, L2: a revert of a revert can't bump twice)
+      const rel = read(`releases/${b}.json`, c.sha);
       const bad = problems(rel, `releases/${b}.json`);
       if (bad.length) throw new Error(bad.join("; "));
       game = bump(game, rel.bump);
@@ -128,12 +135,21 @@ function commitsSince(repo, base, ref) {
   return commits;
 }
 
-/** Read releases files from a working copy, or from a commit (`git show`) when `at` is given. */
+/** Read releases files from a working copy, or from a commit (`git show`) when `at` is given. A file that is gone there
+    (a revert merged despite the check, Brief 032, L2) is read from the commit that added it, so the count never stops. */
 function reader(repo, at) {
-  return (f) => {
-    const text = at ? git(repo, ["show", `${at}:${f}`]) : fs.readFileSync(path.join(repo, f), "utf8");
+  return (f, addedIn) => {
+    let text;
+    try { text = at ? git(repo, ["show", `${at}:${f}`]) : fs.readFileSync(path.join(repo, f), "utf8"); }
+    catch (e) { if (!addedIn) throw e; text = git(repo, ["show", `${addedIn}:${f}`]); }
     return JSON.parse(text);
   };
+}
+/** { "031": "v3.20.01", "031-2": "v3.20.02", … }: the version each brief (or follow-up) got, from a count's history. */
+function briefMap(history) {
+  const out = {};
+  for (const h of history || []) if (h.brief) out[h.brief] = h.game;
+  return out;
 }
 function readBase(repo, at) {
   const text = at ? git(repo, ["show", `${at}:releases/BASE.json`]) : fs.readFileSync(path.join(repo, "releases", "BASE.json"), "utf8");
@@ -175,14 +191,16 @@ function prLabel(repo, main, head, prNumber) {
 /** "<main's version>+NNN" (a pull request's honest, unchanging label). */
 function label(mainGame, brief, prNumber) { return `${mainGame}+${brief || (prNumber ? `pr${prNumber}` : "dev")}`; }
 
-/** Write game, build and date into board/version.js (working copy only). */
+/** Write game, build and date (and `briefs`, when version.js has the field) into board/version.js (working copy only). */
 function stamp(repo, v) {
   const f = path.join(repo, "board", "version.js");
   const src = fs.readFileSync(f, "utf8");
   const re = /game:\s*(null|"[^"]*"),\s*build:\s*(null|\d+),\s*date:\s*(null|"[^"]*")/;
   if (!re.test(src)) throw new Error("board/version.js: could not find `game: …, build: …, date: …`");
   const q = (x) => (x === null || x === undefined ? "null" : JSON.stringify(x));
-  fs.writeFileSync(f, src.replace(re, `game: ${q(v.game)}, build: ${v.build === null ? "null" : v.build}, date: ${q(v.date)}`));
+  let out = src.replace(re, `game: ${q(v.game)}, build: ${v.build === null || v.build === undefined ? "null" : v.build}, date: ${q(v.date)}`);
+  out = out.replace(/briefs:\s*(null|\{[^}]*\})/, `briefs: ${v.briefs && Object.keys(v.briefs).length ? JSON.stringify(v.briefs) : "null"}`);
+  fs.writeFileSync(f, out);
 }
 
 /** The ref for main: origin/main, fetched (blobless) if the clone doesn't have it. */
@@ -192,13 +210,18 @@ function mainRef(repo) {
   return "origin/main";
 }
 
-module.exports = { parse, format, bump, count, countAt, commitsSince, problems, label, stamp, prBrief, prLabel, mainRef, briefOfFile, briefNumber, isFollowUp, ensureHistory, isAncestor, readBase, BUMPS };
+module.exports = { briefMap, reader, parse, format, bump, count, countAt, commitsSince, problems, label, stamp, prBrief, prLabel, mainRef, briefOfFile, briefNumber, isFollowUp, ensureHistory, isAncestor, readBase, BUMPS };
 
 if (require.main === module) {
   const args = process.argv.slice(2), opt = {};
   for (let i = 0; i < args.length; i++) if (args[i].startsWith("--")) opt[args[i].slice(2)] = args[i + 1] && !args[i + 1].startsWith("--") ? args[++i] : true;
   const repo = path.resolve(opt.repo || path.join(__dirname, ".."));
   const t0 = Date.now();
+  const writes = !opt.print && !opt.history;
+  if (writes && process.env.GITHUB_ACTIONS !== "true" && !opt.local) {
+    console.error("Not stamped: outside a GitHub workflow the stamp needs --local (node tools/stamp-version.js --local). Never commit board/version.js after stamping.");
+    process.exit(1);
+  }
   try {
     let v;
     if (typeof opt.set === "string") {
@@ -206,14 +229,16 @@ if (require.main === module) {
     } else if (opt.pr) {
       const main = typeof opt.ref === "string" ? opt.ref : mainRef(repo);
       v = prLabel(repo, main, "HEAD", opt["pr-number"]);
+      try { v.briefs = briefMap(countAt(repo, main, main).history); } catch (e) { v.briefs = null; }   // what main's merged briefs got
     } else {
       const c = countAt(repo, typeof opt.ref === "string" ? opt.ref : "HEAD");
       if (opt.history) { console.log(JSON.stringify(c.history, null, 1)); process.exit(0); }
-      v = { game: c.game, build: c.build, date: c.date, commit: c.commit };
+      v = { game: c.game, build: c.build, date: c.date, commit: c.commit, briefs: briefMap(c.history) };
     }
     if (opt["github-output"] && process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, `game=${v.game}\nbuild=${v.build === null ? "null" : v.build}\ndate=${v.date || "null"}\n`);
     if (!opt.print) stamp(repo, v);
     console.log(`${opt.print ? "Counted" : "Stamped"} ${v.game}${v.build ? ` · Build ${v.build}` : ""} (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
+    if (writes && process.env.GITHUB_ACTIONS !== "true") console.log("Reminder: don't commit board/version.js (put it back with `git checkout board/version.js` before you commit).");
     if (opt.print) console.log(JSON.stringify(v));
   } catch (e) {
     console.error(`Could not count the version: ${e.message}`);

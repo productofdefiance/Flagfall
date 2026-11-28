@@ -42,8 +42,10 @@ The `play-links` workflow publishes these to the `gh-pages` branch. GitHub Pages
 First stamp the version into your working copy (Brief 031; it is never committed, so put `board/version.js` back with `git checkout board/version.js` before you commit):
 
 ```
-node tools/stamp-version.js
+node tools/stamp-version.js --local
 ```
+
+Outside a GitHub workflow the stamp refuses to run without `--local` (Brief 032), so a session can't stamp and commit the number by accident.
 
 Every test declares how it runs in its `// @test` line; `node tools/run-tests.js --level quick` runs them all (add `--job rules` for one group, `--list` to see them). Or one at a time, from the `board/` folder, with Node.js:
 
