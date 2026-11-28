@@ -1,0 +1,42 @@
+{
+ "id": "release-v3-20-01",
+ "kind": "release",
+ "brief": null,
+ "question": "v3.20.01's final exam: how do games end with the default brain (Brain 8 (safe approach)) against itself, newest rule set v3.10, 1,000 games per format?",
+ "tags": [
+  "release",
+  "brain8",
+  "v3.10"
+ ],
+ "measures": [
+  "play",
+  "evade",
+  "light",
+  "clock"
+ ],
+ "matchups": [
+  {
+   "name": "5v5",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.10",
+   "format": "blitz5",
+   "mix": "mixed",
+   "games": 1000
+  },
+  {
+   "name": "7v7",
+   "a": "brain8",
+   "b": "brain8",
+   "rules": "v3.10",
+   "format": "std7",
+   "mix": "mixed",
+   "games": 1000
+  }
+ ],
+ "extra": {
+  "previous_version": null,
+  "game_key": "75ed27b3a256f0eb",
+  "why": "v3.20.01 has no release run yet"
+ }
+}
