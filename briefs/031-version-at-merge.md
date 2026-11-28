@@ -139,52 +139,75 @@ The standard items, plus: the two-order merge outputs; the clicks for the requir
 ---
 
 ## Report
-*Filled in by Claude Code.*
+*Filled in by Claude Code. Rebuilt on 28 Nov against the Amendments.*
 
-- **What's in:** every section, 1 to 9.
-  - `board/version.js` holds `game: null, build: null, date: null`. An unstamped board shows `dev`.
-  - `tools/stamp-version.js` is the one counting script (a command and a module). Publishing (`play-links`), the lab (every job), night checks, the `checks` rules job, the status board and the tests all use it. On a pull request it stamps `<main>+NNN` with build `null`.
-  - `releases/BASE.json` (v3.20.00 · Build 25, commit `6b2c7fd`, plus the list of briefs merged the old way so `waits-on` counts them as merged), `releases/031.json` (ZZ), `changelog/031.md`. `CHANGELOG.md` has its top line. `tools/changelog.js` builds `changelog.html`/`changelog.md` with the version table for the live site.
-  - `tools/check-release.js` replaces `.github/check-build-number.sh` (all section 4 rules, plus `changelog/NNN.md` must be added).
-  - `tools/waits-on.js` and `.github/workflows/waits-on.yml`: sets a commit status `waits-on` on the pull request, and again on every open pull request at each push to `main`.
-  - Release run: `sims/lab/release_files.js` (game/screen files, a hash comparison for any other board file). `plan.js --release-base`. A screen-only version on main gets one `same games as` line (`sims/lab/same.js`, `results/same.csv`). The quick list is built from `board/tests/test_*.js` (`sims/lab/release_tests.js`, replaces `release_quick.txt`). The quick job installs a headless browser for the four browser checks. Release hashes use `all` (every preset, the newest included).
-  - `checks`: a `changes` job. Docs-only pull requests skip the game jobs and `checks` still reports. For a screen-only build the replay hashes must match its base (1 game per preset and brain with `all`).
-  - Status board: on main = counted. Building = `029 → YY · would be v3.21.00 if merged next`, plus `waits on 028`. Needs sync = conflict only. Merged rows show the counted number.
-  - `CLAUDE.md`, `briefs/TEMPLATE.md`, `README.md`, `results/README.md` rewritten for the new rule.
+- **What's in:** sections 1 to 9 as amended, item by item.
+  - **B1:** `releases/BASE.json` lists 001 to 029 except 012. Its baseline is `main` at the last sync (`94acfcb`, v3.20.00 · Build 25). `waits-on`, the build-time guard and the status board all count those briefs as merged.
+  - **L7:** the version check fails a `BASE.json` whose commit isn't on `main`, or whose `version.js` there reads a different number.
+  - **B2:** the release decision is a game key: a hash of the six game files, `board/tests/rng.js` and `play.js`, `order.js`, `plan.js`.
+    - A pull request is judged from its whole content against its merge-base, on every run. It is skipped only when a finished run with that key was posted on it (the lab's comment carries `release-key`).
+    - On `main`, each lab run lists the versions with neither a release run nor a `same games as` line. It writes the lines, plays the oldest missing run at its own commit, and starts itself again if more are left.
+  - **H1:** `checks` runs one generated test list (5 groups), with no step and no `R:` entry per test. A build's branch never gets `results/INDEX.md` or `index.csv` (`deliver.sh`), and the version check fails a build pull request that changes them. CLAUDE.md says real code overlaps still need a sync.
+  - **H2:** a preview's label counts to the merge-base (`<version>+NNN`).
+  - **H3:** the lab's plan job moves to the commit it plays, stamps once and passes the version to every later job. A publish of `main` skips itself once it is no longer the newest commit.
+  - **H4:** `DEFAULT_OPPONENT` lives in `brain.js`; `app.js` and `plan.js` read it. `plan.js` stops if it's missing. A `releases/` file naming rules or a brain always gets a release run.
+  - **H5:** the stamp fetches the history it needs and stops if it can't reach the baseline. `merge.js`, `play.js`, `nightly.js` and `plan.js` refuse an unstamped board.
+  - **M1 to M4:**
+    - The releases file is the identity, and the title must agree.
+    - Every pull request that isn't only results, job orders, briefs, flags or `.md` files adds a releases file.
+    - The `Waits on` row is strict, with "no such brief" and named loops.
+    - One copy-of-the-brief rule (the pull request's own copy, else `brief/NNN-*`, else `main`), used by `waits-on`, the build-time guard (`node tools/waits-on.js --brief NNN`) and the status board.
+    - One script posts the status on every open pull request: on pull request events, on each push to `main` and hourly.
+  - **M5 (ruled no) and A2:** a brief counts only once it is in the branch ("028 merged: sync once to test on it"). A brief merged the old way counts once the branch has `BASE.json`.
+  - **M6:** a failing `checks` run on `main` opens a "Main broken" issue and closes it when `main` passes again. The status board shows `main broken since <brief>`.
+  - **M7:** `main` is republished when `releases/` or `changelog/` changes.
+  - **M8:** 031 writes no number.
+  - **M9 and A7:** each test's `// @test` line gives its group, its quick, release and night counts, `browser` and `args=`. `tools/run-tests.js` builds the one list for `checks`, the release run and night checks. It covers `board/tests/`, `sims/lab/`, `sims/status/`, `tools/`, `.github/invariants-check.js` and `regress_engine.js`. A run fails if fewer tests ran than the list holds, or if a test file has no line. Night checks lost their hand list.
+  - **F031-1:** follow-ups use `releases/NNN-2.json`, counted once, with the bump not compared with the brief; titles read `NNN-2`.
+  - **A9:** "Build brief" brings in `main` first, then checks `Waits on`.
+  - **A10:** a branch older than the baseline keeps its own typed number as its label.
 - **Anything beyond the brief, and why:**
-  - The check also fails a brief pull request (title `NNN …`) with no releases file, even with no board change. Otherwise a tooling brief could forget it and `waits-on` would never go green for briefs waiting on it.
-  - `BASE.json` lists the 28 briefs merged the old way. Without it, `waits-on` would fail this very pull request ("Waits on 029") and every brief waiting on an old one.
-  - `waits-on` is a commit status, not a job name. Only a status can be set again from `main` without re-running the pull request's workflow (re-runs are capped).
-- **Checks run and results:** every check in `README.md` passed in this session (stamped board): the 33 `board/tests/test_*.js` (test_v32 at 40, invariants at 30, browser checks included), the lab and status tests, `tools/test_tools.js`, the red-team invariants (30) and `board_check.js` (10 games). `test_stall.js` failed once (it guessed an unstamped run's folder name); fixed, and it now passes stamped and unstamped. These were session runs; GitHub's `checks` must still pass.
-  - **Two merges in both orders** (scratch copy of this repository with 031 merged; pretend 090 = YY, `app.js` only; 091 = ZZ, `data.js`):
-    ```
-    check 090: OK: releases/090.json (bump YY) matches brief 090; board/ changed.
-    check 091: OK: releases/091.json (bump ZZ) matches brief 091; board/ changed.
-    Order A then B:
-      090: merged, no conflict · v3.21.00 · Build 27 · no release run (screen files only: board/app.js)
-      091: merged, no conflict · v3.21.01 · Build 28 · release run planned (game files changed: board/data.js)
-    Order B then A:
-      091: merged, no conflict · v3.20.02 · Build 27 · release run planned (game files changed: board/data.js)
-      090: merged, no conflict · v3.21.00 · Build 28 · no release run (screen files only: board/app.js)
-    ```
-  - **waits-on** (scratch copy): `before 091 merges: WAIT: Waits on 091: not merged yet`, then `after 091 merges (092 untouched): OK: Waits on 091: all merged`. On GitHub, the status on this pull request reads "Waits on 029: all merged". A live fail-then-green needs a second open pull request, so it has not been shown on GitHub yet.
-  - **Baseline:** the stamp at `main`'s commit gives v3.20.00 · Build 25, the same as `main`'s `version.js`. With 031 merged it counts v3.20.01 · Build 26.
-  - **Regression hashes:** this build changes no game file (only `app.js`'s version line and `version.js`), so every rule set's hash is unchanged (engine, bot, brain, data, fields and watch are byte-identical to `main`). The `checks` compare job prints them. Because this build counts as screen-only, the hashes must match there.
-- **Stamping time added per workflow:** counting itself takes under 0.1 s. The cost is the blobless full-history checkout (`fetch-depth: 0, filter: blob:none`), a few seconds on this repository. Not measured on GitHub yet; I'll add it from the first runs.
-- **Release runs the last ten merged versioned briefs would have skipped:** 3 of 10 (029 Rematch, 025 Phone fit, 025's v3.14.01 follow-up), so 6,000 games. On top of that come the renumber re-runs (022/018, 026/028, 028/029), about 3 × 2,000 more. 026 and 018 were "UI" builds that still touched `engine.js`, so they keep their release runs.
+  - When several versions on `main` miss their release run, the lab plays one per run and then starts itself again (`gh workflow run lab.yml`). Playing several commits in one run would need a separate set of play jobs per commit; one per run keeps the jobs simple and drops nothing.
+  - `waits-on` is a commit status, not a job name: a status can be set again from `main` without re-running the pull request's workflow.
+  - The `checks` groups are now `tests (rules)`, `(slow)`, `(brains)`, `(invariants)` and `(board)`. The tests and their counts are the same as before. `test_page.js`, which no workflow ran, is now in.
+- **Checks run and results:** (session run, filled in below)
+- **Two merges in both orders** (scratch copy of this repository with 031 merged). 090 is a YY screen-only change that adds a test file; 091 is a ZZ `data.js` change that carries its own lab result:
+  ```
+  090 release decision: no release run - screen files only: board/app.js
+  091 release decision: release run - the game key changed (board/data.js)
+  Order A then B: 090 merged, no conflict · v3.21.00 · Build 27; 091 merged, no conflict · v3.21.01 · Build 28
+  Order B then A: 091 merged, no conflict · v3.20.02 · Build 27; 090 merged, no conflict · v3.21.00 · Build 28
+  results/INDEX.md and index.csv changed by either merge: 0 · the new test is in the generated list: yes
+  main's backlog to the end, A then B: v3.20.01 played; v3.21.00 same as v3.20.01; v3.21.01 played
+  main's backlog to the end, B then A: v3.20.01 played; v3.20.02 played; v3.21.00 same as v3.20.02
+  ```
+  (v3.20.01 is 031 itself: it changes the lab's play scripts, so it gets its own release run.)
+- **The amendment's added checks** (`tools/test_tools.js`, real scratch git histories):
+  - A game-file push followed by a test-only push still needs its release run, and is skipped only when a finished run with that key exists.
+  - Three merges in a row (game, screen, game) end "v3.21.00 played (more left: the lab starts again); v3.21.01 same as v3.21.00; v3.21.02 played".
+  - `waits-on` fails five malformed rows, "Waits on 099: no such brief" and "Waits on a loop: 050 → 051 → 052 → 050".
+  - An `NNN-2` case is in the counting test (`test_version.js`).
+  - One deliberately failing test turns the runner red, and a test with no `@test` line fails the run.
+- **waits-on on GitHub:** shown only in scratch copies so far. A live fail-then-sync-then-green needs a second open build pull request.
+- **Baseline:** the stamp at `94acfcb` gives v3.20.00 · Build 25, the same as `main`'s `version.js` (the check runs on every pull request). With 031 merged it counts v3.20.01 · Build 26.
+- **Stamping time per workflow:** counting takes under 0.1 s. The red team measured a blobless clone of this repository at 0.8 s. Each workflow's checkout grows by that much. Not measured on GitHub yet.
+- **Release runs the last ten merged versioned briefs would have skipped:** 3 of 10 (029, 025 and its v3.14.01 follow-up), so 6,000 games. The renumber re-runs (022/018, 026/028, 028/029) also go, about 6,000 more. 026 and 018 touched `engine.js`, so they keep theirs.
 - **Old version path with no place in the new one:**
   - The Ready title's `vX.YY.ZZ`.
-  - Being "behind main" as a reason to sync.
+  - "Behind main" as a reason to sync.
   - `test_version.js`'s typed-in number.
   - The release trigger on `version.js` changing.
-  - Night checks keep `plan.js --release <file>`, which now compares against the stamped version.
+  - The pull request trigger "only if this push changed it".
+  - `release_quick.txt` and every per-test step in `checks.yml` and `night-checks.yml`.
 - **Bot minimum:** n/a.
 - **Known gaps:**
-  - F031-1 (a follow-up fix to a merged brief has no path).
-  - The `waits-on` status only appears in Settings' list once it has run.
-  - The status board script runs from `main`, so its new lines show after the merge.
-  - Release hashes with `all` take roughly 15 minutes a board here.
-- **Flags closed / opened:** closes F029-2. Opens F031-1 (ASK).
+  - The `waits-on` status only appears in Settings after it has run once on every open pull request. Tick it after that.
+  - The status board runs `main`'s script, so its new lines appear after the merge.
+  - Release hashes with `all` take about 15 minutes a board here.
+  - Moved to brief 032: M10, L2, L3, L4, L6.
+- **Flags closed / opened:** closes F029-2 and F031-1. No new flags.
 - **Branch:** `claude/serene-lamport-aitl71`, started from `brief/031-version-at-merge`.
-- **Required check clicks for the Editor:** Settings → Rules → Rulesets → the rule for `main` → Require status checks to pass → Add checks → type `waits-on` → select it → Save changes.
-- **Pull request:** (below)
+- **Clicks for the Editor, after the merge:**
+  1. When every open pull request shows `waits-on`: Settings → Rules → Rulesets → the rule for `main` → Require status checks to pass → Add checks → `waits-on` → Save changes.
+  2. L1: Settings → General → Pull Requests → untick "Allow rebase merging". Then in the rule for `main` (as in step 1), tick "Block force pushes".
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/73
