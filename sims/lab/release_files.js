@@ -56,7 +56,7 @@ function boardAt(root, commit) {
 }
 /** The releases file a range adds, parsed (null if none). */
 function releaseAdded(root, from, to) {
-  const SV = require(path.join(root, "tools", "stamp-version.js"));
+  const SV = require(path.resolve(root, "tools", "stamp-version.js"));
   const id = SV.prBrief(root, from, to);
   if (!id) return null;
   try { return Object.assign({ id }, JSON.parse(git(root, ["show", `${to}:releases/${id}.json`]))); } catch (e) { return null; }
@@ -97,7 +97,7 @@ function filed(root, results) {
 /** main's backlog: versions since the baseline with neither a filed release run nor a same line, oldest first.
     Returns { same: [{ version, sha, to }], play: { version, build, date, sha, key } | null, more: bool }. */
 function backlog(root, results, ref) {
-  const SV = require(path.join(root, "tools", "stamp-version.js"));
+  const SV = require(path.resolve(root, "tools", "stamp-version.js"));
   const c = SV.countAt(root, ref || "HEAD");
   const f = filed(root, results);
   const versions = [], seenV = new Set();
