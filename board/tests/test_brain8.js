@@ -46,7 +46,8 @@ const B8A = variant({ safe: 1, respect: 1 });   // the positions for A1 and A2 s
   // Brief 031 (H4): the default opponent lives in brain.js; the app and the lab's release run both read it from there.
   const BRm = require("../brain.js");
   ok(BRm.DEFAULT_OPPONENT === "brain8", `a new match's computer opponent is Brain 8 (found ${BRm.DEFAULT_OPPONENT})`);
-  ok(/brainId: BR\.DEFAULT_OPPONENT/.test(app), "the app's new-match set-up reads brain.js's DEFAULT_OPPONENT");
+  // Brief 030: a bot side's brain is "default" until one is chosen, and "default" resolves to DEFAULT_OPPONENT.
+  ok(/brainId: BR\.DEFAULT_OPPONENT/.test(app) || /brainId === "default"[^\n]*\? BR\.DEFAULT_OPPONENT/.test(app), "the app's new-match set-up reads brain.js's DEFAULT_OPPONENT");
   ok(!/brainId = "brain5"/.test(app), "a missing saved brain falls back to Brain 8, not Brain 5");
 }
 
