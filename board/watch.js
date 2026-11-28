@@ -10,6 +10,7 @@
   const Bot = node ? require("./bot.js") : root.GGBot;
   const D = node ? require("./data.js") : root.GGData;
   const BR = node ? require("./brain.js") : root.GGBrain;
+  const SQ = node ? require("./squad.js") : root.GGSquad;   // Brief 030: squad rules and the squad checks
 
   /** The board's formats (app.js uses this list). */
   const FORMATS = [
@@ -58,6 +59,17 @@
     return balancedCounts(rs, size);
   }
 
+  /** Brief 030 §6: the bot's own lineup inside a squad rule. Open, Light only, Heavy only and Random are today's mixes
+      (Open, light, heavy, random); Foot only is Open with foot units only; Cavalry only is mounted units in turn with
+      one foot unit. Any other id (an old mix: mixed) is the old mix. A bot lineup always fills its cap where the cards'
+      UC allow, and is legal under the rule (SQ.legalise never changes a legal one). */
+  function squadCounts(rs, size, rule, seed, team, brain) {
+    if (rule === "cavalry") return SQ.cavalryCounts(rs, size, brain);
+    if (!SQ.isRule(rule)) return mixCounts(rs, size, rule, seed, team, brain);
+    const pick = mixCounts(rs, size, rule === "foot" ? "open" : rule, seed, team, brain);
+    return SQ.legalise(rs, size, pick, rule);
+  }
+
   /** The board's random stream for a match: draw n is always the same number for the same seed (app.js rand()). */
   function matchRand(m) {
     return function rand() {
@@ -87,12 +99,13 @@
   }
   const brainProblem = (spec) => { try { brainFromSpec(spec); return null; } catch (e) { return e.message; } };
   const rulesById = (id) => (D.PRESETS || []).concat([D.DEFAULT_RULESET]).find((p) => p && p.id === id) || null;
-  /** What a watch link needs: { v, rules, format, n, s, mixN, mixS, first, seed }. Missing parts take the defaults. */
+  /** What a watch link needs: { v, rules, format, n, s, mixN, mixS, first, seed, squad }. Missing parts take the
+      defaults; a link without a squad rule is Open (Brief 030), so every older link plays as before. */
   function normalise(spec) {
     return {
       v: spec.v || null, rules: spec.rules, format: spec.format || "std7",
       n: spec.n, s: spec.s, mixN: spec.mixN || "open", mixS: spec.mixS || "open",
-      first: spec.first || "coin", seed: String(spec.seed || "").toUpperCase()
+      first: spec.first || "coin", seed: String(spec.seed || "").toUpperCase(), squad: spec.squad || "open"
     };
   }
   /** Why this board can't play a spec exactly, in plain words; null if it can. `version` is this board's game version. */
@@ -106,6 +119,8 @@
       else if (brainProblem(id)) out.push(`${side}'s brain: ${brainProblem(id)}.`);
     }
     if (!FORMATS.some((f) => f.id === s.format && !f.soon)) out.push(`Format ${s.format} is not playable on this board.`);
+    if (!SQ.isRule(s.squad)) out.push(`Squad rule ${s.squad} is not on this board.`);
+    else if (s.squad === "cavalry" && !SQ.cavalryFormat(formatOf(s.format).size)) out.push("Cavalry only needs 9v9 or 13v13.");
     return out.length ? out.join(" ") : null;
   }
   /** The match record the board makes for a Computer vs Computer match (app.js startMatch), before deployment: the same
@@ -117,10 +132,12 @@
     for (const t of ["N", "S"]) {
       const b = brainFromSpec(t === "N" ? s.n : s.s).brain;   // the built-in brain, with the link's setting changes (Brief 019)
       players[t] = { type: "bot", brainId: b.id }; brains[t] = b; names[t] = t === "N" ? "North" : "South";
-      lineups[t] = toLineup(rs, mixCounts(rs, fm.size, t === "N" ? s.mixN : s.mixS, s.seed, t, b));
+      // Brief 030: under a squad rule other than Open both bots pick inside it; Open keeps each side's mix as before.
+      lineups[t] = toLineup(rs, s.squad !== "open" ? squadCounts(rs, fm.size, s.squad, s.seed, t, b) : mixCounts(rs, fm.size, t === "N" ? s.mixN : s.mixS, s.seed, t, b));
     }
-    const m = Object.assign({ id: "w" + s.seed, started: null, rs: E.clone(rs),
-      opts: { first: "N", players, names, lineups, seed: s.seed, format: fm.id, coin: s.first === "coin" }, brains, actions: [], draws: 0, watch: s }, extra || {});
+    const opts = { first: "N", players, names, lineups, seed: s.seed, format: fm.id, coin: s.first === "coin" };
+    if (s.squad !== "open") opts.squadRule = s.squad;
+    const m = Object.assign({ id: "w" + s.seed, started: null, rs: E.clone(rs), opts, brains, actions: [], draws: 0, watch: s }, extra || {});
     m.opts.first = s.first === "coin" ? (matchRand(m)() < 0.5 ? "N" : "S") : s.first;
     return m;
   }
@@ -169,16 +186,16 @@
     return h.toString(16).padStart(8, "0") + ":" + actions.length;
   }
 
-  /** The watch link's query: ?watch=<seed>&v=&rules=&format=&n=&s=&mixn=&mixs=&first= */
+  /** The watch link's query: ?watch=<seed>&v=&rules=&format=&n=&s=&mixn=&mixs=&first=&squad= (squad only when not Open) */
   function toQuery(spec) {
     const s = normalise(spec);
-    const q = [["watch", s.seed], ["v", s.v], ["rules", s.rules], ["format", s.format], ["n", s.n], ["s", s.s], ["mixn", s.mixN], ["mixs", s.mixS], ["first", s.first]];
+    const q = [["watch", s.seed], ["v", s.v], ["rules", s.rules], ["format", s.format], ["n", s.n], ["s", s.s], ["mixn", s.mixN], ["mixs", s.mixS], ["first", s.first], ["squad", s.squad === "open" ? null : s.squad]];
     return "?" + q.filter(([, v]) => v !== null && v !== undefined && v !== "").map(([k, v]) => k + "=" + encodeURIComponent(v)).join("&");
   }
   function fromQuery(search) {
     const p = {}; String(search || "").replace(/^\?/, "").split("&").filter(Boolean).forEach((kv) => { const i = kv.indexOf("="); p[decodeURIComponent(i < 0 ? kv : kv.slice(0, i))] = i < 0 ? "" : decodeURIComponent(kv.slice(i + 1).replace(/\+/g, " ")); });
     if (!p.watch) return null;
-    return normalise({ seed: p.watch, v: p.v, rules: p.rules, format: p.format, n: p.n, s: p.s, mixN: p.mixn, mixS: p.mixs, first: p.first });
+    return normalise({ seed: p.watch, v: p.v, rules: p.rules, format: p.format, n: p.n, s: p.s, mixN: p.mixn, mixS: p.mixs, first: p.first, squad: p.squad });
   }
   /** A board seed dealt from a simulator's random stream (tests/rng.js): the same form as the board's own seeds. */
   function seedFrom(rnd) {
@@ -187,6 +204,6 @@
     return out;
   }
 
-  const api = { FORMATS, formatOf, balancedCounts, toLineup, mixCounts, matchRand, setupMatch, deployBots, playOut, actionsHash, toQuery, fromQuery, seedFrom, problem, rulesById, brainFromSpec };
+  const api = { FORMATS, formatOf, balancedCounts, toLineup, mixCounts, squadCounts, matchRand, setupMatch, deployBots, playOut, actionsHash, toQuery, fromQuery, seedFrom, problem, rulesById, brainFromSpec };
   if (node) module.exports = api; else root.GGWatch = api;
 })(this);
