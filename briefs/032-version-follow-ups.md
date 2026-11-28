@@ -74,13 +74,27 @@ The standard items, plus the replay link you checked by hand and the scratch his
 - **Anything beyond the brief, and why:** the `resolve`/`differs` helpers sit in `version.js` rather than inside `app.js` so the merged/unmerged rule has a Node test; the count reading a deleted releases file from its own commit (otherwise one bad revert merged by mistake would stop every stamp on main); the `briefs` check in `check-release.js` (a stamped map committed by accident would otherwise slip through). No game file changed.
 - **The scratch history's numbers** (baseline v3.20.00 · Build 25): 031 merge commit ZZ → v3.20.01 · 26; 050 merge commit YY → v3.21.00 · 27; 051 squash ZZ → v3.21.01 · 28; docs-only commit → unchanged; 050-2 follow-up ZZ → v3.21.02 · 29; 052 X → v4.00.00 · 30; GitHub-style revert of 052 (deletes the file) → v4.00.00 · 31; revert of that revert (file back) → v4.00.00 · 32, not v5.00.00; 053 ZZ → v4.00.01 · 33; 053's revert done right (053-2, ZZ) → v4.00.02 · 34. Each brief listed once in the history; stamp CLI refuses without `--local`, stamps and reminds with it, stamps silently inside a workflow.
 - **Checks run and results (paste regression hashes):**
-  QUICKRESULTS
+  - Ran in this session, stamped `v3.20.01+032`: `test_version.js` (41 checks), `test_watch.js`, `test_ui.js`, `tools/test_tools.js`, `tools/test_count_git.js`, `sims/lab/test_workflows.js`, `sims/lab/self_test.js`, `sims/status/test_board.js`, `sims/status/test_page.js`: all pass. The board job (`test_hotseat`, `test_phone`, `test_rematch`, `test_spflow`, `board_check.js` 10 games, 0 different): 5 of 5 pass. `check-release.js` against main with this title: OK.
+  - Skipped here: the full quick run was stopped at the session's 30-minute limit, still in the slow simulations (`test_v32.js`, invariants). This build changes no rule or bot file, so per CLAUDE.md those are left to GitHub's checks.
   - Pretend revert pull request: fails with the new line; pretend revert keeping `031.json` and adding `031-2.json`: passes (`tools/test_tools.js`).
   - Counting on main's real history, before and after: identical (`[{ 031 = v3.20.01 · Build 26 }]`, main v3.20.01 · Build 26).
-  - Regression: no game file changed (`engine.js`, `bot.js`, `brain.js`, `data.js`, `fields.js`, `watch.js`, `tests/rng.js` byte-identical to the board before this build), so the game key is unchanged and no release run is due. REGRESS
+  - Regression: no game file changed (`engine.js`, `bot.js`, `brain.js`, `data.js`, `fields.js`, `watch.js`, `tests/rng.js` byte-identical to the board before this build), so the game key is unchanged and no release run is due. `regress_engine.js <board> 3`, before and after, printed identical hashes (session run):
+    match3       37397ef2bd3ed86b
+    v1           7b25bca651c0cb31
+    v2           ddbe5fc437ff4e9d
+    v3           26371927b53d4413
+    v3.1         c71e4cd12fc984b0
+    v3.2         f62a061d2c147d83
+    v3.3         e6151bf463d6c9f8
+    v3.4         ee6ce003ac760250
+    v3.5         fca989aecfaf21c9
+    v3.6         a6bf327b54f7d5a1
+    v3.7         dd3c27d9dc9aafbb
+    v3.8         022a298c49a02540
+    v3.9         b3c2d4464b363ba0
 - **Bot minimum (met / not met, with numbers):** n/a
 - **The replay link to check by hand:** no lab row labelled `+NNN` exists yet (031 only just merged; F032-1). Once this pull request merges, and before anything else that changes `board/` merges, open https://productofdefiance.github.io/Flagfall/?watch=K7QX2M&v=v3.20.01%2B032&rules=v3.10&format=std7&n=brain8&s=brain8&first=N (what a lab row from this build's own run looks like): it should play with no "different version" warning. The same link with `%2B033` should warn.
 - **Known gaps:** a merged build's row is quiet only while the board is on the version that build got; the next versioned merge makes it warn again (F032-1). Rows made before a pull request added its releases file carry `+prNN`, not `+NNN`, and keep warning after the merge. Lab jobs stamped with `--set` carry no brief map (they never compare labels).
 - **Flags closed / opened:** none closed. Opened F032-1 (ASK).
 - **Branch:** `claude/build-brief-032-c437jw`.
-- **Pull request:** PRLINK
+- **Pull request:** https://github.com/productofdefiance/Flagfall/pull/78
