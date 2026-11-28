@@ -1,4 +1,4 @@
-STATUS · updated 27 Nov 2026, 3:31 pm ET
+STATUS · updated 27 Nov 2026, 9:09 pm ET
 
 VERSION
   On main: v3.20.00 · Build 25 · Rules v3.10 · Brain 8
@@ -12,7 +12,6 @@ RESULTS (last 24 hours)
   release v3.20.00 · 5v5 25.9% · 7v7 15.4% on the turn limit · 27 Nov
   release v3.18.00 · 5v5 43.6% · 7v7 14.3% on the turn limit · 27 Nov
   nightly v3.20.00 · 5v5 15.0% · 7v7 15.0% on the turn limit · 27 Nov
-  nightly v3.17.00 · 5v5 70.0% · 7v7 15.0% on the turn limit · 26 Nov
 
 FLAGS (open, newest first)
   ! F031-1 · ASK · 27 Nov · A follow-up fix to a brief that has already merged has no path. Every pull request that…
@@ -43,7 +42,7 @@ BUILDS
 
 CHATS
   Open
-    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov
+    FF UI v3.17.00 - · review of brief 026, specials flow (pull request #59) · opened 24 Nov stale?
     FF Roadmap v3.19.00 - · roadmap for the run-up to Cavalry (012) and the stretch after it · opened 27 Nov
     FF UI v3.19.00 - Attack UI · attack UI design (every attack, foot specials and Cavalry) and its brief · opened 27 Nov
   Closed (last 5)
